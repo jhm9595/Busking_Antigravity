@@ -149,7 +149,7 @@ export async function addPerformance(data: {
     try {
         console.log('Adding performance:', data)
 
-        const performanceData: Prisma.PerformanceUncheckedCreateInput = {
+        const performanceData = {
             singerId: data.singerId,
             title: data.title,
             locationText: data.locationText,
@@ -160,7 +160,6 @@ export async function addPerformance(data: {
             chatEnabled: data.chatEnabled,
             streamingEnabled: data.streamingEnabled || false,
             chatCostPerHour: Number(data.chatCost) || 0,
-            // @ts-ignore: Prisma type definition mismatch for expectedAudience
             expectedAudience: data.expectedAudience || 0,
             status: 'scheduled',
             performanceSongs: {
@@ -204,7 +203,7 @@ export async function updatePerformance(data: {
         if (data.chatCost !== undefined) updateData.chatCostPerHour = Number(data.chatCost)
         delete updateData.chatCost // mapped to chatCostPerHour
 
-        await prisma.performance.update({
+        await prisma.performance.updateMany({
             where: { id: data.id, singerId: data.singerId },
             data: updateData
         })

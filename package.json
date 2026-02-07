@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "sh -c 'lsof -ti:3000,4000 | xargs kill -9 2>/dev/null || true' && prisma generate && concurrently \"next dev --webpack\" \"cd chat-server && npm run dev\" --names \"NEXT,CHAT\" --prefix-colors \"blue,magenta\"",
+    "dev": "npx prisma generate && concurrently \"next dev --webpack\" \"cd chat-server && npm run dev\" --names \"NEXT,CHAT\" --prefix-colors \"blue,magenta\"",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
