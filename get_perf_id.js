@@ -1,0 +1,1 @@
+const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); async function main() { const p = await prisma.performance.findFirst(); console.log(p ? p.id : 'NO_PERFORMANCE'); } main();

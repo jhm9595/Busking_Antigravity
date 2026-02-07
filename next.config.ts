@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
+// Force restart
+
+
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    domains: ['images.unsplash.com']
+  }
 };
 
 export default nextConfig;

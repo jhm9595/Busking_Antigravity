@@ -1,0 +1,143 @@
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Profile {
+  id        String   @id // Clerk User ID
+  email     String?
+  role      String   @default("audience")
+  nickname  String?
+  avatarUrl String?  @map("avatar_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  singer    Singer?
+
+  @@map("profiles")
+}
+
+model Singer {
+  id            String   @id // Same as Profile ID (Clerk ID)
+  stageName     String   @map("stage_name")
+  teamId        String?  @map("team_id")
+  qrCodePattern String?  @map("qr_code_pattern")
+  socialLinks   String?  @map("social_links") // JSON string
+  bio           String?  // Self-introduction
+  hairColor     String?  @map("hair_color")
+  topColor      String?  @map("top_color")
+  bottomColor   String?  @map("bottom_color")
+  isVerified    Boolean  @default(false) @map("is_verified")
+  fanCount      Int      @default(0) @map("fan_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  profile       Profile  @relation(fields: [id], references: [id])
+  songs         Song[]
+  performances  Performance[]
+  bookingRequests BookingRequest[]
+  follows       Follow[]
+
+  @@map("singers")
+}
+
+model Song {
+  id         String   @id @default(uuid())
+  singerId   String   @map("singer_id")
+  title      String
+  artist     String
+  youtubeUrl String?  @map("youtube_url")
+  tags       String?  // JSON string
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  singer     Singer   @relation(fields: [singerId], references: [id])
+  performanceSongs PerformanceSong[]
+
+  @@map("songs")
+}
+
+model Performance {
+  id              String    @id @default(uuid())
+  singerId        String    @map("singer_id")
+  title           String
+  locationText    String    @map("location_text")
+  locationLat     Float?    @map("location_lat")
+  locationLng     Float?    @map("location_lng")
+  startTime       DateTime  @map("start_time")
+  endTime         DateTime? @map("end_time")
+  description     String?
+  chatEnabled     Boolean   @default(false) @map("chat_enabled")
+  streamingEnabled Boolean  @default(false) @map("streaming_enabled")
+  chatCostPerHour Int       @default(0) @map("chat_cost_per_hour")
+  expectedAudience Int      @default(0) @map("expected_audience")
+  status          String    @default("scheduled") // scheduled, live, ended, cancelled
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  singer          Singer    @relation(fields: [singerId], references: [id])
+  performanceSongs PerformanceSong[]
+  songRequests    SongRequest[]
+
+  @@map("performances")
+}
+
+model PerformanceSong {
+  performanceId String @map("performance_id")
+  songId        String @map("song_id")
+  order         Int    @default(0)
+
+  performance   Performance @relation(fields: [performanceId], references: [id], onDelete: Cascade)
+  song          Song        @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@id([performanceId, songId])
+  @@map("performance_songs")
+}
+
+model SongRequest {
+  id            String   @id @default(uuid())
+  performanceId String   @map("performance_id")
+  title         String
+  artist        String
+  status        String   @default("pending") // pending, accepted, rejected, completed
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  performance   Performance @relation(fields: [performanceId], references: [id], onDelete: Cascade)
+
+  @@map("song_requests")
+}
+
+model BookingRequest {
+  id            String   @id @default(uuid())
+  singerId      String   @map("singer_id")
+  requesterName String   @map("requester_name")
+  contactInfo   String   @map("contact_info") // SNS ID, Phone, etc.
+  eventType     String   @map("event_type") // 'wedding', 'event', 'performance', 'other'
+  eventDate     DateTime? @map("event_date")
+  location      String?
+  budget        String?
+  message       String?
+  status        String   @default("pending") // pending, contacted, rejected
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  singer        Singer   @relation(fields: [singerId], references: [id])
+
+  @@map("booking_requests")
+}
+
+model Follow {
+  id        String   @id @default(uuid())
+  singerId  String   @map("singer_id")
+  fanId     String   @map("fan_id") // Clerk ID or Device ID
+  createdAt DateTime @default(now()) @map("created_at")
+
+  singer    Singer   @relation(fields: [singerId], references: [id], onDelete: Cascade)
+
+  @@unique([singerId, fanId])
+  @@map("follows")
+}

@@ -1,0 +1,42 @@
+.tabs {
+    display: flex;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 1rem;
+}
+
+.tab {
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+}
+
+.tab:hover {
+    color: #374151;
+}
+
+.activeTab {
+    color: #4f46e5;
+    border-bottom-color: #4f46e5;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 2.5rem;
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+    border: 1px dashed #d1d5db;
+}
+
+.emptyText {
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+}
+
+.emptySub {
+    font-size: 0.875rem;
+    color: #9ca3af;
+}

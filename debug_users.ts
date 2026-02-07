@@ -1,0 +1,1 @@
+import { PrismaClient } from '@prisma/client'; const prisma = new PrismaClient(); async function main() { const singers = await prisma.singer.findMany({ include: { performances: true } }); console.log(JSON.stringify(singers, null, 2)); } main();

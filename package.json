@@ -3,23 +3,41 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "sh -c 'lsof -ti:3000,4000 | xargs kill -9 2>/dev/null || true' && prisma generate && concurrently \"next dev --webpack\" \"cd chat-server && npm run dev\" --names \"NEXT,CHAT\" --prefix-colors \"blue,magenta\"",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.36.8",
+    "@prisma/client": "^5.22.0",
+    "@react-google-maps/api": "^2.20.8",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.90.1",
+    "@types/leaflet": "^1.9.21",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.25.0",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.562.0",
     "next": "16.1.1",
+    "qrcode.react": "^4.2.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "react-icons": "^5.5.0",
+    "react-leaflet": "^5.0.0",
+    "socket.io-client": "^4.8.3",
+    "tailwind-merge": "^3.4.0",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^9.2.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
+    "prisma": "^5.22.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

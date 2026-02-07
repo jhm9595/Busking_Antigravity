@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: busking_local
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  busking-chat:
+    build: ./chat-server
+    container_name: busking-chat-server
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./chat-server:/app
+      - /app/node_modules
+    restart: always
+
+volumes:
+  postgres_data:
+
+

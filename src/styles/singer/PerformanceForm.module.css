@@ -1,0 +1,247 @@
+.form {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid #f3f4f6;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.gridContainer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    max-width: 100%;
+}
+
+@media (min-width: 1024px) {
+    .gridContainer {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    display: block;
+}
+
+.input {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: white;
+    color: #111827;
+    outline: none;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    height: 3rem;
+    /* Explicit height for consistency */
+}
+
+.input:focus {
+    background-color: white;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.locationLabelRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* margin-bottom removed to align with Title field which uses fieldGroup gap */
+}
+
+.locationCoords {
+    font-size: 0.7rem;
+    color: #10b981;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    background-color: #ecfdf5;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.25rem;
+}
+
+.locationInputRow {
+    display: flex;
+    gap: 0.5rem;
+    max-width: 100%;
+    position: relative;
+    align-items: center;
+}
+
+/* Map Button as an integrated action */
+.mapButton {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    width: 3rem;
+    height: 3rem;
+    /* Matches input height roughly if padding varies, usually needs calc or flex stretch */
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    border: 1px solid #e5e7eb;
+}
+
+.mapButton:hover {
+    background-color: #e0e7ff;
+    color: #4f46e5;
+    border-color: #c7d2fe;
+}
+
+.mapWrapper {
+    grid-column: span 1;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+@media (min-width: 768px) {
+    .mapWrapper {
+        grid-column: span 2;
+    }
+}
+
+.mapHelpText {
+    font-size: 0.75rem;
+    color: #6b7280;
+    padding: 0.75rem;
+    background-color: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    grid-column: span 1;
+    transition: all 0.2s;
+}
+
+.checkboxLabel:hover {
+    border-color: #6366f1;
+    background-color: #eff6ff;
+}
+
+@media (min-width: 768px) {
+    .checkboxLabel {
+        grid-column: span 2;
+    }
+}
+
+.checkbox {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 0.25rem;
+    color: #4f46e5;
+    border: 2px solid #d1d5db;
+}
+
+.checkbox:focus {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.checkboxText {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.95rem;
+}
+
+.chatCostSection {
+    padding: 1rem;
+    background-color: #f5f3ff;
+    /* lighter indigo/violet */
+    border: 1px solid #ddd6fe;
+    border-radius: 0.5rem;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.chatCostLabel {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #5b21b6;
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.chatCostInput {
+    padding: 0.75rem;
+    border: 1px solid #c4b5fd;
+    border-radius: 0.5rem;
+    width: 100%;
+    color: #4c1d95;
+    background-color: white;
+    font-weight: 500;
+}
+
+.chatCostInput:focus {
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+    outline: none;
+}
+
+.chatCostHelp {
+    font-size: 0.75rem;
+    color: #6d28d9;
+    margin-top: 0.5rem;
+}
+
+.submitButton {
+    width: 100%;
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    color: white;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+    transition: all 0.2s;
+    transform: translateY(0);
+    border: none;
+    cursor: pointer;
+}
+
+.submitButton:hover {
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.submitButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.flexInput {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+}

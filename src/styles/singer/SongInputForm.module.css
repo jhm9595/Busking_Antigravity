@@ -1,0 +1,85 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid #f3f4f6;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Row for Title and Artist */
+.mainRow {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .mainRow {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Row for URL and Button */
+.bottomRow {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: white;
+    color: #111827;
+    outline: none;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    height: 3rem;
+}
+
+.input:focus {
+    background-color: white;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.urlInput {
+    flex: 1;
+}
+
+.button {
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    color: white;
+    border-radius: 0.5rem;
+    width: 3rem;
+    height: 3rem;
+    /* Matches input height roughly (~46px) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+    border: none;
+    cursor: pointer;
+}
+
+.button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);
+    filter: brightness(1.1);
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    background: #e5e7eb;
+    color: #9ca3af;
+}
