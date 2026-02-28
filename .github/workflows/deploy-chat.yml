@@ -1,0 +1,61 @@
+name: Build and Deploy Chat Server to Google Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'chat-server/**' # Only trigger when chat server files change
+
+env:
+  PROJECT_ID: your-google-cloud-project-id # Replace
+  REGION: asia-northeast3
+  SERVICE_NAME: busking-chat-server
+  GAR_LOCATION: asia-northeast3
+  REPOSITORY: busking-images
+  REDIS_URL: your-upstash-redis-url # Replace with hosted Redis URL
+
+jobs:
+  deploy-chat:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Google Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: 'Docker auth'
+        run: |-
+          gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
+          
+      - name: Build Chat Server Image
+        working-directory: ./chat-server
+        run: |-
+          docker build -t ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }} .
+          
+      - name: Push Chat Server Image
+        working-directory: ./chat-server
+        run: |-
+          docker push ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+
+      - name: Deploy Chat Server to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE_NAME }}
+          region: ${{ env.REGION }}
+          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+          env_vars: |
+            REDIS_URL=${{ secrets.REDIS_URL }}
+          flags: '--allow-unauthenticated --port=4000 --concurrency=80 --cpu=1 --memory=512Mi'
