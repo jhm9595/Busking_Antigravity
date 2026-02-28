@@ -159,7 +159,8 @@ export const ko: LocaleTypes = {
                 pending: '대기 중',
                 accepted: '수락됨',
                 rejected: '거절됨',
-            }
+            },
+            accepted_alert: '🎤 [신청곡 수락] 관객이 신청한 "{title}"{artist} 곡이 수락되었습니다!',
         },
         modal: {
             title: '공연곡 추가',

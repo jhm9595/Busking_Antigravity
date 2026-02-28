@@ -157,7 +157,8 @@ export const en = {
                 pending: 'Pending',
                 accepted: 'Accepted',
                 rejected: 'Rejected',
-            }
+            },
+            accepted_alert: '🎤 [Song Request Accepted] "{title}"{artist} has been accepted!',
         },
         modal: {
             title: 'Add Song to Live',

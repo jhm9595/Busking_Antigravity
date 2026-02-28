@@ -16,6 +16,7 @@ export const ja: LocaleTypes = {
         live_badge: 'ライブ',
         bio_label: '自己紹介',
         bio_placeholder: '自己紹介を書いてください...',
+        home_button: 'ホームへ',
     },
     home: {
         title: 'BuskerKing',
@@ -53,6 +54,11 @@ export const ja: LocaleTypes = {
             map_help: '地図をクリックして正確な位置をピン留めしてください。',
             map_show: '地図を表示',
             map_hide: '地図を隠す',
+            map_search_placeholder: '検索...',
+            map_search_button: '検索',
+            map_searching: '検索中...',
+            map_no_results: '結果が見つかりません',
+            map_select: '選択',
             alert_times: '開始時間と終了時間の両方を選択してください。',
             alert_order: '終了時間は開始時間より後である必要があります。',
             success: '公演が正常に登録されました！',
@@ -153,7 +159,8 @@ export const ja: LocaleTypes = {
                 pending: '待機中',
                 accepted: '承認済み',
                 rejected: '拒否済み',
-            }
+            },
+            accepted_alert: '🎤 [リクエスト承認] 観客のリクエスト曲「{title}」{artist}が承認されました！',
         },
         modal: {
             title: '曲を追加',
@@ -213,6 +220,12 @@ export const ja: LocaleTypes = {
         title: 'ライブチャット',
         placeholder: 'メッセージ...',
         send: '送信',
+        closed_placeholder: 'チャットはまだ開いていません。',
+        open_button: 'チャットを開く',
+        not_ready: 'まだ開けません',
+        closed_title: 'チャットは閉じられています',
+        closed_desc: '観客とコミュニケーションする準備はできましたか？\n公演開始10分前からチャットを開くことができます。',
+        closed_alert: '公演開始10分前から有効になります。',
     },
     song_request: {
         title: '曲をリクエスト',

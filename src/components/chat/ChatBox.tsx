@@ -35,7 +35,7 @@ interface ChatBoxProps {
 
 import { useLanguage } from '@/contexts/LanguageContext'
 
-export default function ChatBox({ performanceId, username, userType, avatarConfig, onRequestSong, onSocketReady, onAcceptRequest, onRejectRequest, className = '' }: ChatBoxProps) {
+export default function ChatBox({ performanceId, username, userType, avatarConfig, onRequestSong, onSocketReady, onAcceptRequest, onRejectRequest, onChatStatusChange, className = '' }: ChatBoxProps) {
     const { t } = useLanguage()
     const [messages, setMessages] = useState<Message[]>([])
     const [currentMessage, setCurrentMessage] = useState('')
@@ -55,8 +55,6 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
 
         newSocket.emit('join_room', { performanceId, username, userType })
 
-        newSocket.emit('join_room', { performanceId, username, userType })
-
         newSocket.on('load_history', (history: Message[]) => {
             setMessages(history)
             setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
@@ -64,7 +62,7 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
 
         newSocket.on('chat_status', (data: { status: 'open' | 'closed' }) => {
             setChatStatus(data.status)
-            if (arguments[0].onChatStatusChange) arguments[0].onChatStatusChange(data.status)
+            if (onChatStatusChange) onChatStatusChange(data.status)
         })
 
         newSocket.on('receive_message', (data: Message) => {

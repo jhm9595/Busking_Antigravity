@@ -16,6 +16,7 @@ export const zh: LocaleTypes = {
         live_badge: '直播',
         bio_label: '简介',
         bio_placeholder: '写一些关于你自己的介绍...',
+        home_button: '回主页',
     },
     home: {
         title: 'BuskerKing',
@@ -53,6 +54,11 @@ export const zh: LocaleTypes = {
             map_help: '请在地图上点击以标记准确位置。',
             map_show: '显示地图',
             map_hide: '隐藏地图',
+            map_search_placeholder: '搜索...',
+            map_search_button: '搜索',
+            map_searching: '搜索中...',
+            map_no_results: '未找到结果',
+            map_select: '选择',
             alert_times: '请选择开始和结束时间。',
             alert_order: '结束时间必须晚于开始时间。',
             success: '演出注册成功！',
@@ -153,7 +159,8 @@ export const zh: LocaleTypes = {
                 pending: '待处理',
                 accepted: '已接受',
                 rejected: '已拒绝',
-            }
+            },
+            accepted_alert: '🎤 [接受点歌] 观众点播的歌曲 "{title}"{artist} 已被接受！',
         },
         modal: {
             title: '添加歌曲到直播',
@@ -213,6 +220,12 @@ export const zh: LocaleTypes = {
         title: '实时聊天',
         placeholder: '输入消息...',
         send: '发送',
+        closed_placeholder: '聊天尚未开启。',
+        open_button: '开启聊天',
+        not_ready: '还未准备好',
+        closed_title: '聊天已关闭',
+        closed_desc: '准备好与观众交流了吗？\n您可以在演出开始前 10 分钟开启聊天。',
+        closed_alert: '将在演出开始前 10 分钟启用。',
     },
     song_request: {
         title: '点歌',

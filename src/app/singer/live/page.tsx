@@ -124,7 +124,17 @@ function LivePerformanceContent() {
 
     // --- Request Handlers ---
     const handleAcceptRequest = async (reqId: string) => {
+        const req = requests.find(r => r.id === reqId)
         await acceptSongRequest(reqId, performance.singerId)
+
+        if (req && activeSocket) {
+            // Also emit request specific format or general system alert
+            activeSocket.emit('system_alert', {
+                performanceId: performance.id,
+                message: `🎤 [신청곡 수락] 관객이 신청한 '${req.title}'${req.artist ? ` - ${req.artist}` : ''} 곡이 수락되었습니다!`
+            })
+        }
+
         await refreshData()
     }
 
@@ -243,7 +253,7 @@ function LivePerformanceContent() {
             </div>
 
             {/* Quick Stats / Tabs */}
-            <div className="grid grid-cols-3 bg-gray-900 border-b border-gray-800">
+            <div className={`grid ${performance.chatEnabled ? 'grid-cols-3' : 'grid-cols-2'} bg-gray-900 border-b border-gray-800`}>
                 <button
                     onClick={() => setActiveTab('setlist')}
                     className={`p-3 text-center transition ${activeTab === 'setlist' ? 'bg-gray-800 text-indigo-400 border-b-2 border-indigo-500' : 'text-gray-500 hover:text-gray-300'}`}
@@ -269,7 +279,7 @@ function LivePerformanceContent() {
                     >
                         <div className="flex items-center justify-center space-x-2">
                             <MessageSquare className="w-5 h-5" />
-                            <span className="font-bold ml-1">Chat</span>
+                            <span className="font-bold ml-1">{t('chat.title')}</span>
                         </div>
                     </button>
                 )}
