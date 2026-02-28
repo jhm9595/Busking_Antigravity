@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { List, Map as MapIcon, LogOut } from 'lucide-react'
-import { useClerk } from '@clerk/nextjs'
+import { useClerk, useUser } from '@clerk/nextjs'
 
 // Dynamically import Map to avoid SSR issues with Leaflet
 const BuskingMap = dynamic(() => import('@/components/audience/BuskingMap'), {
@@ -36,13 +36,14 @@ interface Singer {
 export default function ExplorePage() {
     const router = useRouter()
     const { signOut } = useClerk()
+    const { user } = useUser()
     const [viewMode, setViewMode] = useState<'map' | 'grid'>('map')
     const [performances, setPerformances] = useState<Performance[]>([])
     const [showFollowingModal, setShowFollowingModal] = useState(false)
     const [followedSingers, setFollowedSingers] = useState<Singer[]>([])
 
     const fetchFollowing = async () => {
-        const fanId = localStorage.getItem('busking_fan_id')
+        const fanId = user?.id || localStorage.getItem('busking_fan_id')
         if (!fanId) return
         try {
             const res = await fetch(`/api/fans/${fanId}/following`)
@@ -59,7 +60,7 @@ export default function ExplorePage() {
     useEffect(() => {
         async function fetchPerformances() {
             try {
-                const fanId = localStorage.getItem('busking_fan_id')
+                const fanId = user?.id || localStorage.getItem('busking_fan_id')
                 const res = await fetch(`/api/performances${fanId ? `?fanId=${fanId}` : ''}`)
                 if (res.ok) {
                     const data = await res.json()
@@ -70,7 +71,7 @@ export default function ExplorePage() {
             }
         }
         fetchPerformances()
-    }, [])
+    }, [user])
 
     const handleLogout = async () => {
         await signOut()
@@ -80,7 +81,7 @@ export default function ExplorePage() {
 
     return (
         <div className="h-screen flex flex-col bg-white text-black">
-            <header className="flex justify-between items-center p-4 border-b bg-white z-10 shadow-sm">
+            <header className="flex justify-between items-center p-4 pl-20 border-b bg-white z-10 shadow-sm">
                 <h1 className="text-2xl font-bold text-indigo-700">Explore Busking</h1>
                 <div className="flex space-x-2">
                     <div className="flex bg-gray-100 rounded-lg p-1 mr-2">
@@ -115,7 +116,7 @@ export default function ExplorePage() {
             <main className="flex-1 relative overflow-hidden">
                 {viewMode === 'map' ? (
                     <div className="h-full w-full">
-                        <BuskingMap performances={performances} />
+                        <BuskingMap performances={performances} isLoggedIn={!!user} />
                     </div>
                 ) : (
                     <div className="h-full overflow-y-auto p-4 max-w-4xl mx-auto">

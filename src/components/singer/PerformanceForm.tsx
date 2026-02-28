@@ -76,8 +76,13 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
         )
     }
 
-    const handleLocationSelect = useCallback((lat: number, lng: number) => {
-        setNewPerf(prev => ({ ...prev, lat, lng }))
+    const handleLocationSelect = useCallback((lat: number, lng: number, address?: string) => {
+        setNewPerf(prev => ({
+            ...prev,
+            lat,
+            lng,
+            location_text: address ? address : prev.location_text
+        }))
     }, [])
 
     const handleSubmit = async (e: React.FormEvent) => {

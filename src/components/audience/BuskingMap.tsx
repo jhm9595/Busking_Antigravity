@@ -46,10 +46,12 @@ interface Performance {
     singerId: string
     startTime: string
     status: string
+    isFollowed?: boolean
 }
 
 interface MapProps {
     performances: Performance[]
+    isLoggedIn: boolean
 }
 
 // Sub-component to handle map movement
@@ -63,7 +65,7 @@ const MapController = ({ center, zoom }: { center: [number, number] | null, zoom
     return null
 }
 
-export default function BuskingMap({ performances }: MapProps) {
+export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
     const router = useRouter()
     const [isMounted, setIsMounted] = useState(false)
     const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
@@ -71,6 +73,7 @@ export default function BuskingMap({ performances }: MapProps) {
     const [zoom, setZoom] = useState(13)
     const [radius, setRadius] = useState<number>(0) // 0 means "All" (no filter)
     const [filterMode, setFilterMode] = useState<'all' | 'live' | 'scheduled'>('all')
+    const [showFollowedOnly, setShowFollowedOnly] = useState(false)
 
     useEffect(() => {
         setIsMounted(true)
@@ -118,6 +121,9 @@ export default function BuskingMap({ performances }: MapProps) {
         // Status Filter
         if (filterMode === 'live' && perf.status !== 'live') return false
         if (filterMode === 'scheduled' && perf.status !== 'scheduled') return false
+
+        // Followed Only Filter
+        if (showFollowedOnly && !perf.isFollowed) return false
 
         // Location Filter
         if (!perf.locationLat || !perf.locationLng) return false
@@ -235,6 +241,22 @@ export default function BuskingMap({ performances }: MapProps) {
                             </button>
                         ))}
                     </div>
+
+                    {/* Followed Only Toggle (Only if logged in) */}
+                    {isLoggedIn && (
+                        <div className="flex items-center justify-between bg-gray-50 p-2 rounded-lg border border-gray-100">
+                            <span className="text-xs font-bold text-gray-700">Followed Only</span>
+                            <button
+                                onClick={() => setShowFollowedOnly(!showFollowedOnly)}
+                                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 ${showFollowedOnly ? 'bg-indigo-600' : 'bg-gray-200'}`}
+                            >
+                                <span
+                                    aria-hidden="true"
+                                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${showFollowedOnly ? 'translate-x-4' : 'translate-x-0'}`}
+                                />
+                            </button>
+                        </div>
+                    )}
 
                     {/* Radius Slider (Only if location is set) */}
                     {userLocation ? (

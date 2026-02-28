@@ -52,7 +52,10 @@ function LivePerformanceContent() {
     const [searchQuery, setSearchQuery] = useState('')
     const [manualSongTitle, setManualSongTitle] = useState('')
     const [manualSongArtist, setManualSongArtist] = useState('')
-
+    const [chatStatus, setChatStatus] = useState<'open' | 'closed'>('closed')
+    const [activeSocket, setActiveSocket] = useState<any>(null)
+    const [isAlertSent, setIsAlertSent] = useState(false)
+    const [canOpenChat, setCanOpenChat] = useState(false)
 
     // Load Data
     const refreshData = useCallback(async () => {
@@ -79,11 +82,32 @@ function LivePerformanceContent() {
         refreshData().finally(() => setLoading(false))
     }, [performanceId, router, refreshData])
 
-    // Timer
+    // Timer & Status check
     useEffect(() => {
-        const timer = setInterval(() => setElapsedTime(p => p + 1), 1000)
+        const timer = setInterval(() => {
+            setElapsedTime(p => p + 1)
+
+            if (performance) {
+                const timeToStart = new Date(performance.startTime).getTime() - Date.now()
+                if (timeToStart <= 10 * 60 * 1000 || performance.status === 'live') {
+                    setCanOpenChat(true)
+                }
+
+                if (performance.endTime && !isAlertSent && activeSocket && chatStatus === 'open') {
+                    const timeToEnd = new Date(performance.endTime).getTime() - Date.now()
+                    // If within 5 mins before end, and > 0
+                    if (timeToEnd > 0 && timeToEnd <= 5 * 60 * 1000) {
+                        activeSocket.emit('system_alert', {
+                            performanceId: performance.id,
+                            message: "공연 종료까지 5분 남았습니다! 관객들과 인사를 나누고 마지막 곡을 준비해보세요."
+                        })
+                        setIsAlertSent(true)
+                    }
+                }
+            }
+        }, 1000)
         return () => clearInterval(timer)
-    }, [])
+    }, [performance, isAlertSent, activeSocket, chatStatus])
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60)
@@ -194,7 +218,7 @@ function LivePerformanceContent() {
     return (
         <div className="min-h-screen bg-black text-white flex flex-col font-sans">
             {/* Header */}
-            <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900 sticky top-0 z-20 shadow-xl">
+            <div className="p-4 pl-20 border-b border-gray-800 flex justify-between items-center bg-gray-900 sticky top-0 z-20 shadow-xl">
                 <div>
                     <h1 className="text-xl font-bold text-white max-w-[200px] truncate">{performance.title}</h1>
                     <p className="text-sm text-gray-400">{performance.locationText}</p>
@@ -380,17 +404,36 @@ function LivePerformanceContent() {
 
                 {/* CHAT TAB */}
                 {activeTab === 'chat' && performance.chatEnabled && (
-                    <div className="h-full pb-20">
+                    <div className="h-full pb-20 relative">
+                        {chatStatus === 'closed' && (
+                            <div className="absolute inset-x-0 inset-y-0 z-10 bg-gray-900/95 flex flex-col items-center justify-center rounded-xl p-6 shadow-2xl">
+                                <MessageSquare className="w-12 h-12 text-gray-600 mb-4" />
+                                <h3 className="text-xl font-bold mb-2 text-white">{t('chat.closed_title')}</h3>
+                                <p className="text-gray-400 mb-6 text-center text-sm">{t('chat.closed_desc').split('\n').map((line: string, i: number) => <React.Fragment key={i}>{line}<br /></React.Fragment>)}</p>
+                                <button
+                                    disabled={!canOpenChat}
+                                    onClick={() => {
+                                        if (activeSocket) activeSocket.emit('open_chat', { performanceId: performance.id })
+                                    }}
+                                    className={`px-6 py-3 rounded-lg font-bold text-white transition-all w-full max-w-xs ${canOpenChat ? 'bg-indigo-600 hover:bg-indigo-500 hover:scale-105 shadow-xl shadow-indigo-900/30' : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}
+                                >
+                                    {canOpenChat ? t('chat.open_button') : t('chat.not_ready')}
+                                </button>
+                                {!canOpenChat && <p className="text-xs text-red-400 mt-4 opacity-75">{t('chat.closed_alert')}</p>}
+                            </div>
+                        )}
                         <ChatBox
                             performanceId={performanceId!}
                             username="Singer"
                             userType="singer"
                             className="h-full"
                             onSocketReady={(socket) => {
+                                setActiveSocket(socket)
                                 socket.on('song_requested', () => {
                                     refreshData()
                                 })
                             }}
+                            onChatStatusChange={(status) => setChatStatus(status)}
                             onAcceptRequest={(title) => {
                                 // Find pending request with this title
                                 const req = requests.find(r => r.title === title && r.status === 'pending')

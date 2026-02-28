@@ -13,6 +13,7 @@ interface Message {
     type: 'singer' | 'audience' | 'system'
     avatarConfig?: AvatarConfig | null
     isRequest?: boolean
+    isAlert?: boolean
     requestData?: {
         title: string
         username: string // requester
@@ -29,6 +30,7 @@ interface ChatBoxProps {
     onSocketReady?: (socket: Socket) => void
     onAcceptRequest?: (title: string) => void
     onRejectRequest?: (title: string) => void
+    onChatStatusChange?: (status: 'open' | 'closed') => void
 }
 
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -42,6 +44,7 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
     // We can use a ref or just rely on useEffect cleanup
 
     const [socket, setSocket] = useState<Socket | null>(null)
+    const [chatStatus, setChatStatus] = useState<'open' | 'closed'>('closed')
 
     useEffect(() => {
         // Connect to Chat Server
@@ -57,6 +60,11 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
         newSocket.on('load_history', (history: Message[]) => {
             setMessages(history)
             setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
+        })
+
+        newSocket.on('chat_status', (data: { status: 'open' | 'closed' }) => {
+            setChatStatus(data.status)
+            if (arguments[0].onChatStatusChange) arguments[0].onChatStatusChange(data.status)
         })
 
         newSocket.on('receive_message', (data: Message) => {
@@ -125,6 +133,17 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
 
                     const isMe = msg.author === username
                     const isSinger = msg.type === 'singer'
+                    const isSystem = msg.type === 'system'
+
+                    if (isSystem && msg.message && !msg.requestData) {
+                        return (
+                            <div key={idx} className="flex flex-col items-center my-2 animate-fade-in group w-full">
+                                <div className={`border rounded-xl p-3 max-w-[90%] text-center shadow-lg ${msg.isAlert ? 'bg-gradient-to-r from-red-900/80 to-red-800/80 border-red-500/50' : 'bg-gradient-to-r from-gray-900/80 to-gray-800/80 border-gray-500/50'}`}>
+                                    <p className="text-white font-bold text-sm mb-1">{msg.message}</p>
+                                </div>
+                            </div>
+                        )
+                    }
 
                     return (
                         <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'} w-full gap-2`}>
@@ -182,13 +201,14 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
                             sendMessage()
                         }
                     }}
-                    placeholder={t('chat.placeholder')}
-                    className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500 transition"
+                    placeholder={chatStatus === 'closed' && userType === 'audience' ? t('chat.closed_placeholder') : t('chat.placeholder')}
+                    disabled={chatStatus === 'closed' && userType === 'audience'}
+                    className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500 transition disabled:opacity-50"
                 />
                 <button
                     onClick={sendMessage}
                     className="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg transition disabled:opacity-50"
-                    disabled={!currentMessage.trim()}
+                    disabled={!currentMessage.trim() || (chatStatus === 'closed' && userType === 'audience')}
                 >
                     <Send className="w-4 h-4" />
                 </button>

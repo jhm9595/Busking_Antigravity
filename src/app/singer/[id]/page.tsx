@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { Music, MapPin, Calendar, MessageCircle, Heart, Share2, Mail } from 'lucide-react'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useUser } from '@clerk/nextjs'
 import BookingRequestModal from '@/components/audience/BookingRequestModal'
 
 // Dynamically import MapPicker
@@ -35,6 +36,7 @@ interface SongData {
 export default function SingerDetailPage() {
     const params = useParams()
     const { t } = useLanguage()
+    const { user, isLoaded } = useUser()
     const [singer, setSinger] = useState<SingerData | null>(null)
     const [songs, setSongs] = useState<SongData[]>([])
     const [loading, setLoading] = useState(true)
@@ -46,6 +48,9 @@ export default function SingerDetailPage() {
         async function fetchData() {
             if (!params.id) return
             const singerId = params.id as string
+
+            // Wait for auth to load
+            if (!isLoaded) return
 
             try {
                 // Fetch Singer and Performance Data
@@ -60,10 +65,15 @@ export default function SingerDetailPage() {
                 }
 
                 // Check Follow Status
-                const storedFanId = localStorage.getItem('busking_fan_id') || `fan_${Math.random().toString(36).substr(2, 9)}`
-                localStorage.setItem('busking_fan_id', storedFanId)
+                // Logic: Use User ID if logged in, otherwise localStorage
+                let fanId = user?.id
+                if (!fanId) {
+                    const storedFanId = localStorage.getItem('busking_fan_id') || `fan_${Math.random().toString(36).substr(2, 9)}`
+                    localStorage.setItem('busking_fan_id', storedFanId)
+                    fanId = storedFanId
+                }
 
-                const followRes = await fetch(`/api/singers/${singerId}/follow?fanId=${storedFanId}`)
+                const followRes = await fetch(`/api/singers/${singerId}/follow?fanId=${fanId}`)
                 if (followRes.ok) {
                     const followData = await followRes.json()
                     setIsFollowed(followData.isFollowed)
@@ -78,7 +88,7 @@ export default function SingerDetailPage() {
             }
         }
         fetchData()
-    }, [params.id])
+    }, [params.id, user, isLoaded])
 
     const handleFollow = async () => {
         if (!singer) return
@@ -90,8 +100,14 @@ export default function SingerDetailPage() {
         setIsFollowed(!isFollowed)
         setSinger({ ...singer, fanCount: isFollowed ? singer.fanCount - 1 : singer.fanCount + 1 })
 
-        const fanId = localStorage.getItem('busking_fan_id')
-        if (!fanId) return
+        // Logic: Use User ID if logged in, otherwise localStorage
+        let fanId = user?.id
+        if (!fanId) {
+            // Should exist from effect, but safety check
+            const storedFanId = localStorage.getItem('busking_fan_id')
+            if (!storedFanId) return // Should not happen
+            fanId = storedFanId
+        }
 
         try {
             const res = await fetch(`/api/singers/${singer.id}/follow`, {
@@ -196,15 +212,24 @@ export default function SingerDetailPage() {
 
                 {/* Action Buttons */}
                 <div className="flex space-x-3 mt-6">
-                    <button
-                        onClick={handleFollow}
-                        className={`flex-1 py-3 rounded-xl font-bold text-lg shadow-lg transition ${isFollowed
-                            ? 'bg-gray-700 text-gray-300'
-                            : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/30'
-                            }`}
-                    >
-                        {isFollowed ? 'Following' : 'Follow'}
-                    </button>
+                    {user ? (
+                        <button
+                            onClick={handleFollow}
+                            className={`flex-1 py-3 rounded-xl font-bold text-lg shadow-lg transition ${isFollowed
+                                ? 'bg-gray-700 text-gray-300'
+                                : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/30'
+                                }`}
+                        >
+                            {isFollowed ? 'Following' : 'Follow'}
+                        </button>
+                    ) : (
+                        <Link
+                            href="/sign-in"
+                            className="flex-1 py-3 rounded-xl font-bold text-lg shadow-lg transition bg-gray-600 hover:bg-gray-500 text-white text-center flex items-center justify-center"
+                        >
+                            Login to Follow
+                        </Link>
+                    )}
                     <button
                         onClick={() => setIsBookingModalOpen(true)}
                         className="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white py-3 rounded-xl font-bold text-lg shadow-lg transition flex items-center justify-center"

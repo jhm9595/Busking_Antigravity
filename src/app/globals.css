@@ -10,6 +10,11 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  /* Stitch Theme Extensions */
+  --color-primary: #895af6;
+  --color-background-light: #f6f5f8;
+  --color-background-dark: #151022;
+  --font-display: "Spline Sans", sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
