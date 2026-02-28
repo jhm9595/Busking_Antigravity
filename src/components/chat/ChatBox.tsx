@@ -48,8 +48,9 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
 
     useEffect(() => {
         // Connect to Chat Server
-        // Assuming Docker/Localhost maps port 4000
-        const newSocket = io('http://localhost:4000')
+        // Use environment variable for production, fallback to localhost for development
+        const chatServerUrl = process.env.NEXT_PUBLIC_CHAT_SERVER_URL || 'http://localhost:4000'
+        const newSocket = io(chatServerUrl)
         setSocket(newSocket)
         if (onSocketReady) onSocketReady(newSocket)
 
