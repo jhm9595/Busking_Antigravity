@@ -7,9 +7,9 @@ on:
 
 env:
   PROJECT_ID: your-google-cloud-project-id # TODO: Replace with your actual GCP Project ID
-  REGION: asia-northeast3 # Seoul region, change if needed
+  REGION: us-central1 # FREE TIER Region (Iowa) - Do not use asia-northeast3 if you want to avoid charges
   SERVICE_NAME: busking-app # Name of your Cloud Run service
-  GAR_LOCATION: asia-northeast3 # Artifact Registry region
+  GAR_LOCATION: us-central1 # Artifact Registry region
   REPOSITORY: busking-images # Artifact Registry repository name
 
 jobs:

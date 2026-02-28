@@ -9,9 +9,9 @@ on:
 
 env:
   PROJECT_ID: your-google-cloud-project-id # Replace
-  REGION: asia-northeast3
+  REGION: us-central1 # FREE TIER Region (Iowa)
   SERVICE_NAME: busking-chat-server
-  GAR_LOCATION: asia-northeast3
+  GAR_LOCATION: us-central1 # Artifact Registry region
   REPOSITORY: busking-images
   REDIS_URL: your-upstash-redis-url # Replace with hosted Redis URL
 
