@@ -289,27 +289,28 @@ export default function SingerDetailPage() {
                                                 Enter Live
                                             </Link>
 
-                                            {/* End Button - Ideally should check if user is the singer, but adding for UX request */}
-                                            <button
-                                                onClick={async () => {
-                                                    if (confirm(t('live.header.confirm_end'))) {
-                                                        try {
-                                                            await fetch('/api/performances/status', {
-                                                                method: 'PUT',
-                                                                headers: { 'Content-Type': 'application/json' },
-                                                                body: JSON.stringify({ id: perf.id, status: 'completed' })
-                                                            })
-                                                            window.location.reload()
-                                                        } catch (e) {
-                                                            console.error(e)
-                                                            alert('Error ending performance')
+                                            {user?.id === singer.id && (
+                                                <button
+                                                    onClick={async () => {
+                                                        if (confirm(t('live.header.confirm_end'))) {
+                                                            try {
+                                                                await fetch('/api/performances/status', {
+                                                                    method: 'PUT',
+                                                                    headers: { 'Content-Type': 'application/json' },
+                                                                    body: JSON.stringify({ id: perf.id, status: 'completed' })
+                                                                })
+                                                                window.location.reload()
+                                                            } catch (e) {
+                                                                console.error(e)
+                                                                alert('Error ending performance')
+                                                            }
                                                         }
-                                                    }
-                                                }}
-                                                className="px-4 bg-gray-800 border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg font-bold text-xs"
-                                            >
-                                                End
-                                            </button>
+                                                    }}
+                                                    className="px-4 bg-gray-800 border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg font-bold text-xs"
+                                                >
+                                                    End
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
