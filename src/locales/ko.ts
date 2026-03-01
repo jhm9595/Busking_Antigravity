@@ -185,7 +185,8 @@ export const ko: LocaleTypes = {
         up_next: '다음 예매 곡',
         coming_soon: '곧 시작',
         viewing_count: '{count}명 시청 중',
-        view_profile: '프로필 보기'
+        view_profile: '프로필 보기',
+        ending_soon: '공연 종료까지 5분 남았습니다! 관객들과 인사를 나누고 마지막 곡을 준비해보세요.'
     },
     avatar: {
         title: '라이브 참여하기',

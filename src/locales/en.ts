@@ -183,7 +183,8 @@ export const en = {
         up_next: 'Up Next',
         coming_soon: 'Coming Soon',
         viewing_count: '{count} Viewing',
-        view_profile: 'View Profile'
+        view_profile: 'View Profile',
+        ending_soon: '5 minutes left until performance ends! Say hi to your audience and prepare your last song.'
     },
     avatar: {
         title: 'Join Live',

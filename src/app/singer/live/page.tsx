@@ -146,7 +146,7 @@ function LivePerformanceContent() {
                     if (timeToEnd > 0 && timeToEnd <= 5 * 60 * 1000) {
                         activeSocket.emit('system_alert', {
                             performanceId: performance.id,
-                            message: "공연 종료까지 5분 남았습니다! 관객들과 인사를 나누고 마지막 곡을 준비해보세요."
+                            message: t('live.ending_soon')
                         })
                         setIsAlertSent(true)
                     }
@@ -180,7 +180,7 @@ function LivePerformanceContent() {
             if (req && activeSocket) {
                 activeSocket.emit('system_alert', {
                     performanceId: performance.id,
-                    message: `🎤 [신청곡 수락] 관객이 신청한 '${req.title}'${req.artist ? ` - ${req.artist}` : ''} 곡이 수락되었습니다!`
+                    message: t('live.requests.accepted_alert').replace('{title}', req.title).replace('{artist}', req.artist ? ` - ${req.artist}` : '')
                 })
             }
 
