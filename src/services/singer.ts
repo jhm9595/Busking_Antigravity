@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache'
 // --- Profile & Singer Sync ---
 export async function syncUserProfile(user: { id: string, email?: string, fullName?: string | null, imageUrl?: string }) {
     try {
-        // 1. Upsert Profile
+        // 1. Upsert Profile (Default role is 'audience', it shouldn't overwrite if they are already 'singer')
         await prisma.profile.upsert({
             where: { id: user.id },
             update: {
@@ -17,28 +17,45 @@ export async function syncUserProfile(user: { id: string, email?: string, fullNa
             create: {
                 id: user.id,
                 email: user.email,
-                role: 'singer',
+                role: 'audience',
                 nickname: user.fullName,
                 avatarUrl: user.imageUrl,
-            },
-        })
-
-        // 2. Upsert Singer
-        await prisma.singer.upsert({
-            where: { id: user.id },
-            update: {
-                stageName: user.fullName || 'Unknown Singer',
-            },
-            create: {
-                id: user.id,
-                stageName: user.fullName || 'Unknown Singer',
-                isVerified: false,
-                fanCount: 0,
             },
         })
         return { success: true }
     } catch (error) {
         console.error('Sync Error:', error)
+        return { success: false, error }
+    }
+}
+
+export async function registerSinger(user: { id: string, stageName: string }) {
+    try {
+        await prisma.$transaction(async (tx) => {
+            // Update Profile to role: 'singer'
+            await tx.profile.update({
+                where: { id: user.id },
+                data: { role: 'singer' }
+            })
+
+            // Create Singer profile
+            await tx.singer.upsert({
+                where: { id: user.id },
+                update: {
+                    stageName: user.stageName,
+                },
+                create: {
+                    id: user.id,
+                    stageName: user.stageName,
+                    isVerified: false,
+                    fanCount: 0,
+                },
+            })
+        })
+        revalidatePath('/singer/dashboard')
+        return { success: true }
+    } catch (error) {
+        console.error('Register Singer Error:', error)
         return { success: false, error }
     }
 }

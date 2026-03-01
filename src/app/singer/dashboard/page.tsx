@@ -8,7 +8,7 @@ import PerformanceManagement from '@/components/singer/PerformanceManagement'
 import BookingRequestsList from '@/components/singer/BookingRequestsList'
 import SingerQRCard from '@/components/singer/SingerQRCard'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher'
-import { syncUserProfile, getSinger, updateSingerProfile, getPerformances, updatePerformanceStatus } from '@/services/singer'
+import { syncUserProfile, getSinger, registerSinger, updateSingerProfile, getPerformances, updatePerformanceStatus } from '@/services/singer'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ConfirmationModal from '@/components/common/ConfirmationModal'
 import FollowersList from '@/components/singer/FollowersList'
@@ -19,6 +19,7 @@ export default function SingerDashboard() {
     const { user, isLoaded } = useUser()
     const { signOut } = useClerk()
     const [isSyncing, setIsSyncing] = useState(true)
+    const [isSinger, setIsSinger] = useState(false)
     const [singerData, setSingerData] = useState<any>(null)
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { } })
 
@@ -36,29 +37,35 @@ export default function SingerDashboard() {
 
             // Fetch fresh singer data
             const data = await getSinger(user.id)
-            setSingerData(data)
 
-            // Auto-detect live or scheduled-now performances
-            const perfs = await getPerformances(user.id)
-            const activeLive = perfs.find((p: any) => p.status === 'live')
+            if (data) {
+                setSingerData(data)
+                setIsSinger(true)
 
-            if (activeLive) {
-                // Check if we purposefully exited
-                const ignoreCheck = sessionStorage.getItem('ignore_resume_check')
-                if (!ignoreCheck) {
-                    setConfirmModal({
-                        isOpen: true,
-                        title: t('dashboard.alerts.resume_title'),
-                        message: t('dashboard.alerts.resume_message').replace('{title}', activeLive.title),
-                        onConfirm: () => {
-                            router.push(`/singer/live?performanceId=${activeLive.id}`)
-                            setConfirmModal(prev => ({ ...prev, isOpen: false }))
-                        }
-                    })
-                } else {
-                    // Start mode button will still find it, so we just clear flag for next reload
-                    sessionStorage.removeItem('ignore_resume_check')
+                // Auto-detect live or scheduled-now performances
+                const perfs = await getPerformances(user.id)
+                const activeLive = perfs.find((p: any) => p.status === 'live')
+
+                if (activeLive) {
+                    // Check if we purposefully exited
+                    const ignoreCheck = sessionStorage.getItem('ignore_resume_check')
+                    if (!ignoreCheck) {
+                        setConfirmModal({
+                            isOpen: true,
+                            title: t('dashboard.alerts.resume_title'),
+                            message: t('dashboard.alerts.resume_message').replace('{title}', activeLive.title),
+                            onConfirm: () => {
+                                router.push(`/singer/live?performanceId=${activeLive.id}`)
+                                setConfirmModal(prev => ({ ...prev, isOpen: false }))
+                            }
+                        })
+                    } else {
+                        // Start mode button will still find it, so we just clear flag for next reload
+                        sessionStorage.removeItem('ignore_resume_check')
+                    }
                 }
+            } else {
+                setIsSinger(false)
             }
 
             setIsSyncing(false)
@@ -150,6 +157,41 @@ export default function SingerDashboard() {
     }
 
     if (!user) return null
+
+    if (!isSinger) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 text-black">
+                <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center">
+                    <h2 className="text-3xl font-extrabold text-gray-900 mb-4">가수로 등록하시겠습니까?</h2>
+                    <p className="text-gray-600 mb-8">버스킹 가수로 등록하고 나만의 라이브 공연을 시작해보세요!</p>
+
+                    <button
+                        onClick={async () => {
+                            setIsSyncing(true)
+                            await registerSinger({
+                                id: user.id,
+                                stageName: user.fullName || user.username || '멋진 버스커'
+                            })
+                            const data = await getSinger(user.id)
+                            setSingerData(data)
+                            setIsSinger(true)
+                            setIsSyncing(false)
+                        }}
+                        className="w-full py-4 text-lg font-bold rounded-lg text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg transform transition hover:scale-105"
+                    >
+                        가수 프로필 만들기
+                    </button>
+
+                    <button
+                        onClick={() => router.push('/explore')}
+                        className="mt-6 text-gray-500 hover:text-gray-800 underline transition"
+                    >
+                        일단 관객으로 구경할래요
+                    </button>
+                </div>
+            </div>
+        )
+    }
 
     const singerId = user.id
     const qrValue = singerId ? `${origin}/singer/${singerId}` : ''
