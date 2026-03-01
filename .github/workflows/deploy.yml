@@ -6,7 +6,7 @@ on:
       - main # Trigger on push to main
 
 env:
-  PROJECT_ID: your-google-cloud-project-id # TODO: Replace with your actual GCP Project ID
+  PROJECT_ID: busking-488803 # Use actual GCP Project ID
   REGION: us-central1 # FREE TIER Region (Iowa) - Do not use asia-northeast3 if you want to avoid charges
   SERVICE_NAME: busking-app # Name of your Cloud Run service
   GAR_LOCATION: us-central1 # Artifact Registry region

@@ -8,7 +8,7 @@ on:
       - 'chat-server/**' # Only trigger when chat server files change
 
 env:
-  PROJECT_ID: your-google-cloud-project-id # Replace
+  PROJECT_ID: busking-488803 # Use actual GCP Project ID
   REGION: us-central1 # FREE TIER Region (Iowa)
   SERVICE_NAME: busking-chat-server
   GAR_LOCATION: us-central1 # Artifact Registry region
