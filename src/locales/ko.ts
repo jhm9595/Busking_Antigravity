@@ -102,6 +102,10 @@ export const ko: LocaleTypes = {
         logout: '로그아웃',
         start_mode: '공연 모드 시작',
         loading: '대시보드 로딩 중...',
+        onboarding_title: '가수로 등록하시겠습니까?',
+        onboarding_desc: '버스킹 가수로 등록하고 나만의 라이브 공연을 시작해보세요!',
+        onboarding_btn: '가수 프로필 만들기',
+        onboarding_skip: '일단 관객으로 구경할래요',
         qr: {
             title: '내 프로필',
             button: 'QR 코드 보기',

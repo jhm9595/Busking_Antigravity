@@ -162,15 +162,15 @@ export default function SingerDashboard() {
         return (
             <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 text-black">
                 <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center">
-                    <h2 className="text-3xl font-extrabold text-gray-900 mb-4">가수로 등록하시겠습니까?</h2>
-                    <p className="text-gray-600 mb-8">버스킹 가수로 등록하고 나만의 라이브 공연을 시작해보세요!</p>
+                    <h2 className="text-3xl font-extrabold text-gray-900 mb-4">{t('dashboard.onboarding_title')}</h2>
+                    <p className="text-gray-600 mb-8">{t('dashboard.onboarding_desc')}</p>
 
                     <button
                         onClick={async () => {
                             setIsSyncing(true)
                             await registerSinger({
                                 id: user.id,
-                                stageName: user.fullName || user.username || '멋진 버스커'
+                                stageName: user.fullName || user.username || 'Awesome Busker'
                             })
                             const data = await getSinger(user.id)
                             setSingerData(data)
@@ -179,14 +179,14 @@ export default function SingerDashboard() {
                         }}
                         className="w-full py-4 text-lg font-bold rounded-lg text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg transform transition hover:scale-105"
                     >
-                        가수 프로필 만들기
+                        {t('dashboard.onboarding_btn')}
                     </button>
 
                     <button
                         onClick={() => router.push('/explore')}
                         className="mt-6 text-gray-500 hover:text-gray-800 underline transition"
                     >
-                        일단 관객으로 구경할래요
+                        {t('dashboard.onboarding_skip')}
                     </button>
                 </div>
             </div>

@@ -100,6 +100,10 @@ export const en = {
         logout: 'Log Out',
         start_mode: 'Start Performance Mode',
         loading: 'Loading Dashboard...',
+        onboarding_title: 'Register as a Singer?',
+        onboarding_desc: 'Register as a Busker and start your own live performances!',
+        onboarding_btn: 'Create Singer Profile',
+        onboarding_skip: 'Just explore as an Audience',
         qr: {
             title: 'My Profile',
             button: 'Show QR Code',
