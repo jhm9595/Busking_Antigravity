@@ -23,6 +23,7 @@ export const ko: LocaleTypes = {
         subtitle: '거리 공연자와 팬들을 위한 최고의 플랫폼.\n연결하고, 공연하고, 발견되세요.',
         dashboard_button: '대시보드로 이동',
         get_started: '시작하기',
+        start_busking: '나도 버스킹 시작하기',
         explore_button: '버스킹 구경하기',
     },
     performance: {

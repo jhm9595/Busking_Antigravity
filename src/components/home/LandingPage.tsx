@@ -29,7 +29,7 @@ export default function LandingPage({ userId, isSinger }: LandingPageProps) {
                             href="/singer/dashboard"
                             className="px-8 py-4 bg-indigo-600 rounded-full font-bold text-lg hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/30"
                         >
-                            {isSinger ? t('home.dashboard_button') : '나도 버스킹 시작하기'}
+                            {isSinger ? t('home.dashboard_button') : t('home.start_busking')}
                         </Link>
                     ) : (
                         <Link

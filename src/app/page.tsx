@@ -7,8 +7,12 @@ export default async function Home() {
 
   let isSinger = false;
   if (userId) {
-    const singer = await prisma.singer.findUnique({ where: { id: userId } });
-    isSinger = !!singer;
+    try {
+      const singer = await prisma.singer.findUnique({ where: { id: userId } });
+      isSinger = !!singer;
+    } catch (error) {
+      console.error('Error fetching singer profile on home page:', error);
+    }
   }
 
   return (

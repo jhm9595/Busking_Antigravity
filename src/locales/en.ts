@@ -21,6 +21,7 @@ export const en = {
         subtitle: 'The ultimate platform for street performers and fans.\nConnect, Perform, and Get Discovered.',
         dashboard_button: 'Go to Dashboard',
         get_started: 'Get Started',
+        start_busking: 'Start Busking',
         explore_button: 'Watch Busking',
     },
     performance: {
