@@ -65,6 +65,27 @@ export default function AudienceLivePage() {
         if (isLoaded) refreshData()
     }, [performanceId, isLoaded, user])
 
+    // Lightweight refresh: only re-fetch performance (setlist) data
+    const refreshPerformance = async () => {
+        if (!performanceId) return
+        const p = await getPerformanceById(performanceId)
+        if (p) setPerformance(p)
+    }
+
+    // Poll every 30s to keep setlist in sync with singer's changes (add/delete/reorder)
+    useEffect(() => {
+        if (!performanceId) return
+        const interval = setInterval(refreshPerformance, 30000)
+        return () => clearInterval(interval)
+    }, [performanceId])
+
+    // Also listen for socket event: singer changed song status or setlist
+    useEffect(() => {
+        if (!activeSocket) return
+        activeSocket.on('song_status_updated', refreshPerformance)
+        return () => activeSocket.off('song_status_updated', refreshPerformance)
+    }, [activeSocket, performanceId])
+
     const handleSongRequest = async (title: string, artist: string) => {
         if (!performanceId) return
         try {

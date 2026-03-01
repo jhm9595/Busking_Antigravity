@@ -274,6 +274,8 @@ function LivePerformanceContent() {
             singerId: performance.singerId,
             songIds: newIds
         })
+        // Notify audience pages to refresh setlist
+        if (activeSocket) activeSocket.emit('song_status_updated', { performanceId })
         await refreshData()
     }
 
@@ -286,6 +288,8 @@ function LivePerformanceContent() {
             singerId: performance.singerId,
             songIds: newIds
         })
+        // Notify audience pages to refresh setlist
+        if (activeSocket) activeSocket.emit('song_status_updated', { performanceId })
         await refreshData()
         setShowAddModal(false)
     }

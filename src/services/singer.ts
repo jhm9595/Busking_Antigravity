@@ -283,6 +283,8 @@ export async function updatePerformanceSetlist(data: {
             }
         })
         revalidatePath('/singer/dashboard')
+        revalidatePath(`/live/${data.performanceId}`)
+        revalidatePath('/singer/live')
         return { success: true }
     } catch (error) {
         console.error('Failed to update setlist:', error)
