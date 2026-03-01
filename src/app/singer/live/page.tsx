@@ -15,7 +15,7 @@ import {
     createSongRequest,
     updateSongStatus
 } from '@/services/singer'
-import { Music, Clock, MessageCircle, X, Check, Play, Pause, Plus, List, GripVertical, Search, Archive, ChevronRight, MessageSquare, User as UserIcon } from 'lucide-react'
+import { Music, Clock, MessageCircle, X, Check, Play, Pause, Plus, List, GripVertical, Search, Archive, ChevronRight, MessageSquare, User as UserIcon, Trash2 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ChatBox from '@/components/chat/ChatBox'
 
@@ -188,6 +188,21 @@ function LivePerformanceContent() {
         // Server update
         const ids = newSongs.map(s => s.id)
         await updateSetlistOrder(performanceId!, ids)
+    }
+
+    const handleRemoveSong = async (songId: string) => {
+        if (!performance) return
+        const newIds = performance.songs
+            .filter((s: any) => s.id !== songId)
+            .map((s: any) => s.id)
+        // Optimistic update
+        setPerformance({ ...performance, songs: performance.songs.filter((s: any) => s.id !== songId) })
+        await updatePerformanceSetlist({
+            performanceId: performanceId!,
+            singerId: performance.singerId,
+            songIds: newIds
+        })
+        await refreshData()
     }
 
     const handleAddSong = async (songId: string) => {
@@ -393,6 +408,7 @@ function LivePerformanceContent() {
                                                         YT
                                                     </a>
                                                 )}
+                                                <DeleteSongButton songId={song.id} onRemove={handleRemoveSong} />
                                             </>
                                         )}
                                     </div>
@@ -606,6 +622,51 @@ function LivePerformanceContent() {
                 </div>
             )}
         </div>
+    )
+}
+
+// --- DeleteSongButton: two-step confirm to prevent accidental removal ---
+function DeleteSongButton({ songId, onRemove }: { songId: string; onRemove: (id: string) => Promise<void> }) {
+    const [confirming, setConfirming] = useState(false)
+    const [removing, setRemoving] = useState(false)
+
+    useEffect(() => {
+        if (!confirming) return
+        const timer = setTimeout(() => setConfirming(false), 2000)
+        return () => clearTimeout(timer)
+    }, [confirming])
+
+    const handleClick = async () => {
+        if (!confirming) {
+            setConfirming(true)
+            return
+        }
+        setRemoving(true)
+        await onRemove(songId)
+        setRemoving(false)
+        setConfirming(false)
+    }
+
+    if (removing) {
+        return (
+            <button disabled className="p-1.5 rounded-lg bg-red-900/30 text-red-500 opacity-50">
+                <Trash2 className="w-4 h-4 animate-pulse" />
+            </button>
+        )
+    }
+
+    return (
+        <button
+            onClick={handleClick}
+            title={confirming ? 'Tap again to remove' : 'Remove from setlist'}
+            className={`p-1.5 rounded-lg transition text-xs font-bold flex items-center gap-1 ${confirming
+                    ? 'bg-red-600 text-white animate-pulse'
+                    : 'bg-gray-700/60 text-gray-500 hover:bg-red-900/40 hover:text-red-400'
+                }`}
+        >
+            <Trash2 className="w-4 h-4" />
+            {confirming && <span>Sure?</span>}
+        </button>
     )
 }
 
