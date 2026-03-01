@@ -55,20 +55,6 @@ export default function AudienceLivePage() {
         alert('Booking enquiry sent! The singer will contact you soon.')
     }
 
-    if (!username) {
-        return (
-            <div className="h-screen flex items-center justify-center bg-background-dark text-slate-100 p-4">
-                <AvatarCreator
-                    onComplete={(name, config, type) => {
-                        setUsername(name)
-                        setAvatarConfig(config)
-                        setUserType(type)
-                    }}
-                />
-            </div>
-        )
-    }
-
     if (!performance) return <div className="h-screen bg-background-dark text-slate-100 flex items-center justify-center">Loading Performance...</div>
 
     const currentSong = performance.songs?.[0] || { title: 'Wonderwall', artist: 'Oasis' }
@@ -201,6 +187,19 @@ export default function AudienceLivePage() {
                 onSubmit={handleBookingRequest}
                 singerName={singer?.stageName || 'the singer'}
             />
+
+            {/* Avatar Creator Modal for first time chat */}
+            {!username && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <AvatarCreator
+                        onComplete={(name, config, type) => {
+                            setUsername(name)
+                            setAvatarConfig(config)
+                            setUserType(type)
+                        }}
+                    />
+                </div>
+            )}
         </div>
     )
 }

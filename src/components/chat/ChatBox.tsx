@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import io, { Socket } from 'socket.io-client'
 import { Send, Music } from 'lucide-react'
 import PixelAvatar, { AvatarConfig } from '@/components/audience/PixelAvatar'
+import AvatarCreator from '@/components/audience/AvatarCreator'
 
 // Define the shape of a message
 interface Message {
@@ -45,6 +46,27 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
 
     const [socket, setSocket] = useState<Socket | null>(null)
     const [chatStatus, setChatStatus] = useState<'open' | 'closed'>('closed')
+    const [showAvatarSetup, setShowAvatarSetup] = useState(false)
+
+    // Local state for username/avatar if not passed from parent
+    const [localUsername, setLocalUsername] = useState(username || '')
+    const [localAvatarConfig, setLocalAvatarConfig] = useState<AvatarConfig | null>(avatarConfig || null)
+    const [localUserType, setLocalUserType] = useState<string>(userType || 'audience')
+
+    // Helper to get effective values
+    const effectiveUsername = username || localUsername
+    const effectiveAvatarConfig = avatarConfig || localAvatarConfig
+
+    // Update local state when props change
+    useEffect(() => {
+        if (username) setLocalUsername(username)
+        if (avatarConfig) setLocalAvatarConfig(avatarConfig)
+    }, [username, avatarConfig])
+
+    const setUsername = (name: string) => setLocalUsername(name)
+    const setAvatarConfig = (config: AvatarConfig | null) => setLocalAvatarConfig(config)
+    const setUserType = (type: string) => setLocalUserType(type)
+
 
     useEffect(() => {
         // Connect to Chat Server
@@ -54,7 +76,7 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
         setSocket(newSocket)
         if (onSocketReady) onSocketReady(newSocket)
 
-        newSocket.emit('join_room', { performanceId, username, userType })
+        newSocket.emit('join_room', { performanceId, username: effectiveUsername, userType })
 
         newSocket.on('load_history', (history: Message[]) => {
             setMessages(history)
@@ -75,17 +97,17 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
         return () => {
             newSocket.disconnect()
         }
-    }, [performanceId, username, userType])
+    }, [performanceId, effectiveUsername, userType])
 
     const sendMessage = async () => {
         if (currentMessage !== '' && socket) {
             const messageData: Message = {
                 performanceId,
-                author: username,
+                author: effectiveUsername,
                 message: currentMessage,
                 timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 type: userType,
-                avatarConfig
+                avatarConfig: effectiveAvatarConfig
             }
 
             await socket.emit('send_message', messageData)
@@ -130,7 +152,7 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
                         )
                     }
 
-                    const isMe = msg.author === username
+                    const isMe = msg.author === effectiveUsername
                     const isSinger = msg.type === 'singer'
                     const isSystem = msg.type === 'system'
 
@@ -200,6 +222,9 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
                             sendMessage()
                         }
                     }}
+                    onFocus={() => {
+                        if (!username) setShowAvatarSetup(true)
+                    }}
                     placeholder={chatStatus === 'closed' && userType === 'audience' ? t('chat.closed_placeholder') : t('chat.placeholder')}
                     disabled={chatStatus === 'closed' && userType === 'audience'}
                     className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500 transition disabled:opacity-50"
@@ -212,6 +237,19 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
                     <Send className="w-4 h-4" />
                 </button>
             </div>
+            {/* Avatar Creator Modal for first time chat - Show only when attempting to chat */}
+            {showAvatarSetup && !username && (
+                <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-2 text-white">
+                    <AvatarCreator
+                        onComplete={(name: string, config: AvatarConfig | null, type: 'anon' | 'named') => {
+                            setUsername(name)
+                            setAvatarConfig(config)
+                            setUserType(type)
+                            setShowAvatarSetup(false)
+                        }}
+                    />
+                </div>
+            )}
         </div>
     )
 }
