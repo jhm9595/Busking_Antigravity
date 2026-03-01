@@ -159,14 +159,12 @@ export async function getPerformanceById(id: string) {
 
 export async function updateSongStatus(performanceId: string, songId: string, status: 'pending' | 'completed') {
     try {
-        await (prisma.performanceSong as any).update({
+        await prisma.performanceSong.updateMany({
             where: {
-                performanceId_songId: {
-                    performanceId,
-                    songId
-                }
+                performanceId,
+                songId
             },
-            data: { status }
+            data: { status } as any
         })
         revalidatePath(`/live/${performanceId}`)
         revalidatePath(`/singer/live`)
@@ -473,13 +471,10 @@ export async function updateSetlistOrder(performanceId: string, songIds: string[
     try {
         await prisma.$transaction(async (tx) => {
             for (let i = 0; i < songIds.length; i++) {
-                // For composite key update, we just update order where match
-                await tx.performanceSong.update({
+                await tx.performanceSong.updateMany({
                     where: {
-                        performanceId_songId: {
-                            performanceId,
-                            songId: songIds[i]
-                        }
+                        performanceId,
+                        songId: songIds[i]
                     },
                     data: { order: i }
                 })
