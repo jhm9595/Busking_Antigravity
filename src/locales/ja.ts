@@ -106,6 +106,7 @@ export const ja: LocaleTypes = {
         onboarding_title: '歌手として登録しますか？',
         onboarding_desc: 'バスカーとして登録して、自分だけのライブパフォーマンスを始めましょう！',
         onboarding_btn: '歌手プロフィールを作成',
+        onboarding_nickname_placeholder: '芸名を入力してください (例: miniBig)',
         onboarding_skip: 'まずは観客として楽しむ',
         qr: {
             title: 'マイプロフィール',

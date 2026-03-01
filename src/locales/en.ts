@@ -104,6 +104,7 @@ export const en = {
         onboarding_title: 'Register as a Singer?',
         onboarding_desc: 'Register as a Busker and start your own live performances!',
         onboarding_btn: 'Create Singer Profile',
+        onboarding_nickname_placeholder: 'Enter your stage name (e.g. miniBig)',
         onboarding_skip: 'Just explore as an Audience',
         qr: {
             title: 'My Profile',

@@ -11,7 +11,6 @@ export async function syncUserProfile(user: { id: string, email?: string, fullNa
             where: { id: user.id },
             update: {
                 email: user.email,
-                nickname: user.fullName,
                 avatarUrl: user.imageUrl,
             },
             create: {
@@ -35,7 +34,10 @@ export async function registerSinger(user: { id: string, stageName: string }) {
             // Update Profile to role: 'singer'
             await tx.profile.update({
                 where: { id: user.id },
-                data: { role: 'singer' }
+                data: {
+                    role: 'singer',
+                    nickname: user.stageName
+                }
             })
 
             // Create Singer profile

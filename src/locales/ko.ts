@@ -106,6 +106,7 @@ export const ko: LocaleTypes = {
         onboarding_title: '가수로 등록하시겠습니까?',
         onboarding_desc: '버스킹 가수로 등록하고 나만의 라이브 공연을 시작해보세요!',
         onboarding_btn: '가수 프로필 만들기',
+        onboarding_nickname_placeholder: '활동명을 입력하세요 (예: miniBig)',
         onboarding_skip: '일단 관객으로 구경할래요',
         qr: {
             title: '내 프로필',

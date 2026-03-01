@@ -106,6 +106,7 @@ export const zh: LocaleTypes = {
         onboarding_title: '注册成为歌手？',
         onboarding_desc: '注册成为街头艺人，开始你自己的现场表演！',
         onboarding_btn: '创建歌手资料',
+        onboarding_nickname_placeholder: '请输入您的艺名 (例如: miniBig)',
         onboarding_skip: '先作为观众看看',
         qr: {
             title: '我的个人资料',

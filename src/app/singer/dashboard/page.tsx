@@ -22,6 +22,8 @@ export default function SingerDashboard() {
     const [isSinger, setIsSinger] = useState(false)
     const [singerData, setSingerData] = useState<any>(null)
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { } })
+    const [nickname, setNickname] = useState('')
+
 
     // Sync Clerk User to Prisma DB
     useEffect(() => {
@@ -72,6 +74,7 @@ export default function SingerDashboard() {
         }
 
         if (isLoaded && user) {
+            setNickname(user.fullName || user.username || '')
             sync()
         } else if (isLoaded && !user) {
             router.push('/')
@@ -164,13 +167,23 @@ export default function SingerDashboard() {
                 <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center">
                     <h2 className="text-3xl font-extrabold text-gray-900 mb-4">{t('dashboard.onboarding_title')}</h2>
                     <p className="text-gray-600 mb-8">{t('dashboard.onboarding_desc')}</p>
+                    <div className="mb-6">
+                        <input
+                            type="text"
+                            value={nickname}
+                            onChange={(e) => setNickname(e.target.value)}
+                            placeholder={t('dashboard.onboarding_nickname_placeholder')}
+                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none text-black"
+                        />
+                    </div>
 
                     <button
                         onClick={async () => {
+                            const stageName = nickname.trim() || user.fullName || user.username || 'Awesome Busker'
                             setIsSyncing(true)
                             await registerSinger({
                                 id: user.id,
-                                stageName: user.fullName || user.username || 'Awesome Busker'
+                                stageName: stageName
                             })
                             const data = await getSinger(user.id)
                             setSingerData(data)
@@ -210,7 +223,7 @@ export default function SingerDashboard() {
                             </div>
                         )}
                         <LanguageSwitcher />
-                        <span className="text-sm text-gray-500">{t('dashboard.welcome')}{user.fullName}</span>
+                        <span className="text-sm text-gray-500">{t('dashboard.welcome')}{singerData?.profile?.nickname || user.fullName}</span>
                         <button
                             onClick={handleLogout}
                             className="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition"
