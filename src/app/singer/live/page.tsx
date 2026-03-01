@@ -59,6 +59,8 @@ function LivePerformanceContent() {
     const [canOpenChat, setCanOpenChat] = useState(false)
     const [processingRequestIds, setProcessingRequestIds] = useState<Set<string>>(new Set())
     const [togglingStatusIds, setTogglingStatusIds] = useState<Set<string>>(new Set())
+    const [requestsLastUpdated, setRequestsLastUpdated] = useState<Date | null>(null)
+    const [isRefreshingRequests, setIsRefreshingRequests] = useState(false)
 
     // Load Data
     const refreshData = useCallback(async () => {
@@ -69,11 +71,25 @@ function LivePerformanceContent() {
         ])
         setPerformance(perfData)
         setRequests(reqData)
+        setRequestsLastUpdated(new Date())
 
         // Also load all songs for "Add Song" feature
         if (perfData?.singerId) {
             const songs = await getSongs(perfData.singerId)
             setAllSongs(songs)
+        }
+    }, [performanceId])
+
+    // Lightweight refresh: only requests (no full reload)
+    const refreshRequests = useCallback(async () => {
+        if (!performanceId) return
+        setIsRefreshingRequests(true)
+        try {
+            const reqData = await getPerformanceRequests(performanceId)
+            setRequests(reqData)
+            setRequestsLastUpdated(new Date())
+        } finally {
+            setIsRefreshingRequests(false)
         }
     }, [performanceId])
 
@@ -84,6 +100,22 @@ function LivePerformanceContent() {
         }
         refreshData().finally(() => setLoading(false))
     }, [performanceId, router, refreshData])
+
+    // Poll for new requests every 10s while on the requests tab
+    useEffect(() => {
+        if (activeTab !== 'requests') return
+        refreshRequests() // refresh immediately when switching to the tab
+        const interval = setInterval(refreshRequests, 10000)
+        return () => clearInterval(interval)
+    }, [activeTab, refreshRequests])
+
+    // Real-time: listen for song_requested socket event
+    useEffect(() => {
+        if (!activeSocket) return
+        const handler = () => refreshRequests()
+        activeSocket.on('song_requested', handler)
+        return () => activeSocket.off('song_requested', handler)
+    }, [activeSocket, refreshRequests])
 
     // Timer & Status check
     useEffect(() => {
@@ -336,7 +368,10 @@ function LivePerformanceContent() {
                     <span className="font-bold block">{t('live.tabs.setlist')} ({performance.songs.length})</span>
                 </button>
                 <button
-                    onClick={() => setActiveTab('requests')}
+                    onClick={() => {
+                        setActiveTab('requests')
+                        // Tab click also triggers refresh (handled by useEffect)
+                    }}
                     className={`p-3 text-center transition ${activeTab === 'requests' ? 'bg-gray-800 text-indigo-400 border-b-2 border-indigo-500' : 'text-gray-500 hover:text-gray-300'}`}
                 >
                     <div className="flex items-center justify-center space-x-2">
@@ -426,10 +461,10 @@ function LivePerformanceContent() {
                                                     onClick={() => handleToggleSongStatus(song.id, song.status)}
                                                     disabled={togglingStatusIds.has(song.id)}
                                                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${togglingStatusIds.has(song.id)
-                                                            ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-70'
-                                                            : song.status === 'completed'
-                                                                ? 'bg-gray-700 text-gray-400 hover:bg-gray-600'
-                                                                : 'bg-green-600/20 text-green-400 border border-green-600/30 hover:bg-green-600/30'
+                                                        ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-70'
+                                                        : song.status === 'completed'
+                                                            ? 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                                                            : 'bg-green-600/20 text-green-400 border border-green-600/30 hover:bg-green-600/30'
                                                         }`}
                                                 >
                                                     {togglingStatusIds.has(song.id) ? (
@@ -471,6 +506,35 @@ function LivePerformanceContent() {
                 {/* REQUESTS TAB */}
                 {activeTab === 'requests' && (
                     <div className="space-y-4 pb-20">
+                        {/* Refresh header */}
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                {isRefreshingRequests ? (
+                                    <svg className="w-3.5 h-3.5 animate-spin text-indigo-400" viewBox="0 0 24 24" fill="none">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                                    </svg>
+                                ) : (
+                                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse inline-block" />
+                                )}
+                                <span className="text-xs text-gray-500">
+                                    {requestsLastUpdated
+                                        ? `Updated ${requestsLastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
+                                        : 'Loading...'}
+                                </span>
+                            </div>
+                            <button
+                                onClick={refreshRequests}
+                                disabled={isRefreshingRequests}
+                                className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 disabled:opacity-40 bg-gray-800 px-2.5 py-1.5 rounded-lg border border-gray-700 transition"
+                            >
+                                <svg className={`w-3.5 h-3.5 ${isRefreshingRequests ? 'animate-spin' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                Refresh
+                            </button>
+                        </div>
+
                         {requests.length === 0 ? (
                             <div className="p-12 text-center text-gray-600 bg-gray-900/50 rounded-xl border border-gray-800 border-dashed">
                                 <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
