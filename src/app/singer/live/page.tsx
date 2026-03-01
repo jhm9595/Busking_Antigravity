@@ -18,6 +18,7 @@ import {
 import { Music, Clock, MessageCircle, X, Check, Play, Pause, Plus, List, GripVertical, Search, Archive, ChevronRight, MessageSquare, User as UserIcon, Trash2 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ChatBox from '@/components/chat/ChatBox'
+import io, { Socket } from 'socket.io-client'
 
 // We need a server action to add ad-hoc song? singer.ts has addSong.
 // Let's assume we can use addSong then updateSetlist. Or make a new composite function.
@@ -101,21 +102,32 @@ function LivePerformanceContent() {
         refreshData().finally(() => setLoading(false))
     }, [performanceId, router, refreshData])
 
-    // Poll for new requests every 10s while on the requests tab
+    // Direct socket connection for real-time events (independent of ChatBox)
+    // This ensures song_requested events are received even when chat is disabled
     useEffect(() => {
-        if (activeTab !== 'requests') return
-        refreshRequests() // refresh immediately when switching to the tab
-        const interval = setInterval(refreshRequests, 10000)
-        return () => clearInterval(interval)
-    }, [activeTab, refreshRequests])
+        const chatServerUrl = process.env.NEXT_PUBLIC_CHAT_SERVER_URL
+        if (!chatServerUrl || !performanceId) return
 
-    // Real-time: listen for song_requested socket event
-    useEffect(() => {
-        if (!activeSocket) return
-        const handler = () => refreshRequests()
-        activeSocket.on('song_requested', handler)
-        return () => activeSocket.off('song_requested', handler)
-    }, [activeSocket, refreshRequests])
+        const singerSocket: Socket = io(chatServerUrl, {
+            reconnectionAttempts: 5,
+            reconnectionDelay: 3000,
+        })
+
+        singerSocket.emit('join_room', {
+            performanceId,
+            username: 'singer',
+            userType: 'singer'
+        })
+
+        // Real-time: new song request arrived
+        singerSocket.on('song_requested', () => {
+            refreshRequests()
+        })
+
+        return () => {
+            singerSocket.disconnect()
+        }
+    }, [performanceId, refreshRequests])
 
     // Timer & Status check
     useEffect(() => {
@@ -370,7 +382,7 @@ function LivePerformanceContent() {
                 <button
                     onClick={() => {
                         setActiveTab('requests')
-                        // Tab click also triggers refresh (handled by useEffect)
+                        refreshRequests()
                     }}
                     className={`p-3 text-center transition ${activeTab === 'requests' ? 'bg-gray-800 text-indigo-400 border-b-2 border-indigo-500' : 'text-gray-500 hover:text-gray-300'}`}
                 >
