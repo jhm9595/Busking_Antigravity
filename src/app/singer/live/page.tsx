@@ -19,8 +19,12 @@ import {
 import { Music, Clock, MessageCircle, X, Check, Play, Pause, Plus, List, GripVertical, Search, Archive, ChevronRight, MessageSquare, User as UserIcon, Trash2 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ChatBox from '@/components/chat/ChatBox'
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
+import { DropResult } from '@hello-pangea/dnd'
 import io, { Socket } from 'socket.io-client'
+
+import LiveHeader from '@/components/live/LiveHeader'
+import SetlistTab from '@/components/live/SetlistTab'
+import RequestsTab from '@/components/live/RequestsTab'
 
 // We need a server action to add ad-hoc song? singer.ts has addSong.
 // Let's assume we can use addSong then updateSetlist. Or make a new composite function.
@@ -326,29 +330,12 @@ function LivePerformanceContent() {
     return (
         <div className="min-h-screen bg-black text-white flex flex-col font-sans">
             {/* Header */}
-            <div className="p-4 pl-20 border-b border-gray-800 flex justify-between items-center bg-gray-900 sticky top-0 z-20 shadow-xl">
-                <div>
-                    <h1 className="text-xl font-bold text-white max-w-[200px] truncate">{performance.title}</h1>
-                    <p className="text-sm text-gray-400">{performance.locationText}</p>
-                </div>
-                <div className="flex space-x-2">
-                    <button
-                        onClick={() => {
-                            sessionStorage.setItem('ignore_resume_check', 'true')
-                            router.push('/singer/dashboard')
-                        }}
-                        className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-bold text-sm transition"
-                    >
-                        Go to Dashboard
-                    </button>
-                    <button
-                        onClick={handleEndPerformance}
-                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition shadow-lg shadow-red-900/20"
-                    >
-                        {t('live.header.end_button')}
-                    </button>
-                </div>
-            </div>
+            <LiveHeader
+                performanceId={performanceId!}
+                title={performance.title}
+                locationText={performance.locationText}
+                onEndPerformance={handleEndPerformance}
+            />
 
             {/* Quick Stats / Tabs */}
             <div className={`grid ${performance.chatEnabled ? 'grid-cols-3' : 'grid-cols-2'} bg-gray-900 border-b border-gray-800`}>
@@ -391,188 +378,29 @@ function LivePerformanceContent() {
 
                 {/* SETLIST TAB */}
                 {activeTab === 'setlist' && (
-                    <div className="space-y-4 pb-20">
-                        <div className="flex justify-between items-center">
-                            <p className="text-gray-500 text-sm">
-                                {isReordering ? 'Use arrows to reorder' : t('live.setlist.reorder_hint')}
-                            </p>
-                            <div className="flex space-x-2">
-                                <button
-                                    onClick={() => setIsReordering(!isReordering)}
-                                    className={`p-2 rounded-lg ${isReordering ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-gray-400'}`}
-                                >
-                                    <List className="w-5 h-5" />
-                                </button>
-                                <button
-                                    onClick={() => setShowAddModal(true)}
-                                    className="p-2 bg-indigo-600 rounded-lg text-white hover:bg-indigo-500"
-                                >
-                                    <Plus className="w-5 h-5" />
-                                </button>
-                            </div>
-                        </div>
-
-                        {performance.songs.length === 0 ? (
-                            <div className="p-8 text-center text-gray-600 bg-gray-900/50 rounded-xl border border-gray-800 border-dashed">
-                                <Music className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                                <p>{t('live.setlist.empty')}</p>
-                            </div>
-                        ) : (
-                            <DragDropContext onDragEnd={onDragEnd}>
-                                <Droppable droppableId="setlist">
-                                    {(provided) => (
-                                        <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
-                                            {performance.songs.map((song: any, index: number) => (
-                                                <Draggable key={song.id} draggableId={song.id} index={index} isDragDisabled={!isReordering}>
-                                                    {(provided, snapshot) => (
-                                                        <div
-                                                            ref={provided.innerRef}
-                                                            {...provided.draggableProps}
-                                                            className={`bg-gray-800/80 p-3 rounded-xl flex items-center justify-between border border-gray-700 transition group ${snapshot.isDragging ? 'shadow-2xl ring-2 ring-indigo-500 z-50 bg-gray-700 scale-[1.02]' : 'hover:bg-gray-700'}`}
-                                                        >
-                                                            <div className="flex items-center flex-1 min-w-0" {...(isReordering ? provided.dragHandleProps : {})}>
-                                                                {isReordering ? (
-                                                                    <GripVertical className="w-5 h-5 text-gray-400 hover:text-white mr-3 cursor-grab" />
-                                                                ) : (
-                                                                    <span className={`text-indigo-500 font-mono mr-3 w-6 text-center text-lg font-bold ${song.status === 'completed' ? 'opacity-30' : ''}`}>{index + 1}</span>
-                                                                )}
-                                                                <div className={`truncate ${song.status === 'completed' ? 'opacity-30 line-through' : ''}`}>
-                                                                    <h3 className="text-white font-bold text-lg truncate pr-2">{song.title}</h3>
-                                                                    <p className="text-gray-400 text-sm truncate">{song.artist}</p>
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="flex items-center gap-2">
-                                                                {!isReordering && (
-                                                                    <>
-                                                                        <button
-                                                                            onClick={() => handleToggleSongStatus(song.id, song.status)}
-                                                                            disabled={togglingStatusIds.has(song.id)}
-                                                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${togglingStatusIds.has(song.id)
-                                                                                ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-70'
-                                                                                : song.status === 'completed'
-                                                                                    ? 'bg-gray-700 text-gray-400 hover:bg-gray-600'
-                                                                                    : 'bg-green-600/20 text-green-400 border border-green-600/30 hover:bg-green-600/30'
-                                                                                }`}
-                                                                        >
-                                                                            {togglingStatusIds.has(song.id) ? (
-                                                                                <>
-                                                                                    <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
-                                                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                                                                                    </svg>
-                                                                                    <span>...</span>
-                                                                                </>
-                                                                            ) : (
-                                                                                song.status === 'completed' ? 'Undo' : 'Complete'
-                                                                            )}
-                                                                        </button>
-                                                                        {song.youtubeUrl && (
-                                                                            <a href={song.youtubeUrl} target="_blank" rel="noreferrer" className="text-xs bg-red-900/30 text-red-400 px-2 py-1.5 rounded border border-red-900/50 whitespace-nowrap">
-                                                                                YT
-                                                                            </a>
-                                                                        )}
-                                                                        <DeleteSongButton songId={song.id} onRemove={handleRemoveSong} />
-                                                                    </>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </Draggable>
-                                            ))}
-                                            {provided.placeholder}
-                                        </div>
-                                    )}
-                                </Droppable>
-                            </DragDropContext>
-                        )}
-
-                        <div className="text-center pt-4">
-                            <button
-                                onClick={() => setShowAddModal(true)}
-                                className="inline-flex items-center text-indigo-400 font-bold hover:text-indigo-300"
-                            >
-                                <Plus className="w-5 h-5 mr-1" /> {t('live.setlist.add_button')}
-                            </button>
-                        </div>
-                    </div>
+                    <SetlistTab
+                        songs={performance.songs}
+                        isReordering={isReordering}
+                        setIsReordering={setIsReordering}
+                        setShowAddModal={setShowAddModal}
+                        onDragEnd={onDragEnd}
+                        handleToggleSongStatus={handleToggleSongStatus}
+                        togglingStatusIds={togglingStatusIds}
+                        handleRemoveSong={handleRemoveSong}
+                    />
                 )}
 
                 {/* REQUESTS TAB */}
                 {activeTab === 'requests' && (
-                    <div className="space-y-4 pb-20">
-                        {/* Refresh header */}
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                {isRefreshingRequests ? (
-                                    <svg className="w-3.5 h-3.5 animate-spin text-indigo-400" viewBox="0 0 24 24" fill="none">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                                    </svg>
-                                ) : (
-                                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse inline-block" />
-                                )}
-                                <span className="text-xs text-gray-500">
-                                    {requestsLastUpdated
-                                        ? `Updated ${requestsLastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
-                                        : 'Loading...'}
-                                </span>
-                            </div>
-                            <button
-                                onClick={refreshRequests}
-                                disabled={isRefreshingRequests}
-                                className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 disabled:opacity-40 bg-gray-800 px-2.5 py-1.5 rounded-lg border border-gray-700 transition"
-                            >
-                                <svg className={`w-3.5 h-3.5 ${isRefreshingRequests ? 'animate-spin' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
-                                Refresh
-                            </button>
-                        </div>
-
-                        {requests.length === 0 ? (
-                            <div className="p-12 text-center text-gray-600 bg-gray-900/50 rounded-xl border border-gray-800 border-dashed">
-                                <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                                <p>{t('live.requests.empty')}</p>
-                            </div>
-                        ) : (
-                            requests.map((req: any) => (
-                                <div key={req.id} className={`p-4 rounded-xl border ${req.status === 'pending' ? 'bg-gray-800/90 border-indigo-500/50 shadow-lg shadow-indigo-900/20' : 'bg-gray-900/50 border-gray-800 opacity-70'}`}>
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div>
-                                            <h3 className="text-lg font-bold text-white">{req.title}</h3>
-                                            <p className="text-gray-400 text-sm">{req.artist}</p>
-                                        </div>
-                                        <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${req.status === 'pending' ? 'bg-green-900/50 text-green-400 border border-green-800' :
-                                            req.status === 'accepted' ? 'bg-blue-900/50 text-blue-400 border border-blue-800' :
-                                                'bg-red-900/50 text-red-400 border border-red-800'
-                                            }`}>
-                                            {req.status}
-                                        </span>
-                                    </div>
-
-                                    {req.status === 'pending' && (
-                                        <div className="flex space-x-2 mt-2">
-                                            <button
-                                                onClick={() => handleAcceptRequest(req.id)}
-                                                disabled={processingRequestIds.has(req.id)}
-                                                className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white py-2 rounded-lg font-bold text-sm flex items-center justify-center transition"
-                                            >
-                                                <Check className="w-4 h-4 mr-1" /> {processingRequestIds.has(req.id) ? t('common.loading') : t('live.requests.accept')}
-                                            </button>
-                                            <button
-                                                onClick={() => handleRejectRequest(req.id)}
-                                                disabled={processingRequestIds.has(req.id)}
-                                                className="flex-1 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-600 disabled:cursor-not-allowed text-white py-2 rounded-lg font-bold text-sm flex items-center justify-center transition"
-                                            >
-                                                <X className="w-4 h-4 mr-1" /> {t('live.requests.reject')}
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            ))
-                        )}
-                    </div>
+                    <RequestsTab
+                        requests={requests}
+                        isRefreshingRequests={isRefreshingRequests}
+                        requestsLastUpdated={requestsLastUpdated}
+                        refreshRequests={refreshRequests}
+                        processingRequestIds={processingRequestIds}
+                        handleAcceptRequest={handleAcceptRequest}
+                        handleRejectRequest={handleRejectRequest}
+                    />
                 )}
 
                 {/* CHAT TAB */}
@@ -725,51 +553,7 @@ function LivePerformanceContent() {
     )
 }
 
-// --- DeleteSongButton: two-step confirm to prevent accidental removal ---
-function DeleteSongButton({ songId, onRemove }: { songId: string; onRemove: (id: string) => Promise<void> }) {
-    const { t } = useLanguage()
-    const [confirming, setConfirming] = useState(false)
-    const [removing, setRemoving] = useState(false)
-
-    useEffect(() => {
-        if (!confirming) return
-        const timer = setTimeout(() => setConfirming(false), 2000)
-        return () => clearTimeout(timer)
-    }, [confirming])
-
-    const handleClick = async () => {
-        if (!confirming) {
-            setConfirming(true)
-            return
-        }
-        setRemoving(true)
-        await onRemove(songId)
-        setRemoving(false)
-        setConfirming(false)
-    }
-
-    if (removing) {
-        return (
-            <button disabled className="p-1.5 rounded-lg bg-red-900/30 text-red-500 opacity-50">
-                <Trash2 className="w-4 h-4 animate-pulse" />
-            </button>
-        )
-    }
-
-    return (
-        <button
-            onClick={handleClick}
-            title={confirming ? t('common.confirm') : t('live.setlist.remove')}
-            className={`p-1.5 rounded-lg transition text-xs font-bold flex items-center gap-1 ${confirming
-                ? 'bg-red-600 text-white animate-pulse'
-                : 'bg-gray-700/60 text-gray-500 hover:bg-red-900/40 hover:text-red-400'
-                }`}
-        >
-            <Trash2 className="w-4 h-4" />
-            {confirming && <span>{t('common.confirm') || "Sure?"}</span>}
-        </button>
-    )
-}
+// DeleteSongButton was extracted to the SetlistTab component
 
 export default function LivePerformancePage() {
     return (
