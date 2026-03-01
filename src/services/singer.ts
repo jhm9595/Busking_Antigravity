@@ -126,7 +126,11 @@ export async function getPerformances(singerId: string) {
 
     return updatedPerformances.map(p => ({
         ...p,
-        songs: p.performanceSongs.map(ps => ps.song)
+        songs: (p.performanceSongs as any[]).map(ps => ({
+            ...ps.song,
+            status: ps.status,
+            order: ps.order
+        }))
     }))
 }
 
@@ -145,7 +149,31 @@ export async function getPerformanceById(id: string) {
 
     return {
         ...performance,
-        songs: performance.performanceSongs.map(ps => ps.song)
+        songs: (performance.performanceSongs as any[]).map(ps => ({
+            ...ps.song,
+            status: ps.status,
+            order: ps.order
+        }))
+    }
+}
+
+export async function updateSongStatus(performanceId: string, songId: string, status: 'pending' | 'completed') {
+    try {
+        await (prisma.performanceSong as any).update({
+            where: {
+                performanceId_songId: {
+                    performanceId,
+                    songId
+                }
+            },
+            data: { status }
+        })
+        revalidatePath(`/live/${performanceId}`)
+        revalidatePath(`/singer/live`)
+        return { success: true }
+    } catch (error) {
+        console.error('Update song status failed:', error)
+        return { success: false, error }
     }
 }
 
@@ -362,6 +390,30 @@ export async function acceptSongRequest(requestId: string, singerId: string) {
             const req = await tx.songRequest.findUnique({ where: { id: requestId } })
             if (!req) throw new Error('Request not found')
 
+            // Guard: Already accepted — prevent double-click duplicates
+            if (req.status === 'accepted') {
+                throw new Error('Request already accepted')
+            }
+
+            // Guard: Check if the same song (title + artist) already exists in this performance's setlist
+            const existingInSetlist = await tx.performanceSong.findFirst({
+                where: {
+                    performanceId: req.performanceId,
+                    song: {
+                        title: req.title,
+                        artist: req.artist
+                    }
+                }
+            })
+            if (existingInSetlist) {
+                // Song already in setlist — just mark the request as accepted without adding again
+                await tx.songRequest.update({
+                    where: { id: requestId },
+                    data: { status: 'accepted' }
+                })
+                return
+            }
+
             // Create Song in repertoire
             const song = await tx.song.create({
                 data: {
@@ -395,7 +447,10 @@ export async function acceptSongRequest(requestId: string, singerId: string) {
         })
         revalidatePath(`/singer/live`)
         return { success: true }
-    } catch (error) {
+    } catch (error: any) {
+        if (error?.message === 'Request already accepted') {
+            return { success: true, alreadyAccepted: true }
+        }
         console.error('Accept request failed:', error)
         return { success: false, error }
     }

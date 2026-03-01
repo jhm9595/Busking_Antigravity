@@ -4,11 +4,15 @@ import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { Music, MapPin, Calendar, MessageCircle, Heart, Share2, Mail } from 'lucide-react'
+import { Share2, Heart, Music, Mail, ExternalLink, User, MapPin, Calendar, MessageCircle } from 'lucide-react'
+import { FaFacebook, FaYoutube, FaInstagram, FaSoundcloud, FaTiktok } from 'react-icons/fa'
+import { FaXTwitter } from 'react-icons/fa6'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useUser } from '@clerk/nextjs'
+import SongRequestModal from '@/components/audience/SongRequestModal'
 import BookingRequestModal from '@/components/audience/BookingRequestModal'
+import { getPerformanceById, createSongRequest, getSinger } from '@/services/singer'
 
 // Dynamically import MapPicker
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
@@ -149,6 +153,39 @@ export default function SingerDetailPage() {
         }
     }
 
+    const openSocial = (input: string | undefined, type: string) => {
+        if (!input) return
+        let finalUrl = input.trim()
+
+        if (!finalUrl.startsWith('http')) {
+            if (finalUrl.includes('.')) {
+                finalUrl = `https://${finalUrl}`
+            } else {
+                switch (type) {
+                    case 'instagram': finalUrl = `https://instagram.com/${finalUrl}`; break;
+                    case 'facebook': finalUrl = `https://facebook.com/${finalUrl}`; break;
+                    case 'youtube': finalUrl = `https://youtube.com/@${finalUrl}`; break;
+                    case 'tiktok': finalUrl = `https://tiktok.com/@${finalUrl}`; break;
+                    case 'soundcloud': finalUrl = `https://soundcloud.com/${finalUrl}`; break;
+                    case 'twitter': finalUrl = `https://twitter.com/${finalUrl}`; break;
+                    default: finalUrl = `https://${finalUrl}`;
+                }
+            }
+        }
+        window.open(finalUrl, '_blank')
+    }
+
+    const getDisplayHandle = (input: string | undefined) => {
+        if (!input) return ''
+        let handle = input.trim()
+        handle = handle.replace(/^https?:\/\/(www\.)?/, '')
+        handle = handle.replace(/^(instagram\.com|facebook\.com|youtube\.com\/@|tiktok\.com\/@|soundcloud\.com|twitter\.com)\//, '')
+        if (handle.length > 20) handle = handle.substring(0, 20) + '...'
+        return handle.startsWith('@') ? handle : '@' + handle
+    }
+
+    const socialLinks = (singer as any)?.socialLinks ? JSON.parse((singer as any).socialLinks) : {}
+
     const handleBookingSubmit = async (data: any) => {
         try {
             const res = await fetch('/api/booking', {
@@ -191,20 +228,85 @@ export default function SingerDetailPage() {
 
             <div className="mt-20 px-6">
                 <div className="flex justify-between items-start">
-                    <div>
+                    <div className="flex-1">
                         <h1 className="text-3xl font-bold">{singer.stageName}</h1>
                         <p className="text-gray-400 mt-1 flex items-center">
                             <Heart className={`w-4 h-4 mr-1 ${isFollowed ? 'text-red-500 fill-current' : 'text-gray-500'}`} /> {singer.fanCount} Fans
                         </p>
+
                         {singer.bio && (
                             <p className="text-gray-300 mt-3 text-sm leading-relaxed whitespace-pre-line max-w-md">
                                 {singer.bio}
                             </p>
                         )}
+
+                        {/* Social Links Bar */}
+                        <div className="flex flex-wrap gap-3 mt-4">
+                            {socialLinks.youtube && (
+                                <button
+                                    onClick={() => openSocial(socialLinks.youtube, 'youtube')}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-red-600/10 hover:bg-red-600/20 border border-red-600/20 rounded-lg text-red-500 transition-all group"
+                                    title="YouTube"
+                                >
+                                    <FaYoutube className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                    <span className="text-xs font-bold">{getDisplayHandle(socialLinks.youtube)}</span>
+                                </button>
+                            )}
+                            {socialLinks.instagram && (
+                                <button
+                                    onClick={() => openSocial(socialLinks.instagram, 'instagram')}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-pink-600/10 hover:bg-pink-600/20 border border-pink-600/20 rounded-lg text-pink-500 transition-all group"
+                                    title="Instagram"
+                                >
+                                    <FaInstagram className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                    <span className="text-xs font-bold">{getDisplayHandle(socialLinks.instagram)}</span>
+                                </button>
+                            )}
+                            {socialLinks.tiktok && (
+                                <button
+                                    onClick={() => openSocial(socialLinks.tiktok, 'tiktok')}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white transition-all group"
+                                    title="TikTok"
+                                >
+                                    <FaTiktok className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                    <span className="text-xs font-bold">{getDisplayHandle(socialLinks.tiktok)}</span>
+                                </button>
+                            )}
+                            {socialLinks.soundcloud && (
+                                <button
+                                    onClick={() => openSocial(socialLinks.soundcloud, 'soundcloud')}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-orange-600/10 hover:bg-orange-600/20 border border-orange-600/20 rounded-lg text-orange-500 transition-all group"
+                                    title="SoundCloud"
+                                >
+                                    <FaSoundcloud className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                    <span className="text-xs font-bold">{getDisplayHandle(socialLinks.soundcloud)}</span>
+                                </button>
+                            )}
+                            {socialLinks.twitter && (
+                                <button
+                                    onClick={() => openSocial(socialLinks.twitter, 'twitter')}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white transition-all group"
+                                    title="X (Twitter)"
+                                >
+                                    <FaXTwitter className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                    <span className="text-xs font-bold">{getDisplayHandle(socialLinks.twitter)}</span>
+                                </button>
+                            )}
+                            {socialLinks.facebook && (
+                                <button
+                                    onClick={() => openSocial(socialLinks.facebook, 'facebook')}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-600/20 rounded-lg text-blue-500 transition-all group"
+                                    title="Facebook"
+                                >
+                                    <FaFacebook className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                    <span className="text-xs font-bold">{getDisplayHandle(socialLinks.facebook)}</span>
+                                </button>
+                            )}
+                        </div>
                     </div>
                     <button
                         onClick={handleShare}
-                        className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition"
+                        className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition ml-4"
                     >
                         <Share2 className="w-6 h-6" />
                     </button>
@@ -220,14 +322,14 @@ export default function SingerDetailPage() {
                                 : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/30'
                                 }`}
                         >
-                            {isFollowed ? 'Following' : 'Follow'}
+                            {isFollowed ? t('common.following') : t('common.follow')}
                         </button>
                     ) : (
                         <Link
                             href="/sign-in"
                             className="flex-1 py-3 rounded-xl font-bold text-lg shadow-lg transition bg-gray-600 hover:bg-gray-500 text-white text-center flex items-center justify-center"
                         >
-                            Login to Follow
+                            {t('common.login_to_follow')}
                         </Link>
                     )}
                     <button
@@ -286,7 +388,7 @@ export default function SingerDetailPage() {
 
                                         <div className="flex space-x-2">
                                             <Link href={`/live/${perf.id}`} className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg text-sm transition text-center flex items-center justify-center">
-                                                Enter Live
+                                                {t('live.enter_live')}
                                             </Link>
 
                                             {user?.id === singer.id && (
@@ -371,7 +473,7 @@ export default function SingerDetailPage() {
                                             )}
                                             {perf.chatEnabled && perf.status === 'live' && (
                                                 <Link href={`/live/${perf.id}`} className="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-lg text-sm transition shadow-lg shadow-green-900/20 text-center flex items-center justify-center">
-                                                    Enter Chat
+                                                    {t('live.enter_chat')}
                                                 </Link>
                                             )}
                                         </div>

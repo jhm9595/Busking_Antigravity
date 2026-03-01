@@ -17,6 +17,9 @@ export const ja: LocaleTypes = {
         bio_label: '自己紹介',
         bio_placeholder: '自己紹介を書いてください...',
         home_button: 'ホームへ',
+        follow: 'フォロー',
+        following: 'フォロー中',
+        login_to_follow: 'ログインしてフォロー'
     },
     home: {
         title: 'BuskerKing',
@@ -171,9 +174,33 @@ export const ja: LocaleTypes = {
         modal: {
             title: '曲を追加',
             search_placeholder: '曲を検索...',
-            add_new: '新しい曲を直接入力',
+            add_new: '新しい曲を 직접入力',
             close: '閉じる',
-        }
+        },
+        enter_live: 'ライブに入る',
+        enter_chat: 'チャットに入る',
+        now_playing: '演奏中',
+        up_next: '次の曲',
+        coming_soon: 'もうすぐ開始',
+        viewing_count: '{count}人が視聴中'
+    },
+    avatar: {
+        title: 'ライブに参加',
+        random: 'ランダム',
+        use_nickname: 'ニックネームを使用',
+        anonymous: '匿名',
+        nickname_placeholder: 'ニックネームを入力',
+        create_avatar: 'アバター作成',
+        preview_label: 'マイアバター',
+        face: '顔',
+        skin: '肌',
+        hair_style: 'ヘアスタイル',
+        hair_color: 'ヘアカラー',
+        top_style: 'トップス',
+        top_color: 'トップスカラー',
+        bottom_style: 'ボトムス',
+        bottom_color: 'ボトムスカラー',
+        enter_button: 'ライブ公演に入る'
     },
     booking: {
         title: '出演依頼リスト',

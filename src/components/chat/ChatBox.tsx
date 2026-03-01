@@ -32,11 +32,13 @@ interface ChatBoxProps {
     onAcceptRequest?: (title: string) => void
     onRejectRequest?: (title: string) => void
     onChatStatusChange?: (status: 'open' | 'closed') => void
+    onViewingCountChange?: (count: number) => void
+    onSongStatusUpdate?: () => void
 }
 
 import { useLanguage } from '@/contexts/LanguageContext'
 
-export default function ChatBox({ performanceId, username, userType, avatarConfig, onRequestSong, onSocketReady, onAcceptRequest, onRejectRequest, onChatStatusChange, className = '' }: ChatBoxProps) {
+export default function ChatBox({ performanceId, username, userType, avatarConfig, onRequestSong, onSocketReady, onAcceptRequest, onRejectRequest, onChatStatusChange, onViewingCountChange, onSongStatusUpdate, className = '' }: ChatBoxProps) {
     const { t } = useLanguage()
     const [messages, setMessages] = useState<Message[]>([])
     const [currentMessage, setCurrentMessage] = useState('')
@@ -92,6 +94,14 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
             setMessages((list) => [...list, data])
             // Scroll to bottom
             setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
+        })
+
+        newSocket.on('update_viewing_count', (data: { count: number }) => {
+            if (onViewingCountChange) onViewingCountChange(data.count)
+        })
+
+        newSocket.on('song_status_updated', () => {
+            if (onSongStatusUpdate) onSongStatusUpdate()
         })
 
         return () => {
@@ -204,15 +214,6 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
             </div>
 
             <div className="p-2 bg-gray-800 border-t border-gray-700 flex gap-2">
-                {onRequestSong && (
-                    <button
-                        onClick={onRequestSong}
-                        className="p-2 bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white rounded-lg transition border border-indigo-600/30"
-                        title="Request a Song"
-                    >
-                        <Music className="w-5 h-5" />
-                    </button>
-                )}
                 <input
                     type="text"
                     value={currentMessage}

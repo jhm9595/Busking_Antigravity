@@ -79,6 +79,7 @@ model Performance {
   streamingEnabled Boolean  @default(false) @map("streaming_enabled")
   chatCostPerHour Int       @default(0) @map("chat_cost_per_hour")
   expectedAudience Int      @default(0) @map("expected_audience")
+  chatCapacity    Int       @default(50) @map("chat_capacity")
   status          String    @default("scheduled") // scheduled, live, ended, cancelled
   createdAt       DateTime  @default(now()) @map("created_at")
 
@@ -93,6 +94,7 @@ model PerformanceSong {
   performanceId String @map("performance_id")
   songId        String @map("song_id")
   order         Int    @default(0)
+  status        String @default("pending") // pending, completed
 
   performance   Performance @relation(fields: [performanceId], references: [id], onDelete: Cascade)
   song          Song        @relation(fields: [songId], references: [id], onDelete: Cascade)

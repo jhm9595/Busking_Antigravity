@@ -17,6 +17,9 @@ export const ko: LocaleTypes = {
         bio_label: '소개글',
         bio_placeholder: '자신에 대해 소개해주세요...',
         home_button: '홈으로',
+        follow: '팔로우',
+        following: '팔로잉',
+        login_to_follow: '로그인 후 팔로우'
     },
     home: {
         title: 'BuskerKing',
@@ -173,7 +176,31 @@ export const ko: LocaleTypes = {
             search_placeholder: '곡 검색...',
             add_new: '새 곡 직접 입력',
             close: '닫기',
-        }
+        },
+        enter_live: '라이브 입장',
+        enter_chat: '채팅 입장',
+        now_playing: '현재 공연 중',
+        up_next: '다음 예매 곡',
+        coming_soon: '곧 시작',
+        viewing_count: '{count}명 시청 중'
+    },
+    avatar: {
+        title: '라이브 참여하기',
+        random: '랜덤',
+        use_nickname: '활동명 사용',
+        anonymous: '익명 참여',
+        nickname_placeholder: '닉네임을 입력하세요',
+        create_avatar: '아바타 생성',
+        preview_label: '내 아바타',
+        face: '얼굴',
+        skin: '피부',
+        hair_style: '헤어 스타일',
+        hair_color: '헤어 색상',
+        top_style: '상의 스타일',
+        top_color: '상의 색상',
+        bottom_style: '하의 스타일',
+        bottom_color: '하의 색상',
+        enter_button: '라이브 공연 입장'
     },
     booking: {
         title: '섭외 요청 목록',

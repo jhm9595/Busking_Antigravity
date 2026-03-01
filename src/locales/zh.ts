@@ -17,6 +17,9 @@ export const zh: LocaleTypes = {
         bio_label: '简介',
         bio_placeholder: '写一些关于你自己的介绍...',
         home_button: '回主页',
+        follow: '关注',
+        following: '已关注',
+        login_to_follow: '登录并关注'
     },
     home: {
         title: 'BuskerKing',
@@ -173,7 +176,31 @@ export const zh: LocaleTypes = {
             search_placeholder: '搜索歌曲...',
             add_new: '直接输入新歌',
             close: '关闭',
-        }
+        },
+        enter_live: '进入现场',
+        enter_chat: '进入聊天',
+        now_playing: '正在演唱',
+        up_next: '下一首曲目',
+        coming_soon: '即将开始',
+        viewing_count: '{count}人观看中'
+    },
+    avatar: {
+        title: '加入现场',
+        random: '随机',
+        use_nickname: '使用昵称',
+        anonymous: '匿名参与',
+        nickname_placeholder: '输入昵称',
+        create_avatar: '创建头像',
+        preview_label: '我的头像',
+        face: '脸部',
+        skin: '皮肤',
+        hair_style: '发型',
+        hair_color: '发色',
+        top_style: '上装样式',
+        top_color: '上装颜色',
+        bottom_style: '下装样式',
+        bottom_color: '下装颜色',
+        enter_button: '进入现场表演'
     },
     booking: {
         title: '预约咨询',

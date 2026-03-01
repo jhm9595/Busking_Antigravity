@@ -12,7 +12,7 @@ type LocaleData = typeof en
 interface LanguageContextType {
     language: Language
     setLanguage: (lang: Language) => void
-    t: (path: string) => string
+    t: (path: string, params?: Record<string, string | number>) => string
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
@@ -57,7 +57,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }, [language])
 
     // Helper to get nested object value by string path (e.g. "performance.form.title")
-    const t = (path: string): string => {
+    const t = (path: string, params?: Record<string, string | number>): string => {
         const keys = path.split('.')
         let current: any = localeData
         for (const key of keys) {
@@ -67,7 +67,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
             }
             current = current[key]
         }
-        return current as string
+        let result = current as string
+        if (params) {
+            Object.entries(params).forEach(([key, value]) => {
+                result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), String(value))
+            })
+        }
+        return result
     }
 
     return (

@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import PixelAvatar, { AvatarConfig } from './PixelAvatar'
 import { ChevronRight, ChevronLeft, Shuffle } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface AvatarCreatorProps {
     onComplete: (nickname: string, avatarConfig: AvatarConfig | null, userType: 'anon' | 'named') => void
@@ -31,15 +32,17 @@ const CLOTHING_COLORS = [
 
 const SKIN_COLORS = ['#f0c0a8', '#fcebe6', '#5d4037', '#8d5524']
 
-const USER_TYPES = [
-    { id: 'named', label: 'Use Nickname' },
-    { id: 'anon', label: 'Anonymous' }
-]
-
 export default function AvatarCreator({ onComplete }: AvatarCreatorProps) {
+    const { t } = useLanguage()
     const [nickname, setNickname] = useState('')
     const [userType, setUserType] = useState<'anon' | 'named'>('named')
     const [useAvatar, setUseAvatar] = useState(true)
+
+    const USER_TYPES = [
+        { id: 'named', label: t('avatar.use_nickname') },
+        { id: 'anon', label: t('avatar.anonymous') }
+    ]
+
 
     // Avatar State
     const [config, setConfig] = useState<AvatarConfig>({
@@ -111,7 +114,7 @@ export default function AvatarCreator({ onComplete }: AvatarCreatorProps) {
     )
 
     const handleSubmit = () => {
-        const finalName = userType === 'anon' ? 'Anonymous' : (nickname.trim() || 'Guest')
+        const finalName = userType === 'anon' ? t('avatar.anonymous') : (nickname.trim() || 'Guest')
         const finalConfig = useAvatar ? config : null
         onComplete(finalName, finalConfig, userType)
     }
@@ -119,9 +122,9 @@ export default function AvatarCreator({ onComplete }: AvatarCreatorProps) {
     return (
         <div className="w-full max-w-md bg-gray-900 rounded-xl border border-gray-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-4 border-b border-gray-800 bg-gray-850 flex justify-between items-center">
-                <h2 className="text-lg font-bold text-white">Join Live</h2>
+                <h2 className="text-lg font-bold text-white">{t('avatar.title')}</h2>
                 <button onClick={randomize} className="text-indigo-400 hover:text-indigo-300 text-sm flex items-center">
-                    <Shuffle className="w-4 h-4 mr-1" /> Random
+                    <Shuffle className="w-4 h-4 mr-1" /> {t('avatar.random')}
                 </button>
             </div>
 
@@ -147,7 +150,7 @@ export default function AvatarCreator({ onComplete }: AvatarCreatorProps) {
                     {userType === 'named' && (
                         <input
                             type="text"
-                            placeholder="Enter Nickname"
+                            placeholder={t('avatar.nickname_placeholder')}
                             value={nickname}
                             onChange={(e) => setNickname(e.target.value)}
                             className="w-full bg-gray-900 border border-gray-700 rounded-lg p-2.5 text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -165,7 +168,7 @@ export default function AvatarCreator({ onComplete }: AvatarCreatorProps) {
                                 onChange={(e) => setUseAvatar(e.target.checked)}
                                 className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-indigo-600 focus:ring-indigo-500"
                             />
-                            <span className="ml-2 text-sm text-gray-300 font-bold">Create Avatar</span>
+                            <span className="ml-2 text-sm text-gray-300 font-bold">{t('avatar.create_avatar')}</span>
                         </label>
 
                         {useAvatar && (
@@ -173,42 +176,42 @@ export default function AvatarCreator({ onComplete }: AvatarCreatorProps) {
                                 {/* Preview */}
                                 <div className="flex flex-col items-center justify-center p-4 bg-gray-800 rounded-xl border-2 border-dashed border-gray-700 self-start sm:w-1/3">
                                     <PixelAvatar config={config} size={96} className="drop-shadow-xl" />
-                                    <p className="mt-2 text-center text-xs text-gray-500 font-mono">My Avatar</p>
+                                    <p className="mt-2 text-center text-xs text-gray-500 font-mono">{t('avatar.preview_label')}</p>
                                 </div>
 
                                 {/* Controls Grid */}
                                 <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-2">
-                                    <Controls label="Face" max={2}
+                                    <Controls label={t('avatar.face')} max={2}
                                         value={config.faceExpression}
                                         onChange={(v: number) => setConfig({ ...config, faceExpression: v })}
                                     />
-                                    <Controls label="Skin" colorMode palette={SKIN_COLORS}
+                                    <Controls label={t('avatar.skin')} colorMode palette={SKIN_COLORS}
                                         value={config.skinColor}
                                         onChange={(v: string) => setConfig({ ...config, skinColor: v })}
                                     />
 
-                                    <Controls label="Hair Style" max={3}
+                                    <Controls label={t('avatar.hair_style')} max={3}
                                         value={config.hairStyle}
                                         onChange={(v: number) => setConfig({ ...config, hairStyle: v })}
                                     />
-                                    <Controls label="Hair Color" colorMode palette={HAIR_COLORS}
+                                    <Controls label={t('avatar.hair_color')} colorMode palette={HAIR_COLORS}
                                         value={config.hairColor}
                                         onChange={(v: string) => setConfig({ ...config, hairColor: v })}
                                     />
 
-                                    <Controls label="Top Style" max={2}
+                                    <Controls label={t('avatar.top_style')} max={2}
                                         value={config.topStyle}
                                         onChange={(v: number) => setConfig({ ...config, topStyle: v })}
                                     />
-                                    <Controls label="Top Color" colorMode
+                                    <Controls label={t('avatar.top_color')} colorMode
                                         value={config.topColor}
                                         onChange={(v: string) => setConfig({ ...config, topColor: v })}
                                     />
-                                    <Controls label="Bottom Style" max={2}
+                                    <Controls label={t('avatar.bottom_style')} max={2}
                                         value={config.bottomStyle}
                                         onChange={(v: number) => setConfig({ ...config, bottomStyle: v })}
                                     />
-                                    <Controls label="Bottom Color" colorMode
+                                    <Controls label={t('avatar.bottom_color')} colorMode
                                         value={config.bottomColor}
                                         onChange={(v: string) => setConfig({ ...config, bottomColor: v })}
                                     />
@@ -224,7 +227,7 @@ export default function AvatarCreator({ onComplete }: AvatarCreatorProps) {
                     onClick={handleSubmit}
                     className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-900/40 transition transform hover:scale-[1.02] active:scale-[0.98]"
                 >
-                    Enter Live Performance
+                    {t('avatar.enter_button')}
                 </button>
             </div>
         </div>

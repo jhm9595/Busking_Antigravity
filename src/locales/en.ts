@@ -15,6 +15,9 @@ export const en = {
         bio_label: 'Bio / Introduction',
         bio_placeholder: 'Write something about yourself...',
         home_button: 'Home',
+        follow: 'Follow',
+        following: 'Following',
+        login_to_follow: 'Login to Follow'
     },
     home: {
         title: 'BuskerKing',
@@ -171,7 +174,31 @@ export const en = {
             search_placeholder: 'Search songs...',
             add_new: 'Add New Song',
             close: 'Close',
-        }
+        },
+        enter_live: 'Enter Live',
+        enter_chat: 'Enter Chat',
+        now_playing: 'Now Playing',
+        up_next: 'Up Next',
+        coming_soon: 'Coming Soon',
+        viewing_count: '{count} Viewing'
+    },
+    avatar: {
+        title: 'Join Live',
+        random: 'Random',
+        use_nickname: 'Use Nickname',
+        anonymous: 'Anonymous',
+        nickname_placeholder: 'Enter Nickname',
+        create_avatar: 'Create Avatar',
+        preview_label: 'My Avatar',
+        face: 'Face',
+        skin: 'Skin',
+        hair_style: 'Hair Style',
+        hair_color: 'Hair Color',
+        top_style: 'Top Style',
+        top_color: 'Top Color',
+        bottom_style: 'Bottom Style',
+        bottom_color: 'Bottom Color',
+        enter_button: 'Enter Live Performance'
     },
     booking: {
         title: 'Booking Inquiries',
@@ -192,7 +219,7 @@ export const en = {
             not_specified: 'Not specified',
         },
         modal: {
-            title: 'Book',
+            title: 'Request for Performance',
             subtitle: 'For Weddings, Events, and Performances',
             section_contact: 'Your Contact Info',
             section_event: 'Event Details',

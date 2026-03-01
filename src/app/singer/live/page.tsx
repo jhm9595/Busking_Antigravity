@@ -13,9 +13,9 @@ import {
     getSongs,
     updatePerformanceSetlist,
     createSongRequest,
-    addSong // Need to import this or similar if I create new song on fly. Actually acceptSongRequest does it. I need addSongToRepertoireAndSetlist logic.
+    updateSongStatus
 } from '@/services/singer'
-import { Music, Clock, MessageCircle, X, Check, Play, Pause, Plus, List, GripVertical, Search, Archive, ChevronRight, MessageSquare } from 'lucide-react'
+import { Music, Clock, MessageCircle, X, Check, Play, Pause, Plus, List, GripVertical, Search, Archive, ChevronRight, MessageSquare, User as UserIcon } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ChatBox from '@/components/chat/ChatBox'
 
@@ -46,6 +46,7 @@ function LivePerformanceContent() {
     // UI State
     const [loading, setLoading] = useState(true)
     const [activeTab, setActiveTab] = useState<'setlist' | 'requests' | 'chat'>('setlist')
+    const [viewingCount, setViewingCount] = useState(0)
     const [showAddModal, setShowAddModal] = useState(false)
     const [elapsedTime, setElapsedTime] = useState(0)
     const [isReordering, setIsReordering] = useState(false)
@@ -56,6 +57,7 @@ function LivePerformanceContent() {
     const [activeSocket, setActiveSocket] = useState<any>(null)
     const [isAlertSent, setIsAlertSent] = useState(false)
     const [canOpenChat, setCanOpenChat] = useState(false)
+    const [processingRequestIds, setProcessingRequestIds] = useState<Set<string>>(new Set())
 
     // Load Data
     const refreshData = useCallback(async () => {
@@ -124,26 +126,56 @@ function LivePerformanceContent() {
 
     // --- Request Handlers ---
     const handleAcceptRequest = async (reqId: string) => {
-        const req = requests.find(r => r.id === reqId)
-        await acceptSongRequest(reqId, performance.singerId)
+        if (processingRequestIds.has(reqId)) return
+        setProcessingRequestIds(prev => new Set(prev).add(reqId))
+        try {
+            const req = requests.find(r => r.id === reqId)
+            await acceptSongRequest(reqId, performance.singerId)
 
-        if (req && activeSocket) {
-            // Also emit request specific format or general system alert
-            activeSocket.emit('system_alert', {
-                performanceId: performance.id,
-                message: `🎤 [신청곡 수락] 관객이 신청한 '${req.title}'${req.artist ? ` - ${req.artist}` : ''} 곡이 수락되었습니다!`
+            if (req && activeSocket) {
+                activeSocket.emit('system_alert', {
+                    performanceId: performance.id,
+                    message: `🎤 [신청곡 수락] 관객이 신청한 '${req.title}'${req.artist ? ` - ${req.artist}` : ''} 곡이 수락되었습니다!`
+                })
+            }
+
+            await refreshData()
+        } finally {
+            setProcessingRequestIds(prev => {
+                const next = new Set(prev)
+                next.delete(reqId)
+                return next
             })
+        }
+    }
+
+    const handleRejectRequest = async (reqId: string) => {
+        if (processingRequestIds.has(reqId)) return
+        setProcessingRequestIds(prev => new Set(prev).add(reqId))
+        try {
+            await rejectSongRequest(reqId)
+            await refreshData()
+        } finally {
+            setProcessingRequestIds(prev => {
+                const next = new Set(prev)
+                next.delete(reqId)
+                return next
+            })
+        }
+    }
+
+    // --- Setlist Handlers ---
+    const handleToggleSongStatus = async (songId: string, currentStatus: string) => {
+        const newStatus = currentStatus === 'completed' ? 'pending' : 'completed'
+        await updateSongStatus(performanceId!, songId, newStatus as any)
+
+        if (activeSocket) {
+            activeSocket.emit('song_status_updated', { performanceId, songId, status: newStatus })
         }
 
         await refreshData()
     }
 
-    const handleRejectRequest = async (reqId: string) => {
-        await rejectSongRequest(reqId)
-        await refreshData()
-    }
-
-    // --- Setlist Handlers ---
     const handleMoveSong = async (fromIndex: number, toIndex: number) => {
         if (!performance) return
         const newSongs = [...performance.songs]
@@ -320,37 +352,50 @@ function LivePerformanceContent() {
                             performance.songs.map((song: any, index: number) => (
                                 <div key={song.id} className="bg-gray-800/80 p-3 rounded-xl flex items-center justify-between border border-gray-700 hover:bg-gray-700 transition group">
                                     <div className="flex items-center flex-1 min-w-0">
-                                        <span className="text-indigo-500 font-mono mr-3 w-6 text-center text-lg font-bold">{index + 1}</span>
-                                        <div className="truncate">
+                                        <span className={`text-indigo-500 font-mono mr-3 w-6 text-center text-lg font-bold ${song.status === 'completed' ? 'opacity-30' : ''}`}>{index + 1}</span>
+                                        <div className={`truncate ${song.status === 'completed' ? 'opacity-30 line-through' : ''}`}>
                                             <h3 className="text-white font-bold text-lg truncate pr-2">{song.title}</h3>
                                             <p className="text-gray-400 text-sm truncate">{song.artist}</p>
                                         </div>
                                     </div>
 
-                                    {isReordering ? (
-                                        <div className="flex flex-col space-y-1 ml-2">
-                                            <button
-                                                disabled={index === 0}
-                                                onClick={() => handleMoveSong(index, index - 1)}
-                                                className="bg-gray-700 p-1 rounded hover:bg-indigo-600 disabled:opacity-30"
-                                            >
-                                                ▲
-                                            </button>
-                                            <button
-                                                disabled={index === performance.songs.length - 1}
-                                                onClick={() => handleMoveSong(index, index + 1)}
-                                                className="bg-gray-700 p-1 rounded hover:bg-indigo-600 disabled:opacity-30"
-                                            >
-                                                ▼
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        song.youtubeUrl && (
-                                            <a href={song.youtubeUrl} target="_blank" rel="noreferrer" className="ml-2 text-xs bg-red-900/30 text-red-400 px-2 py-1 rounded border border-red-900/50 whitespace-nowrap">
-                                                YT
-                                            </a>
-                                        )
-                                    )}
+                                    <div className="flex items-center gap-2">
+                                        {isReordering ? (
+                                            <div className="flex flex-col space-y-1 ml-2">
+                                                <button
+                                                    disabled={index === 0}
+                                                    onClick={() => handleMoveSong(index, index - 1)}
+                                                    className="bg-gray-700 p-1 rounded hover:bg-indigo-600 disabled:opacity-30"
+                                                >
+                                                    ▲
+                                                </button>
+                                                <button
+                                                    disabled={index === performance.songs.length - 1}
+                                                    onClick={() => handleMoveSong(index, index + 1)}
+                                                    className="bg-gray-700 p-1 rounded hover:bg-indigo-600 disabled:opacity-30"
+                                                >
+                                                    ▼
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <button
+                                                    onClick={() => handleToggleSongStatus(song.id, song.status)}
+                                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${song.status === 'completed'
+                                                        ? 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                                                        : 'bg-green-600/20 text-green-400 border border-green-600/30 hover:bg-green-600/30'
+                                                        }`}
+                                                >
+                                                    {song.status === 'completed' ? 'Undo' : 'Complete'}
+                                                </button>
+                                                {song.youtubeUrl && (
+                                                    <a href={song.youtubeUrl} target="_blank" rel="noreferrer" className="text-xs bg-red-900/30 text-red-400 px-2 py-1.5 rounded border border-red-900/50 whitespace-nowrap">
+                                                        YT
+                                                    </a>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                             ))
                         )}
@@ -394,13 +439,15 @@ function LivePerformanceContent() {
                                         <div className="flex space-x-2 mt-2">
                                             <button
                                                 onClick={() => handleAcceptRequest(req.id)}
-                                                className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg font-bold text-sm flex items-center justify-center transition"
+                                                disabled={processingRequestIds.has(req.id)}
+                                                className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white py-2 rounded-lg font-bold text-sm flex items-center justify-center transition"
                                             >
-                                                <Check className="w-4 h-4 mr-1" /> {t('live.requests.accept')}
+                                                <Check className="w-4 h-4 mr-1" /> {processingRequestIds.has(req.id) ? t('common.loading') : t('live.requests.accept')}
                                             </button>
                                             <button
                                                 onClick={() => handleRejectRequest(req.id)}
-                                                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-lg font-bold text-sm flex items-center justify-center transition"
+                                                disabled={processingRequestIds.has(req.id)}
+                                                className="flex-1 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-600 disabled:cursor-not-allowed text-white py-2 rounded-lg font-bold text-sm flex items-center justify-center transition"
                                             >
                                                 <X className="w-4 h-4 mr-1" /> {t('live.requests.reject')}
                                             </button>
@@ -474,9 +521,12 @@ function LivePerformanceContent() {
                     className="flex flex-col items-center justify-center p-3 bg-gray-800 rounded-xl border border-gray-700 hover:bg-gray-750 active:bg-gray-700 transition"
                 >
                     <div className="flex items-center text-gray-400 text-xs mb-1">
-                        <MessageCircle className="w-3 h-3 mr-1 text-blue-400" /> {t('live.stats.requests')}
+                        <UserIcon className="w-3 h-3 mr-1 text-primary" /> Watching
                     </div>
-                    <p className="text-2xl font-mono font-bold text-white">{requests.filter(r => r.status === 'pending').length}</p>
+                    <p className="text-2xl font-mono font-bold text-white">
+                        {viewingCount}
+                        <span className="text-xs text-slate-500 ml-1">/ {performance.chatCapacity || 50}</span>
+                    </p>
                 </button>
             </div>
 
