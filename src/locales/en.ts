@@ -147,9 +147,11 @@ export const en = {
             end_button: 'End Performance',
             confirm_end: 'Are you sure you want to end the performance?',
         },
+        not_found: 'Performance not found',
         stats: {
             duration: 'Duration',
             requests: 'Requests',
+            watching: 'Watching',
         },
         tabs: {
             setlist: 'Setlist',
@@ -159,6 +161,7 @@ export const en = {
             empty: 'No songs in setlist.',
             add_button: 'Add Song',
             reorder_hint: 'Drag to Reorder',
+            remove: 'Remove from setlist',
         },
         requests: {
             empty: 'No pending requests.',
@@ -175,6 +178,10 @@ export const en = {
             title: 'Add Song to Live',
             search_placeholder: 'Search songs...',
             add_new: 'Add New Song',
+            add_direct: 'Add directly to Setlist',
+            song_title: 'Song Title',
+            artist: 'Artist',
+            from_repertoire: 'From Repertoire',
             close: 'Close',
         },
         enter_live: 'Enter Live',

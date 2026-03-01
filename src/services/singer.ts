@@ -71,7 +71,7 @@ export async function getSongs(singerId: string) {
 }
 
 export async function addSong(data: { singerId: string, title: string, artist: string, youtubeUrl?: string }) {
-    await prisma.song.create({
+    const song = await prisma.song.create({
         data: {
             singerId: data.singerId,
             title: data.title,
@@ -80,6 +80,7 @@ export async function addSong(data: { singerId: string, title: string, artist: s
         }
     })
     revalidatePath('/singer/dashboard')
+    return song
 }
 
 export async function deleteSong(id: string) {

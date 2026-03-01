@@ -149,9 +149,11 @@ export const zh: LocaleTypes = {
             end_button: '结束演出',
             confirm_end: '确定要结束演出吗？',
         },
+        not_found: '未找到演出',
         stats: {
             duration: '持续时间',
             requests: '点歌',
+            watching: '观看中',
         },
         tabs: {
             setlist: '歌单',
@@ -161,6 +163,7 @@ export const zh: LocaleTypes = {
             empty: '歌单中没有歌曲。',
             add_button: '添加歌曲',
             reorder_hint: '拖动排序',
+            remove: '从歌单中移除',
         },
         requests: {
             empty: '没有待处理的点歌请求。',
@@ -177,6 +180,10 @@ export const zh: LocaleTypes = {
             title: '添加歌曲到直播',
             search_placeholder: '搜索歌曲...',
             add_new: '直接输入新歌',
+            add_direct: '直接添加到歌单',
+            song_title: '歌曲标题',
+            artist: '歌手',
+            from_repertoire: '从我的曲目中选择',
             close: '关闭',
         },
         enter_live: '进入现场',

@@ -149,9 +149,11 @@ export const ja: LocaleTypes = {
             end_button: '公演終了',
             confirm_end: '本当に公演を終了しますか？',
         },
+        not_found: '公演が見つかりません',
         stats: {
             duration: '経過時間',
             requests: 'リクエスト',
+            watching: '視聴中',
         },
         tabs: {
             setlist: 'セットリスト',
@@ -161,6 +163,7 @@ export const ja: LocaleTypes = {
             empty: 'セットリストに曲がありません。',
             add_button: '曲を追加',
             reorder_hint: 'ドラッグして並べ替え',
+            remove: 'セットリストから削除',
         },
         requests: {
             empty: '待機中のリクエストはありません。',
@@ -176,7 +179,11 @@ export const ja: LocaleTypes = {
         modal: {
             title: '曲を追加',
             search_placeholder: '曲を検索...',
-            add_new: '新しい曲を 직접入力',
+            add_new: '新しい曲を追加',
+            add_direct: '直接セットリストに追加',
+            song_title: '曲名',
+            artist: 'アーティスト',
+            from_repertoire: 'レパートリーから選択',
             close: '閉じる',
         },
         enter_live: 'ライブに入る',

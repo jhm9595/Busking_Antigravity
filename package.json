@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.8",
+    "@hello-pangea/dnd": "^18.0.1",
     "@prisma/client": "^5.22.0",
     "@react-google-maps/api": "^2.20.8",
     "@supabase/ssr": "^0.8.0",

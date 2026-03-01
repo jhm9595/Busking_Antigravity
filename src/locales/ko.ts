@@ -149,9 +149,11 @@ export const ko: LocaleTypes = {
             end_button: '공연 종료',
             confirm_end: '정말 공연을 종료하시겠습니까?',
         },
+        not_found: '공연을 찾을 수 없습니다',
         stats: {
             duration: '진행 시간',
             requests: '신청곡',
+            watching: '시청 중',
         },
         tabs: {
             setlist: '세트리스트',
@@ -161,6 +163,7 @@ export const ko: LocaleTypes = {
             empty: '세트리스트에 곡이 없습니다.',
             add_button: '곡 추가',
             reorder_hint: '드래그하여 순서 변경',
+            remove: '세트리스트에서 제외',
         },
         requests: {
             empty: '대기 중인 신청곡이 없습니다.',
@@ -177,6 +180,10 @@ export const ko: LocaleTypes = {
             title: '공연곡 추가',
             search_placeholder: '곡 검색...',
             add_new: '새 곡 직접 입력',
+            add_direct: '세트리스트에 바로 추가하기',
+            song_title: '곡 제목',
+            artist: '아티스트',
+            from_repertoire: '내 레퍼토리에서 선택',
             close: '닫기',
         },
         enter_live: '라이브 입장',

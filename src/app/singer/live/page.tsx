@@ -13,25 +13,18 @@ import {
     getSongs,
     updatePerformanceSetlist,
     createSongRequest,
-    updateSongStatus
+    updateSongStatus,
+    addSong
 } from '@/services/singer'
 import { Music, Clock, MessageCircle, X, Check, Play, Pause, Plus, List, GripVertical, Search, Archive, ChevronRight, MessageSquare, User as UserIcon, Trash2 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ChatBox from '@/components/chat/ChatBox'
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
 import io, { Socket } from 'socket.io-client'
 
 // We need a server action to add ad-hoc song? singer.ts has addSong.
 // Let's assume we can use addSong then updateSetlist. Or make a new composite function.
 // For now, I'll use a client-side wrapper in handleManualAddSong that calls addSong then adds to setlist.
-
-
-
-// Need to npm install @hello-pangea/dnd if not present, but for now assuming user has it or I can use simple array swap if needed.
-// Actually, simple array specific UI might be safer without dependencies if not installed. 
-// Let's use simple up/down or simplified drag if possible, but standard dnd is better. 
-// Since I can't guarantee package installation instantly without checking, I'll build a custom simple reorder or just up/down buttons?
-// But wait, I can use the same logic as I did elsewhere or just simple up/down arrows.
-// Let's try to imply a reorder mode.
 
 function LivePerformanceContent() {
     const { t } = useLanguage()
@@ -262,6 +255,13 @@ function LivePerformanceContent() {
         await updateSetlistOrder(performanceId!, ids)
     }
 
+    const onDragEnd = async (result: DropResult) => {
+        if (!result.destination) return
+        if (result.source.index === result.destination.index) return
+        
+        await handleMoveSong(result.source.index, result.destination.index)
+    }
+
     const handleRemoveSong = async (songId: string) => {
         if (!performance) return
         const newIds = performance.songs
@@ -297,54 +297,29 @@ function LivePerformanceContent() {
     const handleManualAddSong = async () => {
         if (!manualSongTitle.trim() || !performance) return
 
-        // 1. Create Song in DB (use existing server action or fetch)
-        // Since I don't have addSong imported directly callable or it requires revalidation, 
-        // I will use a special server action I'll add quickly or reuse acceptSongRequest logic? 
-        // No, I need `addSong` exposed.
-        // Let's do a trick: create a request and accept it immediately?
-        // Or better, just import and use `addSong` if available. 
-        // I will optimistically assume I can just use `createSongRequest` + `acceptSongRequest` as a workflow shortcut if I don't want to expose `addSong` return value?
-        // Actually, let's just make a dedicated "Add To Setlist" action in Service or reuse.
-        // For now, I will use `createSongRequest` (simulated audience) -> `acceptSongRequest` sequence as a sturdy workaround ensuring consistency.
-
         try {
-            const reqRes: any = await createSongRequest({
-                performanceId: performanceId!,
+            // 1. Create Song in DB for the singer's repertoire
+            const newSong = await addSong({
+                singerId: performance.singerId,
                 title: manualSongTitle,
                 artist: manualSongArtist || 'Unknown'
-            })
-            if (reqRes.success) {
-                // We need the ID of the request we just made. 
-                // The current createSongRequest doesn't return ID.
-                // I should update createSongRequest or just find it.
-                // Let's assume for this turn I will fetch requests and accept the latest one matching?
-                // That is risky. 
-                // Better: createSongRequest should return the object.
-                // I can't change it easily without step loop. 
-                // Let's use `manualSongTitle` to filter `allSongs`.
+            });
+
+            // 2. Add directly to the current performance's setlist
+            if (newSong && newSong.id) {
+                await handleAddSong(newSong.id);
             }
-        } catch (e) { }
-
-        // Wait, I can't easily do it without changing service return type.
-        // Let's just create a request and then users can switch tabs to accept it? 
-        // Or... 
-        // I will instruct user: "Request created! Go to Requests tab to accept it."
-        // That is safer.
-
-        await createSongRequest({
-            performanceId: performanceId!,
-            title: manualSongTitle,
-            artist: manualSongArtist || 'Unknown'
-        })
-        await refreshData()
-        setActiveTab('requests')
-        setShowAddModal(false)
-        setManualSongTitle('')
-        setManualSongArtist('')
+            
+            setManualSongTitle('')
+            setManualSongArtist('')
+        } catch (e) {
+            console.error("Failed to add manual song", e);
+            alert(t('common.error_occurred') || "Error adding song");
+        }
     }
 
     if (loading) return <div className="h-screen bg-black text-white flex items-center justify-center">{t('common.loading')}</div>
-    if (!performance) return <div className="h-screen bg-black text-white flex items-center justify-center">Performance not found</div>
+    if (!performance) return <div className="h-screen bg-black text-white flex items-center justify-center">{t('live.not_found')}</div>
 
     const pendingRequests = requests.filter(r => r.status === 'pending')
 
@@ -443,69 +418,73 @@ function LivePerformanceContent() {
                                 <p>{t('live.setlist.empty')}</p>
                             </div>
                         ) : (
-                            performance.songs.map((song: any, index: number) => (
-                                <div key={song.id} className="bg-gray-800/80 p-3 rounded-xl flex items-center justify-between border border-gray-700 hover:bg-gray-700 transition group">
-                                    <div className="flex items-center flex-1 min-w-0">
-                                        <span className={`text-indigo-500 font-mono mr-3 w-6 text-center text-lg font-bold ${song.status === 'completed' ? 'opacity-30' : ''}`}>{index + 1}</span>
-                                        <div className={`truncate ${song.status === 'completed' ? 'opacity-30 line-through' : ''}`}>
-                                            <h3 className="text-white font-bold text-lg truncate pr-2">{song.title}</h3>
-                                            <p className="text-gray-400 text-sm truncate">{song.artist}</p>
-                                        </div>
-                                    </div>
+                            <DragDropContext onDragEnd={onDragEnd}>
+                                <Droppable droppableId="setlist">
+                                    {(provided) => (
+                                        <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+                                            {performance.songs.map((song: any, index: number) => (
+                                                <Draggable key={song.id} draggableId={song.id} index={index} isDragDisabled={!isReordering}>
+                                                    {(provided, snapshot) => (
+                                                        <div
+                                                            ref={provided.innerRef}
+                                                            {...provided.draggableProps}
+                                                            className={`bg-gray-800/80 p-3 rounded-xl flex items-center justify-between border border-gray-700 transition group ${snapshot.isDragging ? 'shadow-2xl ring-2 ring-indigo-500 z-50 bg-gray-700 scale-[1.02]' : 'hover:bg-gray-700'}`}
+                                                        >
+                                                            <div className="flex items-center flex-1 min-w-0" {...(isReordering ? provided.dragHandleProps : {})}>
+                                                                {isReordering ? (
+                                                                    <GripVertical className="w-5 h-5 text-gray-400 hover:text-white mr-3 cursor-grab" />
+                                                                ) : (
+                                                                    <span className={`text-indigo-500 font-mono mr-3 w-6 text-center text-lg font-bold ${song.status === 'completed' ? 'opacity-30' : ''}`}>{index + 1}</span>
+                                                                )}
+                                                                <div className={`truncate ${song.status === 'completed' ? 'opacity-30 line-through' : ''}`}>
+                                                                    <h3 className="text-white font-bold text-lg truncate pr-2">{song.title}</h3>
+                                                                    <p className="text-gray-400 text-sm truncate">{song.artist}</p>
+                                                                </div>
+                                                            </div>
 
-                                    <div className="flex items-center gap-2">
-                                        {isReordering ? (
-                                            <div className="flex flex-col space-y-1 ml-2">
-                                                <button
-                                                    disabled={index === 0}
-                                                    onClick={() => handleMoveSong(index, index - 1)}
-                                                    className="bg-gray-700 p-1 rounded hover:bg-indigo-600 disabled:opacity-30"
-                                                >
-                                                    ▲
-                                                </button>
-                                                <button
-                                                    disabled={index === performance.songs.length - 1}
-                                                    onClick={() => handleMoveSong(index, index + 1)}
-                                                    className="bg-gray-700 p-1 rounded hover:bg-indigo-600 disabled:opacity-30"
-                                                >
-                                                    ▼
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <button
-                                                    onClick={() => handleToggleSongStatus(song.id, song.status)}
-                                                    disabled={togglingStatusIds.has(song.id)}
-                                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${togglingStatusIds.has(song.id)
-                                                        ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-70'
-                                                        : song.status === 'completed'
-                                                            ? 'bg-gray-700 text-gray-400 hover:bg-gray-600'
-                                                            : 'bg-green-600/20 text-green-400 border border-green-600/30 hover:bg-green-600/30'
-                                                        }`}
-                                                >
-                                                    {togglingStatusIds.has(song.id) ? (
-                                                        <>
-                                                            <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
-                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                                                            </svg>
-                                                            <span>...</span>
-                                                        </>
-                                                    ) : (
-                                                        song.status === 'completed' ? 'Undo' : 'Complete'
+                                                            <div className="flex items-center gap-2">
+                                                                {!isReordering && (
+                                                                    <>
+                                                                        <button
+                                                                            onClick={() => handleToggleSongStatus(song.id, song.status)}
+                                                                            disabled={togglingStatusIds.has(song.id)}
+                                                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${togglingStatusIds.has(song.id)
+                                                                                ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-70'
+                                                                                : song.status === 'completed'
+                                                                                    ? 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                                                                                    : 'bg-green-600/20 text-green-400 border border-green-600/30 hover:bg-green-600/30'
+                                                                                }`}
+                                                                        >
+                                                                            {togglingStatusIds.has(song.id) ? (
+                                                                                <>
+                                                                                    <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                                                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                                                                                    </svg>
+                                                                                    <span>...</span>
+                                                                                </>
+                                                                            ) : (
+                                                                                song.status === 'completed' ? 'Undo' : 'Complete'
+                                                                            )}
+                                                                        </button>
+                                                                        {song.youtubeUrl && (
+                                                                            <a href={song.youtubeUrl} target="_blank" rel="noreferrer" className="text-xs bg-red-900/30 text-red-400 px-2 py-1.5 rounded border border-red-900/50 whitespace-nowrap">
+                                                                                YT
+                                                                            </a>
+                                                                        )}
+                                                                        <DeleteSongButton songId={song.id} onRemove={handleRemoveSong} />
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                     )}
-                                                </button>
-                                                {song.youtubeUrl && (
-                                                    <a href={song.youtubeUrl} target="_blank" rel="noreferrer" className="text-xs bg-red-900/30 text-red-400 px-2 py-1.5 rounded border border-red-900/50 whitespace-nowrap">
-                                                        YT
-                                                    </a>
-                                                )}
-                                                <DeleteSongButton songId={song.id} onRemove={handleRemoveSong} />
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-                            ))
+                                                </Draggable>
+                                            ))}
+                                            {provided.placeholder}
+                                        </div>
+                                    )}
+                                </Droppable>
+                            </DragDropContext>
                         )}
 
                         <div className="text-center pt-4">
@@ -658,7 +637,7 @@ function LivePerformanceContent() {
                     className="flex flex-col items-center justify-center p-3 bg-gray-800 rounded-xl border border-gray-700 hover:bg-gray-750 active:bg-gray-700 transition"
                 >
                     <div className="flex items-center text-gray-400 text-xs mb-1">
-                        <UserIcon className="w-3 h-3 mr-1 text-primary" /> Watching
+                        <UserIcon className="w-3 h-3 mr-1 text-primary" /> {t('live.stats.watching')}
                     </div>
                     <p className="text-2xl font-mono font-bold text-white">
                         {viewingCount}
@@ -685,14 +664,14 @@ function LivePerformanceContent() {
                                 <div className="space-y-2">
                                     <input
                                         type="text"
-                                        placeholder="Song Title"
+                                        placeholder={t('live.modal.song_title')}
                                         value={manualSongTitle}
                                         onChange={(e) => setManualSongTitle(e.target.value)}
                                         className="w-full bg-gray-900 border border-gray-700 rounded-lg p-2 text-white text-sm focus:ring-1 focus:ring-indigo-500"
                                     />
                                     <input
                                         type="text"
-                                        placeholder="Artist"
+                                        placeholder={t('live.modal.artist')}
                                         value={manualSongArtist}
                                         onChange={(e) => setManualSongArtist(e.target.value)}
                                         className="w-full bg-gray-900 border border-gray-700 rounded-lg p-2 text-white text-sm focus:ring-1 focus:ring-indigo-500"
@@ -702,7 +681,7 @@ function LivePerformanceContent() {
                                         disabled={!manualSongTitle.trim()}
                                         className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 text-white py-2 rounded-lg text-sm font-bold transition"
                                     >
-                                        Add to Requests & Accept
+                                        {t('live.modal.add_direct')}
                                     </button>
                                 </div>
                             </div>
@@ -718,7 +697,7 @@ function LivePerformanceContent() {
                             />
 
                             <div className="space-y-2">
-                                <h4 className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">From Repertoire</h4>
+                                <h4 className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">{t('live.modal.from_repertoire')}</h4>
                                 {allSongs
                                     .filter(s =>
                                         !performance.songs.some((ps: any) => ps.id === s.id) &&
@@ -748,6 +727,7 @@ function LivePerformanceContent() {
 
 // --- DeleteSongButton: two-step confirm to prevent accidental removal ---
 function DeleteSongButton({ songId, onRemove }: { songId: string; onRemove: (id: string) => Promise<void> }) {
+    const { t } = useLanguage()
     const [confirming, setConfirming] = useState(false)
     const [removing, setRemoving] = useState(false)
 
@@ -779,14 +759,14 @@ function DeleteSongButton({ songId, onRemove }: { songId: string; onRemove: (id:
     return (
         <button
             onClick={handleClick}
-            title={confirming ? 'Tap again to remove' : 'Remove from setlist'}
+            title={confirming ? t('common.confirm') : t('live.setlist.remove')}
             className={`p-1.5 rounded-lg transition text-xs font-bold flex items-center gap-1 ${confirming
                 ? 'bg-red-600 text-white animate-pulse'
                 : 'bg-gray-700/60 text-gray-500 hover:bg-red-900/40 hover:text-red-400'
                 }`}
         >
             <Trash2 className="w-4 h-4" />
-            {confirming && <span>Sure?</span>}
+            {confirming && <span>{t('common.confirm') || "Sure?"}</span>}
         </button>
     )
 }
