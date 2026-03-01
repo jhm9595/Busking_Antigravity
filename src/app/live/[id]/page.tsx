@@ -234,43 +234,33 @@ export default function AudienceLivePage() {
                     </button>
                 </section>
 
-                {/* Live Chat Section */}
-                <section className={`flex flex-col flex-1 px-4 pb-4 min-h-[400px] ${performance.chatEnabled && chatStatus === 'open' ? '' : 'hidden'}`}>
-                    <div className="flex items-center justify-between mb-3">
-                        <h2 className="text-sm font-bold flex items-center gap-2 font-display text-white">
-                            <MessageCircle className="text-primary w-4 h-4" />
-                            {t('chat.title')}
-                        </h2>
-                        <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded-full text-slate-400 uppercase tracking-tighter font-mono">
-                            {viewingCount} / {performance.chatCapacity || 50} Viewing
-                        </span>
-                    </div>
-                    {/* The ChatBox component itself */}
-                    <div className="flex-1 bg-white/5 rounded-xl border border-white/5 overflow-hidden flex flex-col">
-                        <ChatBox
-                            performanceId={performanceId}
-                            username={username}
-                            userType="audience"
-                            avatarConfig={avatarConfig}
-                            className="flex-1 overflow-hidden"
-                            onSocketReady={setActiveSocket}
-                            onChatStatusChange={setChatStatus}
-                        />
-                    </div>
-                </section>
-
-                {/* Always render ChatBox invisibly if not open to keep socket alive for status updates */}
-                {!(performance.chatEnabled && chatStatus === 'open') && (
-                    <div className="hidden">
-                        <ChatBox
-                            performanceId={performanceId}
-                            username={username}
-                            userType="audience"
-                            avatarConfig={avatarConfig}
-                            onChatStatusChange={setChatStatus}
-                        />
-                    </div>
+                {/* Live Chat Section — only shown when chatEnabled AND chat room is open */}
+                {performance.chatEnabled && (
+                    <section className={`flex flex-col flex-1 px-4 pb-4 min-h-[400px] ${chatStatus === 'open' ? '' : 'hidden'}`}>
+                        <div className="flex items-center justify-between mb-3">
+                            <h2 className="text-sm font-bold flex items-center gap-2 font-display text-white">
+                                <MessageCircle className="text-primary w-4 h-4" />
+                                {t('chat.title')}
+                            </h2>
+                            <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded-full text-slate-400 uppercase tracking-tighter font-mono">
+                                {viewingCount} / {performance.chatCapacity || 50} Viewing
+                            </span>
+                        </div>
+                        {/* The ChatBox component itself */}
+                        <div className="flex-1 bg-white/5 rounded-xl border border-white/5 overflow-hidden flex flex-col">
+                            <ChatBox
+                                performanceId={performanceId}
+                                username={username}
+                                userType="audience"
+                                avatarConfig={avatarConfig}
+                                className="flex-1 overflow-hidden"
+                                onSocketReady={setActiveSocket}
+                                onChatStatusChange={setChatStatus}
+                            />
+                        </div>
+                    </section>
                 )}
+
 
                 <div className="h-16"></div> {/* Spacer for footer */}
             </main>

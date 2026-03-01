@@ -71,9 +71,15 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
 
 
     useEffect(() => {
+        // Only connect if NEXT_PUBLIC_CHAT_SERVER_URL is set
+        const chatServerUrl = process.env.NEXT_PUBLIC_CHAT_SERVER_URL
+        if (!chatServerUrl) {
+            console.warn('[ChatBox] NEXT_PUBLIC_CHAT_SERVER_URL is not set. Socket connection skipped.')
+            if (onChatStatusChange) onChatStatusChange('closed')
+            return
+        }
+
         // Connect to Chat Server
-        // Use environment variable for production, fallback to localhost for development
-        const chatServerUrl = process.env.NEXT_PUBLIC_CHAT_SERVER_URL || 'http://localhost:4000'
         const newSocket = io(chatServerUrl)
         setSocket(newSocket)
         if (onSocketReady) onSocketReady(newSocket)
