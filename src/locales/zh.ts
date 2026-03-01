@@ -99,6 +99,8 @@ export const zh: LocaleTypes = {
         empty_hint: '请在上方添加您的曲目。',
         selected: '已选择',
         select_placeholder: '选择要添加的歌曲...',
+        request_sent: '点歌请求已发送！',
+        request_failed: '点歌请求发送失败',
     },
     dashboard: {
         title: '歌手仪表板',

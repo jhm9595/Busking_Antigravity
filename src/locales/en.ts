@@ -97,6 +97,8 @@ export const en = {
         empty_hint: 'Add your repertoire above.',
         selected: 'selected',
         select_placeholder: 'Select a song to add...',
+        request_sent: 'Song request sent!',
+        request_failed: 'Failed to send song request',
     },
     dashboard: {
         title: 'Singer Dashboard',

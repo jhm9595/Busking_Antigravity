@@ -99,6 +99,8 @@ export const ko: LocaleTypes = {
         empty_hint: '위에서 레퍼토리를 추가하세요.',
         selected: '곡 선택됨',
         select_placeholder: '추가할 곡을 선택하세요...',
+        request_sent: '신청곡이 전송되었습니다!',
+        request_failed: '신청곡 전송에 실패했습니다',
     },
     dashboard: {
         title: '가수 대시보드',

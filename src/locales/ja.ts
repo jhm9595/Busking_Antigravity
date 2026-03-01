@@ -99,6 +99,8 @@ export const ja: LocaleTypes = {
         empty_hint: '上でレパートリーを追加してください。',
         selected: '選択済み',
         select_placeholder: '追加する曲を選択...',
+        request_sent: 'リクエストが送信されました！',
+        request_failed: 'リクエストの送信に失敗しました',
     },
     dashboard: {
         title: '歌手ダッシュボード',

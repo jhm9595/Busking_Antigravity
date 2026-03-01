@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ChatBox from '@/components/chat/ChatBox'
-import { getPerformanceById, createSongRequest } from '@/services/singer'
+import { getPerformanceById } from '@/services/singer'
 import AvatarCreator from '@/components/audience/AvatarCreator'
 import { AvatarConfig } from '@/components/audience/PixelAvatar'
 import SongRequestModal from '@/components/audience/SongRequestModal'
@@ -68,14 +68,21 @@ export default function AudienceLivePage() {
     const handleSongRequest = async (title: string, artist: string) => {
         if (!performanceId) return
         try {
-            await createSongRequest({ performanceId, title, artist })
+            const res = await fetch('/api/song-requests', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ performanceId, title, artist })
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || 'Request failed')
+
             if (activeSocket) {
                 activeSocket.emit('song_requested', { performanceId, title, username })
             }
-            alert('Your song request has been sent!')
-        } catch (error) {
-            console.error(error)
-            alert('Failed to send request.')
+            alert(t('song.request_sent') || 'Your song request has been sent!')
+        } catch (error: any) {
+            console.error('Song request error:', error)
+            alert(`${t('song.request_failed') || 'Failed to send request'}: ${error.message}`)
         }
     }
 
@@ -161,8 +168,8 @@ export default function AudienceLivePage() {
                     <button
                         onClick={handleFollow}
                         className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all uppercase tracking-wider ${isFollowed
-                                ? 'bg-white/10 text-white border border-white/20'
-                                : 'bg-primary text-white hover:bg-primary-dark shadow-lg shadow-primary/20 hover:scale-105 active:scale-95'
+                            ? 'bg-white/10 text-white border border-white/20'
+                            : 'bg-primary text-white hover:bg-primary-dark shadow-lg shadow-primary/20 hover:scale-105 active:scale-95'
                             }`}
                     >
                         {isFollowed ? 'Following' : 'Follow'}
