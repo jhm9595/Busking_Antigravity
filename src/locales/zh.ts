@@ -23,6 +23,7 @@ export const zh: LocaleTypes = {
         subtitle: '街头表演者和粉丝的终极平台。\n建立联系，展示才华，被世界发现。',
         dashboard_button: '前往仪表板',
         get_started: '开始使用',
+        start_busking: '开始街头表演',
         explore_button: '观看街头表演',
     },
     performance: {
@@ -102,6 +103,10 @@ export const zh: LocaleTypes = {
         logout: '退出登录',
         start_mode: '开始演出模式',
         loading: '正在加载仪表板...',
+        onboarding_title: '注册成为歌手？',
+        onboarding_desc: '注册成为街头艺人，开始你自己的现场表演！',
+        onboarding_btn: '创建歌手资料',
+        onboarding_skip: '先作为观众看看',
         qr: {
             title: '我的个人资料',
             button: '显示二维码',

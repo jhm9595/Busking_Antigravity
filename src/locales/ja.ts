@@ -23,6 +23,7 @@ export const ja: LocaleTypes = {
         subtitle: 'ストリートパフォーマーとファンのための究極のプラットフォーム。\nつながり、パフォーマンスし、発見されよう。',
         dashboard_button: 'ダッシュボードへ',
         get_started: '始める',
+        start_busking: 'バスキングを始める',
         explore_button: 'バスキングを見る',
     },
     performance: {
@@ -102,6 +103,10 @@ export const ja: LocaleTypes = {
         logout: 'ログアウト',
         start_mode: '公演モード開始',
         loading: 'ダッシュボード読み込み中...',
+        onboarding_title: '歌手として登録しますか？',
+        onboarding_desc: 'バスカーとして登録して、自分だけのライブパフォーマンスを始めましょう！',
+        onboarding_btn: '歌手プロフィールを作成',
+        onboarding_skip: 'まずは観客として楽しむ',
         qr: {
             title: 'マイプロフィール',
             button: 'QRコード表示',
