@@ -58,6 +58,7 @@ function LivePerformanceContent() {
     const [isAlertSent, setIsAlertSent] = useState(false)
     const [canOpenChat, setCanOpenChat] = useState(false)
     const [processingRequestIds, setProcessingRequestIds] = useState<Set<string>>(new Set())
+    const [togglingStatusIds, setTogglingStatusIds] = useState<Set<string>>(new Set())
 
     // Load Data
     const refreshData = useCallback(async () => {
@@ -166,14 +167,41 @@ function LivePerformanceContent() {
 
     // --- Setlist Handlers ---
     const handleToggleSongStatus = async (songId: string, currentStatus: string) => {
+        if (togglingStatusIds.has(songId)) return
         const newStatus = currentStatus === 'completed' ? 'pending' : 'completed'
-        await updateSongStatus(performanceId!, songId, newStatus as any)
 
-        if (activeSocket) {
-            activeSocket.emit('song_status_updated', { performanceId, songId, status: newStatus })
+        // Optimistic update: flip status immediately in local state
+        setTogglingStatusIds(prev => new Set(prev).add(songId))
+        setPerformance((prev: any) => ({
+            ...prev,
+            songs: prev.songs.map((s: any) =>
+                s.id === songId ? { ...s, status: newStatus } : s
+            )
+        }))
+
+        try {
+            await updateSongStatus(performanceId!, songId, newStatus as any)
+
+            if (activeSocket) {
+                activeSocket.emit('song_status_updated', { performanceId, songId, status: newStatus })
+            }
+
+            await refreshData()
+        } catch (e) {
+            // Revert on error
+            setPerformance((prev: any) => ({
+                ...prev,
+                songs: prev.songs.map((s: any) =>
+                    s.id === songId ? { ...s, status: currentStatus } : s
+                )
+            }))
+        } finally {
+            setTogglingStatusIds(prev => {
+                const next = new Set(prev)
+                next.delete(songId)
+                return next
+            })
         }
-
-        await refreshData()
     }
 
     const handleMoveSong = async (fromIndex: number, toIndex: number) => {
@@ -396,12 +424,25 @@ function LivePerformanceContent() {
                                             <>
                                                 <button
                                                     onClick={() => handleToggleSongStatus(song.id, song.status)}
-                                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${song.status === 'completed'
-                                                        ? 'bg-gray-700 text-gray-400 hover:bg-gray-600'
-                                                        : 'bg-green-600/20 text-green-400 border border-green-600/30 hover:bg-green-600/30'
+                                                    disabled={togglingStatusIds.has(song.id)}
+                                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${togglingStatusIds.has(song.id)
+                                                            ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-70'
+                                                            : song.status === 'completed'
+                                                                ? 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                                                                : 'bg-green-600/20 text-green-400 border border-green-600/30 hover:bg-green-600/30'
                                                         }`}
                                                 >
-                                                    {song.status === 'completed' ? 'Undo' : 'Complete'}
+                                                    {togglingStatusIds.has(song.id) ? (
+                                                        <>
+                                                            <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                                                            </svg>
+                                                            <span>...</span>
+                                                        </>
+                                                    ) : (
+                                                        song.status === 'completed' ? 'Undo' : 'Complete'
+                                                    )}
                                                 </button>
                                                 {song.youtubeUrl && (
                                                     <a href={song.youtubeUrl} target="_blank" rel="noreferrer" className="text-xs bg-red-900/30 text-red-400 px-2 py-1.5 rounded border border-red-900/50 whitespace-nowrap">
@@ -660,8 +701,8 @@ function DeleteSongButton({ songId, onRemove }: { songId: string; onRemove: (id:
             onClick={handleClick}
             title={confirming ? 'Tap again to remove' : 'Remove from setlist'}
             className={`p-1.5 rounded-lg transition text-xs font-bold flex items-center gap-1 ${confirming
-                    ? 'bg-red-600 text-white animate-pulse'
-                    : 'bg-gray-700/60 text-gray-500 hover:bg-red-900/40 hover:text-red-400'
+                ? 'bg-red-600 text-white animate-pulse'
+                : 'bg-gray-700/60 text-gray-500 hover:bg-red-900/40 hover:text-red-400'
                 }`}
         >
             <Trash2 className="w-4 h-4" />
