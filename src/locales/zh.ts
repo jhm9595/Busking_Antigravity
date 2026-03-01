@@ -184,7 +184,8 @@ export const zh: LocaleTypes = {
         now_playing: '正在演唱',
         up_next: '下一首曲目',
         coming_soon: '即将开始',
-        viewing_count: '{count}人观看中'
+        viewing_count: '{count}人观看中',
+        view_profile: '查看个人资料'
     },
     avatar: {
         title: '加入现场',

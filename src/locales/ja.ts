@@ -184,7 +184,8 @@ export const ja: LocaleTypes = {
         now_playing: '演奏中',
         up_next: '次の曲',
         coming_soon: 'もうすぐ開始',
-        viewing_count: '{count}人が視聴中'
+        viewing_count: '{count}人が視聴中',
+        view_profile: 'プロフィールを見る'
     },
     avatar: {
         title: 'ライブに参加',

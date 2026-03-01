@@ -182,7 +182,8 @@ export const en = {
         now_playing: 'Now Playing',
         up_next: 'Up Next',
         coming_soon: 'Coming Soon',
-        viewing_count: '{count} Viewing'
+        viewing_count: '{count} Viewing',
+        view_profile: 'View Profile'
     },
     avatar: {
         title: 'Join Live',

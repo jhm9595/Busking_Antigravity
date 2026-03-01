@@ -146,23 +146,27 @@ export default function AudienceLivePage() {
         <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col max-w-md mx-auto border-x border-primary/10 shadow-2xl font-display">
             {/* Header Section */}
             <header className="sticky top-0 z-30 bg-background-dark/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <Link href="/" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors mr-1">
+                <div className="flex items-center gap-2">
+                    <Link href="/" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors">
                         <Home className="w-5 h-5" />
                     </Link>
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden bg-white/10 flex items-center justify-center">
+                    {/* Tapping singer info goes back to their profile */}
+                    <Link
+                        href={singer?.id ? `/singer/${singer.id}` : '/'}
+                        className="flex items-center gap-2 px-2 py-1 rounded-xl hover:bg-white/5 transition-colors group"
+                    >
+                        <div className="w-9 h-9 rounded-full border-2 border-primary overflow-hidden bg-white/10 flex items-center justify-center flex-shrink-0">
                             {singer?.profile?.avatarUrl ? (
                                 <img className="w-full h-full object-cover" src={singer.profile.avatarUrl} alt={singer?.stageName} />
                             ) : (
-                                <span className="font-bold text-white">{singer?.stageName?.[0] || 'A'}</span>
+                                <span className="font-bold text-white text-sm">{singer?.stageName?.[0] || 'A'}</span>
                             )}
                         </div>
                         <div>
-                            <h1 className="text-sm font-bold leading-tight text-white">{singer?.stageName || 'Singer'}</h1>
-                            <p className="text-[10px] text-slate-400 font-medium">@{singer?.stageName?.toLowerCase().replace(/\s+/g, '') || 'busker'}</p>
+                            <h1 className="text-sm font-bold leading-tight text-white group-hover:text-primary transition-colors">{singer?.stageName || 'Singer'}</h1>
+                            <p className="text-[10px] text-slate-500 font-medium">↩ {t('live.view_profile')}</p>
                         </div>
-                    </div>
+                    </Link>
                 </div>
                 <div className="flex gap-2">
                     <button
@@ -182,6 +186,7 @@ export default function AudienceLivePage() {
                     </button>
                 </div>
             </header>
+
 
             <main className="flex-1 overflow-y-auto custom-scrollbar flex flex-col relative">
                 {/* Live Setlist Card */}

@@ -184,7 +184,8 @@ export const ko: LocaleTypes = {
         now_playing: '현재 공연 중',
         up_next: '다음 예매 곡',
         coming_soon: '곧 시작',
-        viewing_count: '{count}명 시청 중'
+        viewing_count: '{count}명 시청 중',
+        view_profile: '프로필 보기'
     },
     avatar: {
         title: '라이브 참여하기',
