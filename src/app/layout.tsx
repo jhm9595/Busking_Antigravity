@@ -20,6 +20,8 @@ export const metadata: Metadata = {
 
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import GlobalHomeButton from "@/components/common/GlobalHomeButton";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import ThemeSelector from "@/components/common/ThemeSelector";
 
 export default function RootLayout({
   children,
@@ -33,10 +35,13 @@ export default function RootLayout({
           suppressHydrationWarning
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <LanguageProvider>
-            <GlobalHomeButton />
-            {children}
-          </LanguageProvider>
+          <ThemeProvider>
+            <LanguageProvider>
+              <ThemeSelector />
+              <GlobalHomeButton />
+              {children}
+            </LanguageProvider>
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>
