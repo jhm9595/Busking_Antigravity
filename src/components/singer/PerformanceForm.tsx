@@ -99,6 +99,17 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
             return
         }
 
+        if (newPerf.chat_enabled) {
+            const startMs = new Date(newPerf.start_time).getTime()
+            const endMs = new Date(newPerf.end_time).getTime()
+            const hours = Math.ceil((endMs - startMs) / (1000 * 60 * 60))
+            const estimatedCost = hours * 1000 // 1000 KRW per hour
+
+            // Using window.confirm for mock payment
+            const confirmed = window.confirm(`채팅 서버 사용이 선택되었습니다. 예상 비용은 ${estimatedCost.toLocaleString()}원 입니다.\n(현재 오픈 베타 기간으로 실제 과금되진 않습니다.)\n진행하시겠습니까?`)
+            if (!confirmed) return
+        }
+
         setIsSubmitting(true)
         try {
             await addPerformance({
@@ -107,8 +118,8 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                 locationText: newPerf.location_text,
                 lat: newPerf.lat || undefined,
                 lng: newPerf.lng || undefined,
-                startTime: newPerf.start_time,
-                endTime: newPerf.end_time,
+                startTime: new Date(newPerf.start_time).toISOString(),
+                endTime: new Date(newPerf.end_time).toISOString(),
                 chatEnabled: newPerf.chat_enabled,
                 streamingEnabled: newPerf.streaming_enabled,
                 chatCost: 0,

@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState, useRef } from 'react'
 import io, { Socket } from 'socket.io-client'
-import { Send, Music } from 'lucide-react'
+import { Send, Music, MessageCircle } from 'lucide-react'
 import PixelAvatar, { AvatarConfig } from '@/components/audience/PixelAvatar'
 import AvatarCreator from '@/components/audience/AvatarCreator'
 
@@ -25,6 +25,7 @@ interface ChatBoxProps {
     performanceId: string
     username: string
     userType: 'singer' | 'audience'
+    chatCapacity?: number
     avatarConfig?: AvatarConfig | null
     className?: string
     onRequestSong?: () => void
@@ -38,7 +39,7 @@ interface ChatBoxProps {
 
 import { useLanguage } from '@/contexts/LanguageContext'
 
-export default function ChatBox({ performanceId, username, userType, avatarConfig, onRequestSong, onSocketReady, onAcceptRequest, onRejectRequest, onChatStatusChange, onViewingCountChange, onSongStatusUpdate, className = '' }: ChatBoxProps) {
+export default function ChatBox({ performanceId, username, userType, chatCapacity, avatarConfig, onRequestSong, onSocketReady, onAcceptRequest, onRejectRequest, onChatStatusChange, onViewingCountChange, onSongStatusUpdate, className = '' }: ChatBoxProps) {
     const { t } = useLanguage()
     const [messages, setMessages] = useState<Message[]>([])
     const [currentMessage, setCurrentMessage] = useState('')
@@ -49,6 +50,7 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
     const [socket, setSocket] = useState<Socket | null>(null)
     const [chatStatus, setChatStatus] = useState<'open' | 'closed'>('closed')
     const [showAvatarSetup, setShowAvatarSetup] = useState(false)
+    const [isJoined, setIsJoined] = useState(userType === 'singer')
 
     // Local state for username/avatar if not passed from parent
     const [localUsername, setLocalUsername] = useState(username || '')
@@ -71,6 +73,14 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
 
 
     useEffect(() => {
+        if (!isJoined) {
+            if (socket) {
+                socket.disconnect()
+                setSocket(null)
+            }
+            return
+        }
+
         // Only connect if NEXT_PUBLIC_CHAT_SERVER_URL is set
         const chatServerUrl = process.env.NEXT_PUBLIC_CHAT_SERVER_URL
         if (!chatServerUrl) {
@@ -84,7 +94,13 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
         setSocket(newSocket)
         if (onSocketReady) onSocketReady(newSocket)
 
-        newSocket.emit('join_room', { performanceId, username: effectiveUsername, userType })
+        newSocket.emit('join_room', { performanceId, username: effectiveUsername, userType, capacity: chatCapacity })
+
+        newSocket.on('join_error', (data: { message: string }) => {
+            alert(data.message)
+            setIsJoined(false)
+            newSocket.disconnect()
+        })
 
         newSocket.on('load_history', (history: Message[]) => {
             setMessages(history)
@@ -113,7 +129,7 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
         return () => {
             newSocket.disconnect()
         }
-    }, [performanceId, effectiveUsername, userType])
+    }, [performanceId, effectiveUsername, userType, isJoined])
 
     const sendMessage = async () => {
         if (currentMessage !== '' && socket) {
@@ -133,117 +149,141 @@ export default function ChatBox({ performanceId, username, userType, avatarConfi
 
     return (
         <div className={`flex flex-col bg-gray-900 border border-gray-800 rounded-xl overflow-hidden ${className}`}>
-            <div className="bg-gray-800 p-3 border-b border-gray-700">
+            <div className="bg-gray-800 p-3 border-b border-gray-700 flex justify-between items-center">
                 <h3 className="text-white font-bold text-sm">{t('chat.title')}</h3>
+                {userType === 'audience' && isJoined && (
+                    <button
+                        onClick={() => setIsJoined(false)}
+                        className="text-xs text-red-400 bg-red-900/30 hover:bg-red-900/50 px-3 py-1 rounded-full transition-colors font-bold"
+                    >
+                        나가기 (Leave)
+                    </button>
+                )}
             </div>
 
 
 
-            <div className="flex-1 overflow-y-auto p-3 space-y-2 max-h-[400px] min-h-[300px]">
-                {messages.map((msg, idx) => {
-                    // System Message (Song Request)
-                    if (msg.type === 'system' && msg.isRequest && msg.requestData) {
-                        return (
-                            <div key={idx} className="flex flex-col items-center my-2 animate-fade-in group w-full">
-                                <div className="bg-gradient-to-r from-indigo-900/80 to-purple-900/80 border border-indigo-500/50 rounded-xl p-3 max-w-[90%] text-center shadow-lg transform transition hover:scale-[1.02]">
-                                    <div className="flex items-center justify-center gap-2 mb-1 text-indigo-300 text-xs font-bold uppercase tracking-wider">
-                                        <Music className="w-3 h-3" /> New Song Request
+            {!isJoined ? (
+                <div className="flex-1 flex flex-col items-center justify-center p-6 bg-gray-800/50 min-h-[300px]">
+                    <MessageCircle className="w-12 h-12 text-slate-500 mb-4" />
+                    <h4 className="text-white font-bold mb-2">실시간 채팅방에 참여하시겠습니까?</h4>
+                    <p className="text-xs text-slate-400 text-center mb-6">참여 시 다른 관객 및 가수와 소통할 수 있습니다. (설정된 인원 내에서만 참여 가능)</p>
+                    <button
+                        onClick={() => setIsJoined(true)}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95"
+                    >
+                        입장하기 (Join Chat)
+                    </button>
+                </div>
+            ) : (
+                <>
+                    <div className="flex-1 overflow-y-auto p-3 space-y-2 max-h-[400px] min-h-[300px]">
+                        {messages.map((msg, idx) => {
+                            // System Message (Song Request)
+                            if (msg.type === 'system' && msg.isRequest && msg.requestData) {
+                                return (
+                                    <div key={idx} className="flex flex-col items-center my-2 animate-fade-in group w-full">
+                                        <div className="bg-gradient-to-r from-indigo-900/80 to-purple-900/80 border border-indigo-500/50 rounded-xl p-3 max-w-[90%] text-center shadow-lg transform transition hover:scale-[1.02]">
+                                            <div className="flex items-center justify-center gap-2 mb-1 text-indigo-300 text-xs font-bold uppercase tracking-wider">
+                                                <Music className="w-3 h-3" /> New Song Request
+                                            </div>
+                                            <p className="text-white font-bold text-sm mb-1 line-clamp-2">"{msg.requestData.title}"</p>
+                                            <p className="text-gray-400 text-xs mb-2">Requested by {msg.requestData.username}</p>
+
+                                            {userType === 'singer' && onAcceptRequest && onRejectRequest && (
+                                                <div className="flex gap-2 justify-center mt-2">
+                                                    <button
+                                                        onClick={() => onAcceptRequest(msg.requestData!.title)}
+                                                        className="bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition"
+                                                    >
+                                                        Accept
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <span className="text-[9px] text-gray-600 mt-1">{msg.timestamp}</span>
                                     </div>
-                                    <p className="text-white font-bold text-sm mb-1 line-clamp-2">"{msg.requestData.title}"</p>
-                                    <p className="text-gray-400 text-xs mb-2">Requested by {msg.requestData.username}</p>
+                                )
+                            }
 
-                                    {userType === 'singer' && onAcceptRequest && onRejectRequest && (
-                                        <div className="flex gap-2 justify-center mt-2">
-                                            <button
-                                                onClick={() => onAcceptRequest(msg.requestData!.title)}
-                                                className="bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition"
-                                            >
-                                                Accept
-                                            </button>
+                            const isMe = msg.author === effectiveUsername
+                            const isSinger = msg.type === 'singer'
+                            const isSystem = msg.type === 'system'
+
+                            if (isSystem && msg.message && !msg.requestData) {
+                                return (
+                                    <div key={idx} className="flex flex-col items-center my-2 animate-fade-in group w-full">
+                                        <div className={`border rounded-xl p-3 max-w-[90%] text-center shadow-lg ${msg.isAlert ? 'bg-gradient-to-r from-red-900/80 to-red-800/80 border-red-500/50' : 'bg-gradient-to-r from-gray-900/80 to-gray-800/80 border-gray-500/50'}`}>
+                                            <p className="text-white font-bold text-sm mb-1">{msg.message}</p>
+                                        </div>
+                                    </div>
+                                )
+                            }
+
+                            return (
+                                <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'} w-full gap-2`}>
+                                    {!isMe && msg.avatarConfig && (
+                                        <div className="flex flex-col items-center justify-end pb-1">
+                                            <PixelAvatar config={msg.avatarConfig} size={32} className="bg-gray-800 rounded-full border border-gray-700" />
+                                        </div>
+                                    )}
+
+                                    <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[80%]`}>
+                                        <div className={`rounded-lg px-3 py-2 text-sm break-words shadow-sm ${isMe ? 'bg-indigo-600 text-white' :
+                                            isSinger ? 'bg-yellow-900/40 border border-yellow-500/30 text-yellow-100' :
+                                                'bg-gray-700 text-gray-200'
+                                            }`}>
+                                            {!isMe && (
+                                                <div className="flex items-center gap-1 mb-0.5">
+                                                    <span className="text-[10px] opacity-75 font-bold uppercase tracking-wider">
+                                                        {msg.author}
+                                                    </span>
+                                                    {isSinger && <span className="text-xs">👑</span>}
+                                                </div>
+                                            )}
+                                            <p>{msg.message}</p>
+                                        </div>
+                                        <span className="text-[10px] text-gray-500 mt-1 px-1">{msg.timestamp}</span>
+                                    </div>
+
+                                    {isMe && msg.avatarConfig && (
+                                        <div className="flex flex-col items-center justify-end pb-1">
+                                            <PixelAvatar config={msg.avatarConfig} size={32} className="bg-gray-800 rounded-full border border-gray-700" />
                                         </div>
                                     )}
                                 </div>
-                                <span className="text-[9px] text-gray-600 mt-1">{msg.timestamp}</span>
-                            </div>
-                        )
-                    }
+                            )
+                        })}
+                        <div ref={bottomRef} />
+                    </div>
 
-                    const isMe = msg.author === effectiveUsername
-                    const isSinger = msg.type === 'singer'
-                    const isSystem = msg.type === 'system'
-
-                    if (isSystem && msg.message && !msg.requestData) {
-                        return (
-                            <div key={idx} className="flex flex-col items-center my-2 animate-fade-in group w-full">
-                                <div className={`border rounded-xl p-3 max-w-[90%] text-center shadow-lg ${msg.isAlert ? 'bg-gradient-to-r from-red-900/80 to-red-800/80 border-red-500/50' : 'bg-gradient-to-r from-gray-900/80 to-gray-800/80 border-gray-500/50'}`}>
-                                    <p className="text-white font-bold text-sm mb-1">{msg.message}</p>
-                                </div>
-                            </div>
-                        )
-                    }
-
-                    return (
-                        <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'} w-full gap-2`}>
-                            {!isMe && msg.avatarConfig && (
-                                <div className="flex flex-col items-center justify-end pb-1">
-                                    <PixelAvatar config={msg.avatarConfig} size={32} className="bg-gray-800 rounded-full border border-gray-700" />
-                                </div>
-                            )}
-
-                            <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[80%]`}>
-                                <div className={`rounded-lg px-3 py-2 text-sm break-words shadow-sm ${isMe ? 'bg-indigo-600 text-white' :
-                                    isSinger ? 'bg-yellow-900/40 border border-yellow-500/30 text-yellow-100' :
-                                        'bg-gray-700 text-gray-200'
-                                    }`}>
-                                    {!isMe && (
-                                        <div className="flex items-center gap-1 mb-0.5">
-                                            <span className="text-[10px] opacity-75 font-bold uppercase tracking-wider">
-                                                {msg.author}
-                                            </span>
-                                            {isSinger && <span className="text-xs">👑</span>}
-                                        </div>
-                                    )}
-                                    <p>{msg.message}</p>
-                                </div>
-                                <span className="text-[10px] text-gray-500 mt-1 px-1">{msg.timestamp}</span>
-                            </div>
-
-                            {isMe && msg.avatarConfig && (
-                                <div className="flex flex-col items-center justify-end pb-1">
-                                    <PixelAvatar config={msg.avatarConfig} size={32} className="bg-gray-800 rounded-full border border-gray-700" />
-                                </div>
-                            )}
-                        </div>
-                    )
-                })}
-                <div ref={bottomRef} />
-            </div>
-
-            <div className="p-2 bg-gray-800 border-t border-gray-700 flex gap-2">
-                <input
-                    type="text"
-                    value={currentMessage}
-                    onChange={(e) => setCurrentMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-                            sendMessage()
-                        }
-                    }}
-                    onFocus={() => {
-                        if (!username) setShowAvatarSetup(true)
-                    }}
-                    placeholder={chatStatus === 'closed' && userType === 'audience' ? t('chat.closed_placeholder') : t('chat.placeholder')}
-                    disabled={chatStatus === 'closed' && userType === 'audience'}
-                    className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500 transition disabled:opacity-50"
-                />
-                <button
-                    onClick={sendMessage}
-                    className="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg transition disabled:opacity-50"
-                    disabled={!currentMessage.trim() || (chatStatus === 'closed' && userType === 'audience')}
-                >
-                    <Send className="w-4 h-4" />
-                </button>
-            </div>
+                    <div className="p-2 bg-gray-800 border-t border-gray-700 flex gap-2">
+                        <input
+                            type="text"
+                            value={currentMessage}
+                            onChange={(e) => setCurrentMessage(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                                    sendMessage()
+                                }
+                            }}
+                            onFocus={() => {
+                                if (!username) setShowAvatarSetup(true)
+                            }}
+                            placeholder={chatStatus === 'closed' && userType === 'audience' ? t('chat.closed_placeholder') : t('chat.placeholder')}
+                            disabled={chatStatus === 'closed' && userType === 'audience'}
+                            className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500 transition disabled:opacity-50"
+                        />
+                        <button
+                            onClick={sendMessage}
+                            className="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg transition disabled:opacity-50"
+                            disabled={!currentMessage.trim() || (chatStatus === 'closed' && userType === 'audience')}
+                        >
+                            <Send className="w-4 h-4" />
+                        </button>
+                    </div>
+                </>
+            )}
             {/* Avatar Creator Modal for first time chat - Show only when attempting to chat */}
             {showAvatarSetup && !username && (
                 <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-2 text-white">
