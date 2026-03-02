@@ -20,11 +20,16 @@ export async function GET(request: Request) {
         // Fetch followed singers if fanId is present
         let followedSingerIds: string[] = []
         if (fanId) {
-            const follows = await prisma.follow.findMany({
-                where: { fanId },
-                select: { singerId: true }
-            })
-            followedSingerIds = follows.map(f => f.singerId)
+            try {
+                const follows = await prisma.follow.findMany({
+                    where: { fanId },
+                    select: { singerId: true }
+                })
+                followedSingerIds = follows.map(f => f.singerId)
+            } catch (followError: any) {
+                console.warn('Warning: Failed to fetch follows, possibly missing table or DB error:', followError.message)
+                followedSingerIds = []
+            }
         }
 
         // Auto-update status logic: Check for stale live/scheduled performances
@@ -72,10 +77,10 @@ export async function GET(request: Request) {
             })
 
         return NextResponse.json(validPerformances)
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error fetching performances:', error)
         return NextResponse.json(
-            { error: 'Internal Server Error' },
+            { error: error?.message || 'Internal Server Error', stack: error?.stack },
             { status: 500 }
         )
     }
