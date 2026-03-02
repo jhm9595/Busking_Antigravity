@@ -4,7 +4,7 @@ import type { NextConfig } from "next";
 
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  // output: 'standalone', // Caution: Breaks static assets serving in `next start` locally
   images: {
     domains: ['images.unsplash.com']
   }
