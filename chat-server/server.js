@@ -107,7 +107,7 @@ io.on('connection', (socket) => {
             performanceId,
             author: 'System',
             message,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            timestamp: new Date().toISOString(),
             type: 'system',
             isAlert: true
         };
@@ -119,8 +119,29 @@ io.on('connection', (socket) => {
         io.in(performanceId).emit('receive_message', sysMsg);
     });
 
-    socket.on('song_requested', (data) => {
-        const { performanceId } = data;
+    socket.on('song_requested', async (data) => {
+        const { performanceId, title, username } = data;
+
+        // Save as a system message in history so late-joiners see it
+        const sysMsg = {
+            performanceId,
+            author: 'System',
+            message: `New Song Request: ${title} by ${username}`,
+            timestamp: new Date().toISOString(),
+            type: 'system',
+            isRequest: true,
+            requestData: {
+                title,
+                username
+            }
+        };
+
+        const historyKey = `chat_history:${performanceId}`;
+        await redisClient.rpush(historyKey, JSON.stringify(sysMsg));
+        await redisClient.expire(historyKey, 86400);
+
+        io.in(performanceId).emit('receive_message', sysMsg);
+        // Also emit the raw event for non-chat listeners
         io.in(performanceId).emit('song_requested', data);
     });
 

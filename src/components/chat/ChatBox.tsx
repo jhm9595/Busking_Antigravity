@@ -71,6 +71,12 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
     const setAvatarConfig = (config: AvatarConfig | null) => setLocalAvatarConfig(config)
     const setUserType = (type: string) => setLocalUserType(type)
 
+    const formatTime = (ts: string) => {
+        if (!ts) return ''
+        const date = new Date(ts)
+        if (isNaN(date.getTime())) return ts // Fallback for old formatting
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }
 
     useEffect(() => {
         if (!isJoined) {
@@ -137,7 +143,7 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
                 performanceId,
                 author: effectiveUsername,
                 message: currentMessage,
-                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                timestamp: new Date().toISOString(),
                 type: userType,
                 avatarConfig: effectiveAvatarConfig
             }
@@ -169,7 +175,13 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
                     <h4 className="text-white font-bold mb-2">실시간 채팅방에 참여하시겠습니까?</h4>
                     <p className="text-xs text-slate-400 text-center mb-6">참여 시 다른 관객 및 가수와 소통할 수 있습니다. (설정된 인원 내에서만 참여 가능)</p>
                     <button
-                        onClick={() => setIsJoined(true)}
+                        onClick={() => {
+                            if (!effectiveUsername || effectiveUsername === 'Guest') {
+                                setShowAvatarSetup(true)
+                            } else {
+                                setIsJoined(true)
+                            }
+                        }}
                         className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95"
                     >
                         입장하기 (Join Chat)
@@ -201,7 +213,7 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
                                                 </div>
                                             )}
                                         </div>
-                                        <span className="text-[9px] text-gray-600 mt-1">{msg.timestamp}</span>
+                                        <span className="text-[9px] text-gray-600 mt-1">{formatTime(msg.timestamp)}</span>
                                     </div>
                                 )
                             }
@@ -243,7 +255,7 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
                                             )}
                                             <p>{msg.message}</p>
                                         </div>
-                                        <span className="text-[10px] text-gray-500 mt-1 px-1">{msg.timestamp}</span>
+                                        <span className="text-[10px] text-gray-500 mt-1 px-1">{formatTime(msg.timestamp)}</span>
                                     </div>
 
                                     {isMe && msg.avatarConfig && (
@@ -267,9 +279,6 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
                                     sendMessage()
                                 }
                             }}
-                            onFocus={() => {
-                                if (!username) setShowAvatarSetup(true)
-                            }}
                             placeholder={chatStatus === 'closed' && userType === 'audience' ? t('chat.closed_placeholder') : t('chat.placeholder')}
                             disabled={chatStatus === 'closed' && userType === 'audience'}
                             className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500 transition disabled:opacity-50"
@@ -285,16 +294,19 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
                 </>
             )}
             {/* Avatar Creator Modal for first time chat - Show only when attempting to chat */}
-            {showAvatarSetup && !username && (
-                <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-2 text-white">
-                    <AvatarCreator
-                        onComplete={(name: string, config: AvatarConfig | null, type: 'anon' | 'named') => {
-                            setUsername(name)
-                            setAvatarConfig(config)
-                            setUserType(type)
-                            setShowAvatarSetup(false)
-                        }}
-                    />
+            {showAvatarSetup && (
+                <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 text-white">
+                    <div className="w-full max-w-sm rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+                        <AvatarCreator
+                            onComplete={(name: string, config: AvatarConfig | null, type: 'anon' | 'named') => {
+                                setUsername(name)
+                                setAvatarConfig(config)
+                                setUserType(type)
+                                setShowAvatarSetup(false)
+                                setIsJoined(true)
+                            }}
+                        />
+                    </div>
                 </div>
             )}
         </div>

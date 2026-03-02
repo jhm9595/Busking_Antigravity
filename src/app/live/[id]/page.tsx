@@ -260,9 +260,9 @@ export default function AudienceLivePage() {
                     </button>
                 </section>
 
-                {/* Live Chat Section — only shown when chatEnabled AND chat room is open */}
+                {/* Live Chat Section — only shown when chatEnabled */}
                 {performance.chatEnabled && (
-                    <section className={`flex flex-col flex-1 px-4 pb-4 min-h-[400px] ${chatStatus === 'open' ? '' : 'hidden'}`}>
+                    <section className="flex flex-col flex-1 px-4 pb-4 min-h-[400px]">
                         <div className="flex items-center justify-between mb-3">
                             <h2 className="text-sm font-bold flex items-center gap-2 font-display text-white">
                                 <MessageCircle className="text-primary w-4 h-4" />

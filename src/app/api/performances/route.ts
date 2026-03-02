@@ -5,17 +5,8 @@ export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url)
         const fanId = searchParams.get('fanId')
-
-        const performances = await prisma.performance.findMany({
-            where: {
-                status: {
-                    in: ['live', 'scheduled']
-                }
-            },
-            orderBy: {
-                startTime: 'asc'
-            }
-        })
+        const query = searchParams.get('query')
+        const filter = searchParams.get('filter') // 'all', 'live', 'followed'
 
         // Fetch followed singers if fanId is present
         let followedSingerIds: string[] = []
@@ -27,6 +18,41 @@ export async function GET(request: Request) {
             followedSingerIds = follows.map(f => f.singerId)
         }
 
+        const whereClause: any = {
+            status: {
+                in: ['live', 'scheduled']
+            }
+        }
+
+        if (query) {
+            whereClause.OR = [
+                { title: { contains: query, mode: 'insensitive' } },
+                { description: { contains: query, mode: 'insensitive' } },
+                { singer: { stageName: { contains: query, mode: 'insensitive' } } }
+            ]
+        }
+
+        if (filter === 'live') {
+            whereClause.status = 'live'
+        } else if (filter === 'followed' && fanId) {
+            whereClause.singerId = { in: followedSingerIds }
+        }
+
+        const performances = await prisma.performance.findMany({
+            where: whereClause,
+            include: {
+                singer: {
+                    select: {
+                        stageName: true,
+                        profile: true
+                    }
+                }
+            },
+            orderBy: {
+                startTime: 'asc'
+            }
+        })
+
         // Auto-update status logic: Check for stale live/scheduled performances
         const now = new Date()
         const requests = performances.map(async (p: any) => {
@@ -34,8 +60,9 @@ export async function GET(request: Request) {
             let end = p.endTime ? new Date(p.endTime) : null
             if (!end) end = new Date(start.getTime() + 3 * 60 * 60 * 1000)
 
+            let currentStatus = p.status
             if (end < now) {
-                // If past end time, mark as completed
+                currentStatus = 'completed'
                 try {
                     await prisma.performance.update({
                         where: { id: p.id },
@@ -44,11 +71,22 @@ export async function GET(request: Request) {
                 } catch (e) {
                     console.error('Auto-close error map:', e)
                 }
-                return { ...p, status: 'completed', isFollowed: false }
+            } else if (start <= now && p.status === 'scheduled') {
+                currentStatus = 'live'
+                try {
+                    await prisma.performance.update({
+                        where: { id: p.id },
+                        data: { status: 'live' }
+                    })
+                } catch (e) {
+                    console.error('Auto-live error map:', e)
+                }
             }
+
             // Add isFollowed flag
             return {
                 ...p,
+                status: currentStatus,
                 isFollowed: followedSingerIds.includes(p.singerId)
             }
         })

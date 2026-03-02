@@ -117,6 +117,16 @@ export async function getPerformances(singerId: string) {
                 console.error('Auto-close error:', e)
             }
             return { ...p, status: 'completed' }
+        } else if (start <= now && p.status === 'scheduled') {
+            try {
+                await prisma.performance.update({
+                    where: { id: p.id },
+                    data: { status: 'live' }
+                })
+            } catch (e) {
+                console.error('Auto-live error:', e)
+            }
+            return { ...p, status: 'live' }
         }
         return p
     }))
