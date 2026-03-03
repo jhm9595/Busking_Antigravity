@@ -342,7 +342,7 @@ export default function SingerQRCard({ singerId, displayId, nickname, qrValue, s
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Stage Name (Nickname)
+                                    {t('dashboard.profile.stage_name')}
                                 </label>
                                 <input
                                     type="text"

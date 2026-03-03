@@ -129,6 +129,7 @@ export const ko: LocaleTypes = {
         profile: {
             edit: '프로필 수정',
             save: '저장',
+            stage_name: '활동명 (닉네임)',
             social_title: '소셜 링크',
             instagram: '인스타그램',
             facebook: '페이스북',

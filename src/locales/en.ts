@@ -127,6 +127,7 @@ export const en = {
         profile: {
             edit: 'Edit Profile',
             save: 'Save Profile',
+            stage_name: 'Stage Name (Nickname)',
             social_title: 'Social Links',
             instagram: 'Instagram',
             facebook: 'Facebook',

@@ -129,6 +129,7 @@ export const zh: LocaleTypes = {
         profile: {
             edit: '编辑个人资料',
             save: '保存',
+            stage_name: '艺名 (昵称)',
             social_title: '社交链接',
             instagram: 'Instagram',
             facebook: 'Facebook',

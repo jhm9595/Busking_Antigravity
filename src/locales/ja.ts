@@ -129,6 +129,7 @@ export const ja: LocaleTypes = {
         profile: {
             edit: 'プロフィール編集',
             save: '保存',
+            stage_name: 'ステージネーム（ニックネーム）',
             social_title: 'SNSリンク',
             instagram: 'Instagram',
             facebook: 'Facebook',
