@@ -115,14 +115,22 @@ export default function SingerDashboard() {
         const now = new Date()
         const tenMinutesFromNow = new Date(now.getTime() + 10 * 60 * 1000)
 
-        const scheduled = perfs.filter((p: any) => {
+        // Filter valid candidates
+        const candidates = perfs.filter((p: any) => {
             if (p.status !== 'scheduled') return false
             const start = new Date(p.startTime)
-            // Allow starting if it's within 10 minutes from now or already past start time
-            return start <= tenMinutesFromNow
+            const end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
+
+            // Case A: Current time is between start and end
+            if (now >= start && now <= end) return true
+
+            // Case B: Start time is within 10 minutes from now
+            if (start > now && start <= tenMinutesFromNow) return true
+
+            return false
         })
 
-        if (scheduled.length === 0) {
+        if (candidates.length === 0) {
             setConfirmModal({
                 isOpen: true,
                 title: t('dashboard.alerts.no_schedule_title'),
@@ -132,25 +140,25 @@ export default function SingerDashboard() {
             return
         }
 
-        // Sort by time
-        scheduled.sort((a: any, b: any) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+        // Sort by closest to now
+        candidates.sort((a: any, b: any) => {
+            const timeDiffA = Math.abs(new Date(a.startTime).getTime() - now.getTime())
+            const timeDiffB = Math.abs(new Date(b.startTime).getTime() - now.getTime())
+            return timeDiffA - timeDiffB
+        })
 
-        if (scheduled.length === 1) {
-            const p = scheduled[0]
-            setConfirmModal({
-                isOpen: true,
-                title: t('dashboard.alerts.start_title'),
-                message: t('dashboard.alerts.start_message').replace('{title}', p.title),
-                onConfirm: async () => {
-                    await updatePerformanceStatus(p.id, 'live')
-                    router.push(`/singer/live?performanceId=${p.id}`)
-                    setConfirmModal(prev => ({ ...prev, isOpen: false }))
-                }
-            })
-        } else {
-            setCandidatePerformances(scheduled)
-            setShowLiveModal(true)
-        }
+        const bestCandidate = candidates[0]
+
+        setConfirmModal({
+            isOpen: true,
+            title: t('dashboard.alerts.start_title'),
+            message: t('dashboard.alerts.start_message').replace('{title}', bestCandidate.title),
+            onConfirm: async () => {
+                await updatePerformanceStatus(bestCandidate.id, 'live')
+                router.push(`/singer/live?performanceId=${bestCandidate.id}`)
+                setConfirmModal(prev => ({ ...prev, isOpen: false }))
+            }
+        })
     }
 
     const [isLivePerformanceActive, setIsLivePerformanceActive] = useState(false)
