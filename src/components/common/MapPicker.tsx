@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap, ZoomControl } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
-import { Search } from 'lucide-react'
+import { Search, LocateFixed } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 // Fix default icon issue in Next.js/Webpack
@@ -161,6 +161,32 @@ function MapPicker({ onLocationSelect, initialLat, initialLng, readonly }: MapPi
         setHasSearched(false)
     }
 
+    const handleGoToMyLocation = () => {
+        if (!navigator.geolocation) {
+            alert(t('performance.form.map_no_geolocation') || 'Geolocation is not supported by your browser')
+            return
+        }
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                if (mounted.current) {
+                    const lat = pos.coords.latitude
+                    const lng = pos.coords.longitude
+                    const newPos = new L.LatLng(lat, lng)
+                    setPosition(newPos)
+                    setMapCenter([lat, lng])
+                    onLocationSelect(lat, lng)
+                }
+            },
+            (err) => {
+                console.warn('Geolocation access denied or failed:', err)
+                if (mounted.current) {
+                    alert(t('performance.form.map_geolocation_error') || 'Unable to retrieve your location')
+                }
+            },
+            { enableHighAccuracy: true, timeout: 5000 }
+        )
+    }
+
     return (
         <div style={{ position: 'relative', height: '300px', width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
             {/* Search Bar Overlay */}
@@ -188,6 +214,14 @@ function MapPicker({ onLocationSelect, initialLat, initialLng, readonly }: MapPi
                             title={t('performance.form.map_search_button')}
                         >
                             <Search className="w-4 h-4" />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleGoToMyLocation}
+                            className="p-1.5 bg-white text-gray-700 rounded hover:bg-gray-100 transition-colors border border-gray-300"
+                            title={t('performance.form.map_my_location') || '내 위치로 이동'}
+                        >
+                            <LocateFixed className="w-4 h-4" />
                         </button>
                     </div>
 
