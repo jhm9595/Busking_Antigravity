@@ -163,6 +163,8 @@ export default function AudienceLivePage() {
     const currentSong = pendingSongs[0] || { title: 'No song playing', artist: '' }
     const nextSong = pendingSongs[1] || null
 
+    const isCompleted = performance.status === 'completed'
+
     return (
         <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col max-w-md mx-auto border-x border-primary/10 shadow-2xl font-display">
             {/* Header Section */}
@@ -210,81 +212,103 @@ export default function AudienceLivePage() {
 
 
             <main className="flex-1 overflow-y-auto custom-scrollbar flex flex-col relative">
-                {/* Live Setlist Card */}
-                <section className="p-4">
-                    <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 relative overflow-hidden group">
-                        <div className="flex items-center gap-2 mb-2">
-                            <p className="text-[10px] font-bold tracking-widest text-primary uppercase">{t('live.now_playing')}</p>
-                            <span className="relative flex h-2 w-2 items-center justify-center">
-                                <span className="animate-ping absolute inset-0 rounded-full bg-red-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
-                            </span>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 bg-background-dark/50 rounded-lg flex items-center justify-center border border-white/5 shadow-inner">
-                                <Music className="text-primary w-8 h-8" />
+                {isCompleted ? (
+                    <section className="px-4 py-8 mt-4">
+                        <div className="bg-gray-900/80 border border-gray-700 rounded-2xl p-8 text-center shadow-2xl flex flex-col items-center">
+                            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4 border border-gray-600">
+                                <Archive className="w-8 h-8 text-gray-400" />
                             </div>
-                            <div>
-                                <h3 className="text-lg font-bold text-white">{currentSong.title}</h3>
-                                <p className="text-sm text-slate-400 font-medium">{currentSong.artist}</p>
-                            </div>
-                        </div>
-                        {nextSong && (
-                            <div className="mt-4 pt-4 border-t border-white/5">
-                                <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-2">{t('live.up_next')}</p>
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-slate-300 font-medium">{nextSong.title} {nextSong.artist ? `— ${nextSong.artist}` : ''}</span>
-                                    <span className="text-xs text-primary font-bold uppercase tracking-tight">{t('live.coming_soon')}</span>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </section>
+                            <h2 className="text-xl font-bold text-white mb-2">{t('live.ended_title') || 'Performance Ended'}</h2>
+                            <p className="text-sm text-gray-400 mb-6">{t('live.ended_desc') || 'Thank you for watching! This performance has gracefully concluded.'}</p>
 
-                {/* Performance Actions */}
-                <section className="px-4 mb-4 flex flex-col gap-3">
-                    <button
-                        onClick={() => setShowRequestModal(true)}
-                        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-900/20 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.01]"
-                    >
-                        <Music className="w-5 h-5" />
-                        {t('song_request.title')}
-                    </button>
-
-                    <button
-                        onClick={() => setShowBookingModal(true)}
-                        className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.01]"
-                    >
-                        <CalendarIcon className="w-5 h-5" />
-                        {t('booking.modal.title')}
-                    </button>
-                </section>
-
-                {/* Live Chat Section — only shown when chatEnabled */}
-                {performance.chatEnabled && (
-                    <section className="flex flex-col flex-1 px-4 pb-4 min-h-[400px]">
-                        <div className="flex items-center justify-between mb-3">
-                            <h2 className="text-sm font-bold flex items-center gap-2 font-display text-white">
-                                <MessageCircle className="text-primary w-4 h-4" />
-                                {t('chat.title')}
-                            </h2>
-                            <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded-full text-slate-400 uppercase tracking-tighter font-mono">
-                                {viewingCount} / {performance.chatCapacity || 50} Viewing
-                            </span>
-                        </div>
-                        {/* The ChatBox component itself */}
-                        <div className="flex-1 bg-white/5 rounded-xl border border-white/5 overflow-hidden flex flex-col">
-                            <ChatBox
-                                performanceId={performanceId}
-                                username={username}
-                                userType="audience"
-                                avatarConfig={avatarConfig}
-                                className="flex-1 overflow-hidden"
-                                onSocketReady={setActiveSocket}
-                                onChatStatusChange={setChatStatus}
-                            />
+                            <Link href={`/singer/${singer?.id}`} className="bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-6 rounded-xl transition w-full mb-3 shadow-inner">
+                                {t('live.view_singer_profile') || 'View Singer Profile'}
+                            </Link>
+                            <Link href="/" className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition w-full shadow-lg shadow-indigo-900/20">
+                                {t('live.explore_more') || 'Explore More Performances'}
+                            </Link>
                         </div>
                     </section>
+                ) : (
+                    <>
+                        {/* Live Setlist Card */}
+                        <section className="p-4">
+                            <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 relative overflow-hidden group">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <p className="text-[10px] font-bold tracking-widest text-primary uppercase">{t('live.now_playing')}</p>
+                                    <span className="relative flex h-2 w-2 items-center justify-center">
+                                        <span className="animate-ping absolute inset-0 rounded-full bg-red-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <div className="w-16 h-16 bg-background-dark/50 rounded-lg flex items-center justify-center border border-white/5 shadow-inner">
+                                        <Music className="text-primary w-8 h-8" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-white">{currentSong.title}</h3>
+                                        <p className="text-sm text-slate-400 font-medium">{currentSong.artist}</p>
+                                    </div>
+                                </div>
+                                {nextSong && (
+                                    <div className="mt-4 pt-4 border-t border-white/5">
+                                        <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-2">{t('live.up_next')}</p>
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-slate-300 font-medium">{nextSong.title} {nextSong.artist ? `— ${nextSong.artist}` : ''}</span>
+                                            <span className="text-xs text-primary font-bold uppercase tracking-tight">{t('live.coming_soon')}</span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+
+                        {/* Performance Actions */}
+                        <section className="px-4 mb-4 flex flex-col gap-3">
+                            <button
+                                onClick={() => setShowRequestModal(true)}
+                                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-900/20 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.01]"
+                            >
+                                <Music className="w-5 h-5" />
+                                {t('song_request.title')}
+                            </button>
+
+                            <button
+                                onClick={() => setShowBookingModal(true)}
+                                className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.01]"
+                            >
+                                <CalendarIcon className="w-5 h-5" />
+                                {t('booking.modal.title')}
+                            </button>
+                        </section>
+
+
+                        {/* Live Chat Section — only shown when chatEnabled and not completed */}
+                        {performance.chatEnabled && !isCompleted && (
+                            <section className="flex flex-col flex-1 px-4 pb-4 min-h-[400px]">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h2 className="text-sm font-bold flex items-center gap-2 font-display text-white">
+                                        <MessageCircle className="text-primary w-4 h-4" />
+                                        {t('chat.title')}
+                                    </h2>
+                                    <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded-full text-slate-400 uppercase tracking-tighter font-mono">
+                                        {viewingCount} / {performance.chatCapacity || 50} Viewing
+                                    </span>
+                                </div>
+                                {/* The ChatBox component itself */}
+                                <div className="flex-1 bg-white/5 rounded-xl border border-white/5 overflow-hidden flex flex-col">
+                                    <ChatBox
+                                        performanceId={performanceId}
+                                        username={username}
+                                        userType="audience"
+                                        avatarConfig={avatarConfig}
+                                        className="flex-1 overflow-hidden"
+                                        onSocketReady={setActiveSocket}
+                                        onChatStatusChange={setChatStatus}
+                                    />
+                                </div>
+                            </section>
+                        )}
+                    </>
                 )}
 
 

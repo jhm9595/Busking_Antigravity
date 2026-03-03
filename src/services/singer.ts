@@ -65,7 +65,7 @@ export async function registerSinger(user: { id: string, stageName: string }) {
 // --- Songs ---
 export async function getSongs(singerId: string) {
     return await prisma.song.findMany({
-        where: { singerId },
+        where: { singerId, isRepertoire: true },
         orderBy: { createdAt: 'desc' }
     })
 }
@@ -105,7 +105,7 @@ export async function getPerformances(singerId: string) {
     const updatedPerformances = await Promise.all(performances.map(async (p) => {
         const start = new Date(p.startTime)
         // Use endTime if present, otherwise assume 3 hours max duration
-        let end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
+        const end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
 
         if (end < now && (p.status === 'live' || p.status === 'scheduled')) {
             try {
@@ -157,8 +157,38 @@ export async function getPerformanceById(id: string) {
 
     if (!performance) return null
 
+    // Auto-update status check
+    const now = new Date()
+    const start = new Date(performance.startTime)
+    const end = performance.endTime ? new Date(performance.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
+
+    let currentStatus = performance.status
+
+    if (end < now && (currentStatus === 'live' || currentStatus === 'scheduled')) {
+        try {
+            await prisma.performance.update({
+                where: { id },
+                data: { status: 'completed' }
+            })
+            currentStatus = 'completed'
+        } catch (e) {
+            console.error('Auto-close error in getPerformanceById:', e)
+        }
+    } else if (start <= now && currentStatus === 'scheduled') {
+        try {
+            await prisma.performance.update({
+                where: { id },
+                data: { status: 'live' }
+            })
+            currentStatus = 'live'
+        } catch (e) {
+            console.error('Auto-live error in getPerformanceById:', e)
+        }
+    }
+
     return {
         ...performance,
+        status: currentStatus,
         songs: (performance.performanceSongs as any[]).map(ps => ({
             ...ps.song,
             status: ps.status,
@@ -424,12 +454,13 @@ export async function acceptSongRequest(requestId: string, singerId: string) {
                 return
             }
 
-            // Create Song in repertoire
+            // Create Song (Ad-hoc so it doesn't pollute global repertoire)
             const song = await tx.song.create({
                 data: {
                     singerId,
                     title: req.title,
                     artist: req.artist,
+                    isRepertoire: false,
                     tags: '["requested"]'
                 }
             })

@@ -57,6 +57,7 @@ model Song {
   artist     String
   youtubeUrl String?  @map("youtube_url")
   tags       String?  // JSON string
+  isRepertoire Boolean @default(true) @map("is_repertoire")
   createdAt  DateTime @default(now()) @map("created_at")
 
   singer     Singer   @relation(fields: [singerId], references: [id])

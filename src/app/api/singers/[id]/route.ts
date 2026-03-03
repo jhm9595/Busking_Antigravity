@@ -11,7 +11,9 @@ export async function GET(
             where: { id },
             include: {
                 performances: true,
-                songs: true,
+                songs: {
+                    where: { isRepertoire: true }
+                },
             }
         })
 
@@ -27,7 +29,7 @@ export async function GET(
         const updatedPerformances = await Promise.all(singer.performances.map(async (p) => {
             const start = new Date(p.startTime)
             // Use endTime if present, otherwise assume 3 hours max duration from start
-            let end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
+            const end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
 
             // If time has passed, effectively complete it
             if (end < now && (p.status === 'live' || p.status === 'scheduled')) {
