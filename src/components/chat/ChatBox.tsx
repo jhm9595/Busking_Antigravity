@@ -49,6 +49,7 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
     // We can use a ref or just rely on useEffect cleanup
 
     const [socket, setSocket] = useState<Socket | null>(null)
+    const [isConnected, setIsConnected] = useState(false)
     const [chatStatus, setChatStatus] = useState<'open' | 'closed'>('closed')
     const [showAvatarSetup, setShowAvatarSetup] = useState(false)
     const [isJoined, setIsJoined] = useState(userType === 'singer')
@@ -98,11 +99,25 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
         }
 
         // Connect to Chat Server
-        const newSocket = io(chatServerUrl)
+        const newSocket = io(chatServerUrl, {
+            reconnectionAttempts: 10,
+            reconnectionDelay: 2000,
+        })
         setSocket(newSocket)
         if (onSocketReady) onSocketReady(newSocket)
 
-        newSocket.emit('join_room', { performanceId, username: effectiveUsername, userType, capacity: chatCapacity })
+        newSocket.on('connect', () => {
+            setIsConnected(true)
+            newSocket.emit('join_room', { performanceId, username: effectiveUsername, userType, capacity: chatCapacity })
+        })
+
+        newSocket.on('disconnect', () => {
+            setIsConnected(false)
+        })
+
+        newSocket.on('connect_error', () => {
+            setIsConnected(false)
+        })
 
         newSocket.on('join_error', (data: { message: string }) => {
             alert(data.message)
@@ -271,27 +286,47 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
                         <div ref={bottomRef} />
                     </div>
 
-                    <div className="p-2 bg-gray-800 border-t border-gray-700 flex gap-2">
-                        <input
-                            type="text"
-                            value={currentMessage}
-                            onChange={(e) => setCurrentMessage(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-                                    sendMessage()
-                                }
-                            }}
-                            placeholder={chatStatus === 'closed' && userType === 'audience' ? t('chat.closed_placeholder') : t('chat.placeholder')}
-                            disabled={chatStatus === 'closed' && userType === 'audience'}
-                            className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500 transition disabled:opacity-50"
-                        />
-                        <button
-                            onClick={sendMessage}
-                            className="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg transition disabled:opacity-50"
-                            disabled={!currentMessage.trim() || (chatStatus === 'closed' && userType === 'audience')}
-                        >
-                            <Send className="w-4 h-4" />
-                        </button>
+                    <div className="p-2 bg-gray-800 border-t border-gray-700 flex flex-col gap-2 relative">
+                        {!isConnected && isJoined && (
+                            <div className="absolute inset-x-0 bottom-full bg-red-900/90 text-white text-[10px] py-1 px-3 flex items-center justify-between border-t border-red-700 animate-pulse">
+                                <span>Disconnected... checking connection</span>
+                                <button
+                                    onClick={() => {
+                                        if (socket) {
+                                            socket.connect()
+                                        } else {
+                                            setIsJoined(false)
+                                            setTimeout(() => setIsJoined(true), 100)
+                                        }
+                                    }}
+                                    className="bg-white/20 hover:bg-white/40 px-2 py-0.5 rounded font-bold uppercase"
+                                >
+                                    Reconnect
+                                </button>
+                            </div>
+                        )}
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={currentMessage}
+                                onChange={(e) => setCurrentMessage(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                                        sendMessage()
+                                    }
+                                }}
+                                placeholder={chatStatus === 'closed' && userType === 'audience' ? t('chat.closed_placeholder') : t('chat.placeholder')}
+                                disabled={(chatStatus === 'closed' && userType === 'audience') || !isConnected}
+                                className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-base focus:outline-none focus:border-indigo-500 transition disabled:opacity-50"
+                            />
+                            <button
+                                onClick={sendMessage}
+                                className="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg transition disabled:opacity-50"
+                                disabled={!currentMessage.trim() || (chatStatus === 'closed' && userType === 'audience') || !isConnected}
+                            >
+                                <Send className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
                 </>
             )}
