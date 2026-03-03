@@ -12,14 +12,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  busking-chat:
-    build: ./chat-server
-    container_name: busking-chat-server
+  redis:
+    image: redis:6-alpine
+    container_name: busking-redis
     ports:
-      - "4000:4000"
-    volumes:
-      - ./chat-server:/app
-      - /app/node_modules
+      - "6379:6379"
     restart: always
 
 volumes:

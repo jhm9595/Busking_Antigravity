@@ -109,6 +109,7 @@ model SongRequest {
   performanceId String   @map("performance_id")
   title         String
   artist        String
+  requesterName String?  @map("requester_name")
   status        String   @default("pending") // pending, accepted, rejected, completed
   createdAt     DateTime @default(now()) @map("created_at")
 

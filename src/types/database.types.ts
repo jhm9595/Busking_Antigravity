@@ -1,4 +1,4 @@
- 
+
 export type Json =
     | string
     | number
@@ -113,7 +113,7 @@ export interface Database {
                     description: string | null
                     chat_enabled: boolean
                     chat_cost_per_hour: number
-                    status: 'scheduled' | 'live' | 'ended' | 'cancelled'
+                    status: 'scheduled' | 'live' | 'completed' | 'cancelled'
                     created_at: string
                 }
                 Insert: {

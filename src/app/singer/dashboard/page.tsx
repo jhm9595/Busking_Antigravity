@@ -12,6 +12,7 @@ import { syncUserProfile, getSinger, registerSinger, updateSingerProfile, getPer
 import { useLanguage } from '@/contexts/LanguageContext'
 import ConfirmationModal from '@/components/common/ConfirmationModal'
 import FollowersList from '@/components/singer/FollowersList'
+import ClockWidget from '@/components/common/ClockWidget'
 
 export default function SingerDashboard() {
     const { t } = useLanguage()
@@ -81,12 +82,9 @@ export default function SingerDashboard() {
         }
     }, [user, isLoaded])
 
-    const [currentTime, setCurrentTime] = useState<Date | null>(null)
+    const [origin, setOrigin] = useState('')
     useEffect(() => {
         setOrigin(window.location.origin)
-        setCurrentTime(new Date())
-        const timer = setInterval(() => setCurrentTime(new Date()), 1000)
-        return () => clearInterval(timer)
     }, [])
 
     const handleLogout = async () => {
@@ -216,12 +214,7 @@ export default function SingerDashboard() {
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-extrabold text-gray-900">{t('dashboard.title')}</h1>
                     <div className="flex items-center space-x-4">
-                        {currentTime && (
-                            <div className="hidden sm:block text-right mr-4">
-                                <p className="text-sm font-bold text-indigo-600">{currentTime.toLocaleTimeString()}</p>
-                                <p className="text-xs text-gray-400">{currentTime.toLocaleDateString()}</p>
-                            </div>
-                        )}
+                        <ClockWidget />
                         <LanguageSwitcher />
                         <span className="text-sm text-gray-500">{t('dashboard.welcome')}{singerData?.profile?.nickname || user.fullName}</span>
                         <button

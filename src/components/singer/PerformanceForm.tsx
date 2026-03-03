@@ -147,9 +147,13 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
             setSelectedSongIds([])
             setShowMap(false)
             onSuccess()
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to register:', error)
-            alert(t('performance.form.error_submit'))
+            if (error.message === 'DUPLICATE_SCHEDULE') {
+                alert(t('performance.form.error_duplicate'))
+            } else {
+                alert(t('performance.form.error_submit'))
+            }
         } finally {
             setIsSubmitting(false)
         }

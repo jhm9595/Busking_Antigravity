@@ -32,6 +32,8 @@ export default function AudienceLivePage() {
     const { t } = useLanguage()
 
 
+    const [showFullSetlist, setShowFullSetlist] = useState(false)
+
     const refreshData = async () => {
         if (performanceId) {
             const p = await getPerformanceById(performanceId)
@@ -82,8 +84,11 @@ export default function AudienceLivePage() {
     // Also listen for socket event: singer changed song status or setlist
     useEffect(() => {
         if (!activeSocket) return
-        activeSocket.on('song_status_updated', refreshPerformance)
-        return () => activeSocket.off('song_status_updated', refreshPerformance)
+        const handleStatusUpdate = () => {
+            refreshPerformance()
+        }
+        activeSocket.on('song_status_updated', handleStatusUpdate)
+        return () => activeSocket.off('song_status_updated', handleStatusUpdate)
     }, [activeSocket, performanceId])
 
     const handleSongRequest = async (title: string, artist: string) => {
@@ -92,13 +97,18 @@ export default function AudienceLivePage() {
             const res = await fetch('/api/song-requests', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ performanceId, title, artist })
+                body: JSON.stringify({
+                    performanceId,
+                    title,
+                    artist,
+                    requesterName: username || (user?.id) || 'Anonymous'
+                })
             })
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Request failed')
 
             if (activeSocket) {
-                activeSocket.emit('song_requested', { performanceId, title, username })
+                activeSocket.emit('song_requested', { performanceId, title, artist, username })
             }
             alert(t('song.request_sent') || 'Your song request has been sent!')
         } catch (error: any) {
@@ -259,6 +269,47 @@ export default function AudienceLivePage() {
                                         </div>
                                     </div>
                                 )}
+
+                                {/* Full Setlist Toggle */}
+                                {performance.songs && performance.songs.length > 0 && (
+                                    <div className="mt-4 border-t border-white/5">
+                                        <button
+                                            onClick={() => setShowFullSetlist(!showFullSetlist)}
+                                            className="w-full py-2 flex items-center justify-between text-[10px] font-bold tracking-widest text-slate-500 uppercase group/btn"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <List className="w-3 h-3 text-primary" />
+                                                <span>{t('live.tabs.setlist')} ({performance.songs.length})</span>
+                                            </div>
+                                            <ChevronRight className={`w-3 h-3 transition-transform ${showFullSetlist ? 'rotate-90' : ''}`} />
+                                        </button>
+
+                                        {showFullSetlist && (
+                                            <div className="mt-2 space-y-2 pb-2">
+                                                {performance.songs.map((song: any, index: number) => (
+                                                    <div key={song.id} className="flex items-center justify-between text-xs px-2 py-1.5 rounded bg-white/5 border border-white/5">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="font-mono text-[10px] text-primary/50">{index + 1}</span>
+                                                            <div className={song.status === 'completed' ? 'opacity-30 line-through' : ''}>
+                                                                <p className="font-bold text-slate-200">{song.title}</p>
+                                                                <p className="text-[10px] text-slate-500">{song.artist}</p>
+                                                            </div>
+                                                        </div>
+                                                        {song.status === 'completed' ? (
+                                                            <Check className="w-3 h-3 text-green-500" />
+                                                        ) : song.id === currentSong.id ? (
+                                                            <div className="flex gap-0.5">
+                                                                <div className="w-1 h-3 bg-red-500 animate-[bounce_1s_infinite_0s]"></div>
+                                                                <div className="w-1 h-3 bg-red-500 animate-[bounce_1s_infinite_0.2s]"></div>
+                                                                <div className="w-1 h-3 bg-red-500 animate-[bounce_1s_infinite_0.4s]"></div>
+                                                            </div>
+                                                        ) : null}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </section>
 
@@ -304,6 +355,8 @@ export default function AudienceLivePage() {
                                         className="flex-1 overflow-hidden"
                                         onSocketReady={setActiveSocket}
                                         onChatStatusChange={setChatStatus}
+                                        onViewingCountChange={(count) => setViewingCount(count)}
+                                        onSongStatusUpdate={refreshPerformance}
                                     />
                                 </div>
                             </section>

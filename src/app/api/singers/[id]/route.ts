@@ -31,7 +31,7 @@ export async function GET(
             // Use endTime if present, otherwise assume 3 hours max duration from start
             const end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
 
-            // If time has passed, effectively complete it
+            // Auto-update status: complete if time passed, or set live if start time reached
             if (end < now && (p.status === 'live' || p.status === 'scheduled')) {
                 try {
                     await prisma.performance.update({
@@ -39,15 +39,24 @@ export async function GET(
                         data: { status: 'completed' }
                     })
                 } catch (e) {
-                    // Ignore update errors (e.g. race conditions), just return updated state
                     console.error('Auto-close error:', e)
                 }
                 return { ...p, status: 'completed' }
+            } else if (start <= now && p.status === 'scheduled') {
+                try {
+                    await prisma.performance.update({
+                        where: { id: p.id },
+                        data: { status: 'live' }
+                    })
+                } catch (e) {
+                    console.error('Auto-live error:', e)
+                }
+                return { ...p, status: 'live' }
             }
             return p
         }))
 
-        // Sort by startTime ASC (Earliest first - best for Upcoming list)
+        // Sort by startTime ASC (Earliest first)
         updatedPerformances.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
 
         return NextResponse.json({

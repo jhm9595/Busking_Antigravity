@@ -233,6 +233,30 @@ export async function addPerformance(data: {
     try {
         console.log('Adding performance:', data)
 
+        // Overlap check
+        const newStart = new Date(data.startTime)
+        const newEnd = new Date(data.endTime)
+
+        // Fetch existing active performances for this singer
+        const existingPerformances = await prisma.performance.findMany({
+            where: {
+                singerId: data.singerId,
+                status: { in: ['scheduled', 'live'] }
+            }
+        })
+
+        const overlapping = existingPerformances.find(p => {
+            const start = new Date(p.startTime)
+            const end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
+
+            // Check for any overlap: (StartA < EndB) && (EndA > StartB)
+            return (newStart < end) && (newEnd > start)
+        })
+
+        if (overlapping) {
+            throw new Error('DUPLICATE_SCHEDULE')
+        }
+
         const performanceData = {
             singerId: data.singerId,
             title: data.title,

@@ -68,6 +68,7 @@ export const en = {
             alert_order: 'End time must be after Start time.',
             success: 'Performance registered successfully!',
             error_submit: 'Failed to register performance',
+            error_duplicate: 'Another performance is already scheduled during this time.',
         },
         details: {
             location_map: 'Location Map',
@@ -273,6 +274,8 @@ export const en = {
         artist_placeholder: 'e.g. Queen',
         sending: 'Sending Request...',
         submit: 'Send Request',
+        requested_by: 'Requested by {name}',
+        request_by: 'Requested by',
     }
 }
 

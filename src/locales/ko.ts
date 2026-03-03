@@ -70,6 +70,7 @@ export const ko: LocaleTypes = {
             alert_order: '종료 시간은 시작 시간보다 늦어야 합니다.',
             success: '공연이 성공적으로 등록되었습니다!',
             error_submit: '공연 등록에 실패했습니다.',
+            error_duplicate: '해당 시간에 이미 다른 공연 일정이 등록되어 있습니다.',
         },
         details: {
             location_map: '위치 지도',
@@ -275,5 +276,7 @@ export const ko: LocaleTypes = {
         artist_placeholder: '예: 퀸',
         sending: '신청 중...',
         submit: '신청하기',
+        requested_by: '{name} 님의 신청곡',
+        request_by: '신청자:',
     }
 }

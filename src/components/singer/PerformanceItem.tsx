@@ -48,7 +48,7 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
         // Fallback for Scheduled vs Past based on Time (only if status is 'scheduled')
         const now = new Date()
         const start = new Date(perf.startTime)
-        const end = perf.endTime ? new Date(perf.endTime) : new Date(start.getTime() + 60 * 60 * 1000)
+        const end = perf.endTime ? new Date(perf.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
 
         // Even if time matches, if status isn't 'live', it's just 'scheduled' (maybe late start)
         // But for 'past', if time is over, we show it as past visually
@@ -84,7 +84,7 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                                 <span className="mx-1">-</span>
                                 {perf.endTime
                                     ? new Date(perf.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                                    : new Date(new Date(perf.startTime).getTime() + 60 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                    : new Date(new Date(perf.startTime).getTime() + 3 * 60 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                                 }
                             </span>
                         </div>

@@ -17,6 +17,7 @@ interface Message {
     isAlert?: boolean
     requestData?: {
         title: string
+        artist?: string
         username: string // requester
     }
 }
@@ -74,8 +75,9 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
     const formatTime = (ts: string) => {
         if (!ts) return ''
         const date = new Date(ts)
-        if (isNaN(date.getTime())) return ts // Fallback for old formatting
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        if (isNaN(date.getTime())) return ts
+        // Use local time formatting
+        return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })
     }
 
     useEffect(() => {
@@ -199,8 +201,8 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
                                             <div className="flex items-center justify-center gap-2 mb-1 text-indigo-300 text-xs font-bold uppercase tracking-wider">
                                                 <Music className="w-3 h-3" /> New Song Request
                                             </div>
-                                            <p className="text-white font-bold text-sm mb-1 line-clamp-2">"{msg.requestData.title}"</p>
-                                            <p className="text-gray-400 text-xs mb-2">Requested by {msg.requestData.username}</p>
+                                            <p className="text-white font-bold text-sm mb-1 line-clamp-2">{msg.requestData.title}{msg.requestData.artist ? ` - ${msg.requestData.artist}` : ''}</p>
+                                            <p className="text-gray-400 text-xs mb-2">{t('song_request.request_by')} {msg.requestData.username}</p>
 
                                             {userType === 'singer' && onAcceptRequest && onRejectRequest && (
                                                 <div className="flex gap-2 justify-center mt-2">
@@ -225,7 +227,7 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
                             if (isSystem && msg.message && !msg.requestData) {
                                 return (
                                     <div key={idx} className="flex flex-col items-center my-2 animate-fade-in group w-full">
-                                        <div className={`border rounded-xl p-3 max-w-[90%] text-center shadow-lg ${msg.isAlert ? 'bg-gradient-to-r from-red-900/80 to-red-800/80 border-red-500/50' : 'bg-gradient-to-r from-gray-900/80 to-gray-800/80 border-gray-500/50'}`}>
+                                        <div className={`border rounded-xl p-3 max-w-[90%] text-center shadow-lg ${msg.isAlert ? 'bg-gradient-to-r from-green-900/80 to-emerald-900/80 border-green-500/50' : 'bg-gradient-to-r from-gray-900/80 to-gray-800/80 border-gray-500/50'}`}>
                                             <p className="text-white font-bold text-sm mb-1">{msg.message}</p>
                                         </div>
                                     </div>

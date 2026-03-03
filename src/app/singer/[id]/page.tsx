@@ -12,7 +12,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { useUser } from '@clerk/nextjs'
 import SongRequestModal from '@/components/audience/SongRequestModal'
 import BookingRequestModal from '@/components/audience/BookingRequestModal'
-import { getPerformanceById, createSongRequest, getSinger } from '@/services/singer'
+import { getPerformanceById, createSongRequest, getSinger, updatePerformanceStatus } from '@/services/singer'
 
 // Dynamically import MapPicker
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
@@ -396,11 +396,7 @@ export default function SingerDetailPage() {
                                                     onClick={async () => {
                                                         if (confirm(t('live.header.confirm_end'))) {
                                                             try {
-                                                                await fetch('/api/performances/status', {
-                                                                    method: 'PUT',
-                                                                    headers: { 'Content-Type': 'application/json' },
-                                                                    body: JSON.stringify({ id: perf.id, status: 'completed' })
-                                                                })
+                                                                await updatePerformanceStatus(perf.id, 'completed')
                                                                 window.location.reload()
                                                             } catch (e) {
                                                                 console.error(e)
@@ -503,6 +499,6 @@ export default function SingerDetailPage() {
                 onSubmit={handleBookingSubmit}
                 singerName={singer.stageName}
             />
-        </div>
+        </div >
     )
 }

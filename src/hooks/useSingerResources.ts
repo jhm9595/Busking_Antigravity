@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { getSongs, getPerformances } from '@/services/singer'
 
 export function useSongs(singerId: string | undefined | null, refreshKey?: number) {
-    const [songs, setSongs] = useState<any[]>([])
+    const [songs, setSongs] = useState<unknown[]>([])
     const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<any>(null)
+    const [error, setError] = useState<unknown>(null)
 
     const fetchSongs = useCallback(async () => {
         if (!singerId) return
@@ -29,9 +29,9 @@ export function useSongs(singerId: string | undefined | null, refreshKey?: numbe
 }
 
 export function usePerformances(singerId: string | undefined | null, refreshKey?: number) {
-    const [performances, setPerformances] = useState<any[]>([])
+    const [performances, setPerformances] = useState<unknown[]>([])
     const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<any>(null)
+    const [error, setError] = useState<unknown>(null)
 
     const fetchPerformances = useCallback(async () => {
         if (!singerId) return
