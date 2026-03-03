@@ -3,9 +3,13 @@
 import Link from 'next/link'
 import { Home } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { usePathname } from 'next/navigation'
 
 export default function GlobalHomeButton() {
     const { t } = useLanguage()
+    const pathname = usePathname()
+
+    if (pathname === '/') return null
 
     return (
         <Link
