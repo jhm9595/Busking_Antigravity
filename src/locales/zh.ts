@@ -70,6 +70,7 @@ export const zh: LocaleTypes = {
             alert_order: '结束时间必须晚于开始时间。',
             success: '演出注册成功！',
             error_submit: '演出注册失败',
+            error_duplicate: '此时段已安排了另一场演出。',
         },
         details: {
             location_map: '位置地图',
@@ -275,5 +276,7 @@ export const zh: LocaleTypes = {
         artist_placeholder: '例如: 皇后乐队',
         sending: '发送中...',
         submit: '发送请求',
+        requested_by: '{name} 的点歌',
+        request_by: '请求者:',
     }
 }

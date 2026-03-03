@@ -70,6 +70,7 @@ export const ja: LocaleTypes = {
             alert_order: '終了時間は開始時間より後である必要があります。',
             success: '公演が正常に登録されました！',
             error_submit: '公演の登録に失敗しました。',
+            error_duplicate: '選択した時間に既に別の記録があります。',
         },
         details: {
             location_map: '位置地図',
@@ -275,5 +276,7 @@ export const ja: LocaleTypes = {
         artist_placeholder: '例: クイーン',
         sending: '送信中...',
         submit: 'リクエスト送信',
+        requested_by: '{name} さんのリクエスト',
+        request_by: 'リクエスト者:',
     }
 }

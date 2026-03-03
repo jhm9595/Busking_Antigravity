@@ -432,13 +432,14 @@ export async function getPerformanceRequests(performanceId: string) {
     })
 }
 
-export async function createSongRequest(data: { performanceId: string, title: string, artist: string }) {
+export async function createSongRequest(data: { performanceId: string, title: string, artist: string, requesterName?: string }) {
     try {
         await prisma.songRequest.create({
             data: {
                 performanceId: data.performanceId,
                 title: data.title,
-                artist: data.artist
+                artist: data.artist,
+                requesterName: data.requesterName
             }
         })
         revalidatePath(`/singer/live`)

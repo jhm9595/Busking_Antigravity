@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useCallback, Suspense } from 'react'
+import React, { useEffect, useState, useCallback, Suspense, useRef } from 'react'
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
@@ -159,7 +159,7 @@ function LivePerformanceContent() {
             }
         }, 1000)
         return () => clearInterval(timer)
-    }, [performance, isAlertSent, activeSocket, chatStatus])
+    }, [performance, isAlertSent, chatStatus])
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60)
@@ -285,7 +285,7 @@ function LivePerformanceContent() {
             songIds: newIds
         })
         // Notify audience pages to refresh setlist
-        if (activeSocket) activeSocket.emit('song_status_updated', { performanceId })
+        if (socketRef.current) socketRef.current.emit('song_status_updated', { performanceId })
         await refreshData()
     }
 
@@ -299,7 +299,7 @@ function LivePerformanceContent() {
             songIds: newIds
         })
         // Notify audience pages to refresh setlist
-        if (activeSocket) activeSocket.emit('song_status_updated', { performanceId })
+        if (socketRef.current) socketRef.current.emit('song_status_updated', { performanceId })
         await refreshData()
         setShowAddModal(false)
     }

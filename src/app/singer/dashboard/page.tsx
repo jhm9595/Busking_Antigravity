@@ -92,7 +92,7 @@ export default function SingerDashboard() {
         router.push('/')
     }
 
-    const [origin, setOrigin] = useState('')
+
     const [songsRefreshKey, setSongsRefreshKey] = useState(0)
     const triggerSongsRefresh = () => setSongsRefreshKey(prev => prev + 1)
 
