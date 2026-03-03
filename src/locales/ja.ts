@@ -278,5 +278,11 @@ export const ja: LocaleTypes = {
         submit: 'リクエスト送信',
         requested_by: '{name} さんのリクエスト',
         request_by: 'リクエスト者:',
+    },
+    singer: {
+        withdrawal_link: '退会する',
+        withdrawal_confirm: '本当に退会しますか？すべてのデータが完全に削除されます。',
+        withdrawal_success: '退会処理が完了しました。',
+        withdrawal_failed: '退会処理に失敗しました。'
     }
 }

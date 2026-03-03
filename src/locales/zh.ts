@@ -278,5 +278,11 @@ export const zh: LocaleTypes = {
         submit: '发送请求',
         requested_by: '{name} 的点歌',
         request_by: '请求者:',
+    },
+    singer: {
+        withdrawal_link: '注销账户',
+        withdrawal_confirm: '您确定要注销吗？您的所有数据将被永久删除。',
+        withdrawal_success: '账户已成功注销。',
+        withdrawal_failed: '账户注销失败。'
     }
 }
