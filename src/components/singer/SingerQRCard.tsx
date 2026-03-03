@@ -11,6 +11,7 @@ import { updateSingerProfile } from '@/services/singer'
 interface SingerQRCardProps {
     singerId: string
     displayId: string
+    nickname?: string
     qrValue: string
     socialLinks?: {
         instagram?: string
@@ -39,7 +40,7 @@ const getDisplayHandle = (input: string | undefined) => {
     return handle.startsWith('@') ? handle : '@' + handle
 }
 
-export default function SingerQRCard({ singerId, displayId, qrValue, socialLinks = {}, bio = '', hairColor, topColor, bottomColor, onUpdate }: SingerQRCardProps) {
+export default function SingerQRCard({ singerId, displayId, nickname, qrValue, socialLinks = {}, bio = '', hairColor, topColor, bottomColor, onUpdate }: SingerQRCardProps) {
     const { t } = useLanguage()
     const [isQRModalOpen, setIsQRModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -47,6 +48,7 @@ export default function SingerQRCard({ singerId, displayId, qrValue, socialLinks
 
     // Edit State
     const [formData, setFormData] = useState({
+        stageName: displayId || '',
         instagram: socialLinks.instagram || '',
         facebook: socialLinks.facebook || '',
         youtube: socialLinks.youtube || '',
@@ -96,7 +98,18 @@ export default function SingerQRCard({ singerId, displayId, qrValue, socialLinks
 
     const handleSaveProfile = async () => {
         setIsSaving(true)
-        const { bio, hairColor, topColor, bottomColor, ...links } = formData
+        const { stageName, bio, hairColor, topColor, bottomColor, ...links } = formData
+
+        // 1. If stageName changed, update nickname first
+        if (stageName !== displayId) {
+            const nickRes = await (await import('@/services/singer')).updateNickname(singerId, stageName)
+            if (!nickRes.success) {
+                setIsSaving(false)
+                alert(nickRes.error === 'NICKNAME_DUPLICATE' ? 'This nickname is already taken.' : 'Failed to update nickname.')
+                return
+            }
+        }
+
         const res = await updateSingerProfile(singerId, {
             bio: bio,
             hairColor,
@@ -112,6 +125,7 @@ export default function SingerQRCard({ singerId, displayId, qrValue, socialLinks
             alert(t('common.error'))
         }
     }
+
 
     // Helper to open social link
     const openSocial = (input: string | undefined, type: keyof typeof formData) => {
@@ -152,6 +166,7 @@ export default function SingerQRCard({ singerId, displayId, qrValue, socialLinks
                     <button
                         onClick={() => {
                             setFormData({
+                                stageName: nickname || displayId || '',
                                 instagram: socialLinks.instagram || '',
                                 facebook: socialLinks.facebook || '',
                                 youtube: socialLinks.youtube || '',
@@ -170,6 +185,7 @@ export default function SingerQRCard({ singerId, displayId, qrValue, socialLinks
                     >
                         <Edit className="w-3.5 h-3.5" />
                     </button>
+
                 </div>
 
                 <h2 className="text-xl font-bold text-gray-900">{t('dashboard.qr.title')}</h2>
@@ -216,6 +232,19 @@ export default function SingerQRCard({ singerId, displayId, qrValue, socialLinks
                     )}
                 </div>
 
+                <div className="relative cursor-pointer group" onClick={() => setIsQRModalOpen(true)}>
+                    <div className="p-2 bg-white rounded-lg border-2 border-dashed border-gray-100 shadow-sm group-hover:border-indigo-300 transition-colors">
+                        <QRCodeSVG
+                            value={qrValue}
+                            size={120}
+                            level="L"
+                        />
+                    </div>
+                    <div className="absolute inset-0 bg-indigo-600/10 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-lg">
+                        <ExternalLink className="w-6 h-6 text-indigo-600" />
+                    </div>
+                </div>
+
                 <button
                     onClick={() => setIsQRModalOpen(true)}
                     className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors shadow-sm font-medium"
@@ -223,6 +252,7 @@ export default function SingerQRCard({ singerId, displayId, qrValue, socialLinks
                     <QrCode className="w-4 h-4" />
                     <span>{t('dashboard.qr.button')}</span>
                 </button>
+
             </div>
 
             {/* QR Modal */}
@@ -242,7 +272,19 @@ export default function SingerQRCard({ singerId, displayId, qrValue, socialLinks
 
                         <h3 className="text-2xl font-bold text-gray-900 mb-6">{t('dashboard.qr.title')}</h3>
 
-                        <div className="p-4 bg-white rounded-xl border-2 border-dashed border-gray-200 shadow-inner mb-6">
+                        <div
+                            className="p-4 bg-white rounded-xl border-2 border-dashed border-gray-200 shadow-inner mb-6 cursor-zoom-in group"
+                            onClick={(e) => {
+                                e.currentTarget.classList.toggle('fixed')
+                                e.currentTarget.classList.toggle('inset-0')
+                                e.currentTarget.classList.toggle('z-50')
+                                e.currentTarget.classList.toggle('flex')
+                                e.currentTarget.classList.toggle('items-center')
+                                e.currentTarget.classList.toggle('justify-center')
+                                e.currentTarget.classList.toggle('p-10')
+                                e.currentTarget.classList.toggle('bg-white')
+                            }}
+                        >
                             {singerId ? (
                                 <QRCodeSVG
                                     id="singer-qr-code"
@@ -250,6 +292,7 @@ export default function SingerQRCard({ singerId, displayId, qrValue, socialLinks
                                     size={220}
                                     level="H"
                                     includeMargin={true}
+                                    className="group-[.fixed]:w-[80vh] group-[.fixed]:h-[80vh] transition-all"
                                 />
                             ) : (
                                 <div className="w-[220px] h-[220px] flex items-center justify-center bg-gray-50 text-gray-400 rounded-lg">
@@ -299,6 +342,18 @@ export default function SingerQRCard({ singerId, displayId, qrValue, socialLinks
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Stage Name (Nickname)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.stageName}
+                                    onChange={e => setFormData({ ...formData, stageName: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
                                     {t('common.bio_label')}
                                 </label>
                                 <textarea
@@ -308,6 +363,7 @@ export default function SingerQRCard({ singerId, displayId, qrValue, socialLinks
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[80px]"
                                 />
                             </div>
+
 
 
 

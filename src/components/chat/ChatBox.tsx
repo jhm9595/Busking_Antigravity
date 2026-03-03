@@ -53,6 +53,7 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
     const [chatStatus, setChatStatus] = useState<'open' | 'closed'>('closed')
     const [showAvatarSetup, setShowAvatarSetup] = useState(false)
     const [isJoined, setIsJoined] = useState(userType === 'singer')
+    const [performanceStartTime, setPerformanceStartTime] = useState<string | null>(null)
 
     // Local state for username/avatar if not passed from parent
     const [localUsername, setLocalUsername] = useState(username || '')
@@ -62,6 +63,14 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
     // Helper to get effective values
     const effectiveUsername = username || localUsername
     const effectiveAvatarConfig = avatarConfig || localAvatarConfig
+
+    // Fetch performance start time if not provided (should ideally be passed as prop)
+    useEffect(() => {
+        if (!performanceId) return
+        import('@/services/singer').then(m => m.getPerformanceById(performanceId)).then(p => {
+            if (p) setPerformanceStartTime(p.startTime as any)
+        })
+    }, [performanceId])
 
     // Update local state when props change
     useEffect(() => {
@@ -125,6 +134,12 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
             newSocket.disconnect()
         })
 
+        newSocket.on('performance_ended', () => {
+            alert(t('chat.performance_ended_alert') || 'The performance has ended. Redirecting...')
+            setIsJoined(false)
+            if (onChatStatusChange) onChatStatusChange('closed')
+        })
+
         newSocket.on('load_history', (history: Message[]) => {
             setMessages(history)
             setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
@@ -154,6 +169,26 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
         }
     }, [performanceId, effectiveUsername, userType, isJoined])
 
+    const handleJoinClick = () => {
+        if (userType === 'audience' && performanceStartTime) {
+            const start = new Date(performanceStartTime)
+            const now = new Date()
+            const diffMs = start.getTime() - now.getTime()
+            const diffMins = diffMs / (1000 * 60)
+
+            if (diffMins > 10) {
+                alert(t('chat.join_too_early') || 'You can join the chat 10 minutes before the performance starts.')
+                return
+            }
+        }
+
+        if (!effectiveUsername || effectiveUsername === 'Guest') {
+            setShowAvatarSetup(true)
+        } else {
+            setIsJoined(true)
+        }
+    }
+
     const sendMessage = async () => {
         if (currentMessage !== '' && socket) {
             const messageData: Message = {
@@ -169,6 +204,7 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
             setCurrentMessage('')
         }
     }
+
 
     return (
         <div className={`flex flex-col bg-gray-900 border border-gray-800 rounded-xl overflow-hidden ${className}`}>
@@ -192,17 +228,12 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
                     <h4 className="text-white font-bold mb-2">실시간 채팅방에 참여하시겠습니까?</h4>
                     <p className="text-xs text-slate-400 text-center mb-6">참여 시 다른 관객 및 가수와 소통할 수 있습니다. (설정된 인원 내에서만 참여 가능)</p>
                     <button
-                        onClick={() => {
-                            if (!effectiveUsername || effectiveUsername === 'Guest') {
-                                setShowAvatarSetup(true)
-                            } else {
-                                setIsJoined(true)
-                            }
-                        }}
+                        onClick={handleJoinClick}
                         className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95"
                     >
                         입장하기 (Join Chat)
                     </button>
+
                 </div>
             ) : (
                 <>

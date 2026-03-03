@@ -107,20 +107,20 @@ export default function SingerDashboard() {
         // 1. Check for active LIVE performance first
         const activeLive = perfs.find((p: any) => p.status === 'live')
         if (activeLive) {
-            setConfirmModal({
-                isOpen: true,
-                title: t('dashboard.alerts.resume_title'),
-                message: t('dashboard.alerts.resume_message').replace('{title}', activeLive.title),
-                onConfirm: () => {
-                    router.push(`/singer/live?performanceId=${activeLive.id}`)
-                    setConfirmModal(prev => ({ ...prev, isOpen: false }))
-                }
-            })
+            router.push(`/singer/live?performanceId=${activeLive.id}`)
             return
         }
 
         // 2. If no live, check scheduled
-        const scheduled = perfs.filter((p: any) => p.status === 'scheduled')
+        const now = new Date()
+        const tenMinutesFromNow = new Date(now.getTime() + 10 * 60 * 1000)
+
+        const scheduled = perfs.filter((p: any) => {
+            if (p.status !== 'scheduled') return false
+            const start = new Date(p.startTime)
+            // Allow starting if it's within 10 minutes from now or already past start time
+            return start <= tenMinutesFromNow
+        })
 
         if (scheduled.length === 0) {
             setConfirmModal({
@@ -152,6 +152,17 @@ export default function SingerDashboard() {
             setShowLiveModal(true)
         }
     }
+
+    const [isLivePerformanceActive, setIsLivePerformanceActive] = useState(false)
+    useEffect(() => {
+        if (singerData?.id) {
+            getPerformances(singerData.id).then(perfs => {
+                const live = perfs.find((p: any) => p.status === 'live')
+                setIsLivePerformanceActive(!!live)
+            })
+        }
+    }, [singerData, songsRefreshKey])
+
 
     if (!isLoaded || isSyncing) {
         return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-black">{t('dashboard.loading')}</div>
@@ -232,9 +243,11 @@ export default function SingerDashboard() {
                         <SingerQRCard
                             singerId={singerId}
                             displayId={displayId}
+                            nickname={singerData?.stageName || singerData?.profile?.nickname}
                             qrValue={qrValue}
                             socialLinks={singerData?.socialLinks ? JSON.parse(singerData.socialLinks) : {}}
                             bio={singerData?.bio}
+
                             hairColor={singerData?.hairColor}
                             topColor={singerData?.topColor}
                             bottomColor={singerData?.bottomColor}
@@ -246,10 +259,33 @@ export default function SingerDashboard() {
 
                         <button
                             onClick={handleStartMode}
-                            className="w-full py-4 text-lg font-bold rounded-lg text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg transform transition hover:scale-105"
+                            className={`w-full py-4 text-lg font-bold rounded-lg text-white shadow-lg transform transition hover:scale-105 ${isLivePerformanceActive ? 'bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700' : 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700'}`}
                         >
-                            {t('dashboard.start_mode')}
+                            {isLivePerformanceActive ? t('dashboard.resume_live') : t('dashboard.start_mode')}
                         </button>
+
+                        <button
+                            onClick={() => {
+                                setConfirmModal({
+                                    isOpen: true,
+                                    title: t('dashboard.withdraw_title') || 'Withdraw Account',
+                                    message: t('dashboard.withdraw_message') || 'Are you sure you want to delete all your information? This cannot be undone.',
+                                    onConfirm: async () => {
+                                        const res = await (await import('@/services/singer')).withdrawUser(user.id)
+                                        if (res.success) {
+                                            await signOut()
+                                            router.push('/')
+                                        } else {
+                                            alert('Withdrawal failed.')
+                                        }
+                                    }
+                                })
+                            }}
+                            className="w-full py-2 text-sm text-gray-400 hover:text-red-500 transition-colors mt-4 text-center border border-dashed border-gray-200 rounded-lg"
+                        >
+                            {t('dashboard.withdraw_btn') || 'Withdraw Account'}
+                        </button>
+
                     </div>
 
                     {/* Right Column: Management */}

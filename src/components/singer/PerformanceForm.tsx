@@ -116,7 +116,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
 
         setIsSubmitting(true)
         try {
-            await addPerformance({
+            const result = await addPerformance({
                 singerId,
                 title: newPerf.title,
                 locationText: newPerf.location_text,
@@ -131,32 +131,37 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                 songIds: selectedSongIds
             })
 
-            // Reset with default times
-            const defaults = getDefaultTimes()
-            setNewPerf({
-                title: '',
-                location_text: '',
-                lat: 0,
-                lng: 0,
-                start_time: defaults.start_time,
-                end_time: defaults.end_time,
-                chat_enabled: false,
-                streaming_enabled: false,
-                expected_audience: 50
-            })
-            setSelectedSongIds([])
-            setShowMap(false)
-            onSuccess()
+            if (result.success) {
+                // Reset with default times
+                const defaults = getDefaultTimes()
+                setNewPerf({
+                    title: '',
+                    location_text: '',
+                    lat: 0,
+                    lng: 0,
+                    start_time: defaults.start_time,
+                    end_time: defaults.end_time,
+                    chat_enabled: false,
+                    streaming_enabled: false,
+                    expected_audience: 50
+                })
+                setSelectedSongIds([])
+                setShowMap(false)
+                onSuccess()
+            } else {
+                if (result.error === 'DUPLICATE_SCHEDULE') {
+                    alert(t('performance.form.error_duplicate'))
+                } else {
+                    alert(t('performance.form.error_submit'))
+                }
+            }
         } catch (error: any) {
             console.error('Failed to register:', error)
-            if (error.message === 'DUPLICATE_SCHEDULE') {
-                alert(t('performance.form.error_duplicate'))
-            } else {
-                alert(t('performance.form.error_submit'))
-            }
+            alert(t('performance.form.error_submit'))
         } finally {
             setIsSubmitting(false)
         }
+
     }
 
     return (

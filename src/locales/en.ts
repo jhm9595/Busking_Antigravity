@@ -276,6 +276,12 @@ export const en = {
         submit: 'Send Request',
         requested_by: 'Requested by {name}',
         request_by: 'Requested by',
+    },
+    singer: {
+        withdrawal_link: 'Withdraw Account',
+        withdrawal_confirm: 'Are you sure you want to withdraw? All your data will be permanently deleted.',
+        withdrawal_success: 'Account withdrawn successfully.',
+        withdrawal_failed: 'Failed to withdraw account.'
     }
 }
 

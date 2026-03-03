@@ -17,7 +17,7 @@ export async function syncUserProfile(user: { id: string, email?: string, fullNa
                 id: user.id,
                 email: user.email,
                 role: 'audience',
-                nickname: user.fullName,
+                nickname: user.fullName || `user_${user.id.slice(-4)}`,
                 avatarUrl: user.imageUrl,
             },
         })
@@ -28,8 +28,23 @@ export async function syncUserProfile(user: { id: string, email?: string, fullNa
     }
 }
 
+export async function checkNicknameUnique(nickname: string, excludeUserId?: string) {
+    const existing = await prisma.profile.findFirst({
+        where: {
+            nickname: { equals: nickname, mode: 'insensitive' },
+            NOT: excludeUserId ? { id: excludeUserId } : undefined
+        }
+    })
+    return !existing
+}
+
 export async function registerSinger(user: { id: string, stageName: string }) {
     try {
+        const isUnique = await checkNicknameUnique(user.stageName, user.id)
+        if (!isUnique) {
+            return { success: false, error: 'NICKNAME_DUPLICATE' }
+        }
+
         await prisma.$transaction(async (tx) => {
             // Update Profile to role: 'singer'
             await tx.profile.update({
@@ -61,6 +76,7 @@ export async function registerSinger(user: { id: string, stageName: string }) {
         return { success: false, error }
     }
 }
+
 
 // --- Songs ---
 export async function getSongs(singerId: string) {
@@ -117,19 +133,10 @@ export async function getPerformances(singerId: string) {
                 console.error('Auto-close error:', e)
             }
             return { ...p, status: 'completed' }
-        } else if (start <= now && p.status === 'scheduled') {
-            try {
-                await prisma.performance.update({
-                    where: { id: p.id },
-                    data: { status: 'live' }
-                })
-            } catch (e) {
-                console.error('Auto-live error:', e)
-            }
-            return { ...p, status: 'live' }
         }
         return p
     }))
+
 
     // Sort by startTime ASC (Earliest first)
     updatedPerformances.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
@@ -174,19 +181,10 @@ export async function getPerformanceById(id: string) {
         } catch (e) {
             console.error('Auto-close error in getPerformanceById:', e)
         }
-    } else if (start <= now && currentStatus === 'scheduled') {
-        try {
-            await prisma.performance.update({
-                where: { id },
-                data: { status: 'live' }
-            })
-            currentStatus = 'live'
-        } catch (e) {
-            console.error('Auto-live error in getPerformanceById:', e)
-        }
     }
 
-    return {
+
+    return JSON.parse(JSON.stringify({
         ...performance,
         status: currentStatus,
         songs: (performance.performanceSongs as any[]).map(ps => ({
@@ -194,7 +192,7 @@ export async function getPerformanceById(id: string) {
             status: ps.status,
             order: ps.order
         }))
-    }
+    }));
 }
 
 export async function updateSongStatus(performanceId: string, songId: string, status: 'pending' | 'completed') {
@@ -254,8 +252,9 @@ export async function addPerformance(data: {
         })
 
         if (overlapping) {
-            throw new Error('DUPLICATE_SCHEDULE')
+            return { success: false, error: 'DUPLICATE_SCHEDULE' }
         }
+
 
         const performanceData = {
             singerId: data.singerId,
@@ -371,8 +370,9 @@ export async function getSinger(id: string) {
         where: { id },
         include: { profile: true }
     })
-    return singer
+    return singer ? JSON.parse(JSON.stringify(singer)) : null
 }
+
 
 export async function updateSingerProfile(id: string, data: {
     bio?: string
@@ -409,6 +409,39 @@ export async function updateSingerProfile(id: string, data: {
     }
 }
 
+export async function updateNickname(userId: string, newNickname: string) {
+    try {
+        const isUnique = await checkNicknameUnique(newNickname, userId)
+        if (!isUnique) return { success: false, error: 'NICKNAME_DUPLICATE' }
+
+        await prisma.profile.update({
+            where: { id: userId },
+            data: { nickname: newNickname }
+        })
+        revalidatePath('/singer/dashboard')
+        return { success: true }
+    } catch (error) {
+        return { success: false, error }
+    }
+}
+
+export async function withdrawUser(userId: string) {
+    try {
+        await prisma.$transaction(async (tx) => {
+            // Delete follows
+            await tx.follow.deleteMany({ where: { OR: [{ singerId: userId }, { fanId: userId }] } })
+            // Delete singer profile
+            await tx.singer.deleteMany({ where: { id: userId } })
+            // Finally delete profile
+            await tx.profile.delete({ where: { id: userId } })
+        })
+        return { success: true }
+    } catch (error) {
+        console.error('Withdrawal failed:', error)
+        return { success: false, error }
+    }
+}
+
 export async function updatePerformanceStatus(id: string, status: 'scheduled' | 'live' | 'completed' | 'canceled') {
     try {
         await prisma.performance.update({
@@ -417,12 +450,14 @@ export async function updatePerformanceStatus(id: string, status: 'scheduled' | 
         })
         revalidatePath('/singer/dashboard')
         revalidatePath(`/singer/live`)
+        revalidatePath(`/live/${id}`)
         return { success: true }
     } catch (error) {
         console.error('Failed to update status:', error)
         return { success: false, error }
     }
 }
+
 
 // --- Requests ---
 export async function getPerformanceRequests(performanceId: string) {

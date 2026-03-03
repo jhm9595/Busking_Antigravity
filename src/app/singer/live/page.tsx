@@ -67,14 +67,20 @@ function LivePerformanceContent() {
 
     // Load Data
     const refreshData = useCallback(async () => {
-        if (!performanceId) return
+        if (!performanceId) {
+            console.warn('[LivePerformance] No performanceId provided to refreshData')
+            return
+        }
+        console.log('[LivePerformance] Fetching data for:', performanceId)
         const [perfData, reqData] = await Promise.all([
             getPerformanceById(performanceId),
             getPerformanceRequests(performanceId)
         ])
+        console.log('[LivePerformance] Received perfData:', perfData ? 'Exists' : 'NULL')
         setPerformance(perfData)
         setRequests(reqData)
         setRequestsLastUpdated(new Date())
+
 
         // Also load all songs for "Add Song" feature
         if (perfData?.singerId) {
@@ -173,11 +179,15 @@ function LivePerformanceContent() {
             title: t('live.header.confirm_end'),
             message: t('live.header.confirm_end'), // assuming confirm string works here or modify it
             onConfirm: async () => {
+                if (socketRef.current) {
+                    socketRef.current.emit('performance_ended', { performanceId })
+                }
                 await updatePerformanceStatus(performanceId!, 'completed')
                 router.push('/singer/dashboard')
             }
         })
     }
+
 
     // --- Request Handlers ---
     const handleAcceptRequest = async (reqId: string) => {

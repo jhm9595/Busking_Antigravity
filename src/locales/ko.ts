@@ -278,5 +278,12 @@ export const ko: LocaleTypes = {
         submit: '신청하기',
         requested_by: '{name} 님의 신청곡',
         request_by: '신청자:',
+    },
+    singer: {
+        withdrawal_link: '회원 탈퇴 (Withdraw Account)',
+        withdrawal_confirm: '정말 탈퇴하시겠습니까? 모든 데이터가 영구적으로 삭제됩니다.',
+        withdrawal_success: '탈퇴 처리가 완료되었습니다.',
+        withdrawal_failed: '탈퇴 처리에 실패했습니다.'
     }
 }
+

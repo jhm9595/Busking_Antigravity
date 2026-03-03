@@ -449,11 +449,6 @@ export default function SingerDetailPage() {
                                                     }
                                                 })()}
                                             </span>
-                                            {perf.chatEnabled && (
-                                                <span className="bg-indigo-900/50 text-indigo-300 px-2 py-1 rounded flex items-center border border-indigo-700/50">
-                                                    <MessageCircle className="w-3 h-3 mr-1" /> Chat Live
-                                                </span>
-                                            )}
                                         </div>
 
                                         {/* Action Buttons */}
@@ -467,12 +462,17 @@ export default function SingerDetailPage() {
                                                     {expandedPerfId === perf.id ? t('performance.form.map_hide') : t('performance.form.map_show')}
                                                 </button>
                                             )}
-                                            {perf.chatEnabled && perf.status === 'live' && (
-                                                <Link href={`/live/${perf.id}`} className="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-lg text-sm transition shadow-lg shadow-green-900/20 text-center flex items-center justify-center">
+                                            {perf.chatEnabled && (
+                                                <Link
+                                                    href={`/live/${perf.id}`}
+                                                    className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-lg text-sm transition shadow-lg shadow-indigo-900/20 text-center flex items-center justify-center"
+                                                >
+                                                    <MessageCircle className="w-4 h-4 mr-1" />
                                                     {t('live.enter_chat')}
                                                 </Link>
                                             )}
                                         </div>
+
                                     </div>
 
                                     {/* Expanded Map View */}

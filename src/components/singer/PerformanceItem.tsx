@@ -112,11 +112,46 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                     </span>
 
                     {/* Management Buttons */}
-                    {statusKey !== 'completed' && statusKey !== 'canceled' && (
-                        <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                            {/* ... buttons */}
+                    {(statusKey === 'scheduled' || statusKey === 'live') && (
+                        <div className="flex gap-2 mt-2" onClick={(e) => e.stopPropagation()}>
+                            {statusKey === 'scheduled' && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        if (window.confirm(t('performance.list.confirm_cancel'))) {
+                                            import('@/services/singer').then(m => m.updatePerformanceStatus(perf.id, 'canceled')).then(() => router.refresh())
+                                        }
+                                    }}
+                                    className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition"
+                                >
+                                    {t('performance.action.cancel') || 'Cancel'}
+                                </button>
+                            )}
+                            {statusKey === 'live' && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        if (window.confirm(t('performance.list.confirm_end'))) {
+                                            import('@/services/singer').then(m => m.updatePerformanceStatus(perf.id, 'completed')).then(() => router.refresh())
+                                        }
+                                    }}
+                                    className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200 transition font-bold"
+                                >
+                                    {t('performance.action.force_end') || 'End Performance'}
+                                </button>
+                            )}
+                            {statusKey === 'scheduled' && onDelete && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                                    className="p-1 text-gray-400 hover:text-red-500 transition"
+                                    title={t('performance.list.delete')}
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            )}
                         </div>
                     )}
+
                 </div>
             </div>
 

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useLanguage } from '@/contexts/LanguageContext'
+import LanguageSwitcher from '@/components/common/LanguageSwitcher'
 
 interface LandingPageProps {
     userId: string | null
@@ -13,7 +14,11 @@ export default function LandingPage({ userId, isSinger }: LandingPageProps) {
 
     return (
         <main className="flex min-h-screen flex-col items-center justify-center bg-black text-white p-6 relative overflow-hidden">
+            <div className="absolute top-6 right-6 z-20">
+                <LanguageSwitcher />
+            </div>
             <div className="absolute inset-0 z-0 bg-gradient-to-br from-purple-900 via-black to-blue-900 opacity-50" />
+
 
             <div className="z-10 text-center max-w-2xl">
                 <h1 className="text-6xl font-extrabold tracking-tight mb-6 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">
