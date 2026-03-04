@@ -17,7 +17,6 @@ export default function SongInputForm({ singerId, onSuccess }: SongInputFormProp
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
-        // ... (keep existing logic, lines 18-38)
         e.preventDefault()
         if (!singerId) return
 
