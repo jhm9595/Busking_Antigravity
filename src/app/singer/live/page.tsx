@@ -44,6 +44,7 @@ function LivePerformanceContent() {
     const [performance, setPerformance] = useState<any>(null)
     const [requests, setRequests] = useState<any[]>([])
     const [allSongs, setAllSongs] = useState<any[]>([])
+    const [fetchError, setFetchError] = useState<string | null>(null)
 
     // UI State
     const [loading, setLoading] = useState(true)
@@ -72,20 +73,25 @@ function LivePerformanceContent() {
             return
         }
         console.log('[LivePerformance] Fetching data for:', performanceId)
-        const [perfData, reqData] = await Promise.all([
-            getPerformanceById(performanceId),
-            getPerformanceRequests(performanceId)
-        ])
-        console.log('[LivePerformance] Received perfData:', perfData ? 'Exists' : 'NULL')
-        setPerformance(perfData)
-        setRequests(reqData)
-        setRequestsLastUpdated(new Date())
+        try {
+            const [perfData, reqData] = await Promise.all([
+                getPerformanceById(performanceId),
+                getPerformanceRequests(performanceId)
+            ])
+            console.log('[LivePerformance] Received perfData:', perfData ? 'Exists' : 'NULL')
+            if (!perfData) setFetchError('getPerformanceById returned NULL')
+            setPerformance(perfData)
+            setRequests(reqData)
+            setRequestsLastUpdated(new Date())
 
-
-        // Also load all songs for "Add Song" feature
-        if (perfData?.singerId) {
-            const songs = await getSongs(perfData.singerId)
-            setAllSongs(songs)
+            // Also load all songs for "Add Song" feature
+            if (perfData?.singerId) {
+                const songs = await getSongs(perfData.singerId)
+                setAllSongs(songs)
+            }
+        } catch (err: any) {
+            console.error('[LivePerformance] RefreshData Error:', err)
+            setFetchError(err.message || 'Unknown network/server error')
         }
     }, [performanceId])
 
@@ -109,6 +115,11 @@ function LivePerformanceContent() {
         }
         refreshData().finally(() => setLoading(false))
     }, [performanceId, router, refreshData])
+
+    // Add logging check
+    if (loading) return <div className="h-screen bg-black text-white flex items-center justify-center">{t('common.loading')}</div>
+    if (fetchError) return <div className="h-screen bg-black text-white flex flex-col items-center justify-center gap-4"><h1 className="text-xl font-bold text-red-500">Error Loading Performance</h1><p className="max-w-md text-center text-sm">{fetchError}</p><p className="text-xs text-slate-500">Provided ID: {performanceId}</p></div>
+    if (!performance) return <div className="h-screen bg-black text-white flex flex-col items-center justify-center gap-4"><h1>Performance not found</h1><p className="text-xs text-slate-500">Provided ID: {performanceId}</p></div>
 
     // Direct socket connection for real-time events
     useEffect(() => {
