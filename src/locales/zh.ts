@@ -39,6 +39,11 @@ export const zh: LocaleTypes = {
             canceled: '已取消',
             live: '正在直播',
         },
+        action: {
+            cancel: '取消',
+            force_end: '强制结束',
+            edit: '编辑',
+        },
         form: {
             title: '标题',
             title_placeholder: '演出标题',

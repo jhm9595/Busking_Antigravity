@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import styles from '@/styles/singer/PerformanceItem.module.css'
 import { formatPerformanceDate } from '@/utils/date'
 import SetlistManager from './SetlistManager'
+import EditPerformanceModal from './EditPerformanceModal'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 // Dynamic MapPicker (Readonly)
@@ -34,6 +35,7 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
     const router = useRouter()
     const setlist = perf.songs || perf.performanceSongs?.map((ps: any) => ps.song) || []
     const [isSetlistEditing, setIsSetlistEditing] = useState(false)
+    const [isEditing, setIsEditing] = useState(false)
 
     // Status Logic
     // Status Logic
@@ -115,17 +117,28 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                     {(statusKey === 'scheduled' || statusKey === 'live') && (
                         <div className="flex gap-2 mt-2" onClick={(e) => e.stopPropagation()}>
                             {statusKey === 'scheduled' && (
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        if (window.confirm(t('performance.list.confirm_cancel'))) {
-                                            import('@/services/singer').then(m => m.updatePerformanceStatus(perf.id, 'canceled')).then(() => router.refresh())
-                                        }
-                                    }}
-                                    className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition"
-                                >
-                                    {t('performance.action.cancel') || 'Cancel'}
-                                </button>
+                                <>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            setIsEditing(true)
+                                        }}
+                                        className="px-2 py-1 text-xs bg-indigo-50 text-indigo-600 rounded hover:bg-indigo-100 transition"
+                                    >
+                                        {t('performance.action.edit') || 'Edit'}
+                                    </button>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            if (window.confirm(t('performance.list.confirm_cancel'))) {
+                                                import('@/services/singer').then(m => m.updatePerformanceStatus(perf.id, 'canceled')).then(() => router.refresh())
+                                            }
+                                        }}
+                                        className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition"
+                                    >
+                                        {t('performance.action.cancel') || 'Cancel'}
+                                    </button>
+                                </>
                             )}
                             {statusKey === 'live' && (
                                 <button
@@ -228,6 +241,17 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                     </div>
                 )
             }
-        </div >
+
+            {isEditing && (
+                <EditPerformanceModal
+                    performance={perf}
+                    onClose={() => setIsEditing(false)}
+                    onSuccess={() => {
+                        setIsEditing(false)
+                        router.refresh()
+                    }}
+                />
+            )}
+        </div>
     )
 }

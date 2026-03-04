@@ -37,6 +37,11 @@ export const en = {
             canceled: 'Canceled',
             live: 'Live Now',
         },
+        action: {
+            cancel: 'Cancel',
+            force_end: 'Force End',
+            edit: 'Edit',
+        },
         form: {
             title: 'Title',
             title_placeholder: 'Performance Title',

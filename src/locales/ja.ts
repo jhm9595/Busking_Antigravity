@@ -39,6 +39,11 @@ export const ja: LocaleTypes = {
             canceled: 'キャンセル',
             live: 'ライブ中',
         },
+        action: {
+            cancel: 'キャンセル',
+            force_end: '強制終了',
+            edit: '編集',
+        },
         form: {
             title: 'タイトル',
             title_placeholder: '公演タイトル',

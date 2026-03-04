@@ -39,6 +39,11 @@ export const ko: LocaleTypes = {
             canceled: '취소됨',
             live: '라이브 중',
         },
+        action: {
+            cancel: '취소',
+            force_end: '강제 종료',
+            edit: '수정',
+        },
         form: {
             title: '공연 제목',
             title_placeholder: '공연 제목을 입력하세요',
