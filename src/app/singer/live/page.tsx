@@ -116,11 +116,6 @@ function LivePerformanceContent() {
         refreshData().finally(() => setLoading(false))
     }, [performanceId, router, refreshData])
 
-    // Add logging check
-    if (loading) return <div className="h-screen bg-black text-white flex items-center justify-center">{t('common.loading')}</div>
-    if (fetchError) return <div className="h-screen bg-black text-white flex flex-col items-center justify-center gap-4"><h1 className="text-xl font-bold text-red-500">Error Loading Performance</h1><p className="max-w-md text-center text-sm">{fetchError}</p><p className="text-xs text-slate-500">Provided ID: {performanceId}</p></div>
-    if (!performance) return <div className="h-screen bg-black text-white flex flex-col items-center justify-center gap-4"><h1>Performance not found</h1><p className="text-xs text-slate-500">Provided ID: {performanceId}</p></div>
-
     // Direct socket connection for real-time events
     useEffect(() => {
         const chatServerUrl = process.env.NEXT_PUBLIC_CHAT_SERVER_URL
@@ -176,7 +171,11 @@ function LivePerformanceContent() {
             }
         }, 1000)
         return () => clearInterval(timer)
-    }, [performance, isAlertSent, chatStatus])
+    }, [performance, isAlertSent, chatStatus, t])
+
+    if (loading) return <div className="h-screen bg-black text-white flex items-center justify-center">{t('common.loading')}</div>
+    if (fetchError) return <div className="h-screen bg-black text-white flex flex-col items-center justify-center gap-4"><h1 className="text-xl font-bold text-red-500">Error Loading Performance</h1><p className="max-w-md text-center text-sm">{fetchError}</p><p className="text-xs text-slate-500">Provided ID: {performanceId}</p></div>
+    if (!performance) return <div className="h-screen bg-black text-white flex flex-col items-center justify-center gap-4"><h1>Performance not found</h1><p className="text-xs text-slate-500">Provided ID: {performanceId}</p></div>
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60)

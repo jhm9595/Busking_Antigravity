@@ -116,6 +116,7 @@ export const ko: LocaleTypes = {
         welcome: '환영합니다, ',
         logout: '로그아웃',
         start_mode: '공연 모드 시작',
+        resume_live: '공연 이어하기',
         loading: '대시보드 로딩 중...',
         onboarding_title: '가수로 등록하시겠습니까?',
         onboarding_desc: '버스킹 가수로 등록하고 나만의 라이브 공연을 시작해보세요!',

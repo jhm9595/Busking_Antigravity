@@ -114,6 +114,7 @@ export const en = {
         welcome: 'Welcome, ',
         logout: 'Log Out',
         start_mode: 'Start Performance Mode',
+        resume_live: 'Resume Live Performance',
         loading: 'Loading Dashboard...',
         onboarding_title: 'Register as a Singer?',
         onboarding_desc: 'Register as a Busker and start your own live performances!',

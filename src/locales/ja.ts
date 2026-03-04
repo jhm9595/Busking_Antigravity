@@ -116,6 +116,7 @@ export const ja: LocaleTypes = {
         welcome: 'ようこそ、',
         logout: 'ログアウト',
         start_mode: '公演モード開始',
+        resume_live: 'ライブを再開',
         loading: 'ダッシュボード読み込み中...',
         onboarding_title: '歌手として登録しますか？',
         onboarding_desc: 'バスカーとして登録して、自分だけのライブパフォーマンスを始めましょう！',

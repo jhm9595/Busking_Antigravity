@@ -116,6 +116,7 @@ export const zh: LocaleTypes = {
         welcome: '欢迎，',
         logout: '退出登录',
         start_mode: '开始演出模式',
+        resume_live: '恢复演出',
         loading: '正在加载仪表板...',
         onboarding_title: '注册成为歌手？',
         onboarding_desc: '注册成为街头艺人，开始你自己的现场表演！',
