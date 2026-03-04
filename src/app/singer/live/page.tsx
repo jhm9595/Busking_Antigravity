@@ -375,9 +375,6 @@ function LivePerformanceContent() {
         setManualSongArtist('')
     }
 
-    if (loading) return <div className="h-screen bg-black text-white flex items-center justify-center">{t('common.loading')}</div>
-    if (!performance) return <div className="h-screen bg-black text-white flex items-center justify-center">Performance not found</div>
-
     const pendingRequests = requests.filter(r => r.status === 'pending')
 
     return (
