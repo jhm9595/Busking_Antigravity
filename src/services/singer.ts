@@ -473,8 +473,7 @@ export async function createSongRequest(data: { performanceId: string, title: st
             data: {
                 performanceId: data.performanceId,
                 title: data.title,
-                artist: data.artist,
-                requesterName: data.requesterName
+                artist: data.artist
             }
         })
         revalidatePath(`/singer/live`)
