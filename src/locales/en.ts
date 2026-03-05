@@ -91,6 +91,9 @@ export const en = {
             empty_past: 'No past performances.',
             add_hint: 'Add a new schedule to verify your fans!',
             start_chat: 'Start Chat',
+            confirm_cancel: 'Are you sure you want to cancel this performance?',
+            confirm_end: 'Are you sure you want to end this performance?',
+            delete: 'Delete',
         }
     },
     song: {
@@ -151,7 +154,10 @@ export const en = {
             no_schedule_message: 'No scheduled performances found. Please schedule one first.',
             start_title: 'Start Performance',
             start_message: 'Start performance "{title}"?',
-        }
+        },
+        withdraw_title: 'Withdraw Account',
+        withdraw_message: 'Are you sure you want to withdraw? All your data will be permanently deleted and cannot be undone.',
+        withdraw_btn: 'Withdraw Account',
     },
     live: {
         header: {
@@ -159,7 +165,7 @@ export const en = {
             confirm_end: 'Are you sure you want to end the performance?',
         },
         stats: {
-            duration: 'Duration',
+            remaining: 'Remaining',
             requests: 'Requests',
         },
         tabs: {
@@ -195,7 +201,11 @@ export const en = {
         coming_soon: 'Coming Soon',
         viewing_count: '{count} Viewing',
         view_profile: 'View Profile',
-        ending_soon: '5 minutes left until performance ends! Say hi to your audience and prepare your last song.'
+        ending_soon: '5 minutes remaining! Say goodbye and prepare your final performance.',
+        ended_title: 'Performance Ended',
+        ended_desc: 'Thank you for watching! This performance has gracefully concluded.',
+        view_singer_profile: 'View Singer Profile',
+        explore_more: 'Explore More Performances',
     },
     avatar: {
         title: 'Join Live',

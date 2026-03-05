@@ -93,6 +93,9 @@ export const ko: LocaleTypes = {
             empty_past: '지난 공연이 없습니다.',
             add_hint: '새로운 일정을 등록하여 팬들과 소통하세요!',
             start_chat: '채팅 시작',
+            confirm_cancel: '정말 공연을 취소하시겠습니까?',
+            confirm_end: '정말 공연을 종료하시겠습니까?',
+            delete: '삭제',
         }
     },
     song: {
@@ -153,7 +156,10 @@ export const ko: LocaleTypes = {
             no_schedule_message: '예정된 공연이 없습니다. 먼저 공연 일정을 등록해주세요.',
             start_title: '공연 시작',
             start_message: '"{title}" 공연을 시작하시겠습니까?',
-        }
+        },
+        withdraw_title: '회원 탈퇴',
+        withdraw_message: '정말 탈퇴하시겠습니까? 모든 데이터가 영구적으로 삭제되며 되돌릴 수 없습니다.',
+        withdraw_btn: '회원 탈퇴',
     },
     live: {
         header: {
@@ -161,7 +167,7 @@ export const ko: LocaleTypes = {
             confirm_end: '정말 공연을 종료하시겠습니까?',
         },
         stats: {
-            duration: '진행 시간',
+            remaining: '남은 시간',
             requests: '신청곡',
         },
         tabs: {
@@ -197,7 +203,11 @@ export const ko: LocaleTypes = {
         coming_soon: '곧 시작',
         viewing_count: '{count}명 시청 중',
         view_profile: '프로필 보기',
-        ending_soon: '공연 종료까지 5분 남았습니다! 관객들과 인사를 나누고 마지막 곡을 준비해보세요.'
+        ending_soon: '공연 종료까지 5분 남았습니다! 관객들과 인사를 나누고 마지막 곡을 준비해보세요.',
+        ended_title: '공연 종료',
+        ended_desc: '시청해주셔서 감사합니다! 공연이 성공적으로 종료되었습니다.',
+        view_singer_profile: '가수 프로필 보기',
+        explore_more: '다른 공연 둘러보기',
     },
     avatar: {
         title: '라이브 참여하기',

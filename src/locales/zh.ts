@@ -93,6 +93,9 @@ export const zh: LocaleTypes = {
             empty_past: '没有过去的演出。',
             add_hint: '添加新的日程以验证您的粉丝！',
             start_chat: '开始聊天',
+            confirm_cancel: '您确定要取消这场演出吗？',
+            confirm_end: '您确定要结束这场演出吗？',
+            delete: '删除',
         }
     },
     song: {
@@ -153,7 +156,10 @@ export const zh: LocaleTypes = {
             no_schedule_message: '未找到已安排的演出。请先安排一个演出。',
             start_title: '开始演出',
             start_message: '是否开始演出 "{title}"？',
-        }
+        },
+        withdraw_title: '注销账户',
+        withdraw_message: '您确定要注销吗？您的所有数据将被永久删除，且无法撤销。',
+        withdraw_btn: '注销账户',
     },
     live: {
         header: {
@@ -161,7 +167,7 @@ export const zh: LocaleTypes = {
             confirm_end: '确定要结束演出吗？',
         },
         stats: {
-            duration: '持续时间',
+            remaining: '剩余时间',
             requests: '点歌',
         },
         tabs: {
@@ -197,7 +203,11 @@ export const zh: LocaleTypes = {
         coming_soon: '即将开始',
         viewing_count: '{count}人观看中',
         view_profile: '查看个人资料',
-        ending_soon: '距离演出结束还有5分钟！和观众打个招呼，准备最后一首歌曲吧。'
+        ending_soon: '距离演出结束还有 5 分钟！向观众打个招呼并准备最后的表演。',
+        ended_title: '演出结束',
+        ended_desc: '感谢观看！这场表演已圆满结束。',
+        view_singer_profile: '查看歌手资料',
+        explore_more: '探索更多演出',
     },
     avatar: {
         title: '加入现场',

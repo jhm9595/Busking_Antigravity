@@ -80,33 +80,33 @@ export default function ExplorePage() {
     }
 
     return (
-        <div className="h-screen flex flex-col bg-white text-black">
-            <header className="flex justify-between items-center p-4 pl-20 border-b bg-white z-10 shadow-sm">
-                <h1 className="text-2xl font-bold text-indigo-700">Explore Busking</h1>
-                <div className="flex space-x-2">
-                    <div className="flex bg-gray-100 rounded-lg p-1 mr-2">
+        <div className="h-screen flex flex-col bg-white text-black overflow-hidden">
+            <header className="flex justify-between items-center p-3 pl-16 md:p-4 md:pl-20 border-b bg-white z-10 shadow-sm shrink-0">
+                <h1 className="text-lg md:text-2xl font-bold text-indigo-700 truncate hidden sm:block">Explore Busking</h1>
+                <div className="flex items-center space-x-2 ml-auto">
+                    <div className="flex bg-gray-100 rounded-lg p-1">
                         <button
                             onClick={() => setViewMode('map')}
-                            className={`p-2 rounded-md flex items-center ${viewMode === 'map' ? 'bg-white shadow text-indigo-600' : 'text-gray-500'}`}
+                            className={`p-1.5 md:p-2 rounded-md flex items-center text-xs md:text-sm ${viewMode === 'map' ? 'bg-white shadow text-indigo-600' : 'text-gray-500'}`}
                         >
-                            <MapIcon className="w-5 h-5 mr-1" /> Map
+                            <MapIcon className="w-4 h-4 md:w-5 md:h-5 md:mr-1" /> <span className="hidden md:inline">Map</span>
                         </button>
                         <button
                             onClick={() => setViewMode('grid')}
-                            className={`p-2 rounded-md flex items-center ${viewMode === 'grid' ? 'bg-white shadow text-indigo-600' : 'text-gray-500'}`}
+                            className={`p-1.5 md:p-2 rounded-md flex items-center text-xs md:text-sm ${viewMode === 'grid' ? 'bg-white shadow text-indigo-600' : 'text-gray-500'}`}
                         >
-                            <List className="w-5 h-5 mr-1" /> List
+                            <List className="w-4 h-4 md:w-5 md:h-5 md:mr-1" /> <span className="hidden md:inline">List</span>
                         </button>
                     </div>
                     <button
                         onClick={fetchFollowing}
-                        className="px-3 py-2 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded text-sm hover:bg-indigo-100 font-bold transition flex items-center"
+                        className="px-2 py-1.5 md:px-3 md:py-2 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded text-xs md:text-sm hover:bg-indigo-100 font-bold transition"
                     >
                         Following
                     </button>
                     <button
                         onClick={handleLogout}
-                        className="px-3 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 flex items-center text-gray-600"
+                        className="p-1.5 md:px-3 md:py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 flex items-center text-gray-600"
                     >
                         <LogOut className="w-4 h-4" />
                     </button>

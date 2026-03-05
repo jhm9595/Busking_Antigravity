@@ -93,6 +93,9 @@ export const ja: LocaleTypes = {
             empty_past: '過去の公演はありません。',
             add_hint: '新しいスケジュールを登録してファンと交流しましょう！',
             start_chat: 'チャット開始',
+            confirm_cancel: '本当にこの公演をキャンセルしますか？',
+            confirm_end: '本当にこの公演を終了しますか？',
+            delete: '削除',
         }
     },
     song: {
@@ -153,7 +156,10 @@ export const ja: LocaleTypes = {
             no_schedule_message: '予定された公演が見つかりません。まずスケジュールを登録してください。',
             start_title: '公演開始',
             start_message: '公演「{title}」を開始しますか？',
-        }
+        },
+        withdraw_title: '退会する',
+        withdraw_message: '本当に退会しますか？すべてのデータが完全に削除され、元に戻すことはできません。',
+        withdraw_btn: '退会する',
     },
     live: {
         header: {
@@ -161,7 +167,7 @@ export const ja: LocaleTypes = {
             confirm_end: '本当に公演を終了しますか？',
         },
         stats: {
-            duration: '経過時間',
+            remaining: '残り時間',
             requests: 'リクエスト',
         },
         tabs: {
@@ -196,8 +202,12 @@ export const ja: LocaleTypes = {
         up_next: '次の曲',
         coming_soon: 'もうすぐ開始',
         viewing_count: '{count}人が視聴中',
-        view_profile: 'プロフィールを見る',
-        ending_soon: '公演終了まであと5分です！観客と挨拶を交わし、最後の曲を準備してください。'
+        view_profile: 'プロフィールを表示',
+        ending_soon: '公演終了まであと5分です！最後の挨拶とパフォーマンスの準備をしましょう。',
+        ended_title: '公演終了',
+        ended_desc: 'ご視聴ありがとうございました！この公演は終了しました.',
+        view_singer_profile: '歌手のプロフィールを表示',
+        explore_more: '他の公演を見る',
     },
     avatar: {
         title: 'ライブに参加',

@@ -45,6 +45,7 @@ export default function SingerQRCard({ singerId, displayId, nickname, qrValue, s
     const [isQRModalOpen, setIsQRModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isCopied, setIsCopied] = useState(false)
+    const [isFullFullscreen, setIsFullFullscreen] = useState(false)
 
     // Edit State
     const [formData, setFormData] = useState({
@@ -274,16 +275,7 @@ export default function SingerQRCard({ singerId, displayId, nickname, qrValue, s
 
                         <div
                             className="p-4 bg-white rounded-xl border-2 border-dashed border-gray-200 shadow-inner mb-6 cursor-zoom-in group"
-                            onClick={(e) => {
-                                e.currentTarget.classList.toggle('fixed')
-                                e.currentTarget.classList.toggle('inset-0')
-                                e.currentTarget.classList.toggle('z-50')
-                                e.currentTarget.classList.toggle('flex')
-                                e.currentTarget.classList.toggle('items-center')
-                                e.currentTarget.classList.toggle('justify-center')
-                                e.currentTarget.classList.toggle('p-10')
-                                e.currentTarget.classList.toggle('bg-white')
-                            }}
+                            onClick={() => setIsFullFullscreen(true)}
                         >
                             {singerId ? (
                                 <QRCodeSVG
@@ -292,7 +284,6 @@ export default function SingerQRCard({ singerId, displayId, nickname, qrValue, s
                                     size={220}
                                     level="H"
                                     includeMargin={true}
-                                    className="group-[.fixed]:w-[80vh] group-[.fixed]:h-[80vh] transition-all"
                                 />
                             ) : (
                                 <div className="w-[220px] h-[220px] flex items-center justify-center bg-gray-50 text-gray-400 rounded-lg">
@@ -454,6 +445,38 @@ export default function SingerQRCard({ singerId, displayId, nickname, qrValue, s
                             </div>
                         </div>
                     </div>
+                </div>
+            )}
+
+            {/* Full Fullscreen QR Overlay */}
+            {isFullFullscreen && (
+                <div
+                    className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-6 animate-in fade-in duration-300"
+                    onClick={() => setIsFullFullscreen(false)}
+                >
+                    <button
+                        className="absolute top-8 right-8 p-3 text-white/50 hover:text-white rounded-full bg-white/10 transition-colors"
+                        onClick={() => setIsFullFullscreen(false)}
+                    >
+                        <X className="w-8 h-8" />
+                    </button>
+
+                    <div className="bg-white p-6 rounded-3xl shadow-2xl flex flex-col items-center max-w-[90vw] md:max-w-none">
+                        <QRCodeSVG
+                            value={qrValue}
+                            size={400}
+                            level="H"
+                            includeMargin={true}
+                        />
+                        <div className="mt-8 text-center text-gray-900">
+                            <h2 className="text-2xl font-bold">{nickname || displayId}</h2>
+                            <p className="text-gray-500 mt-1">{t('dashboard.qr.scan')}</p>
+                        </div>
+                    </div>
+
+                    <p className="mt-8 text-white/40 text-sm font-medium animate-pulse">
+                        {t('dashboard.qr.close')}
+                    </p>
                 </div>
             )}
         </>

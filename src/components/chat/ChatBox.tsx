@@ -237,7 +237,7 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
                 </div>
             ) : (
                 <>
-                    <div className="flex-1 overflow-y-auto p-3 space-y-2 max-h-[400px] min-h-[300px]">
+                    <div className="flex-1 overflow-y-auto p-3 space-y-2 min-h-[300px]">
                         {messages.map((msg, idx) => {
                             // System Message (Song Request)
                             if (msg.type === 'system' && msg.isRequest && msg.requestData) {

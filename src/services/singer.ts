@@ -444,9 +444,10 @@ export async function withdrawUser(userId: string) {
 
 export async function updatePerformanceStatus(id: string, status: 'scheduled' | 'live' | 'completed' | 'canceled') {
     try {
+        const data: any = { status }
         await prisma.performance.update({
             where: { id },
-            data: { status }
+            data: data
         })
         revalidatePath('/singer/dashboard')
         revalidatePath(`/singer/live`)

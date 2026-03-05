@@ -228,14 +228,14 @@ export default function AudienceLivePage() {
                             <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4 border border-gray-600">
                                 <Archive className="w-8 h-8 text-gray-400" />
                             </div>
-                            <h2 className="text-xl font-bold text-white mb-2">{t('live.ended_title') || 'Performance Ended'}</h2>
-                            <p className="text-sm text-gray-400 mb-6">{t('live.ended_desc') || 'Thank you for watching! This performance has gracefully concluded.'}</p>
+                            <h2 className="text-xl font-bold text-white mb-2">{t('live.ended_title')}</h2>
+                            <p className="text-sm text-gray-400 mb-6">{t('live.ended_desc')}</p>
 
-                            <Link href={`/singer/${singer?.id}`} className="bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-6 rounded-xl transition w-full mb-3 shadow-inner">
-                                {t('live.view_singer_profile') || 'View Singer Profile'}
+                            <Link href={`/singer/${singer?.id}`} className="bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-6 rounded-xl transition w-full mb-3 shadow-inner text-center">
+                                {t('live.view_singer_profile')}
                             </Link>
-                            <Link href="/" className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition w-full shadow-lg shadow-indigo-900/20">
-                                {t('live.explore_more') || 'Explore More Performances'}
+                            <Link href="/" className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition w-full shadow-lg shadow-indigo-900/20 text-center">
+                                {t('live.explore_more')}
                             </Link>
                         </div>
                     </section>

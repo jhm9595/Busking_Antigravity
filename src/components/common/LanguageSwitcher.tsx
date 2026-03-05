@@ -32,11 +32,11 @@ export default function LanguageSwitcher() {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors text-sm font-medium border border-gray-200"
+                className="flex items-center gap-1.5 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors text-sm font-medium border border-gray-200"
                 title="Switch Language"
             >
-                <span className="text-base">{currentLang.flag}</span>
-                <span>{currentLang.label}</span>
+                <span className="text-base leading-none">{currentLang.flag}</span>
+                <span className="hidden md:inline">{currentLang.label}</span>
                 <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
