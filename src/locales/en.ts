@@ -87,6 +87,8 @@ export const en = {
             empty_setlist: 'No songs selected for this performance.',
         },
         list: {
+            empty_live: 'No live performances currently.',
+            live_hint: 'Start a scheduled performance to go live!',
             empty_upcoming: 'No upcoming performances.',
             empty_past: 'No past performances.',
             add_hint: 'Add a new schedule to verify your fans!',

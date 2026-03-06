@@ -123,13 +123,13 @@ export default function PerformanceList({ performances, loading, allSongs }: Per
                 {displayList.length === 0 ? (
                     <div className={styles.emptyState}>
                         <p className={styles.emptyText}>
-                            {activeTab === 'live' ? 'No live performances currently.' : (activeTab === 'upcoming' ? t('performance.list.empty_upcoming') : t('performance.list.empty_past'))}
+                            {activeTab === 'live' ? t('performance.list.empty_live') : (activeTab === 'upcoming' ? t('performance.list.empty_upcoming') : t('performance.list.empty_past'))}
                         </p>
                         {activeTab === 'upcoming' && (
                             <p className={styles.emptySub}>{t('performance.list.add_hint')}</p>
                         )}
                         {activeTab === 'live' && (
-                            <p className={styles.emptySub}>Start a scheduled performance to go live!</p>
+                            <p className={styles.emptySub}>{t('performance.list.live_hint')}</p>
                         )}
                     </div>
                 ) : (

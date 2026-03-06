@@ -89,6 +89,8 @@ export const ja: LocaleTypes = {
             empty_setlist: 'この公演に選択された曲はありません。',
         },
         list: {
+            empty_live: '現在ライブ中の公演はありません。',
+            live_hint: '予定された公演を開始してライブ配信を始めましょう！',
             empty_upcoming: '予定された公演はありません。',
             empty_past: '過去の公演はありません。',
             add_hint: '新しいスケジュールを登録してファンと交流しましょう！',

@@ -89,6 +89,8 @@ export const ko: LocaleTypes = {
             empty_setlist: '이 공연에 선택된 곡이 없습니다.',
         },
         list: {
+            empty_live: '현재 라이브 중인 공연이 없습니다.',
+            live_hint: '예정된 공연을 시작하여 라이브로 전환하세요!',
             empty_upcoming: '예정된 공연이 없습니다.',
             empty_past: '지난 공연이 없습니다.',
             add_hint: '새로운 일정을 등록하여 팬들과 소통하세요!',

@@ -89,6 +89,8 @@ export const zh: LocaleTypes = {
             empty_setlist: '此演出未选择歌曲。',
         },
         list: {
+            empty_live: '当前没有正在进行的直播。',
+            live_hint: '开始已安排的演出即可开始直播！',
             empty_upcoming: '没有即将开始的演出。',
             empty_past: '没有过去的演出。',
             add_hint: '添加新的日程以验证您的粉丝！',
