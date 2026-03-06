@@ -386,7 +386,17 @@ function LivePerformanceContent() {
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 overflow-hidden relative">
+            <div className="flex-1 overflow-hidden relative mobile-panel-override">
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                    @media (max-width: 767px) {
+                        .mobile-panel-override [data-panel-group] > [data-panel] {
+                            flex: 1 1 100% !important;
+                            min-width: 100% !important;
+                            max-width: 100% !important;
+                        }
+                    }
+                `}} />
                 <PanelGroup orientation="horizontal">
                     <Panel
                         defaultSize={65}
