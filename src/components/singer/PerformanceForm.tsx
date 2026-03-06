@@ -33,7 +33,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
         end_time: '',
         chat_enabled: false,
         streaming_enabled: false,
-        expected_audience: 50
+        expected_audience: 50 as number | ''
     })
 
     const [selectedSongIds, setSelectedSongIds] = useState<string[]>([])
@@ -127,7 +127,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                 chatEnabled: newPerf.chat_enabled,
                 streamingEnabled: newPerf.streaming_enabled,
                 chatCost: 0,
-                expectedAudience: newPerf.expected_audience,
+                expectedAudience: newPerf.expected_audience === '' ? undefined : newPerf.expected_audience,
                 songIds: selectedSongIds
             })
 
@@ -143,7 +143,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                     end_time: defaults.end_time,
                     chat_enabled: false,
                     streaming_enabled: false,
-                    expected_audience: 50
+                    expected_audience: 50 as number | ''
                 })
                 setSelectedSongIds([])
                 setShowMap(false)
@@ -279,8 +279,11 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                         type="number"
                         className={styles.chatCostInput}
                         placeholder="50"
-                        value={newPerf.expected_audience}
-                        onChange={(e) => setNewPerf({ ...newPerf, expected_audience: Number(e.target.value) })}
+                        value={newPerf.expected_audience === '' ? '' : newPerf.expected_audience}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            setNewPerf({ ...newPerf, expected_audience: val === '' ? '' : Number(val) });
+                        }}
                     />
                     <p className={styles.chatCostHelp}>{t('performance.form.chat_capacity_help')}</p>
                 </div>
