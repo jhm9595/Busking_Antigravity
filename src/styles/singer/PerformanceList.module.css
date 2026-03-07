@@ -2,16 +2,27 @@
     display: flex;
     border-bottom: 2px solid #e5e7eb;
     margin-bottom: 1rem;
+    width: 100%;
 }
 
 .tab {
-    padding: 0.75rem 1.5rem;
+    flex: 1;
+    text-align: center;
+    padding: 0.75rem 0.5rem;
     font-weight: 600;
     color: #6b7280;
     cursor: pointer;
     border-bottom: 2px solid transparent;
     margin-bottom: -2px;
     transition: all 0.2s;
+    font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+    .tab {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
 }
 
 .tab:hover {

@@ -101,14 +101,21 @@ export default function AudienceLivePage() {
                     performanceId,
                     title,
                     artist,
-                    requesterName: username || (user?.id) || 'Anonymous'
+                    requesterName: (username || user?.fullName || user?.username || user?.id || 'Anonymous')
                 })
             })
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Request failed')
 
             if (activeSocket) {
-                activeSocket.emit('song_requested', { performanceId, title, artist, username })
+                const finalRequesterName = username || user?.fullName || user?.username || user?.id || 'Anonymous';
+                activeSocket.emit('song_requested', {
+                    performanceId,
+                    title,
+                    artist,
+                    username: finalRequesterName,
+                    timestamp: new Date().toISOString()
+                })
             }
             alert(t('song.request_sent') || 'Your song request has been sent!')
         } catch (error: any) {

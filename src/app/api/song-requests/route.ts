@@ -24,7 +24,8 @@ export async function POST(request: Request) {
             data: {
                 performanceId,
                 title: title.trim(),
-                artist: (artist || '').trim() || 'Unknown'
+                artist: (artist || '').trim() || 'Unknown',
+                requesterName: (requesterName || '').trim() || 'Anonymous'
             }
         })
 

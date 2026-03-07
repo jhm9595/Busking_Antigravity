@@ -75,7 +75,7 @@ io.on('connection', (socket) => {
             performanceId,
             author: 'System',
             message: '채팅창이 열렸습니다! (Chat is now open!)',
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            timestamp: new Date().toISOString(),
             type: 'system'
         };
         await redisClient.rpush(`chat_history:${performanceId}`, JSON.stringify(sysMsg));
@@ -120,18 +120,19 @@ io.on('connection', (socket) => {
     });
 
     socket.on('song_requested', async (data) => {
-        const { performanceId, title, username } = data;
+        const { performanceId, title, artist, username, timestamp } = data;
 
         // Save as a system message in history so late-joiners see it
         const sysMsg = {
             performanceId,
             author: 'System',
-            message: `New Song Request: ${title} by ${username}`,
-            timestamp: new Date().toISOString(),
+            message: `New Song Request: ${title} ${artist ? ' - ' + artist : ''} by ${username}`,
+            timestamp: timestamp || new Date().toISOString(),
             type: 'system',
             isRequest: true,
             requestData: {
                 title,
+                artist,
                 username
             }
         };

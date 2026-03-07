@@ -209,13 +209,16 @@ function LivePerformanceContent() {
         setProcessingRequestIds(prev => new Set(prev).add(reqId))
         try {
             const req = requests.find(r => r.id === reqId)
-            await acceptSongRequest(reqId, performance.singerId)
+
+            // Optimistic Socket Emission (so chat reacts instantly)
             if (req && socketRef.current) {
                 socketRef.current.emit('system_alert', {
                     performanceId: performance.id,
                     message: t('live.requests.accepted_alert').replace('{title}', req.title).replace('{artist}', req.artist ? ` - ${req.artist}` : '')
                 })
             }
+
+            await acceptSongRequest(reqId, performance.singerId)
             await refreshData()
         } finally {
             setProcessingRequestIds(prev => {
@@ -250,10 +253,10 @@ function LivePerformanceContent() {
             songs: prev.songs.map((s: any) => s.id === songId ? { ...s, status: newStatus } : s)
         }))
         try {
-            await updateSongStatus(performanceId!, songId, newStatus as any)
             if (socketRef.current) {
                 socketRef.current.emit('song_status_updated', { performanceId, songId, status: newStatus })
             }
+            await updateSongStatus(performanceId!, songId, newStatus as any)
             await refreshData()
         } catch (e) {
             setPerformance((prev: any) => ({
@@ -323,7 +326,7 @@ function LivePerformanceContent() {
     const pendingRequests = requests.filter(r => r.status === 'pending')
 
     return (
-        <div className="min-h-screen bg-black text-white flex flex-col font-sans overflow-hidden">
+        <div className="h-[100dvh] bg-black text-white flex flex-col font-sans overflow-hidden">
             {/* Header */}
             <div className="p-4 pl-16 md:pl-20 border-b border-gray-800 flex justify-between items-center bg-gray-900 sticky top-0 z-20 shadow-xl">
                 <div className="flex-1 min-w-0 mr-4">
