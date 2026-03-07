@@ -8,6 +8,7 @@ import { formatPerformanceDate } from '@/utils/date'
 import SetlistManager from './SetlistManager'
 import EditPerformanceModal from './EditPerformanceModal'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { updatePerformanceStatus } from '@/services/singer'
 
 // Dynamic MapPicker (Readonly)
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
@@ -131,7 +132,7 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                                         onClick={(e) => {
                                             e.stopPropagation()
                                             if (window.confirm(t('performance.list.confirm_cancel'))) {
-                                                import('@/services/singer').then(m => m.updatePerformanceStatus(perf.id, 'canceled')).then(() => router.refresh())
+                                                updatePerformanceStatus(perf.id, 'canceled').then(() => router.refresh())
                                             }
                                         }}
                                         className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition"
@@ -145,7 +146,7 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                                     onClick={(e) => {
                                         e.stopPropagation()
                                         if (window.confirm(t('performance.list.confirm_end'))) {
-                                            import('@/services/singer').then(m => m.updatePerformanceStatus(perf.id, 'completed')).then(() => router.refresh())
+                                            updatePerformanceStatus(perf.id, 'completed').then(() => router.refresh())
                                         }
                                     }}
                                     className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200 transition font-bold"

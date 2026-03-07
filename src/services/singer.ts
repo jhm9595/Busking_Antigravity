@@ -310,6 +310,16 @@ export async function updatePerformance(data: {
         if (data.chatCost !== undefined) updateData.chatCostPerHour = Number(data.chatCost)
         delete updateData.chatCost // mapped to chatCostPerHour
 
+        if (data.lat !== undefined) {
+            updateData.locationLat = data.lat
+        }
+        delete updateData.lat
+
+        if (data.lng !== undefined) {
+            updateData.locationLng = data.lng
+        }
+        delete updateData.lng
+
         await prisma.performance.updateMany({
             where: { id: data.id, singerId: data.singerId },
             data: updateData
@@ -318,7 +328,7 @@ export async function updatePerformance(data: {
         return { success: true }
     } catch (error) {
         console.error('Failed to update performance:', error)
-        return { success: false, error }
+        return { success: false, error: String(error) }
     }
 }
 
@@ -455,7 +465,7 @@ export async function updatePerformanceStatus(id: string, status: 'scheduled' | 
         return { success: true }
     } catch (error) {
         console.error('Failed to update status:', error)
-        return { success: false, error }
+        return { success: false, error: String(error) }
     }
 }
 
