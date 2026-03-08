@@ -1,4 +1,4 @@
-export type PerformanceStatus = 'planned' | 'live' | 'completed' | 'cancelled';
+export type PerformanceStatus = 'planned' | 'scheduled' | 'live' | 'completed' | 'cancelled' | 'canceled';
 
 /**
  * Determines the effective status of a performance by comparing the DB status 
@@ -15,17 +15,17 @@ export function getEffectiveStatus(performance: {
     const dbStatus = performance.status as PerformanceStatus;
 
     // If cancelled or completed in DB, respect that first
-    if (dbStatus === 'cancelled' || dbStatus === 'completed') {
+    if (dbStatus === 'cancelled' || dbStatus === 'canceled' || dbStatus === 'completed') {
         return dbStatus;
     }
 
-    // If DB says planned but time is past start, it's effectively live
-    if (dbStatus === 'planned' && now >= start) {
-        // If there's an end time and we are past it, it might be completed 
-        // (though usually we wait for the singer to end it manually)
-        if (end && now >= end) {
-            return 'live'; // Still call it live until manually ended or a certain threshold
-        }
+    // If DB says live, keep it live
+    if (dbStatus === 'live') {
+        return 'live';
+    }
+
+    // If DB says planned or scheduled but time has passed start, it's effectively live
+    if ((dbStatus === 'planned' || dbStatus === 'scheduled') && now >= start) {
         return 'live';
     }
 

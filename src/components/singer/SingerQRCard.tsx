@@ -451,32 +451,33 @@ export default function SingerQRCard({ singerId, displayId, nickname, qrValue, s
             {/* Full Fullscreen QR Overlay */}
             {isFullFullscreen && (
                 <div
-                    className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-6 animate-in fade-in duration-300"
+                    className="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center animate-in fade-in duration-200"
                     onClick={() => setIsFullFullscreen(false)}
                 >
                     <button
-                        className="absolute top-8 right-8 p-3 text-white/50 hover:text-white rounded-full bg-white/10 transition-colors"
-                        onClick={() => setIsFullFullscreen(false)}
+                        className="absolute top-5 right-5 p-2.5 text-gray-400 hover:text-gray-700 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors z-10"
+                        onClick={(e) => { e.stopPropagation(); setIsFullFullscreen(false) }}
                     >
-                        <X className="w-8 h-8" />
+                        <X className="w-6 h-6" />
                     </button>
 
-                    <div className="bg-white p-6 rounded-3xl shadow-2xl flex flex-col items-center max-w-[90vw] md:max-w-none">
+                    <div className="flex flex-col items-center justify-center w-full h-full p-6">
                         <QRCodeSVG
                             value={qrValue}
-                            size={400}
+                            size={Math.min(
+                                typeof window !== 'undefined' ? window.innerWidth - 48 : 400,
+                                typeof window !== 'undefined' ? window.innerHeight - 140 : 400,
+                                600
+                            )}
                             level="H"
                             includeMargin={true}
+                            style={{ width: '100%', height: 'auto', maxWidth: 600 }}
                         />
-                        <div className="mt-8 text-center text-gray-900">
-                            <h2 className="text-2xl font-bold">{nickname || displayId}</h2>
-                            <p className="text-gray-500 mt-1">{t('dashboard.qr.scan')}</p>
+                        <div className="mt-6 text-center">
+                            <h2 className="text-2xl font-bold text-gray-900">{nickname || displayId}</h2>
+                            <p className="text-gray-400 mt-1 text-sm animate-pulse">{t('dashboard.qr.scan')}</p>
                         </div>
                     </div>
-
-                    <p className="mt-8 text-white/40 text-sm font-medium animate-pulse">
-                        {t('dashboard.qr.close')}
-                    </p>
                 </div>
             )}
         </>

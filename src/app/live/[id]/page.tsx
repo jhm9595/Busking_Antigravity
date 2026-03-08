@@ -47,22 +47,17 @@ export default function AudienceLivePage() {
                 const s = await getSinger(p.singerId)
                 setSinger(s)
 
-                // Check Follow Status
-                let fanId = user?.id
-                if (!fanId) {
-                    const storedFanId = localStorage.getItem('busking_fan_id') || `fan_${Math.random().toString(36).substr(2, 9)}`
-                    localStorage.setItem('busking_fan_id', storedFanId)
-                    fanId = storedFanId
-                }
-
-                try {
-                    const followRes = await fetch(`/api/singers/${p.singerId}/follow?fanId=${fanId}`)
-                    if (followRes.ok) {
-                        const followData = await followRes.json()
-                        setIsFollowed(followData.isFollowed)
+                // Check Follow Status (only for logged-in users)
+                if (user?.id) {
+                    try {
+                        const followRes = await fetch(`/api/singers/${p.singerId}/follow?fanId=${user.id}`)
+                        if (followRes.ok) {
+                            const followData = await followRes.json()
+                            setIsFollowed(followData.isFollowed)
+                        }
+                    } catch (e) {
+                        console.error('Follow check failed:', e)
                     }
-                } catch (e) {
-                    console.error('Follow check failed:', e)
                 }
             }
         }
@@ -172,19 +167,20 @@ export default function AudienceLivePage() {
     const handleFollow = async () => {
         if (!singer) return
 
+        // Must be logged in to follow
+        if (!user?.id) {
+            router.push('/sign-in')
+            return
+        }
+
         const prevFollowed = isFollowed
         setIsFollowed(!isFollowed)
-
-        let fanId = user?.id
-        if (!fanId) {
-            fanId = localStorage.getItem('busking_fan_id') || ''
-        }
 
         try {
             const res = await fetch(`/api/singers/${singer.id}/follow`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fanId })
+                body: JSON.stringify({ fanId: user.id })
             })
             if (!res.ok) throw new Error('Follow failed')
             const data = await res.json()
@@ -257,12 +253,14 @@ export default function AudienceLivePage() {
                 <div className="flex gap-2">
                     <button
                         onClick={handleFollow}
-                        className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all uppercase tracking-wider ${isFollowed
-                            ? 'bg-white/10 text-white border border-white/20'
-                            : 'bg-primary text-white hover:bg-primary-dark shadow-lg shadow-primary/20 hover:scale-105 active:scale-95'
+                        className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all uppercase tracking-wider ${!user
+                                ? 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10'
+                                : isFollowed
+                                    ? 'bg-white/10 text-white border border-white/20'
+                                    : 'bg-primary text-white hover:bg-primary-dark shadow-lg shadow-primary/20 hover:scale-105 active:scale-95'
                             }`}
                     >
-                        {isFollowed ? 'Following' : 'Follow'}
+                        {!user ? t('common.login_to_follow') : isFollowed ? t('common.following') : t('common.follow')}
                     </button>
                     <button
                         onClick={handleShare}
