@@ -1,21 +1,24 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ChatBox from '@/components/chat/ChatBox'
 import io, { Socket } from 'socket.io-client'
 import { getPerformanceById } from '@/services/singer'
 import AvatarCreator from '@/components/audience/AvatarCreator'
 import { AvatarConfig } from '@/components/audience/PixelAvatar'
+import { createSongRequest } from '@/services/audience'
+import { createBookingRequest, getSinger } from '@/services/singer'
+import { getEffectiveStatus, formatLocalTime } from '@/utils/performance'
 import SongRequestModal from '@/components/audience/SongRequestModal'
 import BookingRequestModal from '@/components/audience/BookingRequestModal'
 import { Share2, Music, Clock, MessageCircle, X, Check, Play, Pause, Plus, List, GripVertical, Search, Archive, ChevronRight, MessageSquare, User as UserIcon, CalendarIcon, Home, Compass, Heart } from 'lucide-react'
-import { createBookingRequest, getSinger } from '@/services/singer'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 
 export default function AudienceLivePage() {
     const params = useParams()
+    const router = useRouter()
     const performanceId = params.id as string
     const [performance, setPerformance] = useState<any>(null)
     const [username, setUsername] = useState('')
@@ -27,6 +30,8 @@ export default function AudienceLivePage() {
     const [singer, setSinger] = useState<any>(null)
     const [activeSocket, setActiveSocket] = useState<Socket | null>(null)
     const [chatStatus, setChatStatus] = useState<'open' | 'closed'>('closed')
+    const [showRedirectionModal, setShowRedirectionModal] = useState(false)
+    const [redirectCountdown, setRedirectCountdown] = useState(10)
     const [viewingCount, setViewingCount] = useState(0)
     const [isFollowed, setIsFollowed] = useState(false)
     const { user, isLoaded } = useUser()
@@ -109,12 +114,26 @@ export default function AudienceLivePage() {
 
         socket.on('performance_ended', () => {
             refreshPerformance()
+            setShowRedirectionModal(true)
         })
 
         return () => {
             socket.disconnect()
         }
     }, [performanceId])
+
+    // Countdown logic for redirection
+    useEffect(() => {
+        if (!showRedirectionModal) return
+        if (redirectCountdown <= 0) {
+            router.push(`/singer/${singer?.id || ''}`)
+            return
+        }
+        const timer = setInterval(() => {
+            setRedirectCountdown(prev => prev - 1)
+        }, 1000)
+        return () => clearInterval(timer)
+    }, [showRedirectionModal, redirectCountdown, singer, router])
 
 
 
@@ -207,10 +226,11 @@ export default function AudienceLivePage() {
     const currentSong = pendingSongs[0] || { title: 'No song playing', artist: '' }
     const nextSong = pendingSongs[1] || null
 
-    const isCompleted = performance.status === 'completed'
+    const effectiveStatus = getEffectiveStatus(performance)
+    const isCompleted = effectiveStatus === 'completed'
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-[100dvh] flex flex-col max-w-4xl mx-auto border-x border-primary/10 shadow-2xl font-display overflow-hidden">
+        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-[100dvh] flex flex-col w-full md:max-w-4xl mx-auto md:border-x border-primary/10 shadow-2xl font-display overflow-hidden">
             {/* Header Section */}
             <header className="sticky top-0 z-30 bg-background-dark/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -418,6 +438,37 @@ export default function AudienceLivePage() {
                 singerName={singer?.stageName || 'the singer'}
             />
 
+            {/* Performance Ended Redirection Overlay */}
+            {showRedirectionModal && (
+                <div className="fixed inset-0 z-[100] bg-background-dark/95 backdrop-blur-xl flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+                    <div className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mb-6 border border-primary/30 relative">
+                        <Archive className="w-10 h-10 text-primary animate-pulse" />
+                        <div className="absolute inset-0 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-2">{t('live.ended_title') || 'Performance Ended'}</h2>
+                    <p className="text-slate-400 mb-8 max-w-xs">{t('live.ended_desc') || "Thank you for watching! You'll be redirected soon."}</p>
+
+                    <div className="bg-white/5 border border-white/10 px-8 py-4 rounded-2xl mb-8">
+                        <span className="text-4xl font-mono font-bold text-primary">{redirectCountdown}</span>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1 font-bold">Redirecting...</p>
+                    </div>
+
+                    <div className="flex flex-col gap-3 w-full max-w-xs">
+                        <Link
+                            href={`/singer/${singer?.id}`}
+                            className="bg-primary hover:bg-primary-dark text-white font-bold py-4 px-6 rounded-xl transition shadow-lg shadow-primary/20"
+                        >
+                            {t('live.view_singer_profile') || 'View Singer Profile'}
+                        </Link>
+                        <button
+                            onClick={() => setShowRedirectionModal(false)}
+                            className="bg-white/5 hover:bg-white/10 text-slate-400 py-3 px-6 rounded-xl transition text-sm font-medium"
+                        >
+                            {t('common.close') || 'Stay on this page'}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser, useClerk } from '@clerk/nextjs'
+import io from 'socket.io-client'
 import SongManagement from '@/components/singer/SongManagement'
 import PerformanceManagement from '@/components/singer/PerformanceManagement'
 import BookingRequestsList from '@/components/singer/BookingRequestsList'
@@ -24,6 +25,35 @@ export default function SingerDashboard() {
     const [singerData, setSingerData] = useState<any>(null)
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { } })
     const [nickname, setNickname] = useState('')
+    const [realtimeStatus, setRealtimeStatus] = useState<'connected' | 'error' | 'connecting'>('connecting')
+
+
+    // Check Realtime Server Status
+    useEffect(() => {
+        const realtimeServerUrl = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
+        if (!realtimeServerUrl) {
+            setRealtimeStatus('error')
+            return
+        }
+
+        const socket = io(realtimeServerUrl, {
+            timeout: 5000,
+            reconnection: false
+        })
+
+        socket.on('connect', () => {
+            setRealtimeStatus('connected')
+            socket.disconnect()
+        })
+
+        socket.on('connect_error', () => {
+            setRealtimeStatus('error')
+        })
+
+        return () => {
+            socket.disconnect()
+        }
+    }, [])
 
 
     // Sync Clerk User to Prisma DB
@@ -233,6 +263,10 @@ export default function SingerDashboard() {
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-extrabold text-gray-900">{t('dashboard.title')}</h1>
                     <div className="flex items-center space-x-4">
+                        <div className="flex items-center gap-2 mr-2 px-3 py-1.5 rounded-full bg-white border border-gray-100 shadow-sm">
+                            <div className={`w-2 h-2 rounded-full animate-pulse ${realtimeStatus === 'connected' ? 'bg-green-500' : realtimeStatus === 'error' ? 'bg-red-500' : 'bg-amber-500'}`} />
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Realtime {realtimeStatus === 'connected' ? 'Live' : realtimeStatus === 'error' ? 'Down' : 'Checking'}</span>
+                        </div>
                         <ClockWidget />
                         <LanguageSwitcher />
                         <span className="text-sm text-gray-500">{t('dashboard.welcome')}{singerData?.profile?.nickname || user.fullName}</span>

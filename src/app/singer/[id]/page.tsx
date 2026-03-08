@@ -13,6 +13,7 @@ import { useUser } from '@clerk/nextjs'
 import SongRequestModal from '@/components/audience/SongRequestModal'
 import BookingRequestModal from '@/components/audience/BookingRequestModal'
 import { getPerformanceById, createSongRequest, getSinger, updatePerformanceStatus } from '@/services/singer'
+import { getEffectiveStatus, formatLocalDate } from '@/utils/performance'
 
 // Dynamically import MapPicker
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
@@ -369,14 +370,14 @@ export default function SingerDetailPage() {
             </div>
 
             {/* Live Now Section */}
-            {singer.performances.some((p: any) => p.status === 'live') && (
+            {singer.performances.some((p: any) => getEffectiveStatus(p) === 'live') && (
                 <div className="mt-8 px-6">
                     <h2 className="text-xl font-bold mb-4 flex items-center text-red-500 animate-pulse">
                         <MessageCircle className="w-5 h-5 mr-2" /> {t('performance.status.live')}
                     </h2>
                     <div className="space-y-4">
                         {singer.performances
-                            .filter((p: any) => p.status === 'live')
+                            .filter((p: any) => getEffectiveStatus(p) === 'live')
                             .map((perf: any) => (
                                 <div key={perf.id} className="bg-gradient-to-r from-red-900/40 to-black border border-red-600/50 rounded-xl overflow-hidden shadow-lg shadow-red-900/20">
                                     <div className="p-4">
@@ -424,13 +425,13 @@ export default function SingerDetailPage() {
                     <Calendar className="w-5 h-5 mr-2 text-green-400" /> {t('performance.upcoming')}
                 </h2>
                 <div className="space-y-4">
-                    {singer.performances.filter((p: any) => p.status === 'scheduled').length === 0 ? (
+                    {singer.performances.filter((p: any) => getEffectiveStatus(p) === 'planned').length === 0 ? (
                         <div className="p-4 bg-gray-800/30 rounded-lg text-center text-gray-400 text-sm">
                             {t('performance.list.empty_upcoming')}
                         </div>
                     ) : (
                         singer.performances
-                            .filter((p: any) => p.status === 'scheduled')
+                            .filter((p: any) => getEffectiveStatus(p) === 'planned')
                             .map((perf: any) => (
                                 <div key={perf.id} className="bg-gradient-to-r from-gray-800 to-gray-800/80 border border-gray-700 rounded-xl overflow-hidden group">
                                     <div className="p-4 relative">
@@ -441,13 +442,7 @@ export default function SingerDetailPage() {
                                         <p className="text-gray-400 text-sm relative z-10">{perf.locationText}</p>
                                         <div className="mt-3 flex items-center text-xs text-gray-500 relative z-10">
                                             <span className="bg-gray-700 px-2 py-1 rounded mr-2 text-gray-300">
-                                                {(() => {
-                                                    try {
-                                                        return new Date(perf.startTime).toLocaleDateString()
-                                                    } catch (e) {
-                                                        return 'Date Error'
-                                                    }
-                                                })()}
+                                                {formatLocalDate(perf.startTime)}
                                             </span>
                                         </div>
 

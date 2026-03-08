@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { List, Map as MapIcon, LogOut } from 'lucide-react'
+import { getEffectiveStatus, formatLocalDate } from '@/utils/performance'
 import { useClerk, useUser } from '@clerk/nextjs'
 
 // Dynamically import Map to avoid SSR issues with Leaflet
@@ -132,11 +133,11 @@ export default function ExplorePage() {
                                             </div>
                                         )}
                                         <div className="flex justify-between items-start mb-2 pr-12">
-                                            <span className={`text-xs px-2 py-1 rounded-full font-bold ${perf.status === 'live' ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-indigo-100 text-indigo-800'}`}>
-                                                {perf.status === 'live' ? 'LIVE NOW' : 'Scheduled'}
+                                            <span className={`text-xs px-2 py-1 rounded-full font-bold ${getEffectiveStatus(perf) === 'live' ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-indigo-100 text-indigo-800'}`}>
+                                                {getEffectiveStatus(perf) === 'live' ? 'LIVE NOW' : 'Scheduled'}
                                             </span>
                                             <span className="text-xs text-gray-500">
-                                                {new Date(perf.startTime).toLocaleDateString()}
+                                                {formatLocalDate(perf.startTime)}
                                             </span>
                                         </div>
                                         <h3 className="font-bold text-lg mb-1">{perf.title}</h3>
