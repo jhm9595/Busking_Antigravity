@@ -1,13 +1,7 @@
 /**
  * Busking Antigravity Full Lifecycle Simulator 🎭
  * 
- * This script simulates the entire journey:
- * 1. Singer Onboarding
- * 2. Performance Scheduling
- * 3. Performance Going Live
- * 4. Audience Interaction (Song Request)
- * 5. Performance Completion
- * 6. Verification of Status Updates
+ * Updated to match the latest Setlist & Song Request logic.
  */
 
 const { PrismaClient } = require('@prisma/client');
@@ -18,41 +12,47 @@ async function simulate() {
     const testId = 'sim_' + Math.random().toString(36).substring(7);
 
     try {
-        // STEP 1: Create Singer
-        console.log('[1/6] Creating Mock Singer...');
+        // STEP 1: Create Singer & Repertoire
+        console.log('[1/7] Creating Mock Singer & Repertoire...');
         await prisma.profile.create({
-            data: { id: testId, email: `${testId}@test.com`, role: 'singer' }
+            data: { id: testId, email: `${testId}@test.com`, role: 'singer', nickname: 'SimStar' }
         });
         await prisma.singer.create({
             data: { id: testId, stageName: 'Simulated Star', isVerified: true }
         });
+        const repSong = await prisma.song.create({
+            data: { singerId: testId, title: 'My Signature Hit', artist: 'SimStar', isRepertoire: true }
+        });
 
-        // STEP 2: Schedule Performance
-        console.log('[2/6] Scheduling Performance...');
+        // STEP 2: Schedule Performance with Setlist
+        console.log('[2/7] Scheduling Performance with Setlist...');
         const startTime = new Date();
-        const endTime = new Date(startTime.getTime() + 3600000); // +1 hour
+        const endTime = new Date(startTime.getTime() + 3600000);
         const performance = await prisma.performance.create({
             data: {
                 singerId: testId,
-                title: 'Grand Simulation Concert',
-                locationText: 'Virtual Stage A',
+                title: 'New Logic Concert',
+                locationText: 'Digital Arena',
                 startTime,
                 endTime,
                 status: 'scheduled',
                 chatEnabled: true,
-                chatCostPerHour: 0
+                chatCostPerHour: 0,
+                performanceSongs: {
+                    create: [{ songId: repSong.id, order: 0 }]
+                }
             }
         });
 
         // STEP 3: Go Live
-        console.log('[3/6] Transitioning to LIVE...');
+        console.log('[3/7] Transitioning to LIVE...');
         await prisma.performance.update({
             where: { id: performance.id },
             data: { status: 'live' }
         });
 
         // STEP 4: Audience Song Request
-        console.log('[4/6] Simulating Audience Song Request...');
+        console.log('[4/7] Simulating Audience Song Request...');
         const songRequest = await prisma.songRequest.create({
             data: {
                 performanceId: performance.id,
@@ -63,21 +63,55 @@ async function simulate() {
             }
         });
 
-        // STEP 5: Verification
-        console.log('[5/6] Verifying Data Consistency...');
-        const livePerf = await prisma.performance.findUnique({
+        // STEP 5: Accept Request (Logic from services/singer.ts)
+        console.log('[5/7] Simulating Request Acceptance...');
+        const newSong = await prisma.song.create({
+            data: {
+                singerId: testId,
+                title: songRequest.title,
+                artist: songRequest.artist,
+                isRepertoire: false,
+                tags: '["requested"]'
+            }
+        });
+        await prisma.performanceSong.create({
+            data: {
+                performanceId: performance.id,
+                songId: newSong.id,
+                order: 1
+            }
+        });
+        await prisma.songRequest.update({
+            where: { id: songRequest.id },
+            data: { status: 'accepted' }
+        });
+
+        // STEP 6: Toggle Song Status (Live Dashboard feature)
+        console.log('[6/7] Toggling Setlist Song Status (Live Dashboard)...');
+        await prisma.performanceSong.updateMany({
+            where: { performanceId: performance.id, songId: repSong.id },
+            data: { status: 'completed' }
+        });
+
+        // STEP 7: Verification & Cleanup
+        console.log('[7/7] Verifying Final State...');
+        const finalPerf = await prisma.performance.findUnique({
             where: { id: performance.id },
-            include: { songRequests: true }
+            include: { performanceSongs: true, songRequests: true }
         });
         
-        if (livePerf.status === 'live' && livePerf.songRequests.length > 0) {
-            console.log('✅ Consistency Check Passed: Live status and Requests verified.');
+        if (finalPerf.performanceSongs.length === 2 && finalPerf.songRequests[0].status === 'accepted') {
+            const completedSong = finalPerf.performanceSongs.find(ps => ps.songId === repSong.id);
+            if (completedSong.status === 'completed') {
+                console.log('✅ Consistency Check Passed: Setlist, Requests, and Status Toggles verified.');
+            } else {
+                throw new Error('Song status toggle failed verification!');
+            }
         } else {
-            throw new Error('Data inconsistency detected during simulation!');
+            throw new Error('Data inconsistency detected!');
         }
 
-        // STEP 6: Complete Performance
-        console.log('[6/6] Completing Performance & Cleanup...');
+        // Complete Performance
         await prisma.performance.update({
             where: { id: performance.id },
             data: { status: 'completed' }
@@ -88,11 +122,15 @@ async function simulate() {
     } catch (error) {
         console.error('❌ Simulation Error:', error);
     } finally {
-        // Comprehensive Cleanup
         console.log('Cleaning up simulation data...');
         try {
+            const perfSongs = await prisma.performanceSong.findMany({ where: { performance: { singerId: testId } } });
+            const songIds = perfSongs.map(ps => ps.songId);
+            
+            await prisma.performanceSong.deleteMany({ where: { performance: { singerId: testId } } });
             await prisma.songRequest.deleteMany({ where: { performance: { singerId: testId } } });
             await prisma.performance.deleteMany({ where: { singerId: testId } });
+            await prisma.song.deleteMany({ where: { id: { in: [repSong?.id, ...songIds].filter(Boolean) } } });
             await prisma.singer.delete({ where: { id: testId } });
             await prisma.profile.delete({ where: { id: testId } });
         } catch (cleanupError) {
