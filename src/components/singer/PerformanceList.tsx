@@ -6,6 +6,7 @@ import styles from '@/styles/singer/PerformanceList.module.css'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { deletePerformance } from '@/services/singer'
 import { RotateCcw } from 'lucide-react'
+import { getEffectiveStatus } from '@/utils/performance'
 
 interface PerformanceListProps {
     performances: any[]
@@ -20,33 +21,16 @@ export default function PerformanceList({ performances, loading, allSongs }: Per
     const [deletingIds, setDeletingIds] = useState<string[]>([])
     const [timers, setTimers] = useState<Record<string, NodeJS.Timeout>>({})
 
-    // Filter performances
-    const now = new Date()
-
-    const live = performances.filter(p => p.status === 'live')
+    const live = performances.filter(p => getEffectiveStatus(p) === 'live')
 
     const upcoming = performances.filter(p => {
-        // Exclude live, completed, canceled, or anything that sounds like ended
-        const s = p.status?.toLowerCase()
-        if (s === 'live' || s === 'completed' || s === 'canceled' || s === 'ended' || s === 'finished') return false
-
-        // Status must be scheduled (or default)
-        const start = new Date(p.startTime)
-        // Match service logic: 3 hours default duration
-        const end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
-
-        return end >= now
+        const status = getEffectiveStatus(p)
+        return status === 'planned' || status === 'live'
     })
 
     const past = performances.filter(p => {
-        const s = p.status?.toLowerCase()
-        if (s === 'live') return false
-        if (s === 'completed' || s === 'canceled' || s === 'ended' || s === 'finished') return true
-
-        const start = new Date(p.startTime)
-        const end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
-
-        return end < now
+        const status = getEffectiveStatus(p)
+        return status === 'completed' || status === 'cancelled'
     })
 
     const displayList = activeTab === 'live' ? live : (activeTab === 'upcoming' ? upcoming : past.reverse())

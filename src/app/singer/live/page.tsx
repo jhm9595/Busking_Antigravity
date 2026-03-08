@@ -21,6 +21,7 @@ import ChatBox from '@/components/chat/ChatBox'
 import ConfirmationModal from '@/components/common/ConfirmationModal'
 import io, { Socket } from 'socket.io-client'
 import { Group as PanelGroup, Panel, Separator as PanelResizeHandle } from 'react-resizable-panels'
+import { getEffectiveStatus } from '@/utils/performance'
 
 function LivePerformanceContent() {
     const { t } = useLanguage()
@@ -117,11 +118,11 @@ function LivePerformanceContent() {
     }, [performanceId, router, refreshData])
 
     useEffect(() => {
-        const chatServerUrl = process.env.NEXT_PUBLIC_CHAT_SERVER_URL
-        if (!chatServerUrl || !performanceId) return
+        const realtimeServerUrl = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
+        if (!realtimeServerUrl || !performanceId) return
 
         if (!socketRef.current) {
-            const singerSocket = io(chatServerUrl, {
+            const singerSocket = io(realtimeServerUrl, {
                 reconnectionAttempts: 5,
                 reconnectionDelay: 3000,
             })
@@ -147,10 +148,11 @@ function LivePerformanceContent() {
                 const now = Date.now()
                 const startTime = new Date(performance.startTime).getTime()
                 const endTime = performance.endTime ? new Date(performance.endTime).getTime() : null
+                const effectiveStatus = getEffectiveStatus(performance)
 
                 // 1. Calculate Remaining Time based on endTime
                 // If it's live, we show duration remaining
-                if (performance.status === 'live' || now >= startTime) {
+                if (effectiveStatus === 'live') {
                     if (endTime) {
                         const diff = Math.floor((endTime - now) / 1000)
                         setElapsedTime(Math.max(0, diff))
@@ -166,7 +168,7 @@ function LivePerformanceContent() {
 
                 // 2. Check for Chat Opening (10 mins before start)
                 const timeToStart = startTime - now
-                if (timeToStart <= 10 * 60 * 1000 || performance.status === 'live') {
+                if (timeToStart <= 10 * 60 * 1000 || effectiveStatus === 'live') {
                     setCanOpenChat(true)
                 }
 
@@ -353,12 +355,11 @@ function LivePerformanceContent() {
     const pendingRequests = requests.filter(r => r.status === 'pending')
 
     return (
-        <div className="h-[100dvh] bg-black text-white flex flex-col font-sans overflow-hidden">
+        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-[100dvh] flex flex-col w-full md:max-w-4xl mx-auto md:border-x border-primary/10 shadow-2xl font-display overflow-hidden">
             {/* Header */}
             <div className="p-4 pl-16 md:pl-20 border-b border-gray-800 flex justify-between items-center bg-gray-900 sticky top-0 z-20 shadow-xl">
                 <div className="flex-1 min-w-0 mr-4">
                     <h1 className="text-lg md:text-xl font-bold text-white truncate">{performance.title}</h1>
-                    <p className="text-xs md:text-sm text-gray-400 truncate">{performance.locationText}</p>
                 </div>
                 <div className="flex space-x-2 shrink-0">
                     <button
@@ -420,10 +421,20 @@ function LivePerformanceContent() {
                 <style dangerouslySetInnerHTML={{
                     __html: `
                     @media (max-width: 767px) {
-                        .mobile-panel-override [data-panel-group] > [data-panel] {
+                        .mobile-panel-override [data-panel-group] {
+                            flex-direction: column !important;
+                            display: flex !important;
+                            height: 100% !important;
+                        }
+                        .mobile-panel-override [data-panel] {
                             flex: 1 1 100% !important;
                             min-width: 100% !important;
                             max-width: 100% !important;
+                            width: 100% !important;
+                            height: 100% !important;
+                        }
+                        .mobile-panel-override [data-panel-resize-handle] {
+                            display: none !important;
                         }
                     }
                 `}} />
@@ -431,7 +442,7 @@ function LivePerformanceContent() {
                     <Panel
                         defaultSize={65}
                         minSize={30}
-                        className={`${activeTab === 'chat' ? 'hidden md:block' : 'block'} flex flex-col`}
+                        className={`${activeTab === 'chat' ? 'hidden md:flex' : 'flex'} flex-col`}
                     >
                         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-8 custom-scrollbar">
                             {/* PC Headers */}
@@ -564,7 +575,7 @@ function LivePerformanceContent() {
                     </PanelResizeHandle>
 
                     {performance.chatEnabled && (
-                        <Panel defaultSize={35} minSize={20} className={`${activeTab === 'chat' ? 'block' : 'hidden md:flex'} flex flex-col border-l border-gray-800 bg-black`}>
+                        <Panel defaultSize={35} minSize={20} className={`${activeTab === 'chat' ? 'flex' : 'hidden md:flex'} flex-col border-l border-gray-800 bg-black`}>
                             <div className="hidden md:flex items-center gap-2 p-5 border-b border-gray-800 bg-gray-900/80 shrink-0">
                                 <div className="p-1.5 bg-indigo-500/10 rounded-lg"><MessageSquare className="w-5 h-5 text-indigo-400" /></div>
                                 <h2 className="text-lg font-bold">Live Chat Room</h2>

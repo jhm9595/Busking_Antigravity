@@ -8,6 +8,7 @@ import { formatPerformanceDate } from '@/utils/date'
 import SetlistManager from './SetlistManager'
 import EditPerformanceModal from './EditPerformanceModal'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { getEffectiveStatus } from '@/utils/performance'
 import { updatePerformanceStatus } from '@/services/singer'
 
 // Dynamic MapPicker (Readonly)
@@ -41,21 +42,11 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
     // Status Logic
     // Status Logic
     const getStatusInfo = () => {
-        if (perf.status === 'labeled') return { key: 'canceled', style: styles.statusDefault } // Typo fix if needed, but assuming 'canceled'
-        if (perf.status === 'canceled') return { key: 'canceled', style: styles.statusDefault }
+        const effectiveStatus = getEffectiveStatus(perf)
 
-        // Priority: Explicit Status
-        if (perf.status === 'live') return { key: 'live', style: styles.statusLive }
-        if (perf.status === 'completed') return { key: 'completed', style: styles.statusDefault }
-
-        // Fallback for Scheduled vs Past based on Time (only if status is 'scheduled')
-        const now = new Date()
-        const start = new Date(perf.startTime)
-        const end = perf.endTime ? new Date(perf.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
-
-        // Even if time matches, if status isn't 'live', it's just 'scheduled' (maybe late start)
-        // But for 'past', if time is over, we show it as past visually
-        if (isPast || now > end) return { key: 'completed', style: styles.statusDefault }
+        if (perf.status === 'canceled' || effectiveStatus === 'cancelled') return { key: 'canceled', style: styles.statusDefault }
+        if (effectiveStatus === 'live') return { key: 'live', style: styles.statusLive }
+        if (effectiveStatus === 'completed') return { key: 'completed', style: styles.statusDefault }
 
         return { key: 'scheduled', style: styles.statusScheduled }
     }

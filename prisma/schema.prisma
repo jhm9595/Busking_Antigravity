@@ -100,9 +100,9 @@ model SongRequest {
   performanceId String      @map("performance_id")
   title         String
   artist        String
-  requesterName String?     @map("requester_name")
   status        String      @default("pending")
   createdAt     DateTime    @default(now()) @map("created_at")
+  requesterName String      @default("Anonymous") @map("requester_name")
   performance   Performance @relation(fields: [performanceId], references: [id], onDelete: Cascade)
 
   @@map("song_requests")
