@@ -183,7 +183,7 @@ export default function AudienceLivePage() {
     const isCompleted = performance.status === 'completed'
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col max-w-4xl mx-auto border-x border-primary/10 shadow-2xl font-display">
+        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-[100dvh] flex flex-col max-w-4xl mx-auto border-x border-primary/10 shadow-2xl font-display overflow-hidden">
             {/* Header Section */}
             <header className="sticky top-0 z-30 bg-background-dark/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -342,8 +342,8 @@ export default function AudienceLivePage() {
 
                         {/* Live Chat Section — only shown when chatEnabled and not completed */}
                         {performance.chatEnabled && !isCompleted && (
-                            <section className="flex flex-col flex-1 px-4 pb-4 min-h-[400px]">
-                                <div className="flex items-center justify-between mb-3">
+                            <section className="flex flex-col flex-1 px-4 pb-4 min-h-0">
+                                <div className="flex items-center justify-between mb-3 shrink-0">
                                     <h2 className="text-sm font-bold flex items-center gap-2 font-display text-white">
                                         <MessageCircle className="text-primary w-4 h-4" />
                                         {t('chat.title')}
@@ -353,7 +353,7 @@ export default function AudienceLivePage() {
                                     </span>
                                 </div>
                                 {/* The ChatBox component itself */}
-                                <div className="flex-1 bg-white/5 rounded-xl border border-white/5 overflow-hidden flex flex-col">
+                                <div className="flex-1 bg-white/5 rounded-xl border border-white/5 overflow-hidden flex flex-col min-h-0">
                                     <ChatBox
                                         performanceId={performanceId}
                                         username={username}

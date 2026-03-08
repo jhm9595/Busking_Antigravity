@@ -40,7 +40,6 @@ function LivePerformanceContent() {
     const [viewingCount, setViewingCount] = useState(0)
     const [showAddModal, setShowAddModal] = useState(false)
     const [elapsedTime, setElapsedTime] = useState(0)
-    const [lastLoggedTime, setLastLoggedTime] = useState<number>(0)
     const [isReordering, setIsReordering] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
     const [manualSongTitle, setManualSongTitle] = useState('')
@@ -52,8 +51,10 @@ function LivePerformanceContent() {
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { } })
     const [processingRequestIds, setProcessingRequestIds] = useState<Set<string>>(new Set())
     const [togglingStatusIds, setTogglingStatusIds] = useState<Set<string>>(new Set())
+    const optimisticStatusRef = useRef<Record<string, string>>({})
     const [requestsLastUpdated, setRequestsLastUpdated] = useState<Date | null>(null)
     const [isRefreshingRequests, setIsRefreshingRequests] = useState(false)
+    const [addingSongId, setAddingSongId] = useState<string | null>(null)
 
     // Load Data
     const refreshData = useCallback(async () => {
@@ -64,6 +65,18 @@ function LivePerformanceContent() {
                 getPerformanceRequests(performanceId)
             ])
             if (!perfData) setFetchError('getPerformanceById returned NULL')
+
+            // Merge optimistic statuses to prevent UI reversion
+            if (perfData?.songs) {
+                perfData.songs = perfData.songs.map((song: any) => {
+                    const optimisticStatus = optimisticStatusRef.current[song.id]
+                    if (optimisticStatus) {
+                        return { ...song, status: optimisticStatus }
+                    }
+                    return song
+                })
+            }
+
             setPerformance(perfData)
             setRequests(reqData)
             setRequestsLastUpdated(new Date())
@@ -168,12 +181,6 @@ function LivePerformanceContent() {
                         setIsAlertSent(true)
                     }
                 }
-
-                // 4. Automatic redirection if performance is finished (status change)
-                if (now - lastLoggedTime > 10000) { // Every 10 seconds
-                    refreshData()
-                    setLastLoggedTime(now)
-                }
             }
         }, 1000)
         return () => clearInterval(timer)
@@ -247,18 +254,25 @@ function LivePerformanceContent() {
     const handleToggleSongStatus = async (songId: string, currentStatus: string) => {
         if (togglingStatusIds.has(songId)) return
         const newStatus = currentStatus === 'completed' ? 'pending' : 'completed'
+
         setTogglingStatusIds(prev => new Set(prev).add(songId))
+        optimisticStatusRef.current[songId] = newStatus // Save optimistic status
+
         setPerformance((prev: any) => ({
             ...prev,
             songs: prev.songs.map((s: any) => s.id === songId ? { ...s, status: newStatus } : s)
         }))
+
         try {
             if (socketRef.current) {
                 socketRef.current.emit('song_status_updated', { performanceId, songId, status: newStatus })
             }
             await updateSongStatus(performanceId!, songId, newStatus as any)
+            // Remove from optimistic ref AFTER server confirms, so next refresh gets real data
+            delete optimisticStatusRef.current[songId]
             await refreshData()
         } catch (e) {
+            delete optimisticStatusRef.current[songId]
             setPerformance((prev: any) => ({
                 ...prev,
                 songs: prev.songs.map((s: any) => s.id === songId ? { ...s, status: currentStatus } : s)
@@ -296,16 +310,29 @@ function LivePerformanceContent() {
     }
 
     const handleAddSong = async (songId: string) => {
-        if (!performance) return
-        const newIds = [...performance.songs.map((s: any) => s.id), songId]
-        await updatePerformanceSetlist({
-            performanceId: performanceId!,
-            singerId: performance.singerId,
-            songIds: newIds
-        })
-        if (socketRef.current) socketRef.current.emit('song_status_updated', { performanceId })
-        await refreshData()
-        setShowAddModal(false)
+        if (!performance || addingSongId) return
+        setAddingSongId(songId)
+        try {
+            const addedSong = allSongs.find(s => s.id === songId)
+            if (addedSong) {
+                // Optimistic Update
+                setPerformance((prev: any) => ({
+                    ...prev,
+                    songs: [...prev.songs, { ...addedSong, status: 'pending' }]
+                }))
+            }
+            const newIds = [...performance.songs.map((s: any) => s.id), songId]
+            await updatePerformanceSetlist({
+                performanceId: performanceId!,
+                singerId: performance.singerId,
+                songIds: newIds
+            })
+            if (socketRef.current) socketRef.current.emit('song_status_updated', { performanceId })
+            await refreshData()
+            setShowAddModal(false)
+        } finally {
+            setAddingSongId(null)
+        }
     }
 
     const handleManualAddSong = async () => {
@@ -612,9 +639,11 @@ function LivePerformanceContent() {
                             </div>
                             <div className="space-y-2">
                                 {allSongs.filter(s => !performance.songs.some((ps: any) => ps.id === s.id) && (s.title.toLowerCase().includes(searchQuery.toLowerCase()) || s.artist.toLowerCase().includes(searchQuery.toLowerCase()))).map(song => (
-                                    <button key={song.id} onClick={() => handleAddSong(song.id)} className="w-full bg-gray-800/40 p-3 rounded-xl flex justify-between items-center hover:bg-indigo-600/20 border border-gray-700 transition-all group">
+                                    <button key={song.id} onClick={() => handleAddSong(song.id)} disabled={addingSongId === song.id} className="w-full bg-gray-800/40 p-3 rounded-xl flex justify-between items-center hover:bg-indigo-600/20 border border-gray-700 transition-all group disabled:opacity-50">
                                         <div className="text-left"><p className="font-bold text-white group-hover:text-indigo-200">{song.title}</p><p className="text-[11px] text-gray-500">{song.artist}</p></div>
-                                        <div className="bg-gray-900 p-1.5 rounded-lg group-hover:bg-indigo-600"><Plus className="w-4 h-4 text-gray-400 group-hover:text-white" /></div>
+                                        <div className="bg-gray-900 p-1.5 rounded-lg group-hover:bg-indigo-600">
+                                            {addingSongId === song.id ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <Plus className="w-4 h-4 text-gray-400 group-hover:text-white" />}
+                                        </div>
                                     </button>
                                 ))}
                             </div>
