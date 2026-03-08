@@ -25,12 +25,12 @@ export default function PerformanceList({ performances, loading, allSongs }: Per
 
     const upcoming = performances.filter(p => {
         const status = getEffectiveStatus(p)
-        return status === 'planned' || status === 'live'
+        return status === 'planned' || status === 'scheduled'
     })
 
     const past = performances.filter(p => {
         const status = getEffectiveStatus(p)
-        return status === 'completed' || status === 'cancelled'
+        return status === 'completed' || status === 'cancelled' || status === 'canceled'
     })
 
     const displayList = activeTab === 'live' ? live : (activeTab === 'upcoming' ? upcoming : past.reverse())

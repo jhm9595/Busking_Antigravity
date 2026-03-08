@@ -263,9 +263,11 @@ export default function SingerDashboard() {
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-extrabold text-gray-900">{t('dashboard.title')}</h1>
                     <div className="flex items-center space-x-4">
-                        <div className="flex items-center gap-2 mr-2 px-3 py-1.5 rounded-full bg-white border border-gray-100 shadow-sm">
-                            <div className={`w-2 h-2 rounded-full animate-pulse ${realtimeStatus === 'connected' ? 'bg-green-500' : realtimeStatus === 'error' ? 'bg-red-500' : 'bg-amber-500'}`} />
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Realtime {realtimeStatus === 'connected' ? 'Live' : realtimeStatus === 'error' ? 'Down' : 'Checking'}</span>
+                        <div
+                            title={realtimeStatus === 'connected' ? 'Server Online' : realtimeStatus === 'error' ? 'Server Offline' : 'Connecting...'}
+                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-100 shadow-sm cursor-default"
+                        >
+                            <div className={`w-2.5 h-2.5 rounded-full animate-pulse ${realtimeStatus === 'connected' ? 'bg-green-500' : realtimeStatus === 'error' ? 'bg-red-500' : 'bg-amber-500'}`} />
                         </div>
                         <ClockWidget />
                         <LanguageSwitcher />
