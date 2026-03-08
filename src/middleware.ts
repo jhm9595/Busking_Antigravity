@@ -1,6 +1,30 @@
 import { clerkMiddleware } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-export default clerkMiddleware()
+function addCorsHeaders(response: NextResponse) {
+    response.headers.set('Access-Control-Allow-Origin', '*')
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    return response
+}
+
+export default clerkMiddleware(async (auth, request: NextRequest) => {
+    // Development mode: add CORS headers for external testing tools
+    if (process.env.NODE_ENV === 'development') {
+        // Handle preflight OPTIONS requests
+        if (request.method === 'OPTIONS') {
+            const response = new NextResponse(null, { status: 200 })
+            return addCorsHeaders(response)
+        }
+
+        // For API routes, add CORS headers to the response
+        if (request.nextUrl.pathname.startsWith('/api')) {
+            const response = NextResponse.next()
+            return addCorsHeaders(response)
+        }
+    }
+})
 
 export const config = {
     matcher: [

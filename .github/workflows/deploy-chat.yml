@@ -1,16 +1,16 @@
-name: Build and Deploy Chat Server to Google Cloud Run
+name: Build and Deploy Realtime Server to Google Cloud Run
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'chat-server/**' # Only trigger when chat server files change
+      - 'realtime-server/**' # Only trigger when realtime server files change
 
 env:
   PROJECT_ID: busking-488803 # Use actual GCP Project ID
   REGION: us-central1 # FREE TIER Region (Iowa)
-  SERVICE_NAME: busking-chat-server
+  SERVICE_NAME: busking-realtime-server
   GAR_LOCATION: us-central1 # Artifact Registry region
   REPOSITORY: busking-images
   REDIS_URL: your-upstash-redis-url # Replace with hosted Redis URL
@@ -39,17 +39,17 @@ jobs:
         run: |-
           gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
           
-      - name: Build Chat Server Image
-        working-directory: ./chat-server
+      - name: Build Realtime Server Image
+        working-directory: ./realtime-server
         run: |-
           docker build -t ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }} .
           
-      - name: Push Chat Server Image
-        working-directory: ./chat-server
+      - name: Push Realtime Server Image
+        working-directory: ./realtime-server
         run: |-
           docker push ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
 
-      - name: Deploy Chat Server to Cloud Run
+      - name: Deploy Realtime Server to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
