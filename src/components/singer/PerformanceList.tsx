@@ -12,9 +12,10 @@ interface PerformanceListProps {
     performances: any[]
     loading: boolean
     allSongs: any[]
+    onRefresh?: () => void
 }
 
-export default function PerformanceList({ performances, loading, allSongs }: PerformanceListProps) {
+export default function PerformanceList({ performances, loading, allSongs, onRefresh }: PerformanceListProps) {
     const { t } = useLanguage()
     const [activeTab, setActiveTab] = useState<'live' | 'upcoming' | 'past'>('upcoming')
     const [expandedPerfId, setExpandedPerfId] = useState<string | null>(null)
@@ -141,6 +142,7 @@ export default function PerformanceList({ performances, loading, allSongs }: Per
                                 isPast={activeTab === 'past'}
                                 allSongs={allSongs}
                                 onDelete={() => handleDeleteRequest(perf.id, perf.title)}
+                                onRefresh={onRefresh}
                             />
                         )
                     })

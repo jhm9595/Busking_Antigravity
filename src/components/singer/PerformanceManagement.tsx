@@ -44,6 +44,7 @@ export default function PerformanceManagement({ refreshKey }: PerformanceManagem
                     performances={performances}
                     loading={loading}
                     allSongs={allSongs}
+                    onRefresh={refreshPerformances}
                 />
             </section>
         </div>
