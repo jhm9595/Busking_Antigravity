@@ -96,7 +96,7 @@ export default function EditPerformanceModal({ performance, onClose, onSuccess }
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
                 <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
                     <h3 className="text-xl font-bold">{t('performance.action.edit') || 'Edit Performance'}</h3>
