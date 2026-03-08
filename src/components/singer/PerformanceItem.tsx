@@ -30,9 +30,10 @@ interface PerformanceItemProps {
     isPast: boolean
     allSongs: any[]
     onDelete?: () => void
+    onRefresh?: () => void
 }
 
-export default function PerformanceItem({ performance: perf, expanded, onToggleExpand, isPast, allSongs, onDelete }: PerformanceItemProps) {
+export default function PerformanceItem({ performance: perf, expanded, onToggleExpand, isPast, allSongs, onDelete, onRefresh }: PerformanceItemProps) {
     const { t } = useLanguage()
     const router = useRouter()
     const setlist = perf.songs || perf.performanceSongs?.map((ps: any) => ps.song) || []
@@ -123,7 +124,10 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                                         onClick={(e) => {
                                             e.stopPropagation()
                                             if (window.confirm(t('performance.list.confirm_cancel'))) {
-                                                updatePerformanceStatus(perf.id, 'canceled').then(() => router.refresh())
+                                                updatePerformanceStatus(perf.id, 'canceled').then(() => {
+                                                    router.refresh()
+                                                    onRefresh?.()
+                                                })
                                             }
                                         }}
                                         className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition"
@@ -137,7 +141,10 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                                     onClick={(e) => {
                                         e.stopPropagation()
                                         if (window.confirm(t('performance.list.confirm_end'))) {
-                                            updatePerformanceStatus(perf.id, 'completed').then(() => router.refresh())
+                                            updatePerformanceStatus(perf.id, 'completed').then(() => {
+                                                router.refresh()
+                                                onRefresh?.()
+                                            })
                                         }
                                     }}
                                     className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200 transition font-bold"
@@ -241,6 +248,7 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                     onSuccess={() => {
                         setIsEditing(false)
                         router.refresh()
+                        onRefresh?.()
                     }}
                 />
             )}
