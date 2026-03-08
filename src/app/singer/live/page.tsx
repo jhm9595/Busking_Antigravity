@@ -117,11 +117,11 @@ function LivePerformanceContent() {
     }, [performanceId, router, refreshData])
 
     useEffect(() => {
-        const chatServerUrl = process.env.NEXT_PUBLIC_CHAT_SERVER_URL
-        if (!chatServerUrl || !performanceId) return
+        const realtimeServerUrl = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
+        if (!realtimeServerUrl || !performanceId) return
 
         if (!socketRef.current) {
-            const singerSocket = io(chatServerUrl, {
+            const singerSocket = io(realtimeServerUrl, {
                 reconnectionAttempts: 5,
                 reconnectionDelay: 3000,
             })

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ChatBox from '@/components/chat/ChatBox'
+import io, { Socket } from 'socket.io-client'
 import { getPerformanceById } from '@/services/singer'
 import AvatarCreator from '@/components/audience/AvatarCreator'
 import { AvatarConfig } from '@/components/audience/PixelAvatar'
@@ -24,7 +25,7 @@ export default function AudienceLivePage() {
     const [showRequestModal, setShowRequestModal] = useState(false)
     const [showBookingModal, setShowBookingModal] = useState(false)
     const [singer, setSinger] = useState<any>(null)
-    const [activeSocket, setActiveSocket] = useState<any>(null)
+    const [activeSocket, setActiveSocket] = useState<Socket | null>(null)
     const [chatStatus, setChatStatus] = useState<'open' | 'closed'>('closed')
     const [viewingCount, setViewingCount] = useState(0)
     const [isFollowed, setIsFollowed] = useState(false)
@@ -74,22 +75,48 @@ export default function AudienceLivePage() {
         if (p) setPerformance(p)
     }
 
-    // Poll every 30s to keep setlist in sync with singer's changes (add/delete/reorder)
+    // Establish top-level socket connection for realtime-sync
     useEffect(() => {
         if (!performanceId) return
-        const interval = setInterval(refreshPerformance, 30000)
-        return () => clearInterval(interval)
+
+        const realtimeServerUrl = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
+        if (!realtimeServerUrl) {
+            console.warn('[AudienceLivePage] NEXT_PUBLIC_REALTIME_SERVER_URL is not set.')
+            return
+        }
+
+        const socket = io(realtimeServerUrl, {
+            reconnectionAttempts: 10,
+            reconnectionDelay: 2000,
+        })
+
+        setActiveSocket(socket)
+
+        socket.on('connect', () => {
+            console.log('[Realtime] Connected for sync')
+            // Join room purely for synchronization (not chat yet)
+            socket.emit('join_room', {
+                performanceId,
+                username: 'SyncOnly',
+                userType: 'audience',
+                syncOnly: true // Hint to server if needed
+            })
+        })
+
+        socket.on('song_status_updated', () => {
+            refreshPerformance()
+        })
+
+        socket.on('performance_ended', () => {
+            refreshPerformance()
+        })
+
+        return () => {
+            socket.disconnect()
+        }
     }, [performanceId])
 
-    // Also listen for socket event: singer changed song status or setlist
-    useEffect(() => {
-        if (!activeSocket) return
-        const handleStatusUpdate = () => {
-            refreshPerformance()
-        }
-        activeSocket.on('song_status_updated', handleStatusUpdate)
-        return () => activeSocket.off('song_status_updated', handleStatusUpdate)
-    }, [activeSocket, performanceId])
+
 
     const handleSongRequest = async (title: string, artist: string) => {
         if (!performanceId) return
@@ -360,7 +387,7 @@ export default function AudienceLivePage() {
                                         userType="audience"
                                         avatarConfig={avatarConfig}
                                         className="flex-1 overflow-hidden"
-                                        onSocketReady={setActiveSocket}
+                                        socket={activeSocket}
                                         onChatStatusChange={setChatStatus}
                                         onViewingCountChange={(count) => setViewingCount(count)}
                                         onSongStatusUpdate={refreshPerformance}

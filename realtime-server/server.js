@@ -50,13 +50,13 @@ io.on('connection', (socket) => {
         io.in(performanceId).emit('update_viewing_count', { count: newCount });
 
         // Check room status
-        const statusKey = `chat_status:${performanceId}`;
+        const statusKey = `live_status:${performanceId}`;
         const status = await redisClient.get(statusKey) || 'closed';
 
         socket.emit('chat_status', { status });
 
         if (status === 'open' || userType === 'singer') {
-            const historyKey = `chat_history:${performanceId}`;
+            const historyKey = `live_history:${performanceId}`;
             const historyStr = await redisClient.lrange(historyKey, 0, -1);
             const history = historyStr.map(msg => JSON.parse(msg));
             socket.emit('load_history', history);
@@ -67,7 +67,7 @@ io.on('connection', (socket) => {
 
     socket.on('open_chat', async (data) => {
         const { performanceId } = data;
-        const statusKey = `chat_status:${performanceId}`;
+        const statusKey = `live_status:${performanceId}`;
         await redisClient.set(statusKey, 'open', 'EX', 86400); // Expire in 1 day
         io.in(performanceId).emit('chat_status', { status: 'open' });
 
@@ -78,14 +78,15 @@ io.on('connection', (socket) => {
             timestamp: new Date().toISOString(),
             type: 'system'
         };
-        await redisClient.rpush(`chat_history:${performanceId}`, JSON.stringify(sysMsg));
-        await redisClient.expire(`chat_history:${performanceId}`, 86400);
+        const historyKey = `live_history:${performanceId}`;
+        await redisClient.rpush(historyKey, JSON.stringify(sysMsg));
+        await redisClient.expire(historyKey, 86400);
         io.in(performanceId).emit('receive_message', sysMsg);
     });
 
     socket.on('send_message', async (data) => {
         const { performanceId, userType } = data;
-        const statusKey = `chat_status:${performanceId}`;
+        const statusKey = `live_status:${performanceId}`;
         const status = await redisClient.get(statusKey) || 'closed';
 
         if (status !== 'open' && userType !== 'singer') {
@@ -93,7 +94,7 @@ io.on('connection', (socket) => {
             return;
         }
 
-        const historyKey = `chat_history:${performanceId}`;
+        const historyKey = `live_history:${performanceId}`;
 
         await redisClient.rpush(historyKey, JSON.stringify(data));
         await redisClient.expire(historyKey, 86400); // Expiry 1 day
@@ -112,7 +113,7 @@ io.on('connection', (socket) => {
             isAlert: true
         };
 
-        const historyKey = `chat_history:${performanceId}`;
+        const historyKey = `live_history:${performanceId}`;
         await redisClient.rpush(historyKey, JSON.stringify(sysMsg));
         await redisClient.expire(historyKey, 86400);
 
@@ -137,13 +138,23 @@ io.on('connection', (socket) => {
             }
         };
 
-        const historyKey = `chat_history:${performanceId}`;
+        const historyKey = `live_history:${performanceId}`;
         await redisClient.rpush(historyKey, JSON.stringify(sysMsg));
         await redisClient.expire(historyKey, 86400);
 
         io.in(performanceId).emit('receive_message', sysMsg);
         // Also emit the raw event for non-chat listeners
         io.in(performanceId).emit('song_requested', data);
+    });
+
+    socket.on('song_status_updated', (data) => {
+        const { performanceId } = data;
+        io.in(performanceId).emit('song_status_updated', data);
+    });
+
+    socket.on('performance_ended', (data) => {
+        const { performanceId } = data;
+        io.in(performanceId).emit('performance_ended', data);
     });
 
     socket.on('disconnect', () => {
@@ -166,5 +177,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
-    console.log(`Chat Server running on port ${PORT}`);
+    console.log(`Realtime Server running on port ${PORT}`);
 });

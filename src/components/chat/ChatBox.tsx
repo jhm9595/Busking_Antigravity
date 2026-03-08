@@ -36,11 +36,12 @@ interface ChatBoxProps {
     onChatStatusChange?: (status: 'open' | 'closed') => void
     onViewingCountChange?: (count: number) => void
     onSongStatusUpdate?: () => void
+    socket?: Socket | null
 }
 
 import { useLanguage } from '@/contexts/LanguageContext'
 
-export default function ChatBox({ performanceId, username, userType, chatCapacity, avatarConfig, onRequestSong, onSocketReady, onAcceptRequest, onRejectRequest, onChatStatusChange, onViewingCountChange, onSongStatusUpdate, className = '' }: ChatBoxProps) {
+export default function ChatBox({ performanceId, username, userType, chatCapacity, avatarConfig, onRequestSong, onSocketReady, onAcceptRequest, onRejectRequest, onChatStatusChange, onViewingCountChange, onSongStatusUpdate, socket: externalSocket, className = '' }: ChatBoxProps) {
     const { t } = useLanguage()
     const [messages, setMessages] = useState<Message[]>([])
     const [currentMessage, setCurrentMessage] = useState('')
@@ -91,24 +92,46 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
     }
 
     useEffect(() => {
+        // If external socket is provided, use it instead of creating a local one
+        if (externalSocket) {
+            setSocket(externalSocket)
+            setIsConnected(externalSocket.connected)
+
+            const onConnect = () => setIsConnected(true)
+            const onDisconnect = () => setIsConnected(false)
+
+            externalSocket.on('connect', onConnect)
+            externalSocket.on('disconnect', onDisconnect)
+
+            // If user is joined, emit join_room with full info
+            if (isJoined && externalSocket.connected) {
+                externalSocket.emit('join_room', { performanceId, username: effectiveUsername, userType, capacity: chatCapacity })
+            }
+
+            return () => {
+                externalSocket.off('connect', onConnect)
+                externalSocket.off('disconnect', onDisconnect)
+            }
+        }
+
         if (!isJoined) {
-            if (socket) {
+            if (socket && !externalSocket) {
                 socket.disconnect()
                 setSocket(null)
             }
             return
         }
 
-        // Only connect if NEXT_PUBLIC_CHAT_SERVER_URL is set
-        const chatServerUrl = process.env.NEXT_PUBLIC_CHAT_SERVER_URL
-        if (!chatServerUrl) {
-            console.warn('[ChatBox] NEXT_PUBLIC_CHAT_SERVER_URL is not set. Socket connection skipped.')
+        // Only connect if NEXT_PUBLIC_REALTIME_SERVER_URL is set
+        const realtimeServerUrl = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
+        if (!realtimeServerUrl) {
+            console.warn('[ChatBox] NEXT_PUBLIC_REALTIME_SERVER_URL is not set. Socket connection skipped.')
             if (onChatStatusChange) onChatStatusChange('closed')
             return
         }
 
-        // Connect to Chat Server
-        const newSocket = io(chatServerUrl, {
+        // Connect to Realtime Server
+        const newSocket = io(realtimeServerUrl, {
             reconnectionAttempts: 10,
             reconnectionDelay: 2000,
         })
@@ -165,9 +188,70 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
         })
 
         return () => {
-            newSocket.disconnect()
+            if (!externalSocket) {
+                newSocket.disconnect()
+            }
         }
-    }, [performanceId, effectiveUsername, userType, isJoined])
+    }, [performanceId, effectiveUsername, userType, isJoined, externalSocket])
+
+    // Extra effect to handle room join when isJoined changes if using external socket
+    useEffect(() => {
+        if (externalSocket && isJoined && isConnected) {
+            externalSocket.emit('join_room', { performanceId, username: effectiveUsername, userType, capacity: chatCapacity })
+        }
+    }, [isJoined, isConnected, externalSocket, performanceId, effectiveUsername, userType])
+
+    // Listen for events on external socket
+    useEffect(() => {
+        if (!externalSocket) return
+
+        const socket = externalSocket
+
+        const handlePerformanceEnded = () => {
+            alert(t('chat.performance_ended_alert') || 'The performance has ended. Redirecting...')
+            setIsJoined(false)
+            if (onChatStatusChange) onChatStatusChange('closed')
+        }
+
+        const handleLoadHistory = (history: Message[]) => {
+            setMessages(history)
+            setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
+        }
+
+        const handleChatStatus = (data: { status: 'open' | 'closed' }) => {
+            setChatStatus(data.status)
+            if (onChatStatusChange) onChatStatusChange(data.status)
+        }
+
+        const handleReceiveMessage = (data: Message) => {
+            setMessages((list) => [...list, data])
+            setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
+        }
+
+        const handleViewingCount = (data: { count: number }) => {
+            if (onViewingCountChange) onViewingCountChange(data.count)
+        }
+
+        const handleSongStatus = () => {
+            if (onSongStatusUpdate) onSongStatusUpdate()
+        }
+
+        socket.on('performance_ended', handlePerformanceEnded)
+        socket.on('load_history', handleLoadHistory)
+        socket.on('chat_status', handleChatStatus)
+        socket.on('receive_message', handleReceiveMessage)
+        socket.on('update_viewing_count', handleViewingCount)
+        socket.on('song_status_updated', handleSongStatus)
+
+        return () => {
+            socket.off('performance_ended', handlePerformanceEnded)
+            socket.off('load_history', handleLoadHistory)
+            socket.off('chat_status', handleChatStatus)
+            socket.off('receive_message', handleReceiveMessage)
+            socket.off('update_viewing_count', handleViewingCount)
+            socket.off('song_status_updated', handleSongStatus)
+        }
+    }, [externalSocket])
 
     const handleJoinClick = () => {
         if (userType === 'audience' && performanceStartTime) {

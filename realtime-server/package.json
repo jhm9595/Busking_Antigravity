@@ -1,7 +1,7 @@
 {
-    "name": "busking-chat-server",
+    "name": "busking-realtime-server",
     "version": "1.0.0",
-    "description": "Socket.io Chat Server for Busking Platform",
+    "description": "Socket.io Realtime Synchronization Server for Busking Platform",
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
