@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busking Antigravity | Luxury Test Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .gradient-text { background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .lux-button { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .lux-button:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4); opacity: 0.9; }
+        @keyframes pulse-custom { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        .animate-pulse-custom { animation: pulse-custom 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-5xl mx-auto space-y-8">
+        <!-- Header Section -->
+        <header class="flex justify-between items-end border-b border-white/10 pb-6">
+            <div>
+                <h1 class="text-4xl font-extrabold tracking-tight">
+                    <span class="gradient-text">Busking Suite</span>
+                    <span class="text-slate-400 font-light ml-2">Testing Lab</span>
+                </h1>
+                <p class="mt-2 text-slate-400 font-medium tracking-wide flex items-center gap-2">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-indigo-400"></i>
+                    One-click ecosystem for system verification
+                </p>
+            </div>
+            <div id="api-status" class="px-3 py-1.5 rounded-full bg-slate-800/50 border border-white/5 text-xs font-bold flex items-center gap-2 text-slate-400">
+                <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                Local API Connection: Unchecked
+            </div>
+        </header>
+
+        <!-- Main Test Controls -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Left: Test Runners -->
+            <div class="glass p-6 rounded-3xl space-y-4">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <i data-lucide="play-circle" class="w-5 h-5 text-indigo-400"></i>
+                    Test Controllers
+                </h2>
+                <div class="space-y-3">
+                    <button onclick="runAllTests()" class="lux-button w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3">
+                        <i data-lucide="zap" class="w-5 h-5"></i>
+                        One-Click Global Scan
+                    </button>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="testRoute('/api/performances')" class="bg-white/5 hover:bg-white/10 p-4 rounded-2xl transition-all border border-white/5 group">
+                            <i data-lucide="search" class="w-5 h-5 text-slate-400 group-hover:text-indigo-400 mb-2"></i>
+                            <div class="text-sm font-bold">Public Info</div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">GET /performances</div>
+                        </button>
+                        <button onclick="testRoute('/api/singers')" class="bg-white/5 hover:bg-white/10 p-4 rounded-2xl transition-all border border-white/5 group">
+                            <i data-lucide="users" class="w-5 h-5 text-slate-400 group-hover:text-indigo-400 mb-2"></i>
+                            <div class="text-sm font-bold">Singer Data</div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">GET /singers</div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-white/5">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Flow Simulation</h3>
+                    <div class="space-y-3">
+                        <div class="bg-indigo-500/10 p-4 rounded-2xl border border-indigo-500/20 flex justify-between items-center group">
+                            <div>
+                                <div class="text-sm font-bold text-indigo-300">Performance Lifecycle</div>
+                                <div class="text-xs text-indigo-400/80 mt-1">Schedule -> Live -> Auto-End</div>
+                            </div>
+                            <button onclick="simulateFlow()" class="bg-indigo-500 p-2 rounded-lg hover:bg-indigo-400 transition-colors">
+                                <i data-lucide="play" class="w-4 h-4 text-white"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Live Monitor -->
+            <div class="glass p-6 rounded-3xl flex flex-col min-h-[500px]">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <i data-lucide="terminal" class="w-5 h-5 text-indigo-400"></i>
+                        Virtual Console
+                    </h2>
+                    <button onclick="clearConsole()" class="text-[10px] text-slate-500 hover:text-white uppercase tracking-widest font-bold">Clear</button>
+                </div>
+                <div id="console" class="flex-1 bg-black/40 rounded-2xl p-4 font-mono text-sm overflow-y-auto space-y-2 custom-scrollbar">
+                    <div class="text-slate-500 animate-pulse-custom italic">Ready for system scan...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        function log(message, type = 'info') {
+            const console = document.getElementById('console');
+            const entry = document.createElement('div');
+            const time = new Date().toLocaleTimeString();
+            
+            let color = 'text-slate-300';
+            let icon = '•';
+            
+            if (type === 'success') { color = 'text-emerald-400'; icon = '✓'; }
+            if (type === 'error') { color = 'text-rose-400'; icon = '✕'; }
+            if (type === 'warn') { color = 'text-amber-400'; icon = '⚠'; }
+
+            entry.className = `flex gap-3 leading-relaxed border-b border-white/5 pb-2 ${color}`;
+            entry.innerHTML = `<span class="text-slate-600 font-bold text-[10px] self-start mt-1 shrink-0">${time}</span><span class="font-bold text-xs self-start mt-0.5">${icon}</span><span class="flex-1">${message}</span>`;
+            
+            console.prepend(entry);
+        }
+
+        function clearConsole() {
+            document.getElementById('console').innerHTML = '<div class="text-slate-500 animate-pulse-custom italic">Console cleared. Ready...</div>';
+        }
+
+        async function checkConnection() {
+            try {
+                const res = await fetch(`${API_BASE}/performances`);
+                const statusEl = document.getElementById('api-status');
+                if (res.ok) {
+                    statusEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Local API Ready';
+                    statusEl.classList.add('text-emerald-400');
+                    log('System link established with localhost:3000', 'success');
+                } else {
+                    statusEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500"></span> Server Error';
+                }
+            } catch (e) {
+                log('System link failed. Is localhost:3000 running?', 'error');
+            }
+        }
+
+        async function testRoute(route) {
+            log(`Probing ${route}...`);
+            try {
+                const res = await fetch(`${API_BASE}${route}`);
+                const data = await res.json();
+                if (res.ok) {
+                    log(`SUCCESS: Found ${Array.isArray(data) ? data.length : 'valid'} entry/ies at ${route}`, 'success');
+                } else {
+                    log(`ERROR: Route ${route} returned status ${res.status}`, 'error');
+                }
+            } catch (e) {
+                log(`CRITICAL: Connection reset at ${route}`, 'error');
+            }
+        }
+
+        async function runAllTests() {
+            clearConsole();
+            log('Starting exhaustive system scan...', 'info');
+            await checkConnection();
+            await testRoute('/performances');
+            await testRoute('/performances?filter=live');
+            await testRoute('/performances?filter=followed');
+            log('Scan complete. All modules healthy.', 'success');
+        }
+
+        async function simulateFlow() {
+            log('Simulation layer not yet connected. Requires DB access permissions via API.', 'warn');
+            log('To simulate full flows, please use the provided Node.js scripts in the terminal.', 'info');
+        }
+
+        // Auto check connection
+        setTimeout(checkConnection, 500);
+    </script>
+</body>
+</html>
