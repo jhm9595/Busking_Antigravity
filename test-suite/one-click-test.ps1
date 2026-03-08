@@ -1,59 +1,59 @@
-# Busking Antigravity Master Test Script 🚀 (PowerShell Version)
+# Busking Antigravity Master Test Script 🚀 (PowerShell 한글판)
 
 Write-Output "==============================================="
-Write-Output "   Busking Antigravity: One-Click Test Suite   "
+Write-Output "   🎸 Busking Antigravity 통합 테스트 스위트   "
 Write-Output "==============================================="
 
-# Check if server is running
-Write-Output "[1/4] Checking server connection (localhost:3000)..."
+# 1. 서버 연결 확인
+Write-Output "[1/6] 서버 연결 확인 중 (localhost:3000)..."
 $response = try { Invoke-WebRequest -Uri "http://localhost:3000/api/performances" -Method Head -ErrorAction Stop } catch { $null }
 
 if ($response -and $response.StatusCode -eq 200) {
-    Write-Output "✅ Server is online!"
+    Write-Output "✅ 서버 온라인 확인!"
 } else {
-    Write-Output "❌ Error: Could not connect to localhost:3000."
-    Write-Output "   Please start the server with 'npm run dev' first."
+    Write-Output "❌ 에러: localhost:3000에 연결할 수 없습니다."
+    Write-Output "   먼저 'npm run dev'로 서버를 실행해 주세요."
     exit 1
 }
 
-# Run Node API tests
-Write-Output "[2/4] Running API Logic Scan..."
+# 2. 백엔드 API 스캔
+Write-Output "[2/6] 백엔드 API 로직 스캔 중..."
 try {
     node ./test-suite/api-tester.js
-    Write-Output "✅ API Scan Completed Successfully!"
+    Write-Output "✅ API 스캔 완료!"
 } catch {
-    Write-Output "❌ API Scan Failed."
+    Write-Output "❌ API 스캔 실패."
     exit 1
 }
 
-# Run Chat tests
-Write-Output "[3/6] Running WebSocket Chat Scan..."
+# 3. 채팅 서버 연결 확인
+Write-Output "[3/6] WebSocket 채팅 서버 상태 점검..."
 try {
     node ./test-suite/chat-tester.js
-    Write-Output "✅ Chat Connectivity Verified!"
+    Write-Output "✅ 채팅 서버 연결 확인 완료!"
 } catch {
-    Write-Output "❌ Chat Connectivity Test Failed."
+    Write-Output "❌ 채팅 서버 연결 실패."
     exit 1
 }
 
-# Run Health Check (Sync)
-Write-Output "[4/6] Running DB & Prisma Sync Check..."
+# 4. DB 및 Prisma 동기화 체크
+Write-Output "[4/6] 데이터베이스(DB) 및 Prisma 스키마 일치 여부 확인..."
 node ./test-suite/health-check.js
 
-# Run Full Lifecycle Simulation
-Write-Output "[5/6] Running Full Lifecycle Simulation (Onboarding -> Performance -> End)..."
+# 5. 전체 서비스 생명주기 시뮬레이션
+Write-Output "[5/6] 전체 프로세스 흐름 시뮬레이션 실행..."
 try {
     node ./test-suite/full-lifecycle-test.js
-    Write-Output "✅ Lifecycle Simulation Completed Successfully!"
+    Write-Output "✅ 프로세스 시뮬레이션 완료!"
 } catch {
-    Write-Output "⚠️  Lifecycle Simulation encountered errors (Check Sync status above)."
+    Write-Output "⚠️ 시뮬레이션 중 오류가 발생했습니다. (위의 DB 싱크 상태를 확인하세요)"
 }
 
-# Launch Visual Dashboard (Optional UI)
-Write-Output "[6/6] Launching Visual Dashboard..."
+# 6. 비주얼 대시보드 실행
+Write-Output "[6/6] 시각적 테스트 대시보드 실행 중..."
 $dashboardPath = Join-Path $PSScriptRoot "visual-dashboard.html"
 Start-Process $dashboardPath
 
 Write-Output "==============================================="
-Write-Output "   All tests passed! Happy Coding! 🎸        "
+Write-Output "   ✨ 모든 테스트 완료! 즐거운 코딩 되세요!    "
 Write-Output "==============================================="
