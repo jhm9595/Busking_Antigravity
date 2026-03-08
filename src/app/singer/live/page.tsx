@@ -56,6 +56,7 @@ function LivePerformanceContent() {
     const [requestsLastUpdated, setRequestsLastUpdated] = useState<Date | null>(null)
     const [isRefreshingRequests, setIsRefreshingRequests] = useState(false)
     const [addingSongId, setAddingSongId] = useState<string | null>(null)
+    const [realtimeStatus, setRealtimeStatus] = useState<'connecting' | 'connected' | 'error'>('connecting')
 
     // Load Data
     const refreshData = useCallback(async () => {
@@ -126,6 +127,11 @@ function LivePerformanceContent() {
                 reconnectionAttempts: 5,
                 reconnectionDelay: 3000,
             })
+
+            singerSocket.on('connect', () => setRealtimeStatus('connected'))
+            singerSocket.on('disconnect', () => setRealtimeStatus('error'))
+            singerSocket.on('connect_error', () => setRealtimeStatus('error'))
+            singerSocket.on('reconnect', () => setRealtimeStatus('connected'))
 
             singerSocket.emit('join_room', {
                 performanceId,
@@ -358,8 +364,17 @@ function LivePerformanceContent() {
         <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-[100dvh] flex flex-col w-full md:max-w-4xl mx-auto md:border-x border-primary/10 shadow-2xl font-display overflow-hidden">
             {/* Header */}
             <div className="p-4 pl-16 md:pl-20 border-b border-gray-800 flex justify-between items-center bg-gray-900 sticky top-0 z-20 shadow-xl">
-                <div className="flex-1 min-w-0 mr-4">
+                <div className="flex-1 min-w-0 mr-4 flex items-center gap-3">
                     <h1 className="text-lg md:text-xl font-bold text-white truncate">{performance.title}</h1>
+                    <div
+                        title={realtimeStatus === 'connected' ? 'Server Online' : realtimeStatus === 'error' ? 'Server Offline' : 'Connecting...'}
+                        className="flex items-center justify-center shrink-0"
+                    >
+                        <div className={`w-2 h-2 rounded-full ${realtimeStatus === 'connected' ? 'bg-green-500 shadow-[0_0_6px_2px_rgba(34,197,94,0.4)]' :
+                                realtimeStatus === 'error' ? 'bg-red-500 shadow-[0_0_6px_2px_rgba(239,68,68,0.4)] animate-pulse' :
+                                    'bg-amber-400 animate-pulse'
+                            }`} />
+                    </div>
                 </div>
                 <div className="flex space-x-2 shrink-0">
                     <button
