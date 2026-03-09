@@ -24,6 +24,7 @@ export default function AudienceLivePage() {
     const [activeSocket, setActiveSocket] = useState<Socket | null>(null)
     const [showRedirectionModal, setShowRedirectionModal] = useState(false)
     const [redirectCountdown, setRedirectCountdown] = useState(30)
+    const [isInfoExpanded, setIsInfoExpanded] = useState(false)
     const [realtimeStatus, setRealtimeStatus] = useState<'connecting' | 'connected' | 'error'>('connecting')
     const [viewingCount, setViewingCount] = useState(0)
     const [isFollowed, setIsFollowed] = useState(false)
@@ -59,12 +60,12 @@ export default function AudienceLivePage() {
     useEffect(() => {
         if (!id) return
         let realtimeServerUrl = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
-        
+
         // Dynamic detection for production vs local
         if (typeof window !== 'undefined') {
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const prodUrl = 'https://busking-chat-server-678912953258.us-central1.run.app';
-            
+
             if (!realtimeServerUrl) {
                 // Default to port 4000 locally, but use the specific prod chat server URL in production
                 realtimeServerUrl = isLocal ? 'http://localhost:4000' : prodUrl;
@@ -208,80 +209,95 @@ export default function AudienceLivePage() {
                         <Link href={`/singer/${singer?.id}`} className="w-full max-w-xs bg-indigo-600 py-4 rounded-2xl font-black shadow-xl shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-widest">{t('live.view_singer_profile')}</Link>
                     </div>
                 ) : (
-                    <div className="space-y-6">
-                        {/* Summary Info */}
-                        <div className="bg-gradient-to-br from-gray-900 to-[#161922] rounded-3xl p-6 border border-white/5 shadow-2xl relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-indigo-600/10 transition-all" />
-                            <h1 className="text-2xl font-black mb-5 text-white italic tracking-tight leading-tight">{performance.title}</h1>
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3 text-sm font-bold text-gray-400">
-                                    <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-                                        <Calendar className="w-4 h-4 text-indigo-400" />
-                                    </div>
-                                    <span>{new Date(performance.startTime).toLocaleDateString()}</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-sm font-bold text-gray-400">
-                                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                                        <Clock className="w-4 h-4 text-emerald-400" />
-                                    </div>
-                                    <span className="font-mono">
-                                        {new Date(performance.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -
-                                        {performance.endTime ? new Date(performance.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '...'}
-                                    </span>
-                                </div>
-                                {performance.locationText && (
-                                    <div className="flex items-center gap-3 text-sm font-bold text-gray-400">
-                                        <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
-                                            <MapPin className="w-4 h-4 text-amber-500" />
-                                        </div>
-                                        <span className="line-clamp-1">{performance.locationText}</span>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                    <div className="flex-1 flex flex-col space-y-4">
+                        {/* Summary Info & Setlist Collapsible Toggle */}
+                        <button
+                            onClick={() => setIsInfoExpanded(!isInfoExpanded)}
+                            className="bg-gray-900 border border-white/5 p-3 rounded-2xl flex items-center justify-between shadow-lg"
+                        >
+                            <span className="font-bold text-sm text-gray-300">
+                                {isInfoExpanded ? '접기 (Hide Info & Setlist)' : '공연 정보 및 셋리스트 보기 (Show Info & Setlist)'}
+                            </span>
+                            <span className="text-gray-500 text-xs">{isInfoExpanded ? '▲' : '▼'}</span>
+                        </button>
 
-                        {/* Setlist */}
-                        <section>
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-lg font-black flex items-center gap-3 italic">
-                                    <Music className="w-5 h-5 text-indigo-500" />
-                                    {t('performance.details.setlist_title')}
-                                </h2>
-                                <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">{performance.songs?.length || 0} tracks</span>
-                            </div>
-                            {performance.songs?.length > 0 ? (
-                                <div className="space-y-3">
-                                    {performance.songs.map((s: any, i: number) => {
-                                        const isLive = s.status !== 'completed' && i === performance.songs.findIndex((x: any) => x.status !== 'completed')
-                                        return (
-                                            <div key={i} className={`p-4 rounded-2xl border transition-all duration-300 ${s.status === 'completed' ? 'bg-black/20 border-white/5 text-gray-600' : 'bg-gray-900 border-white/5 shadow-lg shadow-black/20 hover:border-indigo-500/30'}`}>
-                                                <div className="flex justify-between items-center">
-                                                    <div className="min-w-0">
-                                                        <p className="font-black text-sm flex items-center gap-2 truncate text-white uppercase italic tracking-tight">
-                                                            {s.title}
-                                                            {s.status === 'completed' && <Check className="w-3.5 h-3.5 text-emerald-500" />}
-                                                        </p>
-                                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{s.artist}</p>
-                                                    </div>
-                                                    {isLive && (
-                                                        <span className="text-[9px] bg-red-600 text-white px-2.5 py-1 rounded-full font-black animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter">NOW PLAYING</span>
-                                                    )}
-                                                </div>
+                        {isInfoExpanded && (
+                            <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                                {/* Summary Info */}
+                                <div className="bg-gradient-to-br from-gray-900 to-[#161922] rounded-3xl p-5 border border-white/5 shadow-2xl relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-indigo-600/10 transition-all" />
+                                    <h1 className="text-xl font-black mb-4 text-white italic tracking-tight leading-tight">{performance.title}</h1>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-3 text-sm font-bold text-gray-400">
+                                            <div className="w-7 h-7 rounded-lg bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+                                                <Calendar className="w-3.5 h-3.5 text-indigo-400" />
                                             </div>
-                                        )
-                                    })}
+                                            <span>{new Date(performance.startTime).toLocaleDateString()}</span>
+                                        </div>
+                                        <div className="flex items-center gap-3 text-sm font-bold text-gray-400">
+                                            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                                <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                                            </div>
+                                            <span className="font-mono">
+                                                {new Date(performance.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -
+                                                {performance.endTime ? new Date(performance.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '...'}
+                                            </span>
+                                        </div>
+                                        {performance.locationText && (
+                                            <div className="flex items-center gap-3 text-sm font-bold text-gray-400">
+                                                <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                                                    <MapPin className="w-3.5 h-3.5 text-amber-500" />
+                                                </div>
+                                                <span className="line-clamp-1">{performance.locationText}</span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            ) : (
-                                <div className="p-10 text-center text-gray-700 bg-black/20 border border-dashed border-white/5 rounded-3xl italic font-bold">
-                                    {t('performance.details.empty_setlist')}
-                                </div>
-                            )}
-                        </section>
+
+                                {/* Setlist */}
+                                <section>
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h2 className="text-md font-black flex items-center gap-2 italic">
+                                            <Music className="w-4 h-4 text-indigo-500" />
+                                            {t('performance.details.setlist_title')}
+                                        </h2>
+                                        <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">{performance.songs?.length || 0} tracks</span>
+                                    </div>
+                                    {performance.songs?.length > 0 ? (
+                                        <div className="space-y-2.5">
+                                            {performance.songs.map((s: any, i: number) => {
+                                                const isLive = s.status !== 'completed' && i === performance.songs.findIndex((x: any) => x.status !== 'completed')
+                                                return (
+                                                    <div key={i} className={`p-3 rounded-2xl border transition-all duration-300 ${s.status === 'completed' ? 'bg-black/20 border-white/5 text-gray-600' : 'bg-gray-900 border-white/5 shadow-lg shadow-black/20 hover:border-indigo-500/30'}`}>
+                                                        <div className="flex justify-between items-center">
+                                                            <div className="min-w-0">
+                                                                <p className="font-black text-sm flex items-center gap-2 truncate text-white uppercase italic tracking-tight">
+                                                                    {s.title}
+                                                                    {s.status === 'completed' && <Check className="w-3.5 h-3.5 text-emerald-500" />}
+                                                                </p>
+                                                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{s.artist}</p>
+                                                            </div>
+                                                            {isLive && (
+                                                                <span className="text-[9px] bg-red-600 text-white px-2 py-0.5 rounded-full font-black animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter">NOW PLAYING</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <div className="p-6 text-center text-[10px] text-gray-700 bg-black/20 border border-dashed border-white/5 rounded-3xl italic font-bold">
+                                            {t('performance.details.empty_setlist')}
+                                        </div>
+                                    )}
+                                </section>
+                            </div>
+                        )}
 
                         {/* Chat */}
-                        <section className="bg-gray-900 rounded-3xl border border-white/5 flex flex-col h-[600px] overflow-hidden shadow-2xl relative mb-20 scroll-mt-20">
-                            <div className="p-4 bg-gray-900/80 backdrop-blur-md border-b border-white/5 flex justify-between items-center sticky top-0 z-10">
-                                <h2 className="font-black text-sm flex items-center gap-3 italic">
+                        <section className="bg-gray-900 rounded-3xl border border-white/5 flex flex-col flex-1 min-h-[500px] overflow-hidden shadow-2xl relative mb-20 scroll-mt-20">
+                            <div className="p-3 bg-gray-900/80 backdrop-blur-md border-b border-white/5 flex justify-between items-center sticky top-0 z-10">
+                                <h2 className="font-black text-sm flex items-center gap-2 italic">
                                     <MessageCircle className="w-5 h-5 text-indigo-500" />
                                     Chat
                                 </h2>
@@ -304,19 +320,19 @@ export default function AudienceLivePage() {
             </main>
 
             {!isCompleted && (
-                <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/90 to-transparent flex justify-center z-40 pointer-events-none">
-                    <div className="flex gap-3 w-full max-w-lg pointer-events-auto">
+                <div className="fixed bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black via-black/95 to-transparent flex justify-center z-40 pointer-events-none">
+                    <div className="flex gap-2 w-full max-w-lg pointer-events-auto">
                         <button
                             onClick={() => setShowRequestModal(true)}
-                            className="flex-1 bg-indigo-600 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl shadow-indigo-600/40 flex items-center justify-center gap-2 hover:bg-indigo-500 hover:scale-105 active:scale-95 transition-all border border-indigo-500/50"
+                            className="flex-1 bg-indigo-600 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-indigo-600/40 flex items-center justify-center gap-1.5 hover:bg-indigo-500 hover:scale-[1.02] active:scale-95 transition-all border border-indigo-500/50"
                         >
-                            <Music className="w-4 h-4" /> {t('song_request.title')}
+                            <Music className="w-3.5 h-3.5" /> {t('song_request.title')}
                         </button>
                         <button
                             onClick={() => setShowBookingModal(true)}
-                            className="flex-1 bg-white text-black py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl hover:bg-gray-100 hover:scale-105 active:scale-95 transition-all border border-white/20"
+                            className="flex-1 bg-white text-black py-3.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-2xl hover:bg-gray-100 hover:scale-[1.02] active:scale-95 transition-all border border-white/20 flex items-center justify-center gap-1.5"
                         >
-                            <Clock className="w-4 h-4" /> {t('booking.modal.title')}
+                            <Clock className="w-3.5 h-3.5" /> {t('booking.modal.title')}
                         </button>
                     </div>
                 </div>

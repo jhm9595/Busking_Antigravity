@@ -447,7 +447,7 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
             )}
             {/* Avatar Creator Modal for first time chat - Show only when attempting to chat */}
             {showAvatarSetup && (
-                <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 text-white">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 text-white">
                     <div className="w-full max-w-sm rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
                         <AvatarCreator
                             onComplete={(name: string, config: AvatarConfig | null, type: 'anon' | 'named') => {
