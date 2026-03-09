@@ -59,11 +59,21 @@ export default function AudienceLivePage() {
     useEffect(() => {
         if (!id) return
         let realtimeServerUrl = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
-        if (!realtimeServerUrl && typeof window !== 'undefined') {
-            realtimeServerUrl = `${window.location.protocol}//${window.location.hostname}:4000`
-        }
-        if (realtimeServerUrl?.includes('localhost') && typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
-            realtimeServerUrl = `${window.location.protocol}//${window.location.hostname}:4000`
+        
+        // Dynamic detection for production vs local
+        if (typeof window !== 'undefined') {
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            
+            if (!realtimeServerUrl) {
+                // Default to port 4000 locally, but current domain in production (proxy handles it)
+                realtimeServerUrl = isLocal 
+                    ? `http://localhost:4000` 
+                    : `${window.location.protocol}//${window.location.hostname}`;
+            } else if (realtimeServerUrl.includes('localhost') && !isLocal) {
+                // If it was explicitly set to localhost in env but we are on production, 
+                // swap it to current host without port 4000 (usually handled by proxy/load balancer)
+                realtimeServerUrl = `${window.location.protocol}//${window.location.hostname}`;
+            }
         }
         if (!realtimeServerUrl) return
 

@@ -107,12 +107,21 @@ function LivePerformanceContent() {
 
     useEffect(() => {
         let url = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
-        if (!url && typeof window !== 'undefined') {
-            url = `${window.location.protocol}//${window.location.hostname}:4000`
-        }
-        // If explicitly set to localhost:4000 in env but we are on a different host, use current host
-        if (url?.includes('localhost') && typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
-            url = `${window.location.protocol}//${window.location.hostname}:4000`
+        
+        // Fallback logic for different environments
+        if (typeof window !== 'undefined') {
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            
+            if (!url) {
+                // If no env var, use current host. Add :4000 ONLY on localhost.
+                url = isLocal 
+                    ? `http://localhost:4000` 
+                    : `${window.location.protocol}//${window.location.hostname}`;
+            } else if (url.includes('localhost') && !isLocal) {
+                // If it was explicitly set to localhost in env but we are on production, 
+                // swap it to current host without port 4000 (usually handled by proxy/load balancer)
+                url = `${window.location.protocol}//${window.location.hostname}`;
+            }
         }
 
         if (!url || !performanceId) return
@@ -121,18 +130,22 @@ function LivePerformanceContent() {
             s.on('connect', () => {
                 setRealtimeStatus('connected')
                 setSocket(s)
+                s.emit('join_room', { performanceId, username: 'singer', userType: 'singer' })
             })
             s.on('disconnect', () => {
                 setRealtimeStatus('error')
                 setSocket(null)
             })
-            s.on('connect_error', () => {
+            s.on('connect_error', (err) => {
+                console.error('Socket connection error:', err)
                 setRealtimeStatus('error')
                 setSocket(null)
             })
-            s.emit('join_room', { performanceId, username: 'singer', userType: 'singer' })
             s.on('song_requested', () => { refreshRequests(); refreshData() })
-            s.on('chat_status', (status: 'open' | 'closed') => setChatStatus(status))
+            s.on('chat_status', (data: any) => {
+                const status = typeof data === 'string' ? data : data.status
+                setChatStatus(status)
+            })
             socketRef.current = s
         }
         return () => { if (socketRef.current) { socketRef.current.disconnect(); socketRef.current = null; setSocket(null) } }
@@ -506,7 +519,14 @@ function LivePerformanceContent() {
                                 <p className="text-gray-500 text-sm mb-8 leading-relaxed max-w-[240px] italic">Ready to connect with your audience? Start the conversation.</p>
                                 <button
                                     disabled={!canOpenChat}
-                                    onClick={() => socketRef.current?.emit('open_chat', { performanceId: performance.id })}
+                                    onClick={() => {
+                                        if (socketRef.current?.connected) {
+                                            socketRef.current.emit('open_chat', { performanceId: performance.id })
+                                        } else {
+                                            // Local fallback if socket is down
+                                            setChatStatus('open')
+                                        }
+                                    }}
                                     className={`px-8 py-4 rounded-2xl font-bold text-white text-sm transition-all w-full max-w-[200px] shadow-xl ${canOpenChat ? 'bg-gradient-to-br from-indigo-500 to-indigo-700 hover:from-indigo-400 hover:to-indigo-600 shadow-indigo-600/30' : 'bg-white/5 text-gray-600 cursor-not-allowed grayscale'}`}
                                 >
                                     {canOpenChat ? t('chat.open_button') : t('chat.not_ready')}
