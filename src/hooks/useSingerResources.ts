@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react'
-import { getSongs, getPerformances } from '@/services/singer'
 
 export function useSongs(singerId: string | undefined | null, refreshKey?: number) {
     const [songs, setSongs] = useState<unknown[]>([])
@@ -10,8 +9,10 @@ export function useSongs(singerId: string | undefined | null, refreshKey?: numbe
         if (!singerId) return
         setLoading(true)
         try {
-            const data = await getSongs(singerId)
-            setSongs(data)
+            const res = await fetch(`/api/singers/${singerId}`)
+            if (!res.ok) throw new Error('Failed to fetch songs')
+            const data = await res.json()
+            setSongs(data.songs || [])
             setError(null)
         } catch (err) {
             console.error('Failed to load songs:', err)
@@ -37,8 +38,10 @@ export function usePerformances(singerId: string | undefined | null, refreshKey?
         if (!singerId) return
         setLoading(true)
         try {
-            const data = await getPerformances(singerId)
-            setPerformances(data)
+            const res = await fetch(`/api/singers/${singerId}`)
+            if (!res.ok) throw new Error('Failed to fetch performances')
+            const data = await res.json()
+            setPerformances(data.performances || [])
             setError(null)
         } catch (err) {
             console.error('Failed to load performances:', err)

@@ -13,14 +13,16 @@ interface PerformanceListProps {
     loading: boolean
     allSongs: any[]
     onRefresh?: () => void
+    initialLoading?: boolean
+    activeTab: 'live' | 'upcoming' | 'past'
+    onTabChange: (tab: 'live' | 'upcoming' | 'past') => void
 }
 
-export default function PerformanceList({ performances, loading, allSongs, onRefresh }: PerformanceListProps) {
+export default function PerformanceList({ performances, loading, allSongs, onRefresh, initialLoading, activeTab, onTabChange }: PerformanceListProps) {
     const { t } = useLanguage()
-    const [activeTab, setActiveTab] = useState<'live' | 'upcoming' | 'past'>('upcoming')
     const [expandedPerfId, setExpandedPerfId] = useState<string | null>(null)
     const [deletingIds, setDeletingIds] = useState<string[]>([])
-    const [timers, setTimers] = useState<Record<string, NodeJS.Timeout>>({})
+    const [timers, setTimers] = useState<Record<string, any>>({})
 
     const live = performances.filter(p => getEffectiveStatus(p) === 'live')
 
@@ -34,7 +36,7 @@ export default function PerformanceList({ performances, loading, allSongs, onRef
         return status === 'completed' || status === 'cancelled' || status === 'canceled'
     })
 
-    const displayList = activeTab === 'live' ? live : (activeTab === 'upcoming' ? upcoming : past.reverse())
+    const displayList = activeTab === 'live' ? live : (activeTab === 'upcoming' ? upcoming : [...past].reverse())
 
     const toggleExpand = (id: string) => {
         setExpandedPerfId(expandedPerfId === id ? null : id)
@@ -69,11 +71,11 @@ export default function PerformanceList({ performances, loading, allSongs, onRef
         setDeletingIds(prev => prev.filter(did => did !== id))
     }
 
-    if (loading) {
+    if (initialLoading && performances.length === 0) {
         return (
             <div className="space-y-4 animate-pulse">
                 {[1, 2].map(i => (
-                    <div key={i} className="h-24 bg-gray-200 rounded-lg"></div>
+                    <div key={i} className="h-24 bg-gray-100 dark:bg-gray-800 rounded-xl"></div>
                 ))}
             </div>
         )
@@ -85,19 +87,19 @@ export default function PerformanceList({ performances, loading, allSongs, onRef
             <div className={styles.tabs}>
                 <button
                     className={`${styles.tab} ${activeTab === 'live' ? 'text-red-500 border-red-500 font-bold' : ''}`}
-                    onClick={() => setActiveTab('live')}
+                    onClick={() => onTabChange('live')}
                 >
                     {t('performance.status.live')} ({live.length})
                 </button>
                 <button
                     className={`${styles.tab} ${activeTab === 'upcoming' ? styles.activeTab : ''}`}
-                    onClick={() => setActiveTab('upcoming')}
+                    onClick={() => onTabChange('upcoming')}
                 >
                     {t('performance.upcoming')} ({upcoming.length})
                 </button>
                 <button
                     className={`${styles.tab} ${activeTab === 'past' ? styles.activeTab : ''}`}
-                    onClick={() => setActiveTab('past')}
+                    onClick={() => onTabChange('past')}
                 >
                     {t('performance.past')} ({past.length})
                 </button>
@@ -148,6 +150,14 @@ export default function PerformanceList({ performances, loading, allSongs, onRef
                     })
                 )}
             </div>
+
+            {/* Background Loading Indicator */}
+            {loading && performances.length > 0 && (
+                <div className="fixed bottom-8 right-8 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-bounce z-50">
+                    <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span className="text-xs font-bold">Refreshing...</span>
+                </div>
+            )}
         </div>
     )
 }

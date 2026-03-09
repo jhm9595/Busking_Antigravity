@@ -166,16 +166,7 @@ export default function EditPerformanceModal({ performance, onClose, onSuccess }
                             <DateTimePicker
                                 label={t('performance.form.start_time')}
                                 value={editPerf.start_time}
-                                onChange={(val) => {
-                                    const startDate = new Date(val);
-                                    if (!isNaN(startDate.getTime())) {
-                                        const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
-                                        const endStr = new Date(endDate.getTime() - (endDate.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
-                                        setEditPerf({ ...editPerf, start_time: val, end_time: endStr });
-                                    } else {
-                                        setEditPerf({ ...editPerf, start_time: val });
-                                    }
-                                }}
+                                onChange={(val) => setEditPerf({ ...editPerf, start_time: val })}
                                 required
                             />
                         </div>

@@ -120,8 +120,7 @@ export async function getPerformances(singerId: string) {
     const now = new Date()
     const updatedPerformances = await Promise.all(performances.map(async (p) => {
         const start = new Date(p.startTime)
-        // Use endTime if present, otherwise assume 3 hours max duration
-        const end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
+        const end = new Date(p.endTime!)
 
         if (end < now && (p.status === 'live' || p.status === 'scheduled')) {
             try {
@@ -167,7 +166,10 @@ export async function getPerformanceById(id: string) {
     // Auto-update status check
     const now = new Date()
     const start = new Date(performance.startTime)
-    const end = performance.endTime ? new Date(performance.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
+    // Fallback: 1 hour if not specified
+    const end = performance.endTime
+        ? new Date(performance.endTime)
+        : new Date(start.getTime() + 1 * 60 * 60 * 1000)
 
     let currentStatus = performance.status
 
@@ -245,7 +247,7 @@ export async function addPerformance(data: {
 
         const overlapping = existingPerformances.find(p => {
             const start = new Date(p.startTime)
-            const end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
+            const end = new Date(p.endTime!)
 
             // Check for any overlap: (StartA < EndB) && (EndA > StartB)
             return (newStart < end) && (newEnd > start)

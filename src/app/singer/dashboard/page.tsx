@@ -3,12 +3,13 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser, useClerk } from '@clerk/nextjs'
+import { Music, Clock, MessageSquare, Users, LogOut, LayoutDashboard, Share2, Shield, Calendar } from 'lucide-react'
 import SongManagement from '@/components/singer/SongManagement'
 import PerformanceManagement from '@/components/singer/PerformanceManagement'
 import BookingRequestsList from '@/components/singer/BookingRequestsList'
 import SingerQRCard from '@/components/singer/SingerQRCard'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher'
-import { syncUserProfile, getSinger, registerSinger, updateSingerProfile, getPerformances, updatePerformanceStatus } from '@/services/singer'
+import { syncUserProfile, getSinger, registerSinger, updateSingerProfile, getPerformances, updatePerformanceStatus, withdrawUser, updateNickname } from '@/services/singer'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ConfirmationModal from '@/components/common/ConfirmationModal'
 import FollowersList from '@/components/singer/FollowersList'
@@ -23,8 +24,14 @@ export default function SingerDashboard() {
     const [isSinger, setIsSinger] = useState(false)
     const [singerData, setSingerData] = useState<any>(null)
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { } })
-    const [nickname, setNickname] = useState('')
+    const [songsRefreshKey, setSongsRefreshKey] = useState(0)
+    const [origin, setOrigin] = useState('')
 
+    useEffect(() => {
+        setOrigin(window.location.origin)
+    }, [])
+
+    const triggerSongsRefresh = () => setSongsRefreshKey(prev => prev + 1)
 
     // Sync Clerk User to Prisma DB
     useEffect(() => {
@@ -45,12 +52,11 @@ export default function SingerDashboard() {
                 setSingerData(data)
                 setIsSinger(true)
 
-                // Auto-detect live or scheduled-now performances
+                // Auto-detect live performances for resume prompt
                 const perfs = await getPerformances(user.id)
                 const activeLive = perfs.find((p: any) => p.status === 'live')
 
                 if (activeLive) {
-                    // Check if we purposefully exited
                     const ignoreCheck = sessionStorage.getItem('ignore_resume_check')
                     if (!ignoreCheck) {
                         setConfirmModal({
@@ -58,51 +64,34 @@ export default function SingerDashboard() {
                             title: t('dashboard.alerts.resume_title'),
                             message: t('dashboard.alerts.resume_message').replace('{title}', activeLive.title),
                             onConfirm: () => {
+                                sessionStorage.setItem('ignore_resume_check', 'true')
                                 router.push(`/singer/live?performanceId=${activeLive.id}`)
                                 setConfirmModal(prev => ({ ...prev, isOpen: false }))
                             }
                         })
-                    } else {
-                        // Start mode button will still find it, so we just clear flag for next reload
-                        sessionStorage.removeItem('ignore_resume_check')
                     }
                 }
             } else {
                 setIsSinger(false)
             }
-
             setIsSyncing(false)
         }
 
         if (isLoaded && user) {
-            setNickname(user.fullName || user.username || '')
             sync()
         } else if (isLoaded && !user) {
             router.push('/')
         }
-    }, [user, isLoaded])
-
-    const [origin, setOrigin] = useState('')
-    useEffect(() => {
-        setOrigin(window.location.origin)
-    }, [])
+    }, [user, isLoaded, t, router])
 
     const handleLogout = async () => {
         await signOut()
         router.push('/')
     }
 
-
-    const [songsRefreshKey, setSongsRefreshKey] = useState(0)
-    const triggerSongsRefresh = () => setSongsRefreshKey(prev => prev + 1)
-
-    const [showLiveModal, setShowLiveModal] = useState(false)
-    const [candidatePerformances, setCandidatePerformances] = useState<any[]>([])
-
     const handleStartMode = async () => {
-        if (!singerId) return
-
-        const perfs = await getPerformances(singerId)
+        if (!user?.id) return
+        const perfs = await getPerformances(user.id)
 
         // 1. Check for active LIVE performance first
         const activeLive = perfs.find((p: any) => p.status === 'live')
@@ -114,20 +103,11 @@ export default function SingerDashboard() {
         // 2. If no live, check scheduled
         const now = new Date()
         const tenMinutesFromNow = new Date(now.getTime() + 10 * 60 * 1000)
-
-        // Filter valid candidates
         const candidates = perfs.filter((p: any) => {
             if (p.status !== 'scheduled') return false
             const start = new Date(p.startTime)
-            const end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
-
-            // Case A: Current time is between start and end
-            if (now >= start && now <= end) return true
-
-            // Case B: Start time is within 10 minutes from now
-            if (start > now && start <= tenMinutesFromNow) return true
-
-            return false
+            const end = new Date(p.endTime!)
+            return (now >= start && now <= end) || (start > now && start <= tenMinutesFromNow)
         })
 
         if (candidates.length === 0) {
@@ -147,131 +127,119 @@ export default function SingerDashboard() {
             return timeDiffA - timeDiffB
         })
 
-        const bestCandidate = candidates[0]
-
-        setConfirmModal({
-            isOpen: true,
-            title: t('dashboard.alerts.start_title'),
-            message: t('dashboard.alerts.start_message').replace('{title}', bestCandidate.title),
-            onConfirm: async () => {
-                await updatePerformanceStatus(bestCandidate.id, 'live')
-                router.push(`/singer/live?performanceId=${bestCandidate.id}`)
-                setConfirmModal(prev => ({ ...prev, isOpen: false }))
-            }
-        })
+        // Auto-start the closest one
+        const best = candidates[0]
+        await updatePerformanceStatus(best.id, 'live')
+        router.push(`/singer/live?performanceId=${best.id}`)
     }
-
-    const [isLivePerformanceActive, setIsLivePerformanceActive] = useState(false)
-    useEffect(() => {
-        if (singerData?.id) {
-            getPerformances(singerData.id).then(perfs => {
-                const live = perfs.find((p: any) => p.status === 'live')
-                setIsLivePerformanceActive(!!live)
-            })
-        }
-    }, [singerData, songsRefreshKey])
-
 
     if (!isLoaded || isSyncing) {
-        return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-black">{t('dashboard.loading')}</div>
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-[#0f1117] text-white">
+                <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4" />
+                <p className="font-black italic tracking-widest text-xs uppercase animate-pulse">{t('dashboard.loading')}</p>
+            </div>
+        )
     }
-
-    if (!user) return null
 
     if (!isSinger) {
         return (
-            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 text-black">
-                <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center">
-                    <h2 className="text-3xl font-extrabold text-gray-900 mb-4">{t('dashboard.onboarding_title')}</h2>
-                    <p className="text-gray-600 mb-8">{t('dashboard.onboarding_desc')}</p>
-                    <div className="mb-6">
-                        <input
-                            type="text"
-                            value={nickname}
-                            onChange={(e) => setNickname(e.target.value)}
-                            placeholder={t('dashboard.onboarding_nickname_placeholder')}
-                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none text-black"
-                        />
+            <div className="min-h-screen bg-[#0f1117] flex items-center justify-center p-6">
+                <div className="max-w-md w-full bg-gray-950 border border-white/5 p-10 rounded-[40px] text-center shadow-2xl">
+                    <div className="w-20 h-20 bg-indigo-600/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-indigo-500/20">
+                        <Users className="w-10 h-10 text-indigo-500" />
                     </div>
-
+                    <h2 className="text-3xl font-black text-white italic mb-4">{t('dashboard.not_singer_title')}</h2>
+                    <p className="text-gray-500 mb-10 leading-relaxed font-bold italic">{t('dashboard.not_singer_desc')}</p>
                     <button
                         onClick={async () => {
-                            const stageName = nickname.trim() || user.fullName || user.username || 'Awesome Busker'
-                            setIsSyncing(true)
-                            await registerSinger({
-                                id: user.id,
-                                stageName: stageName
-                            })
-                            const data = await getSinger(user.id)
-                            setSingerData(data)
-                            setIsSinger(true)
-                            setIsSyncing(false)
+                            const name = prompt(t('dashboard.enter_stage_name'))
+                            if (name) {
+                                const res = await registerSinger({ id: user!.id, stageName: name })
+                                if (res.success) window.location.reload()
+                                else alert(res.error === 'NICKNAME_DUPLICATE' ? 'This name is already taken.' : 'Registration failed.')
+                            }
                         }}
-                        className="w-full py-4 text-lg font-bold rounded-lg text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg transform transition hover:scale-105"
+                        className="w-full bg-indigo-600 py-4 rounded-2xl font-black text-white shadow-xl shadow-indigo-600/20 hover:bg-indigo-500 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest text-sm"
                     >
-                        {t('dashboard.onboarding_btn')}
-                    </button>
-
-                    <button
-                        onClick={() => router.push('/explore')}
-                        className="mt-6 text-gray-500 hover:text-gray-800 underline transition"
-                    >
-                        {t('dashboard.onboarding_skip')}
+                        {t('dashboard.register_btn')}
                     </button>
                 </div>
             </div>
         )
     }
 
-    const singerId = user.id
-    const qrValue = singerId ? `${origin}/singer/${singerId}` : ''
-    const displayId = singerId ? `@${singerId.slice(0, 8)}` : '@...'
+    const singerId = user!.id
+    const qrValue = `${origin}/singer/${singerId}`
+    const displayId = `@${singerId.slice(0, 8)}`
 
     return (
-        <div className="min-h-screen bg-gray-50 text-black">
-            <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-extrabold text-gray-900">{t('dashboard.title')}</h1>
-                    <div className="flex items-center space-x-4">
-
-                        <ClockWidget />
+        <div className="bg-[#0f1117] min-h-screen text-slate-100 font-display selection:bg-indigo-500/30 pb-20">
+            <nav className="sticky top-0 z-50 bg-gray-950/80 backdrop-blur-xl border-b border-white/5 px-6 py-4">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
+                    <div className="flex items-center gap-6">
+                        <div className="text-2xl font-black bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent italic tracking-tighter cursor-default">ANTIGRAVITY.</div>
+                        <div className="hidden md:flex items-center gap-1 bg-white/5 rounded-full p-1 border border-white/5">
+                            <button className="px-4 py-1.5 rounded-full text-xs font-black uppercase text-white bg-indigo-600 shadow-lg shadow-indigo-600/20">Dashboard</button>
+                            <button onClick={() => router.push('/explore')} className="px-4 py-1.5 rounded-full text-xs font-black uppercase text-gray-500 hover:text-white transition-colors">Explore</button>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-4">
                         <LanguageSwitcher />
-                        <span className="text-sm text-gray-500">{t('dashboard.welcome')}{singerData?.profile?.nickname || user.fullName}</span>
+                        <div className="h-6 w-px bg-white/5 mx-2" />
                         <button
                             onClick={handleLogout}
-                            className="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition"
+                            className="bg-white/5 hover:bg-white/10 text-gray-400 p-2.5 rounded-xl border border-white/10 transition-all hover:scale-105 active:scale-95"
                         >
-                            {t('dashboard.logout')}
+                            <LogOut className="w-5 h-5" />
                         </button>
                     </div>
                 </div>
+            </nav>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Left Column: QR & Status */}
-                    <div className="space-y-8">
-                        <SingerQRCard
-                            singerId={singerId}
-                            displayId={displayId}
-                            nickname={singerData?.stageName || singerData?.profile?.nickname}
-                            qrValue={qrValue}
-                            socialLinks={singerData?.socialLinks ? JSON.parse(singerData.socialLinks) : {}}
-                            bio={singerData?.bio}
-
-                            hairColor={singerData?.hairColor}
-                            topColor={singerData?.topColor}
-                            bottomColor={singerData?.bottomColor}
-                            onUpdate={async () => {
-                                const data = await getSinger(singerId)
-                                setSingerData(data)
-                            }}
-                        />
-
+            <main className="max-w-7xl mx-auto px-6 py-10 space-y-12">
+                <header className="flex flex-col md:flex-row justify-between items-end gap-8 relative overflow-hidden p-10 rounded-[40px] bg-gradient-to-br from-indigo-600 to-purple-800 shadow-2xl shadow-indigo-600/20 border border-white/10 group">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] -mr-48 -mt-48 animate-pulse pointer-events-none" />
+                    <div className="relative z-10 flex-1">
+                        <h1 className="text-5xl md:text-6xl font-black text-white italic tracking-tighter leading-none mb-4 group-hover:scale-[1.01] transition-transform duration-500">
+                            {t('dashboard.welcome').replace('{name}', user?.fullName || user?.username || '')}
+                        </h1>
+                        <p className="text-indigo-100/70 text-lg font-bold max-w-xl italic">{t('dashboard.subtitle') || 'Ready to take the stage tonight?'}</p>
+                    </div>
+                    <div className="flex gap-4 relative z-10 w-full md:w-auto">
                         <button
                             onClick={handleStartMode}
-                            className={`w-full py-4 text-lg font-bold rounded-lg text-white shadow-lg transform transition hover:scale-105 ${isLivePerformanceActive ? 'bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700' : 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700'}`}
+                            className="flex-1 md:flex-none bg-white text-black px-10 py-5 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 border border-white/20"
                         >
-                            {isLivePerformanceActive ? t('dashboard.resume_live') : t('dashboard.start_mode')}
+                            <Music className="w-5 h-5" /> {t('dashboard.start_mode')}
                         </button>
+                    </div>
+                </header>
+
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
+                    <div className="xl:col-span-8 space-y-12">
+                        <section className="bg-gray-900/40 rounded-[40px] border border-white/5 p-2 overflow-hidden shadow-2xl">
+                            <PerformanceManagement refreshKey={songsRefreshKey} />
+                        </section>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                            <section className="bg-gray-900/40 rounded-[40px] border border-white/5 p-8 shadow-2xl relative overflow-hidden group">
+                                <h3 className="text-xl font-black text-white italic mb-8 flex items-center gap-3">
+                                    <MessageSquare className="w-6 h-6 text-indigo-500" />
+                                    {t('booking.title')}
+                                </h3>
+                                <div className="dark">
+                                    <BookingRequestsList userId={singerId} />
+                                </div>
+                            </section>
+                            <section className="bg-gray-900/40 rounded-[40px] border border-white/5 p-8 shadow-2xl">
+                                <h3 className="text-xl font-black text-white italic mb-8 flex items-center gap-3">
+                                    <Users className="w-6 h-6 text-indigo-500" />
+                                    {t('followers.title') || 'Followers'}
+                                </h3>
+                                <FollowersList singerId={singerId} />
+                            </section>
+                        </div>
 
                         <button
                             onClick={() => {
@@ -280,7 +248,7 @@ export default function SingerDashboard() {
                                     title: t('dashboard.withdraw_title') || 'Withdraw Account',
                                     message: t('dashboard.withdraw_message') || 'Are you sure you want to delete all your information? This cannot be undone.',
                                     onConfirm: async () => {
-                                        const res = await (await import('@/services/singer')).withdrawUser(user.id)
+                                        const res = await withdrawUser(user!.id)
                                         if (res.success) {
                                             await signOut()
                                             router.push('/')
@@ -290,66 +258,56 @@ export default function SingerDashboard() {
                                     }
                                 })
                             }}
-                            className="w-full py-2 text-sm text-gray-400 hover:text-red-500 transition-colors mt-4 text-center border border-dashed border-gray-200 rounded-lg"
+                            className="w-full py-4 text-xs font-black text-gray-600 hover:text-red-500 transition-all uppercase tracking-widest border border-dashed border-white/5 rounded-3xl"
                         >
                             {t('dashboard.withdraw_btn') || 'Withdraw Account'}
                         </button>
-
                     </div>
 
-                    {/* Right Column: Management */}
-                    <div className="space-y-8">
-                        <FollowersList singerId={singerId} />
-                        <SongManagement onSongsUpdated={triggerSongsRefresh} />
-                        <PerformanceManagement refreshKey={songsRefreshKey} />
-                        <BookingRequestsList userId={singerId} />
+                    <div className="xl:col-span-4 space-y-10">
+                        <div className="sticky top-28 space-y-10">
+                            <section className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-[40px] border border-white/5 p-2 backdrop-blur-md shadow-2xl">
+                                <SingerQRCard
+                                    singerId={singerId}
+                                    displayId={displayId}
+                                    nickname={singerData?.stageName}
+                                    qrValue={qrValue}
+                                    socialLinks={singerData?.socialLinks ? JSON.parse(singerData.socialLinks) : {}}
+                                    bio={singerData?.bio}
+                                    hairColor={singerData?.hairColor}
+                                    topColor={singerData?.topColor}
+                                    bottomColor={singerData?.bottomColor}
+                                    onUpdate={async () => {
+                                        const data = await getSinger(singerId)
+                                        setSingerData(data)
+                                    }}
+                                />
+                            </section>
+
+                            <section className="bg-gray-900/40 rounded-[40px] border border-white/5 p-2 shadow-2xl overflow-hidden">
+                                <SongManagement onSongsUpdated={triggerSongsRefresh} />
+                            </section>
+
+                            <section className="bg-gray-950/80 rounded-[40px] border border-white/5 p-8 shadow-2xl flex items-center justify-center">
+                                <ClockWidget />
+                            </section>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </main>
 
-            {/* Confirmation Modal */}
             <ConfirmationModal
                 isOpen={confirmModal.isOpen}
                 title={confirmModal.title}
                 message={confirmModal.message}
                 onConfirm={confirmModal.onConfirm}
-                onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onCancel={() => {
+                    if (confirmModal.title === t('dashboard.alerts.resume_title')) {
+                        sessionStorage.setItem('ignore_resume_check', 'true')
+                    }
+                    setConfirmModal(prev => ({ ...prev, isOpen: false }))
+                }}
             />
-
-            {/* Live Mode Selection Modal */}
-            {
-                showLiveModal && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl text-black">
-                            <h3 className="text-xl font-bold mb-4">Select Performance to Start</h3>
-                            <div className="space-y-3 max-h-60 overflow-y-auto">
-                                {candidatePerformances.map(p => (
-                                    <button
-                                        key={p.id}
-                                        onClick={async () => {
-                                            await updatePerformanceStatus(p.id, 'live')
-                                            router.push(`/singer/live?performanceId=${p.id}`)
-                                        }}
-                                        className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-indigo-50 hover:border-indigo-300 transition"
-                                    >
-                                        <p className="font-bold text-lg text-indigo-900">{p.title}</p>
-                                        <div className="flex justify-between text-sm text-gray-500 mt-1">
-                                            <span>{new Date(p.startTime).toLocaleDateString()}</span>
-                                            <span>{new Date(p.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                            <button
-                                onClick={() => setShowLiveModal(false)}
-                                className="mt-4 w-full py-3 bg-gray-100 rounded-lg font-bold hover:bg-gray-200 text-gray-700 transition"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                )
-            }
-        </div >
+        </div>
     )
 }

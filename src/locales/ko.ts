@@ -165,7 +165,9 @@ export const ko: LocaleTypes = {
     },
     live: {
         header: {
-            end_button: '공연 종료',
+            viewing: '시청 중',
+            time_left: '남은 시간',
+            end_btn: '공연 종료',
             confirm_end: '정말 공연을 종료하시겠습니까?',
         },
         stats: {
@@ -175,6 +177,7 @@ export const ko: LocaleTypes = {
         tabs: {
             setlist: '세트리스트',
             requests: '신청곡 관리',
+            chat: '실시간 채팅',
         },
         setlist: {
             empty: '세트리스트에 곡이 없습니다.',
