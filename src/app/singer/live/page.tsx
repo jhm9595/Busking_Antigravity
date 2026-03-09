@@ -108,19 +108,17 @@ function LivePerformanceContent() {
     useEffect(() => {
         let url = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
         
-        // Fallback logic for different environments
+        // Fallback logic including the specific production chat server URL
         if (typeof window !== 'undefined') {
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const prodUrl = 'https://busking-chat-server-678912953258.us-central1.run.app';
             
             if (!url) {
-                // If no env var, use current host. Add :4000 ONLY on localhost.
-                url = isLocal 
-                    ? `http://localhost:4000` 
-                    : `${window.location.protocol}//${window.location.hostname}`;
+                // If no env var, use localhost:4000 for local development, and the specific prod URL for production
+                url = isLocal ? 'http://localhost:4000' : prodUrl;
             } else if (url.includes('localhost') && !isLocal) {
-                // If it was explicitly set to localhost in env but we are on production, 
-                // swap it to current host without port 4000 (usually handled by proxy/load balancer)
-                url = `${window.location.protocol}//${window.location.hostname}`;
+                // If set to localhost in env but we are in prod, swap to prod URL
+                url = prodUrl;
             }
         }
 

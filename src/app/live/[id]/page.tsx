@@ -63,16 +63,14 @@ export default function AudienceLivePage() {
         // Dynamic detection for production vs local
         if (typeof window !== 'undefined') {
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const prodUrl = 'https://busking-chat-server-678912953258.us-central1.run.app';
             
             if (!realtimeServerUrl) {
-                // Default to port 4000 locally, but current domain in production (proxy handles it)
-                realtimeServerUrl = isLocal 
-                    ? `http://localhost:4000` 
-                    : `${window.location.protocol}//${window.location.hostname}`;
+                // Default to port 4000 locally, but use the specific prod chat server URL in production
+                realtimeServerUrl = isLocal ? 'http://localhost:4000' : prodUrl;
             } else if (realtimeServerUrl.includes('localhost') && !isLocal) {
-                // If it was explicitly set to localhost in env but we are on production, 
-                // swap it to current host without port 4000 (usually handled by proxy/load balancer)
-                realtimeServerUrl = `${window.location.protocol}//${window.location.hostname}`;
+                // If set to localhost in env but we are in prod, swap to prod URL
+                realtimeServerUrl = prodUrl;
             }
         }
         if (!realtimeServerUrl) return
