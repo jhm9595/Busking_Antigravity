@@ -165,7 +165,9 @@ export const zh: LocaleTypes = {
     },
     live: {
         header: {
-            end_button: '结束演出',
+            viewing: '观看中',
+            time_left: '剩余时间',
+            end_btn: '结束演出',
             confirm_end: '确定要结束演出吗？',
         },
         stats: {
@@ -175,6 +177,7 @@ export const zh: LocaleTypes = {
         tabs: {
             setlist: '歌单',
             requests: '点歌管理',
+            chat: '实况聊天',
         },
         setlist: {
             empty: '歌单中没有歌曲。',

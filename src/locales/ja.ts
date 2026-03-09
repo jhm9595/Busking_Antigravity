@@ -165,7 +165,9 @@ export const ja: LocaleTypes = {
     },
     live: {
         header: {
-            end_button: '公演終了',
+            viewing: '視聴中',
+            time_left: '残り時間',
+            end_btn: '公演終了',
             confirm_end: '本当に公演を終了しますか？',
         },
         stats: {
@@ -175,6 +177,7 @@ export const ja: LocaleTypes = {
         tabs: {
             setlist: 'セットリスト',
             requests: 'リクエスト管理',
+            chat: 'ライブチャット',
         },
         setlist: {
             empty: 'セットリストに曲がありません。',
