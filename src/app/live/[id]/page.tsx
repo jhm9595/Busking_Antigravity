@@ -58,7 +58,13 @@ export default function AudienceLivePage() {
 
     useEffect(() => {
         if (!id) return
-        const realtimeServerUrl = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
+        let realtimeServerUrl = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
+        if (!realtimeServerUrl && typeof window !== 'undefined') {
+            realtimeServerUrl = `${window.location.protocol}//${window.location.hostname}:4000`
+        }
+        if (realtimeServerUrl?.includes('localhost') && typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+            realtimeServerUrl = `${window.location.protocol}//${window.location.hostname}:4000`
+        }
         if (!realtimeServerUrl) return
 
         const socket = io(realtimeServerUrl, {
@@ -276,7 +282,14 @@ export default function AudienceLivePage() {
                                     <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{viewingCount} watching</span>
                                 </div>
                             </div>
-                            <ChatBox performanceId={id} username={username || 'Guest'} userType="audience" className="flex-1 !rounded-none !border-0" onViewingCountChange={setViewingCount} />
+                            <ChatBox
+                                performanceId={id}
+                                username={username || 'Guest'}
+                                userType="audience"
+                                socket={activeSocket || undefined}
+                                className="flex-1 !rounded-none !border-0"
+                                onViewingCountChange={setViewingCount}
+                            />
                         </section>
                     </div>
                 )}

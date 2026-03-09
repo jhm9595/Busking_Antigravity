@@ -9,10 +9,10 @@ export function useSongs(singerId: string | undefined | null, refreshKey?: numbe
         if (!singerId) return
         setLoading(true)
         try {
-            const res = await fetch(`/api/singers/${singerId}/songs`)
+            const res = await fetch(`/api/singers/${singerId}`)
             if (!res.ok) throw new Error('Failed to fetch songs')
             const data = await res.json()
-            setSongs(data)
+            setSongs(data.songs || [])
             setError(null)
         } catch (err) {
             console.error('Failed to load songs:', err)
@@ -38,10 +38,10 @@ export function usePerformances(singerId: string | undefined | null, refreshKey?
         if (!singerId) return
         setLoading(true)
         try {
-            const res = await fetch(`/api/singers/${singerId}/performances`)
+            const res = await fetch(`/api/singers/${singerId}`)
             if (!res.ok) throw new Error('Failed to fetch performances')
             const data = await res.json()
-            setPerformances(data)
+            setPerformances(data.performances || [])
             setError(null)
         } catch (err) {
             console.error('Failed to load performances:', err)

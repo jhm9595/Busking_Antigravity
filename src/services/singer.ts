@@ -166,7 +166,10 @@ export async function getPerformanceById(id: string) {
     // Auto-update status check
     const now = new Date()
     const start = new Date(performance.startTime)
-    const end = new Date(performance.endTime!)
+    // Fallback: 1 hour if not specified
+    const end = performance.endTime
+        ? new Date(performance.endTime)
+        : new Date(start.getTime() + 1 * 60 * 60 * 1000)
 
     let currentStatus = performance.status
 

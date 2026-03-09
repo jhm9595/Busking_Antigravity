@@ -163,7 +163,9 @@ export const en = {
     },
     live: {
         header: {
-            end_button: 'End Performance',
+            viewing: 'Viewing',
+            time_left: 'Time Left',
+            end_btn: 'End',
             confirm_end: 'Are you sure you want to end the performance?',
         },
         stats: {
@@ -173,6 +175,7 @@ export const en = {
         tabs: {
             setlist: 'Setlist',
             requests: 'Requests',
+            chat: 'Live Chat',
         },
         setlist: {
             empty: 'No songs in setlist.',

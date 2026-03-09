@@ -52,6 +52,7 @@ function LivePerformanceContent() {
     const [isRefreshingRequests, setIsRefreshingRequests] = useState(false)
     const [addingSongId, setAddingSongId] = useState<string | null>(null)
     const [realtimeStatus, setRealtimeStatus] = useState<'connecting' | 'connected' | 'error'>('connecting')
+    const [socket, setSocket] = useState<any>(null)
 
     const refreshData = useCallback(async () => {
         if (!performanceId) return
@@ -105,18 +106,36 @@ function LivePerformanceContent() {
     }, [performanceId, router, refreshData])
 
     useEffect(() => {
-        const url = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
+        let url = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
+        if (!url && typeof window !== 'undefined') {
+            url = `${window.location.protocol}//${window.location.hostname}:4000`
+        }
+        // If explicitly set to localhost:4000 in env but we are on a different host, use current host
+        if (url?.includes('localhost') && typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+            url = `${window.location.protocol}//${window.location.hostname}:4000`
+        }
+
         if (!url || !performanceId) return
         if (!socketRef.current) {
             const s = io(url, { reconnectionAttempts: 5, reconnectionDelay: 3000 })
-            s.on('connect', () => setRealtimeStatus('connected'))
-            s.on('disconnect', () => setRealtimeStatus('error'))
-            s.on('connect_error', () => setRealtimeStatus('error'))
+            s.on('connect', () => {
+                setRealtimeStatus('connected')
+                setSocket(s)
+            })
+            s.on('disconnect', () => {
+                setRealtimeStatus('error')
+                setSocket(null)
+            })
+            s.on('connect_error', () => {
+                setRealtimeStatus('error')
+                setSocket(null)
+            })
             s.emit('join_room', { performanceId, username: 'singer', userType: 'singer' })
             s.on('song_requested', () => { refreshRequests(); refreshData() })
+            s.on('chat_status', (status: 'open' | 'closed') => setChatStatus(status))
             socketRef.current = s
         }
-        return () => { if (socketRef.current) { socketRef.current.disconnect(); socketRef.current = null } }
+        return () => { if (socketRef.current) { socketRef.current.disconnect(); socketRef.current = null; setSocket(null) } }
     }, [performanceId, refreshRequests, refreshData])
 
     useEffect(() => {
@@ -498,6 +517,7 @@ function LivePerformanceContent() {
                             performanceId={performanceId!}
                             username="Singer"
                             userType="singer"
+                            socket={socket}
                             className="flex-1 !rounded-none !border-0"
                             onViewingCountChange={setViewingCount}
                             onChatStatusChange={setChatStatus}
