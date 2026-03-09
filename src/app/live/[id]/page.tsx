@@ -4,50 +4,39 @@ import { useParams, useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ChatBox from '@/components/chat/ChatBox'
 import io, { Socket } from 'socket.io-client'
-import { getPerformanceById } from '@/services/singer'
-import AvatarCreator from '@/components/audience/AvatarCreator'
-import { AvatarConfig } from '@/components/audience/PixelAvatar'
-import { createSongRequest, createBookingRequest, getSinger } from '@/services/singer'
-import { getEffectiveStatus, formatLocalTime } from '@/utils/performance'
+import { getPerformanceById, getSinger, createBookingRequest } from '@/services/singer'
+import { getEffectiveStatus } from '@/utils/performance'
 import SongRequestModal from '@/components/audience/SongRequestModal'
 import BookingRequestModal from '@/components/audience/BookingRequestModal'
-import { Share2, Music, Clock, MessageCircle, X, Check, Play, Pause, Plus, List, GripVertical, Search, Archive, ChevronRight, MessageSquare, User as UserIcon, CalendarIcon, Home, Compass, Heart } from 'lucide-react'
+import { Music, Clock, MessageCircle, X, Check, Archive, Calendar, MapPin, Share2, Home } from 'lucide-react'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 
 export default function AudienceLivePage() {
     const params = useParams()
     const router = useRouter()
-    const performanceId = params.id as string
+    const id = params.id as string
     const [performance, setPerformance] = useState<any>(null)
     const [username, setUsername] = useState('')
-
-    const [userType, setUserType] = useState<'anon' | 'named'>('named')
-    const [avatarConfig, setAvatarConfig] = useState<AvatarConfig | null>(null)
     const [showRequestModal, setShowRequestModal] = useState(false)
     const [showBookingModal, setShowBookingModal] = useState(false)
     const [singer, setSinger] = useState<any>(null)
     const [activeSocket, setActiveSocket] = useState<Socket | null>(null)
-    const [chatStatus, setChatStatus] = useState<'open' | 'closed'>('closed')
     const [showRedirectionModal, setShowRedirectionModal] = useState(false)
-    const [redirectCountdown, setRedirectCountdown] = useState(10)
+    const [redirectCountdown, setRedirectCountdown] = useState(30)
+    const [realtimeStatus, setRealtimeStatus] = useState<'connecting' | 'connected' | 'error'>('connecting')
     const [viewingCount, setViewingCount] = useState(0)
     const [isFollowed, setIsFollowed] = useState(false)
     const { user, isLoaded } = useUser()
     const { t } = useLanguage()
 
-
-    const [showFullSetlist, setShowFullSetlist] = useState(false)
-
     const refreshData = async () => {
-        if (performanceId) {
-            const p = await getPerformanceById(performanceId)
+        if (id) {
+            const p = await getPerformanceById(id)
             setPerformance(p)
             if (p?.singerId) {
                 const s = await getSinger(p.singerId)
                 setSinger(s)
-
-                // Check Follow Status (only for logged-in users)
                 if (user?.id) {
                     try {
                         const followRes = await fetch(`/api/singers/${p.singerId}/follow?fanId=${user.id}`)
@@ -55,8 +44,8 @@ export default function AudienceLivePage() {
                             const followData = await followRes.json()
                             setIsFollowed(followData.isFollowed)
                         }
-                    } catch (e) {
-                        console.error('Follow check failed:', e)
+                    } catch (_e) {
+                        console.error('Follow check failed:', _e)
                     }
                 }
             }
@@ -65,58 +54,41 @@ export default function AudienceLivePage() {
 
     useEffect(() => {
         if (isLoaded) refreshData()
-    }, [performanceId, isLoaded, user])
+    }, [id, isLoaded, user])
 
-    // Lightweight refresh: only re-fetch performance (setlist) data
-    const refreshPerformance = async () => {
-        if (!performanceId) return
-        const p = await getPerformanceById(performanceId)
-        if (p) setPerformance(p)
-    }
-
-    // Establish top-level socket connection for realtime-sync
     useEffect(() => {
-        if (!performanceId) return
-
+        if (!id) return
         const realtimeServerUrl = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
-        if (!realtimeServerUrl) {
-            console.warn('[AudienceLivePage] NEXT_PUBLIC_REALTIME_SERVER_URL is not set.')
-            return
-        }
+        if (!realtimeServerUrl) return
 
         const socket = io(realtimeServerUrl, {
             reconnectionAttempts: 10,
             reconnectionDelay: 2000,
         })
-
         setActiveSocket(socket)
 
         socket.on('connect', () => {
-            console.log('[Realtime] Connected for sync')
-            // Join room purely for synchronization (not chat yet)
+            setRealtimeStatus('connected')
             socket.emit('join_room', {
-                performanceId,
+                performanceId: id,
                 username: 'SyncOnly',
                 userType: 'audience',
-                syncOnly: true // Hint to server if needed
+                syncOnly: true
             })
         })
 
-        socket.on('song_status_updated', () => {
-            refreshPerformance()
-        })
+        socket.on('disconnect', () => setRealtimeStatus('error'))
+        socket.on('connect_error', () => setRealtimeStatus('error'))
 
+        socket.on('song_status_updated', () => refreshData())
         socket.on('performance_ended', () => {
-            refreshPerformance()
+            refreshData()
             setShowRedirectionModal(true)
         })
 
-        return () => {
-            socket.disconnect()
-        }
-    }, [performanceId])
+        return () => { socket.disconnect() }
+    }, [id])
 
-    // Countdown logic for redirection
     useEffect(() => {
         if (!showRedirectionModal) return
         if (redirectCountdown <= 0) {
@@ -129,343 +101,226 @@ export default function AudienceLivePage() {
         return () => clearInterval(timer)
     }, [showRedirectionModal, redirectCountdown, singer, router])
 
-
-
     const handleSongRequest = async (title: string, artist: string) => {
-        if (!performanceId) return
         try {
+            const finalName = username || user?.fullName || user?.username || user?.id || 'Anonymous';
             const res = await fetch('/api/song-requests', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    performanceId,
-                    title,
-                    artist,
-                    requesterName: (username || user?.fullName || user?.username || user?.id || 'Anonymous')
-                })
+                body: JSON.stringify({ performanceId: id, title, artist, requesterName: finalName })
             })
-            const data = await res.json()
-            if (!res.ok) throw new Error(data.error || 'Request failed')
-
+            if (!res.ok) throw new Error('Request failed')
             if (activeSocket) {
-                const finalRequesterName = username || user?.fullName || user?.username || user?.id || 'Anonymous';
-                activeSocket.emit('song_requested', {
-                    performanceId,
-                    title,
-                    artist,
-                    username: finalRequesterName,
-                    timestamp: new Date().toISOString()
-                })
+                activeSocket.emit('song_requested', { performanceId: id, title, artist, username: finalName })
             }
-            alert(t('song.request_sent') || 'Your song request has been sent!')
+            alert(t('song.request_sent'))
         } catch (error: any) {
-            console.error('Song request error:', error)
-            alert(`${t('song.request_failed') || 'Failed to send request'}: ${error.message}`)
+            alert(t('song.request_failed'))
         }
     }
 
     const handleFollow = async () => {
-        if (!singer) return
-
-        // Must be logged in to follow
-        if (!user?.id) {
-            router.push('/sign-in')
+        if (!singer || !user?.id) {
+            if (!user?.id) router.push('/sign-in')
             return
         }
-
-        const prevFollowed = isFollowed
         setIsFollowed(!isFollowed)
-
-        try {
-            const res = await fetch(`/api/singers/${singer.id}/follow`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fanId: user.id })
-            })
-            if (!res.ok) throw new Error('Follow failed')
-            const data = await res.json()
-            setIsFollowed(data.isFollowed)
-        } catch (error) {
-            console.error(error)
-            setIsFollowed(prevFollowed)
-        }
+        await fetch(`/api/singers/${singer.id}/follow`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fanId: user.id })
+        })
     }
 
     const handleShare = async () => {
         if (navigator.share) {
             try {
-                await navigator.share({
-                    title: singer?.stageName || 'BuskerKing Live',
-                    text: `Watch ${singer?.stageName} performing live!`,
-                    url: window.location.href,
-                })
-            } catch (error) {
-                console.log('Error sharing:', error)
-            }
+                await navigator.share({ title: singer?.stageName, url: window.location.href })
+            } catch (_error) { }
         } else {
             navigator.clipboard.writeText(window.location.href)
-            alert('Link copied to clipboard!')
+            alert('Link copied!')
         }
     }
 
     const handleBookingRequest = async (data: any) => {
         if (!performance?.singerId) return
         await createBookingRequest({ singerId: performance.singerId, ...data })
-        alert('Booking enquiry sent! The singer will contact you soon.')
+        alert('Enquiry sent!')
     }
 
-    if (!performance) return <div className="h-screen bg-background-dark text-slate-100 flex items-center justify-center">Loading Performance...</div>
+    if (!performance) return <div className="h-screen bg-black text-white flex items-center justify-center">Loading...</div>
 
-    // Find the first pending song as current, and the next pending one as up next
-    const pendingSongs = performance.songs?.filter((s: any) => s.status !== 'completed') || []
-    const currentSong = pendingSongs[0] || { title: 'No song playing', artist: '' }
-    const nextSong = pendingSongs[1] || null
-
-    const effectiveStatus = getEffectiveStatus(performance)
-    const isCompleted = effectiveStatus === 'completed'
+    const isCompleted = getEffectiveStatus(performance) === 'completed'
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-[100dvh] flex flex-col w-full md:max-w-4xl mx-auto md:border-x border-primary/10 shadow-2xl font-display overflow-hidden">
-            {/* Header Section */}
-            <header className="sticky top-0 z-30 bg-background-dark/80 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <Link href="/" className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors">
-                        <Home className="w-5 h-5" />
+        <div className="bg-[#0f1117] text-slate-100 h-[100dvh] flex flex-col w-full md:max-w-xl mx-auto font-display overflow-hidden selection:bg-indigo-500/30">
+            <header className="sticky top-0 z-30 bg-gray-950/80 backdrop-blur-xl border-b border-white/5 px-4 py-3 flex items-center justify-between shadow-2xl">
+                <div className="flex items-center gap-3">
+                    <Link href="/explore" className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white transition-all active:scale-95 shadow-lg">
+                        <Home className="w-5 h-5 text-indigo-400" />
                     </Link>
-                    {/* Tapping singer info goes back to their profile */}
-                    <Link
-                        href={singer?.id ? `/singer/${singer.id}` : '/'}
-                        className="flex items-center gap-2 px-2 py-1 rounded-xl hover:bg-white/5 transition-colors group"
-                    >
-                        <div className="w-9 h-9 rounded-full border-2 border-primary overflow-hidden bg-white/10 flex items-center justify-center flex-shrink-0">
-                            {singer?.profile?.avatarUrl ? (
-                                <img className="w-full h-full object-cover" src={singer.profile.avatarUrl} alt={singer?.stageName} />
-                            ) : (
-                                <span className="font-bold text-white text-sm">{singer?.stageName?.[0] || 'A'}</span>
-                            )}
+                    <Link href={`/singer/${singer?.id}`} className="flex items-center gap-3 group">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px] shadow-lg shadow-indigo-600/20 group-hover:scale-105 transition-transform">
+                            <div className="w-full h-full rounded-full bg-gray-900 flex items-center justify-center font-black overflow-hidden border border-black/20 text-xs">
+                                {singer?.profile?.avatarUrl ? <img src={singer.profile.avatarUrl} className="w-full h-full object-cover" /> : singer?.stageName?.[0]}
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-sm font-bold leading-tight text-white group-hover:text-primary transition-colors">{singer?.stageName || 'Singer'}</h1>
-                            <p className="text-[10px] text-slate-500 font-medium">↩ {t('live.view_profile')}</p>
+                        <div className="flex flex-col">
+                            <span className="font-black text-sm text-white group-hover:text-indigo-400 transition-colors leading-tight">{singer?.stageName}</span>
+                            <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">{realtimeStatus === 'connected' ? 'Live Now' : 'Syncing...'}</span>
                         </div>
                     </Link>
                 </div>
                 <div className="flex gap-2">
                     <button
                         onClick={handleFollow}
-                        className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all uppercase tracking-wider ${!user
-                                ? 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10'
-                                : isFollowed
-                                    ? 'bg-white/10 text-white border border-white/20'
-                                    : 'bg-primary text-white hover:bg-primary-dark shadow-lg shadow-primary/20 hover:scale-105 active:scale-95'
-                            }`}
+                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg ${isFollowed ? 'bg-white/5 text-gray-400 border border-white/10' : 'bg-indigo-600 text-white shadow-indigo-600/30'}`}
                     >
-                        {!user ? t('common.login_to_follow') : isFollowed ? t('common.following') : t('common.follow')}
+                        {isFollowed ? 'Following' : 'Follow'}
                     </button>
-                    <button
-                        onClick={handleShare}
-                        className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors hover:scale-105 active:scale-95"
-                    >
-                        <Share2 className="w-4 h-4" />
-                    </button>
+                    <button onClick={handleShare} className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 transition-all active:scale-95"><Share2 className="w-4 h-4" /></button>
                 </div>
             </header>
 
-
-            <main className="flex-1 overflow-y-auto custom-scrollbar flex flex-col relative">
+            <main className="flex-1 overflow-y-auto flex flex-col p-4 pb-32 custom-scrollbar">
                 {isCompleted ? (
-                    <section className="px-4 py-8 mt-4">
-                        <div className="bg-gray-900/80 border border-gray-700 rounded-2xl p-8 text-center shadow-2xl flex flex-col items-center">
-                            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4 border border-gray-600">
-                                <Archive className="w-8 h-8 text-gray-400" />
-                            </div>
-                            <h2 className="text-xl font-bold text-white mb-2">{t('live.ended_title')}</h2>
-                            <p className="text-sm text-gray-400 mb-6">{t('live.ended_desc')}</p>
-
-                            <Link href={`/singer/${singer?.id}`} className="bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-6 rounded-xl transition w-full mb-3 shadow-inner text-center">
-                                {t('live.view_singer_profile')}
-                            </Link>
-                            <Link href="/" className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition w-full shadow-lg shadow-indigo-900/20 text-center">
-                                {t('live.explore_more')}
-                            </Link>
+                    <div className="flex-1 flex flex-col items-center justify-center text-center py-12 animate-in fade-in zoom-in duration-500">
+                        <div className="w-20 h-20 bg-gray-900 border border-white/5 rounded-full flex items-center justify-center mb-6 shadow-2xl">
+                            <Archive className="w-10 h-10 text-gray-600" />
                         </div>
-                    </section>
+                        <h2 className="text-2xl font-black mb-2 text-white italic">{t('live.ended_title')}</h2>
+                        <p className="text-gray-500 mb-10 max-w-[240px] leading-relaxed italic">{t('live.ended_desc')}</p>
+                        <Link href={`/singer/${singer?.id}`} className="w-full max-w-xs bg-indigo-600 py-4 rounded-2xl font-black shadow-xl shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-widest">{t('live.view_singer_profile')}</Link>
+                    </div>
                 ) : (
-                    <>
-                        {/* Live Setlist Card */}
-                        <section className="p-4">
-                            <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 relative overflow-hidden group">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <p className="text-[10px] font-bold tracking-widest text-primary uppercase">{t('live.now_playing')}</p>
-                                    <span className="relative flex h-2 w-2 items-center justify-center">
-                                        <span className="animate-ping absolute inset-0 rounded-full bg-red-400 opacity-75"></span>
-                                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
+                    <div className="space-y-6">
+                        {/* Summary Info */}
+                        <div className="bg-gradient-to-br from-gray-900 to-[#161922] rounded-3xl p-6 border border-white/5 shadow-2xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-indigo-600/10 transition-all" />
+                            <h1 className="text-2xl font-black mb-5 text-white italic tracking-tight leading-tight">{performance.title}</h1>
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-3 text-sm font-bold text-gray-400">
+                                    <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+                                        <Calendar className="w-4 h-4 text-indigo-400" />
+                                    </div>
+                                    <span>{new Date(performance.startTime).toLocaleDateString()}</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-sm font-bold text-gray-400">
+                                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                        <Clock className="w-4 h-4 text-emerald-400" />
+                                    </div>
+                                    <span className="font-mono">
+                                        {new Date(performance.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -
+                                        {performance.endTime ? new Date(performance.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '...'}
                                     </span>
                                 </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="w-16 h-16 bg-background-dark/50 rounded-lg flex items-center justify-center border border-white/5 shadow-inner">
-                                        <Music className="text-primary w-8 h-8" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-white">{currentSong.title}</h3>
-                                        <p className="text-sm text-slate-400 font-medium">{currentSong.artist}</p>
-                                    </div>
-                                </div>
-                                {nextSong && (
-                                    <div className="mt-4 pt-4 border-t border-white/5">
-                                        <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-2">{t('live.up_next')}</p>
-                                        <div className="flex justify-between items-center text-sm">
-                                            <span className="text-slate-300 font-medium">{nextSong.title} {nextSong.artist ? `— ${nextSong.artist}` : ''}</span>
-                                            <span className="text-xs text-primary font-bold uppercase tracking-tight">{t('live.coming_soon')}</span>
+                                {performance.locationText && (
+                                    <div className="flex items-center gap-3 text-sm font-bold text-gray-400">
+                                        <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                                            <MapPin className="w-4 h-4 text-amber-500" />
                                         </div>
-                                    </div>
-                                )}
-
-                                {/* Full Setlist Toggle */}
-                                {performance.songs && performance.songs.length > 0 && (
-                                    <div className="mt-4 border-t border-white/5">
-                                        <button
-                                            onClick={() => setShowFullSetlist(!showFullSetlist)}
-                                            className="w-full py-2 flex items-center justify-between text-[10px] font-bold tracking-widest text-slate-500 uppercase group/btn"
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <List className="w-3 h-3 text-primary" />
-                                                <span>{t('live.tabs.setlist')} ({performance.songs.length})</span>
-                                            </div>
-                                            <ChevronRight className={`w-3 h-3 transition-transform ${showFullSetlist ? 'rotate-90' : ''}`} />
-                                        </button>
-
-                                        {showFullSetlist && (
-                                            <div className="mt-2 space-y-2 pb-2">
-                                                {performance.songs.map((song: any, index: number) => (
-                                                    <div key={song.id} className="flex items-center justify-between text-xs px-2 py-1.5 rounded bg-white/5 border border-white/5">
-                                                        <div className="flex items-center gap-3">
-                                                            <span className="font-mono text-[10px] text-primary/50">{index + 1}</span>
-                                                            <div className={song.status === 'completed' ? 'opacity-30 line-through' : ''}>
-                                                                <p className="font-bold text-slate-200">{song.title}</p>
-                                                                <p className="text-[10px] text-slate-500">{song.artist}</p>
-                                                            </div>
-                                                        </div>
-                                                        {song.status === 'completed' ? (
-                                                            <Check className="w-3 h-3 text-green-500" />
-                                                        ) : song.id === currentSong.id ? (
-                                                            <div className="flex gap-0.5">
-                                                                <div className="w-1 h-3 bg-red-500 animate-[bounce_1s_infinite_0s]"></div>
-                                                                <div className="w-1 h-3 bg-red-500 animate-[bounce_1s_infinite_0.2s]"></div>
-                                                                <div className="w-1 h-3 bg-red-500 animate-[bounce_1s_infinite_0.4s]"></div>
-                                                            </div>
-                                                        ) : null}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
+                                        <span className="line-clamp-1">{performance.locationText}</span>
                                     </div>
                                 )}
                             </div>
+                        </div>
+
+                        {/* Setlist */}
+                        <section>
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-lg font-black flex items-center gap-3 italic">
+                                    <Music className="w-5 h-5 text-indigo-500" />
+                                    {t('performance.details.setlist_title')}
+                                </h2>
+                                <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">{performance.songs?.length || 0} tracks</span>
+                            </div>
+                            {performance.songs?.length > 0 ? (
+                                <div className="space-y-3">
+                                    {performance.songs.map((s: any, i: number) => {
+                                        const isLive = s.status !== 'completed' && i === performance.songs.findIndex((x: any) => x.status !== 'completed')
+                                        return (
+                                            <div key={i} className={`p-4 rounded-2xl border transition-all duration-300 ${s.status === 'completed' ? 'bg-black/20 border-white/5 text-gray-600' : 'bg-gray-900 border-white/5 shadow-lg shadow-black/20 hover:border-indigo-500/30'}`}>
+                                                <div className="flex justify-between items-center">
+                                                    <div className="min-w-0">
+                                                        <p className="font-black text-sm flex items-center gap-2 truncate text-white uppercase italic tracking-tight">
+                                                            {s.title}
+                                                            {s.status === 'completed' && <Check className="w-3.5 h-3.5 text-emerald-500" />}
+                                                        </p>
+                                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{s.artist}</p>
+                                                    </div>
+                                                    {isLive && (
+                                                        <span className="text-[9px] bg-red-600 text-white px-2.5 py-1 rounded-full font-black animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter">NOW PLAYING</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="p-10 text-center text-gray-700 bg-black/20 border border-dashed border-white/5 rounded-3xl italic font-bold">
+                                    {t('performance.details.empty_setlist')}
+                                </div>
+                            )}
                         </section>
 
-                        {/* Performance Actions */}
-                        <section className="px-4 mb-4 flex flex-col gap-3">
-                            <button
-                                onClick={() => setShowRequestModal(true)}
-                                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-900/20 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.01]"
-                            >
-                                <Music className="w-5 h-5" />
-                                {t('song_request.title')}
-                            </button>
-
-                            <button
-                                onClick={() => setShowBookingModal(true)}
-                                className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.01]"
-                            >
-                                <CalendarIcon className="w-5 h-5" />
-                                {t('booking.modal.title')}
-                            </button>
+                        {/* Chat */}
+                        <section className="bg-gray-900 rounded-3xl border border-white/5 flex flex-col h-[600px] overflow-hidden shadow-2xl relative mb-20 scroll-mt-20">
+                            <div className="p-4 bg-gray-900/80 backdrop-blur-md border-b border-white/5 flex justify-between items-center sticky top-0 z-10">
+                                <h2 className="font-black text-sm flex items-center gap-3 italic">
+                                    <MessageCircle className="w-5 h-5 text-indigo-500" />
+                                    Chat
+                                </h2>
+                                <div className="flex items-center gap-2">
+                                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+                                    <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{viewingCount} watching</span>
+                                </div>
+                            </div>
+                            <ChatBox performanceId={id} username={username || 'Guest'} userType="audience" className="flex-1 !rounded-none !border-0" onViewingCountChange={setViewingCount} />
                         </section>
-
-
-                        {/* Live Chat Section — only shown when chatEnabled and not completed */}
-                        {performance.chatEnabled && !isCompleted && (
-                            <section className="flex flex-col flex-1 px-4 pb-4 min-h-0">
-                                <div className="flex items-center justify-between mb-3 shrink-0">
-                                    <h2 className="text-sm font-bold flex items-center gap-2 font-display text-white">
-                                        <MessageCircle className="text-primary w-4 h-4" />
-                                        {t('chat.title')}
-                                    </h2>
-                                    <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded-full text-slate-400 uppercase tracking-tighter font-mono">
-                                        {viewingCount} / {performance.chatCapacity || 50} Viewing
-                                    </span>
-                                </div>
-                                {/* The ChatBox component itself */}
-                                <div className="flex-1 bg-white/5 rounded-xl border border-white/5 overflow-hidden flex flex-col min-h-0">
-                                    <ChatBox
-                                        performanceId={performanceId}
-                                        username={username}
-                                        userType="audience"
-                                        avatarConfig={avatarConfig}
-                                        className="flex-1 overflow-hidden"
-                                        socket={activeSocket}
-                                        onChatStatusChange={setChatStatus}
-                                        onViewingCountChange={(count) => setViewingCount(count)}
-                                        onSongStatusUpdate={refreshPerformance}
-                                    />
-                                </div>
-                            </section>
-                        )}
-                    </>
+                    </div>
                 )}
-
-
-                <div className="h-16"></div> {/* Spacer for footer */}
             </main>
 
-
-
-            {/* Modals */}
-            <SongRequestModal
-                isOpen={showRequestModal}
-                onClose={() => setShowRequestModal(false)}
-                onSubmit={handleSongRequest}
-            />
-
-            <BookingRequestModal
-                isOpen={showBookingModal}
-                onClose={() => setShowBookingModal(false)}
-                onSubmit={handleBookingRequest}
-                singerName={singer?.stageName || 'the singer'}
-            />
-
-            {/* Performance Ended Redirection Overlay */}
-            {showRedirectionModal && (
-                <div className="fixed inset-0 z-[100] bg-background-dark/95 backdrop-blur-xl flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
-                    <div className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mb-6 border border-primary/30 relative">
-                        <Archive className="w-10 h-10 text-primary animate-pulse" />
-                        <div className="absolute inset-0 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
-                    </div>
-                    <h2 className="text-2xl font-bold text-white mb-2">{t('live.ended_title') || 'Performance Ended'}</h2>
-                    <p className="text-slate-400 mb-8 max-w-xs">{t('live.ended_desc') || "Thank you for watching! You'll be redirected soon."}</p>
-
-                    <div className="bg-white/5 border border-white/10 px-8 py-4 rounded-2xl mb-8">
-                        <span className="text-4xl font-mono font-bold text-primary">{redirectCountdown}</span>
-                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1 font-bold">Redirecting...</p>
-                    </div>
-
-                    <div className="flex flex-col gap-3 w-full max-w-xs">
-                        <Link
-                            href={`/singer/${singer?.id}`}
-                            className="bg-primary hover:bg-primary-dark text-white font-bold py-4 px-6 rounded-xl transition shadow-lg shadow-primary/20"
-                        >
-                            {t('live.view_singer_profile') || 'View Singer Profile'}
-                        </Link>
+            {!isCompleted && (
+                <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/90 to-transparent flex justify-center z-40 pointer-events-none">
+                    <div className="flex gap-3 w-full max-w-lg pointer-events-auto">
                         <button
-                            onClick={() => setShowRedirectionModal(false)}
-                            className="bg-white/5 hover:bg-white/10 text-slate-400 py-3 px-6 rounded-xl transition text-sm font-medium"
+                            onClick={() => setShowRequestModal(true)}
+                            className="flex-1 bg-indigo-600 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl shadow-indigo-600/40 flex items-center justify-center gap-2 hover:bg-indigo-500 hover:scale-105 active:scale-95 transition-all border border-indigo-500/50"
                         >
-                            {t('common.close') || 'Stay on this page'}
+                            <Music className="w-4 h-4" /> {t('song_request.title')}
+                        </button>
+                        <button
+                            onClick={() => setShowBookingModal(true)}
+                            className="flex-1 bg-white text-black py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl hover:bg-gray-100 hover:scale-105 active:scale-95 transition-all border border-white/20"
+                        >
+                            <Clock className="w-4 h-4" /> {t('booking.modal.title')}
                         </button>
                     </div>
                 </div>
             )}
+
+            {showRedirectionModal && (
+                <div className="fixed inset-0 z-[100] bg-gray-950/95 backdrop-blur-3xl flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-700">
+                    <div className="w-24 h-24 bg-indigo-600/10 rounded-full flex items-center justify-center mb-8 border border-indigo-500/20 shadow-[0_0_50px_rgba(79,70,229,0.1)]">
+                        <Archive className="w-10 h-10 text-indigo-500" />
+                    </div>
+                    <h2 className="text-3xl font-black mb-3 text-white italic tracking-tight">{t('live.ended_title')}</h2>
+                    <p className="text-gray-500 mb-12 max-w-[280px] leading-relaxed italic">{t('live.ended_desc')}</p>
+                    <div className="bg-white/5 border border-white/10 px-10 py-6 rounded-3xl mb-12 relative shadow-2xl">
+                        <span className="text-5xl font-mono font-black text-indigo-500 shadow-indigo-500/50">{redirectCountdown}</span>
+                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-2">{t('live.redirecting') || 'Redirecting...'}</p>
+                    </div>
+                    <div className="flex flex-col gap-4 w-full max-w-[280px]">
+                        <button onClick={() => setShowRedirectionModal(false)} className="bg-white/5 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border border-white/5">{t('live.stay_here') || 'Stay here'}</button>
+                        <Link href={`/singer/${singer?.id}`} className="bg-indigo-600 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-center shadow-xl shadow-indigo-600/20 hover:bg-indigo-500 transition-all border border-indigo-400/30">{t('live.view_singer_profile')}</Link>
+                    </div>
+                </div>
+            )}
+
+            <SongRequestModal isOpen={showRequestModal} onClose={() => setShowRequestModal(false)} onSubmit={handleSongRequest} />
+            <BookingRequestModal isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} onSubmit={handleBookingRequest} singerName={singer?.stageName || 'Singer'} />
         </div>
     )
 }

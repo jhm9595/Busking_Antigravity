@@ -40,31 +40,14 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
     const [showMap, setShowMap] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    // Helper to calculate default times (Next full hour)
-    const getDefaultTimes = () => {
-        const now = new Date()
-        now.setMinutes(0, 0, 0)
-        now.setHours(now.getHours() + 1) // Next hour
-
-        const start = new Date(now)
-        const end = new Date(now)
-        end.setHours(end.getHours() + 1) // +1 hour duration
-
-        const toLocalISO = (d: Date) => new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 16)
-
-        return {
-            start_time: toLocalISO(start),
-            end_time: toLocalISO(end)
-        }
-    }
 
     // Initialize dates on client side to avoid hydration mismatch
     useEffect(() => {
-        const defaults = getDefaultTimes()
+        // We set empty strings to ensure user must pick them
         setNewPerf(prev => ({
             ...prev,
-            start_time: defaults.start_time,
-            end_time: defaults.end_time
+            start_time: '',
+            end_time: ''
         }))
     }, [])
 
@@ -132,15 +115,14 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
             })
 
             if (result.success) {
-                // Reset with default times
-                const defaults = getDefaultTimes()
+                // Reset to empty
                 setNewPerf({
                     title: '',
                     location_text: '',
                     lat: 0,
                     lng: 0,
-                    start_time: defaults.start_time,
-                    end_time: defaults.end_time,
+                    start_time: '',
+                    end_time: '',
                     chat_enabled: false,
                     streaming_enabled: false,
                     expected_audience: 50 as number | ''
@@ -224,17 +206,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                 <DateTimePicker
                     label={t('performance.form.start_time')}
                     value={newPerf.start_time}
-                    onChange={(val) => {
-                        const startDate = new Date(val);
-                        if (!isNaN(startDate.getTime())) {
-                            const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // Add 1 hour
-                            // Format to datetime-local string: YYYY-MM-DDTHH:mm
-                            const endStr = new Date(endDate.getTime() - (endDate.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
-                            setNewPerf({ ...newPerf, start_time: val, end_time: endStr });
-                        } else {
-                            setNewPerf({ ...newPerf, start_time: val });
-                        }
-                    }}
+                    onChange={(val) => setNewPerf({ ...newPerf, start_time: val })}
                     required
                 />
                 <DateTimePicker

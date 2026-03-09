@@ -76,11 +76,12 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                             <span>
                                 {new Date(perf.startTime).toLocaleDateString()} <span className="mx-1">•</span>
                                 {new Date(perf.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                <span className="mx-1">-</span>
-                                {perf.endTime
-                                    ? new Date(perf.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                                    : new Date(new Date(perf.startTime).getTime() + 3 * 60 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                                }
+                                {perf.endTime && (
+                                    <>
+                                        <span className="mx-1">-</span>
+                                        {new Date(perf.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+                                    </>
+                                )}
                             </span>
                         </div>
                         {perf.locationText && (
