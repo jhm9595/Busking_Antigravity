@@ -251,7 +251,19 @@ export const ko: LocaleTypes = {
         top_color: '상의 색상',
         bottom_style: '하의',
         bottom_color: '하의 색상',
-        enter_button: '라이브 입장하기'
+        enter_button: '라이브 입장하기',
+        options: {
+            none: '없음',
+            expression: '표정',
+            hair: '머리 모양',
+            top: '상의 스타일',
+            bottom: '하의 스타일',
+            skin_color: '피부색',
+            hair_color: '머리색',
+            top_color: '상의색',
+            bottom_color: '하의색',
+            style_label: '스타일 {n}'
+        }
     },
     booking: {
         title: '섭외 요청 관리',

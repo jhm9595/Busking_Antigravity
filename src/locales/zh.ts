@@ -251,7 +251,19 @@ export const zh: LocaleTypes = {
         top_color: '上装颜色',
         bottom_style: '下装',
         bottom_color: '下装颜色',
-        enter_button: '进入直播现场'
+        enter_button: '进入直播现场',
+        options: {
+            none: '无',
+            expression: '表情',
+            hair: '发型',
+            top: '上装样式',
+            bottom: '下装样式',
+            skin_color: '肤色',
+            hair_color: '发色',
+            top_color: '上装颜色',
+            bottom_color: '下装颜色',
+            style_label: '样式 {n}'
+        }
     },
     booking: {
         title: '演出预约管理',

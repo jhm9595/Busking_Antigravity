@@ -251,7 +251,19 @@ export const ja: LocaleTypes = {
         top_color: 'トップスの色',
         bottom_style: 'ボトムス',
         bottom_color: 'ボトムスの色',
-        enter_button: 'ライブ会場へ'
+        enter_button: 'ライブ会場へ',
+        options: {
+            none: 'なし',
+            expression: '表情',
+            hair: '髪型',
+            top: 'トップス',
+            bottom: 'ボトムス',
+            skin_color: '肌の色',
+            hair_color: '髪の色',
+            top_color: 'トップスの色',
+            bottom_color: 'ボトムスの色',
+            style_label: 'スタイル {n}'
+        }
     },
     booking: {
         title: '出演依頼管理',

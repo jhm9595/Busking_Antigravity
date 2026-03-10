@@ -251,7 +251,19 @@ export const zhTW: LocaleTypes = {
         top_color: '上衣顏色',
         bottom_style: '下裝樣式',
         bottom_color: '下裝顏色',
-        enter_button: '進入現場表演'
+        enter_button: '進入現場表演',
+        options: {
+            none: '無',
+            expression: '表情',
+            hair: '髮型',
+            top: '上衣樣式',
+            bottom: '下裝樣式',
+            skin_color: '膚色',
+            hair_color: '髮色',
+            top_color: '上衣顏色',
+            bottom_color: '下裝顏色',
+            style_label: '樣式 {n}'
+        }
     },
     booking: {
         title: '邀約請求列表',

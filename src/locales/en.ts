@@ -249,7 +249,19 @@ export const en = {
         top_color: 'Top Color',
         bottom_style: 'Bottom',
         bottom_color: 'Bottom Color',
-        enter_button: 'Enter Live Performance'
+        enter_button: 'Enter Live Performance',
+        options: {
+            none: 'None',
+            expression: 'Expression',
+            hair: 'Hair',
+            top: 'Top Style',
+            bottom: 'Bottom Style',
+            skin_color: 'Skin',
+            hair_color: 'Hair Color',
+            top_color: 'Top Color',
+            bottom_color: 'Bottom Color',
+            style_label: 'Style {n}'
+        }
     },
     booking: {
         title: 'Booking Requests',
