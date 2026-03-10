@@ -53,6 +53,15 @@ function LivePerformanceContent() {
     const [addingSongId, setAddingSongId] = useState<string | null>(null)
     const [realtimeStatus, setRealtimeStatus] = useState<'connecting' | 'connected' | 'error'>('connecting')
     const [socket, setSocket] = useState<any>(null)
+    const [isMobile, setIsMobile] = useState(false)
+
+    // Handle screen resize to toggle between mobile and desktop views
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768)
+        checkMobile()
+        window.addEventListener('resize', checkMobile)
+        return () => window.removeEventListener('resize', checkMobile)
+    }, [])
 
     const refreshData = useCallback(async () => {
         if (!performanceId) return
@@ -344,206 +353,307 @@ function LivePerformanceContent() {
             </div>
 
             <div className="flex-1 min-h-0 relative">
-                <PanelGroup orientation="horizontal" className="h-full">
-                    {/* COLUMN 1: SETLIST (Mobile: If active | Tablet: Visible if NOT active-chat | Desktop: Always) */}
-                    <Panel
-                        defaultSize={33}
-                        minSize={20}
-                        className={`${activeTab === 'setlist' ? 'flex' : 'hidden md:flex'} xl:flex flex-col border-r border-white/5 bg-gray-950/20 relative z-10`}
-                    >
-                        <div className="flex-1 flex flex-col p-4 md:p-6 space-y-5 overflow-y-auto custom-scrollbar">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-xl font-black flex items-center gap-3">
-                                    <List className="w-6 h-6 text-indigo-500" />
-                                    <span>Setlist</span>
-                                    <span className="text-xs bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/20 font-bold ml-1">{performance.songs.length}</span>
-                                </h2>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => setIsReordering(!isReordering)}
-                                        className={`p-2 rounded-xl border transition-all ${isReordering ? 'bg-indigo-600 border-indigo-500 shadow-lg shadow-indigo-600/30' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
-                                        title="Reorder"
-                                    >
-                                        <GripVertical className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => setShowAddModal(true)}
-                                        className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all border border-indigo-400/30"
-                                        title="Add Song"
-                                    >
-                                        <Plus className="w-4 h-4 text-white" />
-                                    </button>
+                {isMobile ? (
+                    /* MOBILE VIEW: Single tab content taking 100% width */
+                    <div className="h-full overflow-hidden">
+                        {activeTab === 'setlist' && (
+                            <div className="h-full flex flex-col p-4 space-y-5 overflow-y-auto custom-scrollbar bg-gray-950/20">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-xl font-black flex items-center gap-3">
+                                        <List className="w-6 h-6 text-indigo-500" />
+                                        <span>Setlist</span>
+                                        <span className="text-xs bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/20 font-bold ml-1">{performance.songs.length}</span>
+                                    </h2>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => setIsReordering(!isReordering)}
+                                            className={`p-2 rounded-xl border transition-all ${isReordering ? 'bg-indigo-600 border-indigo-500 shadow-lg shadow-indigo-600/30' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
+                                            title="Reorder"
+                                        >
+                                            <GripVertical className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => setShowAddModal(true)}
+                                            className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all border border-indigo-400/30"
+                                            title="Add Song"
+                                        >
+                                            <Plus className="w-4 h-4 text-white" />
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div className="space-y-3">
-                                {performance.songs.map((s: any, i: number) => (
-                                    <div
-                                        key={s.id}
-                                        className={`group relative bg-white/5 p-4 rounded-2xl border border-white/10 hover:border-indigo-500/40 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10 ${s.status === 'completed' ? 'opacity-40 grayscale-[0.5]' : ''}`}
-                                    >
-                                        <div className="flex justify-between items-center gap-4">
-                                            <div className="flex-1 min-w-0">
-                                                <p className="font-black text-sm text-white truncate leading-tight mb-0.5">{s.title}</p>
-                                                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{s.artist}</p>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <button
-                                                    onClick={() => handleToggleSongStatus(s.id, s.status)}
-                                                    className={`p-2 rounded-xl border transition-all duration-300 ${s.status === 'completed' ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : 'bg-white/5 border-white/10 text-gray-500 hover:border-indigo-500/50 hover:text-indigo-400'}`}
-                                                    title={s.status === 'completed' ? 'Mark Pending' : 'Mark Completed'}
-                                                >
-                                                    <Check className="w-4 h-4" />
-                                                </button>
-                                                {isReordering && (
-                                                    <div className="flex flex-col gap-1">
-                                                        <button
-                                                            disabled={i === 0}
-                                                            onClick={() => handleMoveSong(i, i - 1)}
-                                                            className="p-1 hover:bg-white/10 rounded-md text-gray-400 disabled:opacity-20 transition-all"
-                                                        >
-                                                            <Plus className="w-3 h-3 rotate-45" /> {/* Just using as Up arrow for now if no Chevron */}
-                                                        </button>
-                                                        <button
-                                                            disabled={i === performance.songs.length - 1}
-                                                            onClick={() => handleMoveSong(i, i + 1)}
-                                                            className="p-1 hover:bg-white/10 rounded-md text-gray-400 disabled:opacity-20 transition-all"
-                                                        >
-                                                            <Plus className="w-3 h-3 rotate-180" />
-                                                        </button>
-                                                    </div>
-                                                )}
-                                                <DeleteSongButton songId={s.id} onRemove={handleRemoveSong} />
+                                <div className="space-y-3">
+                                    {performance.songs.map((s: any, i: number) => (
+                                        <div key={s.id} className={`group relative bg-white/5 p-4 rounded-2xl border border-white/10 hover:border-indigo-500/40 transition-all duration-300 ${s.status === 'completed' ? 'opacity-40 grayscale-[0.5]' : ''}`}>
+                                            <div className="flex justify-between items-center gap-4">
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-black text-sm text-white truncate leading-tight mb-0.5">{s.title}</p>
+                                                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{s.artist}</p>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <button onClick={() => handleToggleSongStatus(s.id, s.status)} className={`p-2 rounded-xl border transition-all duration-300 ${s.status === 'completed' ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : 'bg-white/5 border-white/10 text-gray-500'}`}>
+                                                        <Check className="w-4 h-4" />
+                                                    </button>
+                                                    {isReordering && (
+                                                        <div className="flex flex-col gap-1">
+                                                            <button disabled={i === 0} onClick={() => handleMoveSong(i, i - 1)} className="p-1 hover:bg-white/10 rounded-md text-gray-400 disabled:opacity-20"><Plus className="w-3 h-3 rotate-45" /></button>
+                                                            <button disabled={i === performance.songs.length - 1} onClick={() => handleMoveSong(i, i + 1)} className="p-1 hover:bg-white/10 rounded-md text-gray-400 disabled:opacity-20"><Plus className="w-3 h-3 rotate-180" /></button>
+                                                        </div>
+                                                    )}
+                                                    <DeleteSongButton songId={s.id} onRemove={handleRemoveSong} />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </Panel>
-
-                    <PanelResizeHandle className="hidden md:flex w-px bg-white/5 hover:bg-indigo-600/50 transition-colors z-20" />
-
-                    {/* COLUMN 2: REQUESTS (Mobile: If active | Tablet: Hide if chat active | Desktop: Always) */}
-                    <Panel
-                        defaultSize={33}
-                        minSize={20}
-                        className={`${activeTab === 'requests' ? 'flex' : 'hidden md:flex xl:flex'} flex-col border-r border-white/5 bg-gray-900/10`}
-                    >
-                        <div className="flex-1 flex flex-col p-4 md:p-6 space-y-5 overflow-y-auto custom-scrollbar">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-xl font-black flex items-center gap-3">
-                                    <MessageCircle className="w-6 h-6 text-indigo-500" />
-                                    <span>Requests</span>
-                                    {pendingRequests.length > 0 && (
-                                        <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-bold ml-1 animate-pulse">
-                                            {pendingRequests.length}
-                                        </span>
-                                    )}
-                                </h2>
-                                <button
-                                    onClick={refreshRequests}
-                                    disabled={isRefreshingRequests}
-                                    className={`p-2 hover:bg-white/10 rounded-xl text-gray-400 transition-all ${isRefreshingRequests ? 'animate-spin' : 'hover:scale-110 active:scale-95'}`}
-                                >
-                                    <RotateCcw className="w-4 h-4" />
-                                </button>
-                            </div>
-                            <div className="space-y-4">
-                                {pendingRequests.map((r: any) => (
-                                    <div key={r.id} className="relative group overflow-hidden bg-white/5 p-5 rounded-2xl border border-white/5 hover:border-indigo-500/30 transition-all duration-300">
-                                        <div className="absolute top-0 right-0 p-3">
-                                            <span className="text-[9px] font-black text-gray-600 font-mono tracking-tighter bg-white/5 px-2 py-0.5 rounded">#{r.id.slice(-4).toUpperCase()}</span>
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <p className="font-black text-base text-white leading-tight mb-1">{r.title}</p>
-                                            <p className="text-[11px] text-gray-500 font-bold uppercase tracking-widest">{r.artist}</p>
-                                        </div>
-
-                                        <div className="flex items-center gap-3 mb-5 p-2 rounded-xl bg-gray-950/40">
-                                            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center">
-                                                <UserIcon className="w-3.5 h-3.5 text-indigo-400" />
-                                            </div>
-                                            <span className="text-[11px] text-gray-300 font-bold truncate">{r.requesterName}</span>
-                                        </div>
-
-                                        {processingRequestIds.has(r.id) ? (
-                                            <div className="w-full bg-indigo-500/10 h-10 rounded-xl animate-pulse flex items-center justify-center">
-                                                <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                                            </div>
-                                        ) : (
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => handleAcceptRequest(r.id)}
-                                                    className="flex-1 bg-gradient-to-br from-indigo-500 to-indigo-700 py-2.5 rounded-xl text-xs font-black text-white hover:from-indigo-400 hover:to-indigo-600 transition-all shadow-lg shadow-indigo-600/10 active:scale-95 border border-indigo-400/20"
-                                                >
-                                                    Accept
-                                                </button>
-                                                <button
-                                                    onClick={() => handleRejectRequest(r.id)}
-                                                    className="bg-white/5 px-3 rounded-xl border border-white/10 hover:bg-white/10 hover:text-red-400 transition-all active:scale-95"
-                                                >
-                                                    <X className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                                {pendingRequests.length === 0 && (
-                                    <div className="py-12 flex flex-col items-center justify-center text-center opacity-20">
-                                        <MessageCircle className="w-12 h-12 mb-4" />
-                                        <p className="text-sm font-bold">No pending requests</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </Panel>
-
-                    <PanelResizeHandle className="hidden xl:flex w-px bg-white/5 hover:bg-indigo-600/50 transition-colors z-20" />
-
-                    {/* COLUMN 3: CHAT (Mobile: If active | Tablet: Always? | Desktop: Always) */}
-                    <Panel
-                        defaultSize={34}
-                        minSize={25}
-                        className={`${activeTab === 'chat' ? 'flex' : 'hidden md:flex'} flex-col bg-black relative shadow-2xl z-10`}
-                    >
-                        {chatStatus === 'closed' && (
-                            <div className="absolute inset-0 z-[15] bg-gray-950/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
-                                <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6 border border-indigo-500/20">
-                                    <MessageSquare className="w-10 h-10 text-indigo-500" />
+                                    ))}
                                 </div>
-                                <h3 className="text-2xl font-black mb-2 text-white italic tracking-tight">{t('chat.closed_title')}</h3>
-                                <p className="text-gray-500 text-sm mb-8 leading-relaxed max-w-[240px] italic">Ready to connect with your audience? Start the conversation.</p>
-                                <button
-                                    disabled={!canOpenChat}
-                                    onClick={() => {
-                                        if (socketRef.current?.connected) {
-                                            socketRef.current.emit('open_chat', { performanceId: performance.id })
-                                        } else {
-                                            // Local fallback if socket is down
-                                            setChatStatus('open')
-                                        }
-                                    }}
-                                    className={`px-8 py-4 rounded-2xl font-bold text-white text-sm transition-all w-full max-w-[200px] shadow-xl ${canOpenChat ? 'bg-gradient-to-br from-indigo-500 to-indigo-700 hover:from-indigo-400 hover:to-indigo-600 shadow-indigo-600/30' : 'bg-white/5 text-gray-600 cursor-not-allowed grayscale'}`}
-                                >
-                                    {canOpenChat ? t('chat.open_button') : t('chat.not_ready')}
-                                </button>
                             </div>
                         )}
-                        <ChatBox
-                            performanceId={performanceId!}
-                            username="Singer"
-                            userType="singer"
-                            socket={socket}
-                            className="flex-1 !rounded-none !border-0"
-                            onViewingCountChange={setViewingCount}
-                            onChatStatusChange={setChatStatus}
-                            onAcceptRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleAcceptRequest(r.id) }}
-                            onRejectRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleRejectRequest(r.id) }}
-                        />
-                    </Panel>
-                </PanelGroup>
+                        {activeTab === 'requests' && (
+                            <div className="h-full flex flex-col p-4 space-y-5 overflow-y-auto custom-scrollbar bg-gray-900/10">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-xl font-black flex items-center gap-3">
+                                        <MessageCircle className="w-6 h-6 text-indigo-500" />
+                                        <span>Requests</span>
+                                        {pendingRequests.length > 0 && <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-bold ml-1 animate-pulse">{pendingRequests.length}</span>}
+                                    </h2>
+                                    <button onClick={refreshRequests} disabled={isRefreshingRequests} className={`p-2 hover:bg-white/10 rounded-xl text-gray-400 transition-all ${isRefreshingRequests ? 'animate-spin' : ''}`}><RotateCcw className="w-4 h-4" /></button>
+                                </div>
+                                <div className="space-y-4">
+                                    {pendingRequests.map((r: any) => (
+                                        <div key={r.id} className="relative group overflow-hidden bg-white/5 p-5 rounded-2xl border border-white/5 hover:border-indigo-500/30 transition-all">
+                                            <div className="absolute top-0 right-0 p-3"><span className="text-[9px] font-black text-gray-600 font-mono tracking-tighter bg-white/5 px-2 py-0.5 rounded">#{r.id.slice(-4).toUpperCase()}</span></div>
+                                            <div className="mb-4"><p className="font-black text-base text-white leading-tight mb-1">{r.title}</p><p className="text-[11px] text-gray-500 font-bold uppercase tracking-widest">{r.artist}</p></div>
+                                            <div className="flex items-center gap-3 mb-5 p-2 rounded-xl bg-gray-950/40">
+                                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center"><UserIcon className="w-3.5 h-3.5 text-indigo-400" /></div>
+                                                <span className="text-[11px] text-gray-300 font-bold truncate">{r.requesterName}</span>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button onClick={() => handleAcceptRequest(r.id)} className="flex-1 bg-gradient-to-br from-indigo-500 to-indigo-700 py-2.5 rounded-xl text-xs font-black text-white">Accept</button>
+                                                <button onClick={() => handleRejectRequest(r.id)} className="bg-white/5 px-3 rounded-xl border border-white/10 hover:text-red-400 transition-all"><X className="w-4 h-4" /></button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {pendingRequests.length === 0 && <div className="py-12 flex flex-col items-center justify-center text-center opacity-20"><MessageCircle className="w-12 h-12 mb-4" /><p className="text-sm font-bold">No pending requests</p></div>}
+                                </div>
+                            </div>
+                        )}
+                        {activeTab === 'chat' && (
+                            <div className="h-full flex flex-col bg-black relative">
+                                {chatStatus === 'closed' && (
+                                    <div className="absolute inset-0 z-[15] bg-gray-950/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+                                        <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6 border border-indigo-500/20"><MessageSquare className="w-10 h-10 text-indigo-500" /></div>
+                                        <h3 className="text-2xl font-black mb-2 text-white italic tracking-tight">{t('chat.closed_title')}</h3>
+                                        <p className="text-gray-500 text-sm mb-8 leading-relaxed max-w-[240px] italic">Ready to connect with your audience? Start the conversation.</p>
+                                        <button disabled={!canOpenChat} onClick={() => socketRef.current?.emit('open_chat', { performanceId: performance.id })} className={`px-8 py-4 rounded-2xl font-bold text-white text-sm transition-all w-full max-w-[200px] ${canOpenChat ? 'bg-gradient-to-br from-indigo-500 to-indigo-700' : 'bg-white/5 text-gray-600 cursor-not-allowed'}`}>
+                                            {canOpenChat ? t('chat.open_button') : t('chat.not_ready')}
+                                        </button>
+                                    </div>
+                                )}
+                                <ChatBox performanceId={performanceId!} username="Singer" userType="singer" socket={socket} className="flex-1 !rounded-none !border-0" onViewingCountChange={setViewingCount} onChatStatusChange={setChatStatus} onAcceptRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleAcceptRequest(r.id) }} onRejectRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleRejectRequest(r.id) }} />
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    /* DESKTOP VIEW: Multi-panel resizable layout */
+                    <PanelGroup orientation="horizontal" className="h-full">
+                        {/* COLUMN 1: SETLIST */}
+                        <Panel
+                            defaultSize={33}
+                            minSize={20}
+                            className="flex flex-col border-r border-white/5 bg-gray-950/20 relative z-10"
+                        >
+                            <div className="flex-1 flex flex-col p-4 md:p-6 space-y-5 overflow-y-auto custom-scrollbar">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-xl font-black flex items-center gap-3">
+                                        <List className="w-6 h-6 text-indigo-500" />
+                                        <span>Setlist</span>
+                                        <span className="text-xs bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/20 font-bold ml-1">{performance.songs.length}</span>
+                                    </h2>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => setIsReordering(!isReordering)}
+                                            className={`p-2 rounded-xl border transition-all ${isReordering ? 'bg-indigo-600 border-indigo-500 shadow-lg shadow-indigo-600/30' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
+                                            title="Reorder"
+                                        >
+                                            <GripVertical className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => setShowAddModal(true)}
+                                            className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all border border-indigo-400/30"
+                                            title="Add Song"
+                                        >
+                                            <Plus className="w-4 h-4 text-white" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    {performance.songs.map((s: any, i: number) => (
+                                        <div
+                                            key={s.id}
+                                            className={`group relative bg-white/5 p-4 rounded-2xl border border-white/10 hover:border-indigo-500/40 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10 ${s.status === 'completed' ? 'opacity-40 grayscale-[0.5]' : ''}`}
+                                        >
+                                            <div className="flex justify-between items-center gap-4">
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-black text-sm text-white truncate leading-tight mb-0.5">{s.title}</p>
+                                                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{s.artist}</p>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => handleToggleSongStatus(s.id, s.status)}
+                                                        className={`p-2 rounded-xl border transition-all duration-300 ${s.status === 'completed' ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : 'bg-white/5 border-white/10 text-gray-500 hover:border-indigo-500/50 hover:text-indigo-400'}`}
+                                                        title={s.status === 'completed' ? 'Mark Pending' : 'Mark Completed'}
+                                                    >
+                                                        <Check className="w-4 h-4" />
+                                                    </button>
+                                                    {isReordering && (
+                                                        <div className="flex flex-col gap-1">
+                                                            <button
+                                                                disabled={i === 0}
+                                                                onClick={() => handleMoveSong(i, i - 1)}
+                                                                className="p-1 hover:bg-white/10 rounded-md text-gray-400 disabled:opacity-20 transition-all"
+                                                            >
+                                                                <Plus className="w-3 h-3 rotate-45" />
+                                                            </button>
+                                                            <button
+                                                                disabled={i === performance.songs.length - 1}
+                                                                onClick={() => handleMoveSong(i, i + 1)}
+                                                                className="p-1 hover:bg-white/10 rounded-md text-gray-400 disabled:opacity-20 transition-all"
+                                                            >
+                                                                <Plus className="w-3 h-3 rotate-180" />
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                    <DeleteSongButton songId={s.id} onRemove={handleRemoveSong} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </Panel>
+
+                        <PanelResizeHandle className="w-px bg-white/5 hover:bg-indigo-600/50 transition-colors z-20" />
+
+                        {/* COLUMN 2: REQUESTS */}
+                        <Panel
+                            defaultSize={33}
+                            minSize={20}
+                            className="flex flex-col border-r border-white/5 bg-gray-900/10"
+                        >
+                            <div className="flex-1 flex flex-col p-4 md:p-6 space-y-5 overflow-y-auto custom-scrollbar">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-xl font-black flex items-center gap-3">
+                                        <MessageCircle className="w-6 h-6 text-indigo-500" />
+                                        <span>Requests</span>
+                                        {pendingRequests.length > 0 && (
+                                            <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-bold ml-1 animate-pulse">
+                                                {pendingRequests.length}
+                                            </span>
+                                        )}
+                                    </h2>
+                                    <button
+                                        onClick={refreshRequests}
+                                        disabled={isRefreshingRequests}
+                                        className={`p-2 hover:bg-white/10 rounded-xl text-gray-400 transition-all ${isRefreshingRequests ? 'animate-spin' : 'hover:scale-110 active:scale-95'}`}
+                                    >
+                                        <RotateCcw className="w-4 h-4" />
+                                    </button>
+                                </div>
+                                <div className="space-y-4">
+                                    {pendingRequests.map((r: any) => (
+                                        <div key={r.id} className="relative group overflow-hidden bg-white/5 p-5 rounded-2xl border border-white/5 hover:border-indigo-500/30 transition-all duration-300">
+                                            <div className="absolute top-0 right-0 p-3">
+                                                <span className="text-[9px] font-black text-gray-600 font-mono tracking-tighter bg-white/5 px-2 py-0.5 rounded">#{r.id.slice(-4).toUpperCase()}</span>
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <p className="font-black text-base text-white leading-tight mb-1">{r.title}</p>
+                                                <p className="text-[11px] text-gray-500 font-bold uppercase tracking-widest">{r.artist}</p>
+                                            </div>
+
+                                            <div className="flex items-center gap-3 mb-5 p-2 rounded-xl bg-gray-950/40">
+                                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center">
+                                                    <UserIcon className="w-3.5 h-3.5 text-indigo-400" />
+                                                </div>
+                                                <span className="text-[11px] text-gray-300 font-bold truncate">{r.requesterName}</span>
+                                            </div>
+
+                                            {processingRequestIds.has(r.id) ? (
+                                                <div className="w-full bg-indigo-500/10 h-10 rounded-xl animate-pulse flex items-center justify-center">
+                                                    <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                                                </div>
+                                            ) : (
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => handleAcceptRequest(r.id)}
+                                                        className="flex-1 bg-gradient-to-br from-indigo-500 to-indigo-700 py-2.5 rounded-xl text-xs font-black text-white hover:from-indigo-400 hover:to-indigo-600 transition-all shadow-lg shadow-indigo-600/10 active:scale-95 border border-indigo-400/20"
+                                                    >
+                                                        Accept
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleRejectRequest(r.id)}
+                                                        className="bg-white/5 px-3 rounded-xl border border-white/10 hover:bg-white/10 hover:text-red-400 transition-all active:scale-95"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                    {pendingRequests.length === 0 && (
+                                        <div className="py-12 flex flex-col items-center justify-center text-center opacity-20">
+                                            <MessageCircle className="w-12 h-12 mb-4" />
+                                            <p className="text-sm font-bold">No pending requests</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </Panel>
+
+                        <PanelResizeHandle className="w-px bg-white/5 hover:bg-indigo-600/50 transition-colors z-20" />
+
+                        {/* COLUMN 3: CHAT */}
+                        <Panel
+                            defaultSize={34}
+                            minSize={25}
+                            className="flex flex-col bg-black relative shadow-2xl z-10"
+                        >
+                            {chatStatus === 'closed' && (
+                                <div className="absolute inset-0 z-[15] bg-gray-950/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+                                    <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6 border border-indigo-500/20">
+                                        <MessageSquare className="w-10 h-10 text-indigo-500" />
+                                    </div>
+                                    <h3 className="text-2xl font-black mb-2 text-white italic tracking-tight">{t('chat.closed_title')}</h3>
+                                    <p className="text-gray-500 text-sm mb-8 leading-relaxed max-w-[240px] italic">Ready to connect with your audience? Start the conversation.</p>
+                                    <button
+                                        disabled={!canOpenChat}
+                                        onClick={() => {
+                                            if (socketRef.current?.connected) {
+                                                socketRef.current.emit('open_chat', { performanceId: performance.id })
+                                            } else {
+                                                setChatStatus('open')
+                                            }
+                                        }}
+                                        className={`px-8 py-4 rounded-2xl font-bold text-white text-sm transition-all w-full max-w-[200px] shadow-xl ${canOpenChat ? 'bg-gradient-to-br from-indigo-500 to-indigo-700 hover:from-indigo-400 hover:to-indigo-600 shadow-indigo-600/30' : 'bg-white/5 text-gray-600 cursor-not-allowed grayscale'}`}
+                                    >
+                                        {canOpenChat ? t('chat.open_button') : t('chat.not_ready')}
+                                    </button>
+                                </div>
+                            )}
+                            <ChatBox
+                                performanceId={performanceId!}
+                                username="Singer"
+                                userType="singer"
+                                socket={socket}
+                                className="flex-1 !rounded-none !border-0"
+                                onViewingCountChange={setViewingCount}
+                                onChatStatusChange={setChatStatus}
+                                onAcceptRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleAcceptRequest(r.id) }}
+                                onRejectRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleRejectRequest(r.id) }}
+                            />
+                        </Panel>
+                    </PanelGroup>
+                )}
             </div>
 
             {/* Bottom Bar Mobile Stats */}
