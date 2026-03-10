@@ -341,18 +341,30 @@ export async function updatePerformanceSetlist(data: {
 }) {
     try {
         await prisma.$transaction(async (tx) => {
-            // 1. Clear existing songs
+            // 1. Get current statuses to preserve them
+            const existingMapping = await tx.performanceSong.findMany({
+                where: { performanceId: data.performanceId },
+                select: { songId: true, status: true }
+            })
+            
+            const statusMap: Record<string, string> = {}
+            existingMapping.forEach(m => {
+                statusMap[m.songId] = m.status
+            })
+
+            // 2. Clear existing songs
             await tx.performanceSong.deleteMany({
                 where: { performanceId: data.performanceId }
             })
 
-            // 2. Add new songs with order
+            // 3. Add new songs with order AND preserved status
             if (data.songIds.length > 0) {
                 await tx.performanceSong.createMany({
                     data: data.songIds.map((songId, index) => ({
                         performanceId: data.performanceId,
                         songId: songId,
-                        order: index
+                        order: index,
+                        status: (statusMap[songId] || 'pending') as any
                     }))
                 })
             }

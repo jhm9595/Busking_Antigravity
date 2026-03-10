@@ -95,7 +95,13 @@ export default function AudienceLivePage() {
         socket.on('disconnect', () => setRealtimeStatus('error'))
         socket.on('connect_error', () => setRealtimeStatus('error'))
 
-        socket.on('song_status_updated', () => refreshData())
+        socket.on('song_status_updated', () => {
+            // Tiny delay before refresh to ensure server is ready
+            setTimeout(() => {
+                router.refresh()
+                refreshData()
+            }, 300)
+        })
         socket.on('performance_ended', () => {
             refreshData()
             setShowRedirectionModal(true)

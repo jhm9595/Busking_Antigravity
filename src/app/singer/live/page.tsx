@@ -232,8 +232,15 @@ function LivePerformanceContent() {
         optimisticStatusRef.current[id] = next
         setPerformance((p: any) => ({ ...p, songs: p.songs.map((s: any) => s.id === id ? { ...s, status: next } : s) }))
         try {
-            if (socketRef.current) socketRef.current.emit('song_status_updated', { performanceId, songId: id, status: next })
+            // First, update the database
             await updateSongStatus(performanceId!, id, next as any)
+            
+            // Short delay to ensure revalidatePath completes and DB is ready
+            await new Promise(r => setTimeout(r, 100));
+            
+            // ONLY emit the socket event AFTER the DB is updated
+            if (socketRef.current) socketRef.current.emit('song_status_updated', { performanceId, songId: id, status: next })
+            
             delete optimisticStatusRef.current[id]
             await refreshData()
         } catch (e) {
