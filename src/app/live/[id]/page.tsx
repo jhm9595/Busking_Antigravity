@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ChatBox from '@/components/chat/ChatBox'
@@ -24,36 +24,39 @@ export default function AudienceLivePage() {
     const [activeSocket, setActiveSocket] = useState<Socket | null>(null)
     const [showRedirectionModal, setShowRedirectionModal] = useState(false)
     const [redirectCountdown, setRedirectCountdown] = useState(30)
-    const [isInfoExpanded, setIsInfoExpanded] = useState(false)
     const [realtimeStatus, setRealtimeStatus] = useState<'connecting' | 'connected' | 'error'>('connecting')
     const [viewingCount, setViewingCount] = useState(0)
     const [isFollowed, setIsFollowed] = useState(false)
     const { user, isLoaded } = useUser()
     const { t } = useLanguage()
 
-    const refreshData = async () => {
-        if (id) {
+    const refreshData = useCallback(async () => {
+        if (!id) return
+        try {
+            // Fetch with a clean state
             const p = await getPerformanceById(id)
-            setPerformance(p)
-            if (p?.singerId) {
-                const s = await getSinger(p.singerId)
-                setSinger(s)
-                if (user?.id) {
-                    try {
+            if (p) {
+                setPerformance({ ...p }) // Spread to trigger state update
+                if (p.singerId) {
+                    const s = await getSinger(p.singerId)
+                    setSinger(s)
+                    if (user?.id) {
                         const followRes = await fetch(`/api/singers/${p.singerId}/follow?fanId=${user.id}`)
                         if (followRes.ok) {
                             const followData = await followRes.json()
                             setIsFollowed(followData.isFollowed)
                         }
-                    } catch (_e) { }
+                    }
                 }
             }
+        } catch (error) {
+            console.error('Error refreshing audience data:', error)
         }
-    }
+    }, [id, user?.id])
 
     useEffect(() => {
         if (isLoaded) refreshData()
-    }, [id, isLoaded, user])
+    }, [isLoaded, refreshData])
 
     useEffect(() => {
         if (!id) return
@@ -66,7 +69,11 @@ export default function AudienceLivePage() {
         }
         if (!url) return
 
-        const socket = io(url, { reconnectionAttempts: 10, reconnectionDelay: 2000 })
+        const socket = io(url, { 
+            reconnectionAttempts: 10, 
+            reconnectionDelay: 2000,
+            transports: ['websocket', 'polling'] 
+        })
         setActiveSocket(socket)
 
         socket.on('connect', () => {
@@ -75,19 +82,25 @@ export default function AudienceLivePage() {
         })
         socket.on('disconnect', () => setRealtimeStatus('error'))
         socket.on('connect_error', () => setRealtimeStatus('error'))
-        socket.on('song_status_updated', () => { setTimeout(() => { router.refresh(); refreshData() }, 300) })
-        socket.on('performance_ended', () => { refreshData(); setShowRedirectionModal(true) })
         
-        // Handle dynamic chat toggle
+        // Critical: Handle song status updates and setlist changes
+        socket.on('song_status_updated', () => {
+            console.log('Realtime: Song status updated signal received')
+            router.refresh()
+            refreshData()
+        })
+
+        socket.on('performance_ended', () => {
+            refreshData()
+            setShowRedirectionModal(true)
+        })
+        
         socket.on('chat_status_toggled', (data: { enabled: boolean }) => {
             setPerformance((prev: any) => prev ? { ...prev, chatEnabled: data.enabled } : prev)
-            if (data.enabled) {
-                // Scroll to bottom if needed or show a toast
-            }
         })
 
         return () => { socket.disconnect() }
-    }, [id])
+    }, [id, refreshData, router])
 
     useEffect(() => {
         if (!showRedirectionModal) return
@@ -181,84 +194,97 @@ export default function AudienceLivePage() {
                     </div>
                 ) : (
                     <div className="flex-1 flex flex-col space-y-4">
-                        {/* Summary Info & Setlist Section */}
-                        <div className="bg-gradient-to-br from-gray-900 to-[#161922] rounded-3xl p-5 border border-white/5 shadow-2xl relative overflow-hidden group">
+                        {/* 1. 공연 제목 및 시간 정보 (지도 제거됨) */}
+                        <div className="bg-gradient-to-br from-gray-900 to-[#161922] rounded-[32px] p-6 border border-white/5 shadow-2xl relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-indigo-600/10 transition-all" />
-                            <h1 className="text-xl font-black mb-4 text-white italic tracking-tight leading-tight uppercase underline decoration-indigo-500/50 underline-offset-4">{performance.title}</h1>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="flex items-center gap-3 text-xs font-bold text-gray-400">
-                                    <div className="w-7 h-7 rounded-lg bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-                                        <Calendar className="w-3.5 h-3.5 text-indigo-400" />
+                            <h1 className="text-2xl font-black mb-6 text-white italic tracking-tight leading-tight uppercase underline decoration-indigo-500/50 underline-offset-8">{performance.title}</h1>
+                            
+                            <div className="space-y-3 relative z-10">
+                                <div className="flex items-center gap-4 text-sm font-bold text-gray-400">
+                                    <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+                                        <Calendar className="w-5 h-5 text-indigo-400" />
                                     </div>
-                                    <span>{new Date(performance.startTime).toLocaleDateString()}</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-xs font-bold text-gray-400">
-                                    <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                                        <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] text-gray-600 uppercase tracking-widest">Date</span>
+                                        <span className="text-white">{new Date(performance.startTime).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</span>
                                     </div>
-                                    <span className="font-mono">
-                                        {new Date(performance.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -
-                                        {performance.endTime ? new Date(performance.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '...'}
-                                    </span>
                                 </div>
+                                <div className="flex items-center gap-4 text-sm font-bold text-gray-400">
+                                    <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                        <Clock className="w-5 h-5 text-emerald-400" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] text-gray-600 uppercase tracking-widest">Time</span>
+                                        <span className="text-white font-mono">
+                                            {new Date(performance.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -
+                                            {performance.endTime ? new Date(performance.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '...'}
+                                        </span>
+                                    </div>
+                                </div>
+                                {performance.locationText && (
+                                    <div className="flex items-center gap-4 text-sm font-bold text-gray-400">
+                                        <div className="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                                            <MapPin className="w-5 h-5 text-amber-500" />
+                                        </div>
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="text-[10px] text-gray-600 uppercase tracking-widest">Venue</span>
+                                            <span className="text-white truncate italic">{performance.locationText}</span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                            {performance.locationText && (
-                                <div className="mt-3 flex items-center gap-3 text-xs font-bold text-gray-400">
-                                    <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
-                                        <MapPin className="w-3.5 h-3.5 text-amber-500" />
-                                    </div>
-                                    <span className="line-clamp-1 italic">{performance.locationText}</span>
-                                </div>
-                            )}
                         </div>
 
-                        {/* Setlist - Always visible but more compact if chat is on */}
-                        <section className="bg-gray-900/50 rounded-3xl p-5 border border-white/5 shadow-xl">
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-sm font-black flex items-center gap-2 italic uppercase tracking-wider">
-                                    <Music className="w-4 h-4 text-indigo-500" />
+                        {/* 2. 셋리스트 섹션 */}
+                        <section className="bg-gray-900/50 rounded-[32px] p-6 border border-white/5 shadow-xl">
+                            <div className="flex items-center justify-between mb-5">
+                                <h2 className="text-md font-black flex items-center gap-3 italic uppercase tracking-wider">
+                                    <Music className="w-5 h-5 text-indigo-500" />
                                     {t('performance.details.setlist_title')}
                                 </h2>
-                                <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest italic">{performance.songs?.length || 0} {t('live.tracks')}</span>
+                                <span className="text-[10px] font-black bg-white/5 px-2.5 py-1 rounded-full text-gray-500 uppercase tracking-widest italic">{performance.songs?.length || 0} {t('live.tracks')}</span>
                             </div>
-                            {performance.songs?.length > 0 ? (
-                                <div className={`space-y-2.5 ${performance.chatEnabled ? 'max-h-48 overflow-y-auto custom-scrollbar pr-1' : ''}`}>
-                                    {performance.songs.map((s: any, i: number) => {
+                            
+                            <div className={`space-y-3 ${performance.chatEnabled ? 'max-h-[300px] overflow-y-auto custom-scrollbar pr-1' : ''}`}>
+                                {performance.songs?.length > 0 ? (
+                                    performance.songs.map((s: any, i: number) => {
                                         const isLive = s.status !== 'completed' && i === performance.songs.findIndex((x: any) => x.status !== 'completed')
                                         return (
-                                            <div key={i} className={`p-3 rounded-2xl border transition-all duration-300 ${s.status === 'completed' ? 'bg-black/20 border-white/5 text-gray-600' : 'bg-gray-900 border-white/5 shadow-lg shadow-black/20 hover:border-indigo-500/30'}`}>
+                                            <div key={i} className={`group p-4 rounded-2xl border transition-all duration-500 ${s.status === 'completed' ? 'bg-black/20 border-white/5 text-gray-600' : 'bg-gray-900 border-white/5 shadow-lg shadow-black/20 hover:border-indigo-500/30'}`}>
                                                 <div className="flex justify-between items-center">
                                                     <div className="min-w-0">
-                                                        <p className="font-black text-[13px] flex items-center gap-2 truncate text-white uppercase italic tracking-tight">
+                                                        <p className="font-black text-base flex items-center gap-3 truncate text-white uppercase italic tracking-tight group-hover:text-indigo-400 transition-colors">
                                                             {s.title}
-                                                            {s.status === 'completed' && <Check className="w-3.5 h-3.5 text-emerald-500" />}
+                                                            {s.status === 'completed' && <Check className="w-4 h-4 text-emerald-500" />}
                                                         </p>
-                                                        <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">{s.artist}</p>
+                                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mt-0.5">{s.artist}</p>
                                                     </div>
                                                     {isLive && (
-                                                        <span className="text-[8px] bg-red-600 text-white px-2 py-0.5 rounded-full font-black animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter">NOW</span>
+                                                        <div className="flex flex-col items-end gap-1">
+                                                            <span className="text-[8px] bg-red-600 text-white px-2.5 py-1 rounded-full font-black animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter">NOW</span>
+                                                        </div>
                                                     )}
                                                 </div>
                                             </div>
                                         )
-                                    })}
-                                </div>
-                            ) : (
-                                <div className="p-6 text-center text-[10px] text-gray-700 bg-black/20 border border-dashed border-white/5 rounded-3xl italic font-bold">
-                                    {t('performance.details.empty_setlist')}
-                                </div>
-                            )}
+                                    })
+                                ) : (
+                                    <div className="p-10 text-center text-xs text-gray-700 bg-black/20 border border-dashed border-white/5 rounded-[24px] italic font-bold">
+                                        {t('performance.details.empty_setlist')}
+                                    </div>
+                                )}
+                            </div>
                         </section>
 
-                        {/* Chat - Only visible if enabled */}
+                        {/* 3. 채팅 섹션 (활성화 시에만 노출) */}
                         {performance.chatEnabled ? (
-                            <section className="bg-gray-900 rounded-3xl border border-white/5 flex flex-col flex-1 min-h-[400px] overflow-hidden shadow-2xl relative mb-20 animate-in slide-in-from-bottom-4 duration-500">
-                                <div className="p-3 bg-gray-900/80 backdrop-blur-md border-b border-white/5 flex justify-between items-center sticky top-0 z-10">
-                                    <h2 className="font-black text-sm flex items-center gap-2 italic uppercase">
+                            <section className="bg-gray-900 rounded-[32px] border border-white/5 flex flex-col flex-1 min-h-[450px] overflow-hidden shadow-2xl relative mb-20 animate-in slide-in-from-bottom-6 duration-700">
+                                <div className="p-4 bg-gray-950/60 backdrop-blur-md border-b border-white/5 flex justify-between items-center sticky top-0 z-10">
+                                    <h2 className="font-black text-sm flex items-center gap-3 italic uppercase">
                                         <MessageCircle className="w-5 h-5 text-indigo-500" />
                                         {t('chat.title')}
                                     </h2>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 bg-indigo-500/10 px-3 py-1.5 rounded-full border border-indigo-500/20">
                                         <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
                                         <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest italic">{viewingCount} {t('live.watching')}</span>
                                     </div>
@@ -273,12 +299,12 @@ export default function AudienceLivePage() {
                                 />
                             </section>
                         ) : (
-                            <div className="flex-1 flex flex-col items-center justify-center p-10 bg-white/5 rounded-[40px] border border-dashed border-white/5 text-center mt-4 min-h-[300px] italic">
-                                <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4 opacity-20">
-                                    <MessageSquareOff className="w-8 h-8 text-white" />
+                            <div className="flex-1 flex flex-col items-center justify-center p-12 bg-white/5 rounded-[48px] border border-dashed border-white/5 text-center mt-6 min-h-[300px] italic shadow-inner">
+                                <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-6 opacity-30 shadow-2xl">
+                                    <MessageSquareOff className="w-10 h-10 text-white" />
                                 </div>
-                                <p className="text-gray-500 text-xs font-bold uppercase tracking-[0.2em]">{t('chat.closed_placeholder')}</p>
-                                <p className="text-gray-700 text-[10px] mt-2 max-w-[200px]">{t('live.chat_ready_desc')}</p>
+                                <p className="text-gray-400 text-xs font-black uppercase tracking-[0.3em]">{t('chat.closed_placeholder')}</p>
+                                <p className="text-gray-600 text-[11px] mt-3 max-w-[240px] font-medium leading-relaxed">{t('live.chat_ready_desc')}</p>
                             </div>
                         )}
                     </div>
@@ -286,38 +312,38 @@ export default function AudienceLivePage() {
             </main>
 
             {!isCompleted && (
-                <div className="fixed bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black via-black/95 to-transparent flex justify-center z-40 pointer-events-none">
-                    <div className="flex gap-2 w-full max-w-lg pointer-events-auto">
+                <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/90 to-transparent flex justify-center z-40 pointer-events-none">
+                    <div className="flex gap-3 w-full max-w-lg pointer-events-auto">
                         <button
                             onClick={() => setShowRequestModal(true)}
-                            className="flex-1 bg-indigo-600 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-indigo-600/40 flex items-center justify-center gap-1.5 hover:bg-indigo-500 hover:scale-[1.02] active:scale-95 transition-all border border-indigo-500/50 italic"
+                            className="flex-1 bg-indigo-600 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-2xl shadow-indigo-600/40 flex items-center justify-center gap-2 hover:bg-indigo-500 hover:scale-[1.02] active:scale-95 transition-all border border-indigo-500/50 italic"
                         >
-                            <Music className="w-3.5 h-3.5" /> {t('song_request.title')}
+                            <Music className="w-4 h-4" /> {t('song_request.title')}
                         </button>
                         <button
                             onClick={() => setShowBookingModal(true)}
-                            className="flex-1 bg-white text-black py-3.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-2xl hover:bg-gray-100 hover:scale-[1.02] active:scale-95 transition-all border border-white/20 flex items-center justify-center gap-1.5 italic"
+                            className="flex-1 bg-white text-black py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-2xl hover:bg-gray-100 hover:scale-[1.02] active:scale-95 transition-all border border-white/20 flex items-center justify-center gap-2 italic"
                         >
-                            <Clock className="w-3.5 h-3.5" /> {t('booking.modal.title')}
+                            <Clock className="w-4 h-4" /> {t('booking.modal.title')}
                         </button>
                     </div>
                 </div>
             )}
 
             {showRedirectionModal && (
-                <div className="fixed inset-0 z-[100] bg-gray-950/95 backdrop-blur-3xl flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-700 italic">
-                    <div className="w-24 h-24 bg-indigo-600/10 rounded-full flex items-center justify-center mb-8 border border-indigo-500/20 shadow-[0_0_50px_rgba(79,70,229,0.1)]">
+                <div className="fixed inset-0 z-[100] bg-gray-950/98 backdrop-blur-3xl flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-1000 italic">
+                    <div className="w-24 h-24 bg-indigo-600/10 rounded-full flex items-center justify-center mb-8 border border-indigo-500/20 shadow-[0_0_60px_rgba(79,70,229,0.2)]">
                         <Archive className="w-10 h-10 text-indigo-500" />
                     </div>
-                    <h2 className="text-3xl font-black mb-3 text-white italic tracking-tight">{t('live.ended_title')}</h2>
-                    <p className="text-gray-500 mb-12 max-w-[280px] leading-relaxed">{t('live.ended_desc')}</p>
-                    <div className="bg-white/5 border border-white/10 px-10 py-6 rounded-3xl mb-12 relative shadow-2xl">
-                        <span className="text-5xl font-mono font-black text-indigo-500 shadow-indigo-500/50">{redirectCountdown}</span>
-                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-2">{t('live.redirecting')}</p>
+                    <h2 className="text-3xl font-black mb-4 text-white uppercase tracking-tighter">{t('live.ended_title')}</h2>
+                    <p className="text-gray-500 mb-14 max-w-[280px] leading-relaxed">{t('live.ended_desc')}</p>
+                    <div className="bg-white/5 border border-white/10 px-12 py-8 rounded-[40px] mb-14 relative shadow-2xl">
+                        <span className="text-6xl font-mono font-black text-transparent bg-clip-text bg-gradient-to-b from-indigo-400 to-indigo-600">{redirectCountdown}</span>
+                        <p className="text-[10px] font-black text-gray-600 uppercase tracking-[0.2em] mt-3">{t('live.redirecting')}</p>
                     </div>
                     <div className="flex flex-col gap-4 w-full max-w-[280px]">
-                        <button onClick={() => setShowRedirectionModal(false)} className="bg-white/5 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border border-white/5">{t('live.stay_here')}</button>
-                        <Link href={`/singer/${singer?.id}`} className="bg-indigo-600 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-center shadow-xl shadow-indigo-600/20 hover:bg-indigo-500 transition-all border border-indigo-400/30">{t('live.view_singer_profile')}</Link>
+                        <button onClick={() => setShowRedirectionModal(false)} className="bg-white/5 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border border-white/5">{t('live.stay_here')}</button>
+                        <Link href={`/singer/${singer?.id}`} className="bg-indigo-600 py-5 rounded-2xl font-black text-xs uppercase tracking-widest text-center shadow-xl shadow-indigo-600/30 hover:bg-indigo-500 transition-all border border-indigo-400/30">{t('live.view_singer_profile')}</Link>
                     </div>
                 </div>
             )}
