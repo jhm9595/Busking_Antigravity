@@ -103,7 +103,7 @@ export const en = {
         }
     },
     song: {
-        title: 'My Repertoire',
+        title: 'My Song Library',
         list_title: 'Setlist Candidates',
         input: {
             title: 'Song Title',
@@ -111,7 +111,7 @@ export const en = {
             url: 'Reference URL (Optional)',
             add: 'Add to List',
         },
-        empty_list: 'Your repertoire is empty.',
+        empty_list: 'Your library is empty.',
         empty_hint: 'Add songs you can perform above.',
         selected: 'songs selected',
         select_placeholder: 'Select a song to add...',
@@ -202,7 +202,7 @@ export const en = {
         modal: {
             title: 'Add to Setlist',
             search_placeholder: 'Search songs...',
-            search_repertoire: 'Search my repertoire...',
+            search_repertoire: 'Search my library...',
             manual_entry: 'Manual Entry',
             song_title: 'Song Title',
             artist_optional: 'Artist (Optional)',

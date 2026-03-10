@@ -17,7 +17,7 @@ import FollowersList from '@/components/singer/FollowersList'
 import ClockWidget from '@/components/common/ClockWidget'
 
 export default function SingerDashboard() {
-    const { t } = useLanguage()
+    const { t, language } = useLanguage()
     const router = useRouter()
     const { user, isLoaded } = useUser()
     const { signOut } = useClerk()
@@ -27,14 +27,29 @@ export default function SingerDashboard() {
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { } })
     const [songsRefreshKey, setSongsRefreshKey] = useState(0)
     const [origin, setOrigin] = useState('')
+    const [currentTime, setCurrentTime] = useState(new Date())
 
     useEffect(() => {
         setOrigin(window.location.origin)
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000)
+        return () => clearInterval(timer)
     }, [])
 
     const triggerSongsRefresh = () => setSongsRefreshKey(prev => prev + 1)
 
-    // Sync Clerk User to Prisma DB
+    const formatDateTime = () => {
+        const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', month: 'long', day: 'numeric' }
+        const timeOptions: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }
+        return {
+            date: currentTime.toLocaleDateString(language === 'zh-TW' ? 'zh-TW' : language, dateOptions),
+            time: currentTime.toLocaleTimeString(language === 'zh-TW' ? 'zh-TW' : language, timeOptions)
+        }
+    }
+
+    const { date, time } = formatDateTime()
+
+    // ... (rest of the component logic until return)
+
     useEffect(() => {
         async function sync() {
             if (!user) return
@@ -205,6 +220,15 @@ export default function SingerDashboard() {
                 <header className="flex flex-col md:flex-row justify-between items-end gap-8 relative overflow-hidden p-10 rounded-[40px] bg-gradient-to-br from-indigo-600 to-purple-800 shadow-2xl shadow-indigo-600/20 border border-white/10 group">
                     <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] -mr-48 -mt-48 animate-pulse pointer-events-none" />
                     <div className="relative z-10 flex-1">
+                        <div className="flex flex-col mb-6">
+                            <div className="flex items-center gap-3 text-indigo-100/60 font-black italic uppercase tracking-[0.2em] text-[10px] mb-2">
+                                <Clock className="w-3.5 h-3.5" />
+                                <span>{date}</span>
+                            </div>
+                            <div className="text-4xl font-mono font-black text-white/90 tracking-tighter leading-none">
+                                {time}
+                            </div>
+                        </div>
                         <h1 className="text-5xl md:text-6xl font-black text-white italic tracking-tighter leading-none mb-4 group-hover:scale-[1.01] transition-transform duration-500">
                             {t('dashboard.welcome').replace('{name}', user?.fullName || user?.username || '')}
                         </h1>
@@ -290,10 +314,6 @@ export default function SingerDashboard() {
 
                             <section className="bg-gray-900/40 rounded-[40px] border border-white/5 p-2 shadow-2xl overflow-hidden">
                                 <SongManagement onSongsUpdated={triggerSongsRefresh} />
-                            </section>
-
-                            <section className="bg-gray-950/80 rounded-[40px] border border-white/5 p-8 shadow-2xl flex items-center justify-center">
-                                <ClockWidget />
                             </section>
                         </div>
                     </div>

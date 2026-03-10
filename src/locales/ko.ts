@@ -105,7 +105,7 @@ export const ko: LocaleTypes = {
         }
     },
     song: {
-        title: '나의 레퍼토리',
+        title: '나의 노래 보관함',
         list_title: '공연 곡 후보',
         input: {
             title: '곡 제목',
@@ -113,7 +113,7 @@ export const ko: LocaleTypes = {
             url: '참고 URL (선택)',
             add: '목록에 추가',
         },
-        empty_list: '레퍼토리가 비어 있습니다.',
+        empty_list: '보관함이 비어 있습니다.',
         empty_hint: '위에서 부를 수 있는 곡들을 추가해보세요.',
         selected: '곡 선택됨',
         select_placeholder: '추가할 곡을 선택하세요...',
@@ -204,7 +204,7 @@ export const ko: LocaleTypes = {
         modal: {
             title: '공연 목록에 곡 추가',
             search_placeholder: '곡 검색...',
-            search_repertoire: '내 레퍼토리에서 검색...',
+            search_repertoire: '내 보관함에서 검색...',
             manual_entry: '새 곡 직접 입력',
             song_title: '곡 제목',
             artist_optional: '아티스트 (선택)',
