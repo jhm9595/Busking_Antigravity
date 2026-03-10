@@ -270,6 +270,7 @@ export async function addPerformance(data: {
             streamingEnabled: data.streamingEnabled || false,
             chatCostPerHour: Number(data.chatCost) || 0,
             expectedAudience: data.expectedAudience || 0,
+            chatCapacity: data.expectedAudience || 50,
             status: 'scheduled',
             performanceSongs: {
                 create: data.songIds?.map((id, index) => ({
@@ -284,8 +285,23 @@ export async function addPerformance(data: {
         })
         revalidatePath('/singer/dashboard')
         return { success: true }
-    } catch (error) {
+    } catch (error: any) {
         console.error('Failed to add performance:', error)
+        return { success: false, error: error.message || 'UNKNOWN_ERROR' }
+    }
+}
+
+export async function togglePerformanceChat(performanceId: string, enabled: boolean) {
+    try {
+        await prisma.performance.update({
+            where: { id: performanceId },
+            data: { chatEnabled: enabled }
+        })
+        revalidatePath(`/live/${performanceId}`)
+        revalidatePath('/singer/live')
+        return { success: true }
+    } catch (error) {
+        console.error('Failed to toggle chat:', error)
         return { success: false, error }
     }
 }

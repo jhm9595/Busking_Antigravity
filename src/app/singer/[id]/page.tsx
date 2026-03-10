@@ -1,23 +1,22 @@
 'use client'
 
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { Share2, Heart, Music, Mail, ExternalLink, User, MapPin, Calendar, MessageCircle } from 'lucide-react'
+import { Share2, Heart, Music, Mail, ExternalLink, User, MapPin, Calendar, MessageCircle, Play } from 'lucide-react'
 import { FaFacebook, FaYoutube, FaInstagram, FaSoundcloud, FaTiktok } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useUser } from '@clerk/nextjs'
-import SongRequestModal from '@/components/audience/SongRequestModal'
 import BookingRequestModal from '@/components/audience/BookingRequestModal'
-import { getPerformanceById, createSongRequest, getSinger, updatePerformanceStatus } from '@/services/singer'
+import { getPerformanceById, getSinger, updatePerformanceStatus } from '@/services/singer'
 import { getEffectiveStatus, formatLocalDate } from '@/utils/performance'
 
 // Dynamically import MapPicker
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
-    loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-800 text-gray-500">Loading Map...</div>,
+    loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-800 text-gray-500 italic">Loading Map...</div>,
     ssr: false
 })
 
@@ -28,22 +27,17 @@ interface SingerData {
     isVerified: boolean
     performances: any[]
     bio?: string
-}
-
-interface SongData {
-    id: string
-    title: string
-    artist: string
-    youtubeUrl: string | null
-    bio?: string | null
+    profile?: {
+        avatarUrl?: string
+    }
 }
 
 export default function SingerDetailPage() {
     const params = useParams()
+    const router = useRouter()
     const { t } = useLanguage()
     const { user, isLoaded } = useUser()
     const [singer, setSinger] = useState<SingerData | null>(null)
-    const [songs, setSongs] = useState<SongData[]>([])
     const [loading, setLoading] = useState(true)
     const [expandedPerfId, setExpandedPerfId] = useState<string | null>(null)
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
@@ -53,24 +47,14 @@ export default function SingerDetailPage() {
         async function fetchData() {
             if (!params.id) return
             const singerId = params.id as string
-
-            // Wait for auth to load
             if (!isLoaded) return
 
             try {
-                // Fetch Singer and Performance Data
-                // Note: We need to create this API endpoint
                 const res = await fetch(`/api/singers/${singerId}`)
                 if (!res.ok) throw new Error('Failed to fetch singer')
                 const data = await res.json()
                 setSinger(data)
 
-                if (data.songs) {
-                    setSongs(data.songs)
-                }
-
-                // Check Follow Status
-                // Logic: Use User ID if logged in, otherwise localStorage
                 let fanId = user?.id
                 if (!fanId) {
                     const storedFanId = localStorage.getItem('busking_fan_id') || `fan_${Math.random().toString(36).substr(2, 9)}`
@@ -82,10 +66,8 @@ export default function SingerDetailPage() {
                 if (followRes.ok) {
                     const followData = await followRes.json()
                     setIsFollowed(followData.isFollowed)
-                    // Update fan count from source of truth
                     setSinger(prev => prev ? { ...prev, fanCount: followData.fanCount } : null)
                 }
-
             } catch (error) {
                 console.error('Error fetching data:', error)
             } finally {
@@ -97,22 +79,13 @@ export default function SingerDetailPage() {
 
     const handleFollow = async () => {
         if (!singer) return
-
-        // Optimistic UI update
         const prevFollowed = isFollowed
         const prevCount = singer.fanCount
-
         setIsFollowed(!isFollowed)
         setSinger({ ...singer, fanCount: isFollowed ? singer.fanCount - 1 : singer.fanCount + 1 })
 
-        // Logic: Use User ID if logged in, otherwise localStorage
-        let fanId = user?.id
-        if (!fanId) {
-            // Should exist from effect, but safety check
-            const storedFanId = localStorage.getItem('busking_fan_id')
-            if (!storedFanId) return // Should not happen
-            fanId = storedFanId
-        }
+        let fanId = user?.id || localStorage.getItem('busking_fan_id')
+        if (!fanId) return
 
         try {
             const res = await fetch(`/api/singers/${singer.id}/follow`, {
@@ -120,20 +93,14 @@ export default function SingerDetailPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ fanId })
             })
-
             if (!res.ok) throw new Error('Failed to follow')
-
             const data = await res.json()
-            // Sync with server state
             setIsFollowed(data.isFollowed)
             setSinger(prev => prev ? { ...prev, fanCount: data.fanCount } : null)
-
         } catch (error) {
             console.error(error)
-            // Revert on error
             setIsFollowed(prevFollowed)
             setSinger(prev => prev ? { ...prev, fanCount: prevCount } : null)
-            alert('Failed to update follow status')
         }
     }
 
@@ -141,23 +108,19 @@ export default function SingerDetailPage() {
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: singer?.stageName || 'Check out this busker!',
-                    text: `Watch ${singer?.stageName} on BuskerKing!`,
+                    title: singer?.stageName,
                     url: window.location.href,
                 })
-            } catch (error) {
-                console.log('Error sharing:', error)
-            }
+            } catch (error) { }
         } else {
             navigator.clipboard.writeText(window.location.href)
-            alert('Link copied to clipboard!')
+            alert(t('common.link_copied'))
         }
     }
 
     const openSocial = (input: string | undefined, type: string) => {
         if (!input) return
         let finalUrl = input.trim()
-
         if (!finalUrl.startsWith('http')) {
             if (finalUrl.includes('.')) {
                 finalUrl = `https://${finalUrl}`
@@ -176,15 +139,6 @@ export default function SingerDetailPage() {
         window.open(finalUrl, '_blank')
     }
 
-    const getDisplayHandle = (input: string | undefined) => {
-        if (!input) return ''
-        let handle = input.trim()
-        handle = handle.replace(/^https?:\/\/(www\.)?/, '')
-        handle = handle.replace(/^(instagram\.com|facebook\.com|youtube\.com\/@|tiktok\.com\/@|soundcloud\.com|twitter\.com)\//, '')
-        if (handle.length > 20) handle = handle.substring(0, 20) + '...'
-        return handle.startsWith('@') ? handle : '@' + handle
-    }
-
     const socialLinks = (singer as any)?.socialLinks ? JSON.parse((singer as any).socialLinks) : {}
 
     const handleBookingSubmit = async (data: any) => {
@@ -192,135 +146,110 @@ export default function SingerDetailPage() {
             const res = await fetch('/api/booking', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    singerId: singer?.id,
-                    ...data
-                })
+                body: JSON.stringify({ singerId: singer?.id, ...data })
             })
-
             if (!res.ok) throw new Error('Booking failed')
-            alert('Booking inquiry sent successfully!')
+            alert(t('common.enquiry_sent'))
             setIsBookingModalOpen(false)
         } catch (error) {
             console.error('Booking Error:', error)
-            alert('Failed to send booking request.')
         }
     }
 
-    if (loading) return <div className="min-h-screen flex items-center justify-center bg-black text-white">{t('common.loading')}</div>
-    if (!singer) return <div className="min-h-screen flex items-center justify-center bg-black text-white">Artist not found</div>
+    if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0f1117] text-white italic">{t('common.loading')}</div>
+    if (!singer) return <div className="min-h-screen flex items-center justify-center bg-[#0f1117] text-white font-black italic">ARTIST NOT FOUND</div>
 
     return (
-        <div className="min-h-screen bg-neutral-900 text-white pb-20">
-            {/* Header / Banner */}
-            <div className="relative h-64 bg-gradient-to-b from-indigo-900 to-black">
-                <div className="absolute top-4 right-4 z-10">
+        <div className="min-h-screen bg-[#0f1117] text-white pb-24 font-display selection:bg-indigo-500/30">
+            {/* 1. HERO SECTION: Profile & Status */}
+            <div className="relative h-80 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-indigo-600/20 to-[#0f1117] z-0" />
+                
+                {/* Background Pattern */}
+                <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
+                    <div className="grid grid-cols-8 gap-4 rotate-12 -translate-y-24">
+                        {[...Array(32)].map((_, i) => (
+                            <Music key={i} className="w-16 h-16 text-white" />
+                        ))}
+                    </div>
+                </div>
+
+                <div className="absolute top-4 right-4 z-20">
                     <LanguageSwitcher />
                 </div>
-                <div className="absolute -bottom-16 left-6">
-                    <div className="w-32 h-32 rounded-full border-4 border-black bg-gray-700 overflow-hidden shadow-2xl">
-                        {/* Avatar Placeholder */}
-                        <div className="w-full h-full bg-indigo-500 flex items-center justify-center text-4xl font-bold">
-                            {singer.stageName[0]}
+
+                <div className="absolute bottom-0 left-0 w-full p-6 z-10 flex flex-col items-center text-center">
+                    <div className="relative mb-4">
+                        <div className="w-28 h-28 rounded-full border-4 border-[#0f1117] bg-gray-800 overflow-hidden shadow-2xl shadow-indigo-500/20">
+                            {singer.profile?.avatarUrl ? (
+                                <img src={singer.profile.avatarUrl} className="w-full h-full object-cover" alt={singer.stageName} />
+                            ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-4xl font-black text-white italic">
+                                    {singer.stageName[0]}
+                                </div>
+                            )}
                         </div>
+                        {singer.performances.some((p: any) => getEffectiveStatus(p) === 'live') && (
+                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter italic">
+                                LIVE NOW
+                            </div>
+                        )}
+                    </div>
+                    
+                    <h1 className="text-3xl font-black italic tracking-tight mb-1 uppercase">{singer.stageName}</h1>
+                    <div className="flex items-center gap-4 text-xs font-bold text-gray-400 mb-4">
+                        <span className="flex items-center gap-1.5 bg-white/5 px-3 py-1 rounded-full border border-white/5 italic">
+                            <Heart className={`w-3.5 h-3.5 ${isFollowed ? 'text-red-500 fill-current animate-bounce' : 'text-gray-500'}`} />
+                            {singer.fanCount} Fans
+                        </span>
+                    </div>
+
+                    {/* Social Links Mini Bar */}
+                    <div className="flex gap-2.5">
+                        {socialLinks.youtube && (
+                            <button onClick={() => openSocial(socialLinks.youtube, 'youtube')} className="p-2.5 bg-red-600/10 rounded-xl border border-red-600/20 text-red-500 hover:scale-110 transition-transform shadow-lg shadow-red-600/10">
+                                <FaYoutube className="w-4 h-4" />
+                            </button>
+                        )}
+                        {socialLinks.instagram && (
+                            <button onClick={() => openSocial(socialLinks.instagram, 'instagram')} className="p-2.5 bg-pink-600/10 rounded-xl border border-pink-600/20 text-pink-500 hover:scale-110 transition-transform shadow-lg shadow-pink-600/10">
+                                <FaInstagram className="w-4 h-4" />
+                            </button>
+                        )}
+                        {socialLinks.tiktok && (
+                            <button onClick={() => openSocial(socialLinks.tiktok, 'tiktok')} className="p-2.5 bg-white/5 rounded-xl border border-white/10 text-white hover:scale-110 transition-transform shadow-lg">
+                                <FaTiktok className="w-4 h-4" />
+                            </button>
+                        )}
+                        <button onClick={handleShare} className="p-2.5 bg-indigo-600/10 rounded-xl border border-indigo-600/20 text-indigo-400 hover:scale-110 transition-transform shadow-lg shadow-indigo-600/10">
+                            <Share2 className="w-4 h-4" />
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div className="mt-20 px-6">
-                <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                        <h1 className="text-3xl font-bold">{singer.stageName}</h1>
-                        <p className="text-gray-400 mt-1 flex items-center">
-                            <Heart className={`w-4 h-4 mr-1 ${isFollowed ? 'text-red-500 fill-current' : 'text-gray-500'}`} /> {singer.fanCount} Fans
-                        </p>
-
-                        {singer.bio && (
-                            <p className="text-gray-300 mt-3 text-sm leading-relaxed whitespace-pre-line max-w-md">
-                                {singer.bio}
-                            </p>
-                        )}
-
-                        {/* Social Links Bar */}
-                        <div className="flex flex-wrap gap-3 mt-4">
-                            {socialLinks.youtube && (
-                                <button
-                                    onClick={() => openSocial(socialLinks.youtube, 'youtube')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-red-600/10 hover:bg-red-600/20 border border-red-600/20 rounded-lg text-red-500 transition-all group"
-                                    title="YouTube"
-                                >
-                                    <FaYoutube className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                    <span className="text-xs font-bold">{getDisplayHandle(socialLinks.youtube)}</span>
-                                </button>
-                            )}
-                            {socialLinks.instagram && (
-                                <button
-                                    onClick={() => openSocial(socialLinks.instagram, 'instagram')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-pink-600/10 hover:bg-pink-600/20 border border-pink-600/20 rounded-lg text-pink-500 transition-all group"
-                                    title="Instagram"
-                                >
-                                    <FaInstagram className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                    <span className="text-xs font-bold">{getDisplayHandle(socialLinks.instagram)}</span>
-                                </button>
-                            )}
-                            {socialLinks.tiktok && (
-                                <button
-                                    onClick={() => openSocial(socialLinks.tiktok, 'tiktok')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white transition-all group"
-                                    title="TikTok"
-                                >
-                                    <FaTiktok className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                    <span className="text-xs font-bold">{getDisplayHandle(socialLinks.tiktok)}</span>
-                                </button>
-                            )}
-                            {socialLinks.soundcloud && (
-                                <button
-                                    onClick={() => openSocial(socialLinks.soundcloud, 'soundcloud')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-orange-600/10 hover:bg-orange-600/20 border border-orange-600/20 rounded-lg text-orange-500 transition-all group"
-                                    title="SoundCloud"
-                                >
-                                    <FaSoundcloud className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                    <span className="text-xs font-bold">{getDisplayHandle(socialLinks.soundcloud)}</span>
-                                </button>
-                            )}
-                            {socialLinks.twitter && (
-                                <button
-                                    onClick={() => openSocial(socialLinks.twitter, 'twitter')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white transition-all group"
-                                    title="X (Twitter)"
-                                >
-                                    <FaXTwitter className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                    <span className="text-xs font-bold">{getDisplayHandle(socialLinks.twitter)}</span>
-                                </button>
-                            )}
-                            {socialLinks.facebook && (
-                                <button
-                                    onClick={() => openSocial(socialLinks.facebook, 'facebook')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-600/20 rounded-lg text-blue-500 transition-all group"
-                                    title="Facebook"
-                                >
-                                    <FaFacebook className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                    <span className="text-xs font-bold">{getDisplayHandle(socialLinks.facebook)}</span>
-                                </button>
-                            )}
+            <div className="px-6 space-y-8 mt-6 max-w-lg mx-auto">
+                {/* 2. BIO SECTION */}
+                {singer.bio && (
+                    <div className="bg-white/5 rounded-3xl p-5 border border-white/5 shadow-2xl relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-600/5 rounded-full blur-3xl -mr-12 -mt-12 group-hover:bg-indigo-600/10 transition-all" />
+                        <div className="flex items-center gap-2 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-3 italic">
+                            <User className="w-3 h-3" /> About Artist
                         </div>
+                        <p className="text-sm text-gray-300 leading-relaxed italic font-medium whitespace-pre-line relative z-10">
+                            {singer.bio}
+                        </p>
                     </div>
-                    <button
-                        onClick={handleShare}
-                        className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition ml-4"
-                    >
-                        <Share2 className="w-6 h-6" />
-                    </button>
-                </div>
+                )}
 
-                {/* Action Buttons */}
-                <div className="flex space-x-3 mt-6">
+                {/* 3. PRIMARY ACTION BUTTONS */}
+                <div className="flex gap-3 sticky top-4 z-30 pointer-events-auto">
                     {user ? (
                         <button
                             onClick={handleFollow}
-                            className={`flex-1 py-3 rounded-xl font-bold text-lg shadow-lg transition ${isFollowed
-                                ? 'bg-gray-700 text-gray-300'
-                                : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/30'
+                            className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.1em] transition-all active:scale-95 shadow-2xl italic border ${isFollowed
+                                ? 'bg-gray-800 text-gray-500 border-white/5'
+                                : 'bg-white text-black hover:bg-gray-100 shadow-white/10 border-white/20'
                                 }`}
                         >
                             {isFollowed ? t('common.following') : t('common.follow')}
@@ -328,162 +257,119 @@ export default function SingerDetailPage() {
                     ) : (
                         <Link
                             href="/sign-in"
-                            className="flex-1 py-3 rounded-xl font-bold text-lg shadow-lg transition bg-gray-600 hover:bg-gray-500 text-white text-center flex items-center justify-center"
+                            className="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.1em] transition-all bg-white text-black text-center shadow-2xl border border-white/20 italic flex items-center justify-center"
                         >
                             {t('common.login_to_follow')}
                         </Link>
                     )}
                     <button
                         onClick={() => setIsBookingModalOpen(true)}
-                        className="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white py-3 rounded-xl font-bold text-lg shadow-lg transition flex items-center justify-center"
+                        className="flex-1 bg-gradient-to-br from-indigo-600 to-purple-700 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.1em] shadow-2xl shadow-indigo-600/30 hover:scale-[1.02] active:scale-95 transition-all border border-indigo-400/20 italic"
                     >
-                        <Mail className="w-5 h-5 mr-2" />
                         {t('booking.modal.title')}
                     </button>
                 </div>
-            </div>
 
-            {/* Repertoire Section */}
-            <div className="mt-8 px-6">
-                <h2 className="text-xl font-bold mb-4 flex items-center">
-                    <Music className="w-5 h-5 mr-2 text-indigo-400" /> {t('song.title')}
-                </h2>
-                <div className="space-y-3">
-                    {songs.length === 0 ? (
-                        <p className="text-gray-500 text-sm">{t('song.empty_list')}</p>
-                    ) : (
-                        songs.map(song => (
-                            <div key={song.id} className="bg-gray-800/50 p-3 rounded-lg flex justify-between items-center">
-                                <div>
-                                    <p className="font-medium text-gray-200">{song.title}</p>
-                                    <p className="text-xs text-gray-400">{song.artist}</p>
-                                </div>
-                                {song.youtubeUrl && (
-                                    <a href={song.youtubeUrl} target="_blank" className="text-red-400 text-xs border border-red-400/30 px-2 py-1 rounded hover:bg-red-400/10">
-                                        Watch
-                                    </a>
-                                )}
-                            </div>
-                        ))
-                    )}
-                </div>
-            </div>
-
-            {/* Live Now Section */}
-            {singer.performances.some((p: any) => getEffectiveStatus(p) === 'live') && (
-                <div className="mt-8 px-6">
-                    <h2 className="text-xl font-bold mb-4 flex items-center text-red-500 animate-pulse">
-                        <MessageCircle className="w-5 h-5 mr-2" /> {t('performance.status.live')}
-                    </h2>
+                {/* 4. LIVE NOW HIGHLIGHT (HIGHEST PRIORITY) */}
+                {singer.performances.some((p: any) => getEffectiveStatus(p) === 'live') && (
                     <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-black italic flex items-center gap-2 tracking-tight uppercase">
+                                <span className="relative flex h-2.5 w-2.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.8)]"></span>
+                                </span>
+                                {t('performance.status.live')}
+                            </h2>
+                        </div>
                         {singer.performances
                             .filter((p: any) => getEffectiveStatus(p) === 'live')
                             .map((perf: any) => (
-                                <div key={perf.id} className="bg-gradient-to-r from-red-900/40 to-black border border-red-600/50 rounded-xl overflow-hidden shadow-lg shadow-red-900/20">
-                                    <div className="p-4">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <h3 className="font-bold text-lg text-white">{perf.title}</h3>
-                                            <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">LIVE</span>
+                                <div key={perf.id} className="relative group p-[1px] rounded-3xl bg-gradient-to-br from-red-500 via-indigo-600 to-purple-700 shadow-2xl shadow-indigo-600/30 overflow-hidden hover:scale-[1.01] transition-transform duration-500">
+                                    <div className="bg-gray-950 rounded-[23px] p-6 relative z-10 overflow-hidden">
+                                        <div className="absolute -right-8 -top-8 w-32 h-32 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
+                                        <div className="flex justify-between items-start mb-6">
+                                            <div className="min-w-0">
+                                                <h3 className="font-black text-2xl text-white italic truncate tracking-tight mb-1 uppercase">{perf.title}</h3>
+                                                <div className="flex items-center gap-2 text-xs font-bold text-gray-400 italic">
+                                                    <MapPin className="w-3.5 h-3.5 text-indigo-400" />
+                                                    <span className="truncate">{perf.locationText}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <p className="text-gray-300 text-sm mb-4">{perf.locationText}</p>
-
-                                        <div className="flex space-x-2">
-                                            <Link href={`/live/${perf.id}`} className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg text-sm transition text-center flex items-center justify-center">
-                                                {t('live.enter_live')}
-                                            </Link>
-
-                                            {user?.id === singer.id && (
-                                                <button
-                                                    onClick={async () => {
-                                                        if (confirm(t('live.header.confirm_end'))) {
-                                                            try {
-                                                                await updatePerformanceStatus(perf.id, 'completed')
-                                                                window.location.reload()
-                                                            } catch (e) {
-                                                                console.error(e)
-                                                                alert('Error ending performance')
-                                                            }
-                                                        }
-                                                    }}
-                                                    className="px-4 bg-gray-800 border border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg font-bold text-xs"
-                                                >
-                                                    End
-                                                </button>
-                                            )}
-                                        </div>
+                                        
+                                        <Link href={`/live/${perf.id}`} className="w-full bg-white text-black py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl hover:bg-gray-100 hover:scale-[1.02] active:scale-95 transition-all italic">
+                                            <Play className="w-5 h-5 animate-pulse" />
+                                            {t('live.enter_live')}
+                                        </Link>
                                     </div>
                                 </div>
                             ))
                         }
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Schedule Section */}
-            <div className="mt-8 px-6">
-                <h2 className="text-xl font-bold mb-4 flex items-center">
-                    <Calendar className="w-5 h-5 mr-2 text-green-400" /> {t('performance.upcoming')}
-                </h2>
+                {/* 5. UPCOMING SCHEDULES */}
                 <div className="space-y-4">
-                    {singer.performances.filter((p: any) => getEffectiveStatus(p) === 'planned').length === 0 ? (
-                        <div className="p-4 bg-gray-800/30 rounded-lg text-center text-gray-400 text-sm">
-                            {t('performance.list.empty_upcoming')}
-                        </div>
-                    ) : (
-                        singer.performances
-                            .filter((p: any) => getEffectiveStatus(p) === 'planned')
-                            .map((perf: any) => (
-                                <div key={perf.id} className="bg-gradient-to-r from-gray-800 to-gray-800/80 border border-gray-700 rounded-xl overflow-hidden group">
-                                    <div className="p-4 relative">
-                                        <div className="absolute top-0 right-0 p-2 opacity-50">
-                                            <MapPin className="w-12 h-12 text-gray-700" />
-                                        </div>
-                                        <h3 className="font-bold text-lg text-white relative z-10">{perf.title}</h3>
-                                        <p className="text-gray-400 text-sm relative z-10">{perf.locationText}</p>
-                                        <div className="mt-3 flex items-center text-xs text-gray-500 relative z-10">
-                                            <span className="bg-gray-700 px-2 py-1 rounded mr-2 text-gray-300">
-                                                {formatLocalDate(perf.startTime)}
-                                            </span>
+                    <h2 className="text-xl font-black italic flex items-center gap-3 tracking-tight uppercase">
+                        <Calendar className="w-5 h-5 text-indigo-500" />
+                        {t('performance.upcoming')}
+                    </h2>
+                    <div className="space-y-4">
+                        {singer.performances.filter((p: any) => getEffectiveStatus(p) === 'planned').length === 0 ? (
+                            <div className="p-10 bg-white/5 rounded-3xl border border-dashed border-white/5 text-center text-gray-600 text-[10px] font-black uppercase italic tracking-widest">
+                                {t('performance.list.empty_upcoming')}
+                            </div>
+                        ) : (
+                            singer.performances
+                                .filter((p: any) => getEffectiveStatus(p) === 'planned')
+                                .map((perf: any) => (
+                                    <div key={perf.id} className="bg-white/5 border border-white/5 rounded-3xl overflow-hidden group hover:border-indigo-500/20 transition-all shadow-xl">
+                                        <div className="p-5 relative">
+                                            <div className="flex flex-col gap-1 mb-5">
+                                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-500/10 w-fit px-2.5 py-1 rounded-full mb-1 italic">
+                                                    {formatLocalDate(perf.startTime)}
+                                                </span>
+                                                <h3 className="font-black text-lg text-white italic tracking-tight uppercase">{perf.title}</h3>
+                                                <p className="text-gray-500 text-xs font-bold flex items-center gap-1.5 italic">
+                                                    <MapPin className="w-3 h-3" /> {perf.locationText}
+                                                </p>
+                                            </div>
+
+                                            <div className="flex gap-2">
+                                                {perf.locationLat && perf.locationLng && (
+                                                    <button
+                                                        onClick={() => setExpandedPerfId(expandedPerfId === perf.id ? null : perf.id)}
+                                                        className="flex-1 bg-white/5 hover:bg-white/10 text-white font-black py-3.5 rounded-xl text-[10px] uppercase tracking-widest transition-all border border-white/5 italic"
+                                                    >
+                                                        {expandedPerfId === perf.id ? t('performance.form.map_hide') : t('performance.form.map_show')}
+                                                    </button>
+                                                )}
+                                                {perf.chatEnabled && (
+                                                    <Link
+                                                        href={`/live/${perf.id}`}
+                                                        className="flex-1 bg-indigo-600/90 hover:bg-indigo-600 text-white font-black py-3.5 rounded-xl text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 text-center border border-indigo-400/30 italic"
+                                                    >
+                                                        {t('live.enter_chat')}
+                                                    </Link>
+                                                )}
+                                            </div>
                                         </div>
 
-                                        {/* Action Buttons */}
-                                        <div className="mt-4 flex space-x-2 relative z-10">
-                                            {perf.locationLat && perf.locationLng && (
-                                                <button
-                                                    onClick={() => setExpandedPerfId(expandedPerfId === perf.id ? null : perf.id)}
-                                                    className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 rounded-lg text-sm transition flex items-center justify-center"
-                                                >
-                                                    <MapPin className="w-4 h-4 mr-1" />
-                                                    {expandedPerfId === perf.id ? t('performance.form.map_hide') : t('performance.form.map_show')}
-                                                </button>
-                                            )}
-                                            {perf.chatEnabled && (
-                                                <Link
-                                                    href={`/live/${perf.id}`}
-                                                    className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-lg text-sm transition shadow-lg shadow-indigo-900/20 text-center flex items-center justify-center"
-                                                >
-                                                    <MessageCircle className="w-4 h-4 mr-1" />
-                                                    {t('live.enter_chat')}
-                                                </Link>
-                                            )}
-                                        </div>
-
+                                        {expandedPerfId === perf.id && perf.locationLat && perf.locationLng && (
+                                            <div className="p-4 bg-gray-950 border-t border-white/5 h-64 animate-in slide-in-from-top-2 duration-500">
+                                                <MapPicker
+                                                    onLocationSelect={() => { }}
+                                                    initialLat={perf.locationLat}
+                                                    initialLng={perf.locationLng}
+                                                    readonly={true}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
-
-                                    {/* Expanded Map View */}
-                                    {expandedPerfId === perf.id && perf.locationLat && perf.locationLng && (
-                                        <div className="p-4 bg-gray-900/50 border-t border-gray-700 h-64">
-                                            <MapPicker
-                                                onLocationSelect={() => { }}
-                                                initialLat={perf.locationLat}
-                                                initialLng={perf.locationLng}
-                                                readonly={true}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            ))
-                    )}
+                                ))
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -494,6 +380,6 @@ export default function SingerDetailPage() {
                 onSubmit={handleBookingSubmit}
                 singerName={singer.stageName}
             />
-        </div >
+        </div>
     )
 }

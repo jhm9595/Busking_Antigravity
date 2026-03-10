@@ -5,8 +5,9 @@ import { en } from '@/locales/en'
 import { ko } from '@/locales/ko'
 import { zh } from '@/locales/zh'
 import { ja } from '@/locales/ja'
+import { zhTW } from '@/locales/zh-tw'
 
-type Language = 'en' | 'ko' | 'zh' | 'ja'
+type Language = 'en' | 'ko' | 'zh' | 'ja' | 'zh-TW'
 type LocaleData = typeof en
 
 interface LanguageContextType {
@@ -24,16 +25,18 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         // Load preference from local storage if available
         const savedLang = localStorage.getItem('app-language') as Language
-        if (savedLang && ['en', 'ko', 'zh', 'ja'].includes(savedLang)) {
+        if (savedLang && ['en', 'ko', 'zh', 'ja', 'zh-TW'].includes(savedLang)) {
             setLanguage(savedLang)
         } else {
             // Detect browser language
-            const browserLang = navigator.language.split('-')[0]
-            if (browserLang === 'ko') {
+            const browserLang = navigator.language
+            if (browserLang.startsWith('ko')) {
                 setLanguage('ko')
-            } else if (browserLang === 'zh') {
+            } else if (browserLang === 'zh-TW' || browserLang === 'zh-HK') {
+                setLanguage('zh-TW')
+            } else if (browserLang.startsWith('zh')) {
                 setLanguage('zh')
-            } else if (browserLang === 'ja') {
+            } else if (browserLang.startsWith('ja')) {
                 setLanguage('ja')
             }
         }
@@ -47,6 +50,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
                 break
             case 'zh':
                 setLocaleData(zh)
+                break
+            case 'zh-TW':
+                setLocaleData(zhTW)
                 break
             case 'ja':
                 setLocaleData(ja)

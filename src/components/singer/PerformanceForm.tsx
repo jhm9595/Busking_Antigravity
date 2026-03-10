@@ -134,12 +134,12 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                 if (result.error === 'DUPLICATE_SCHEDULE') {
                     alert(t('performance.form.error_duplicate'))
                 } else {
-                    alert(t('performance.form.error_submit'))
+                    alert(`${t('performance.form.error_submit')}\nReason: ${result.error}`)
                 }
             }
         } catch (error: any) {
             console.error('Failed to register:', error)
-            alert(t('performance.form.error_submit'))
+            alert(`${t('performance.form.error_submit')}\nError: ${error.message}`)
         } finally {
             setIsSubmitting(false)
         }
