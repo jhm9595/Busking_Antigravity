@@ -177,13 +177,13 @@ export const en = {
             requests: 'Requests',
         },
         tabs: {
-            setlist: 'Live Setlist',
+            setlist: "Today's Songs",
             requests: 'Song Requests',
             chat: 'Live Chat',
         },
         setlist: {
-            title: 'Live Setlist',
-            empty: 'Setlist is empty.',
+            title: "Today's Songs",
+            empty: 'No songs added yet.',
             add_button: 'Add Song',
             reorder_hint: 'Long press to reorder',
         },

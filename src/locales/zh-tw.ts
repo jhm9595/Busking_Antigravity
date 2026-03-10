@@ -179,13 +179,13 @@ export const zhTW: LocaleTypes = {
             requests: '點歌請求',
         },
         tabs: {
-            setlist: '現場歌單',
+            setlist: '今日曲目',
             requests: '點歌管理',
             chat: '即時聊天',
         },
         setlist: {
-            title: '現場歌單',
-            empty: '歌單中沒有歌曲。',
+            title: '今日曲目',
+            empty: '尚未添加任何曲目。',
             add_button: '新增歌曲',
             reorder_hint: '拖動以調整順序',
         },

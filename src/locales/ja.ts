@@ -179,13 +179,13 @@ export const ja: LocaleTypes = {
             requests: 'リクエスト',
         },
         tabs: {
-            setlist: 'セットリスト',
+            setlist: '今日歌う曲',
             requests: 'リクエスト管理',
             chat: 'ライブチャット',
         },
         setlist: {
-            title: 'ライブセットリスト',
-            empty: 'セットリストが空です。',
+            title: '今日歌う曲',
+            empty: 'まだ曲が登録されていません。',
             add_button: '曲を追加',
             reorder_hint: '長押しで並べ替え',
         },
