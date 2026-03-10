@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useUser, useClerk } from '@clerk/nextjs'
 import { Music, Clock, MessageSquare, Users, LogOut, LayoutDashboard, Share2, Shield, Calendar } from 'lucide-react'
 import SongManagement from '@/components/singer/SongManagement'
@@ -178,10 +179,12 @@ export default function SingerDashboard() {
             <nav className="sticky top-0 z-50 bg-gray-950/80 backdrop-blur-xl border-b border-white/5 px-6 py-4">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                     <div className="flex items-center gap-6">
-                        <div className="text-2xl font-black bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent italic tracking-tighter cursor-default">ANTIGRAVITY.</div>
-                        <div className="hidden md:flex items-center gap-1 bg-white/5 rounded-full p-1 border border-white/5">
-                            <button className="px-4 py-1.5 rounded-full text-xs font-black uppercase text-white bg-indigo-600 shadow-lg shadow-indigo-600/20">Dashboard</button>
-                            <button onClick={() => router.push('/explore')} className="px-4 py-1.5 rounded-full text-xs font-black uppercase text-gray-500 hover:text-white transition-colors">Explore</button>
+                        <Link href="/" className="text-2xl font-black bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent italic tracking-tighter hover:scale-105 transition-transform">
+                            ANTIGRAVITY.
+                        </Link>
+                        <div className="hidden md:flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20 italic">
+                            <LayoutDashboard className="w-3 h-3" />
+                            {t('dashboard.title')}
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
@@ -190,6 +193,7 @@ export default function SingerDashboard() {
                         <button
                             onClick={handleLogout}
                             className="bg-white/5 hover:bg-white/10 text-gray-400 p-2.5 rounded-xl border border-white/10 transition-all hover:scale-105 active:scale-95"
+                            title={t('dashboard.logout')}
                         >
                             <LogOut className="w-5 h-5" />
                         </button>
