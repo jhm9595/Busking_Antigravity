@@ -15,6 +15,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import ConfirmationModal from '@/components/common/ConfirmationModal'
 import FollowersList from '@/components/singer/FollowersList'
 import ClockWidget from '@/components/common/ClockWidget'
+import PointChargeModal from '@/components/common/PointChargeModal'
 
 export default function SingerDashboard() {
     const { t, language } = useLanguage()
@@ -29,6 +30,7 @@ export default function SingerDashboard() {
     const [origin, setOrigin] = useState('')
     const [currentTime, setCurrentTime] = useState(new Date())
     const [userPoints, setUserPoints] = useState(0)
+    const [showChargeModal, setShowChargeModal] = useState(false)
 
     useEffect(() => {
         setOrigin(window.location.origin)
@@ -42,13 +44,8 @@ export default function SingerDashboard() {
         }
     }, [user?.id])
 
-    const handleChargeTest = async () => {
-        if (!user?.id) return
-        const res = await chargePoints(user.id, 1000)
-        if (res.success) {
-            setUserPoints(res.points!)
-            alert(`Charged 1000P! Total: ${res.points}P`)
-        }
+    const handleChargeTest = () => {
+        setShowChargeModal(true)
     }
 
     const triggerSongsRefresh = () => setSongsRefreshKey(prev => prev + 1)
@@ -357,6 +354,15 @@ export default function SingerDashboard() {
                     setConfirmModal(prev => ({ ...prev, isOpen: false }))
                 }}
             />
+
+            {user?.id && (
+                <PointChargeModal
+                    userId={user.id}
+                    isOpen={showChargeModal}
+                    onClose={() => setShowChargeModal(false)}
+                    onSuccess={(newPoints) => setUserPoints(newPoints)}
+                />
+            )}
         </div>
     )
 }

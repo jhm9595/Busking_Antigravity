@@ -8,6 +8,7 @@ import { getPerformanceById, getSinger, createBookingRequest, getUserPoints, cha
 import { getEffectiveStatus } from '@/utils/performance'
 import SongRequestModal from '@/components/audience/SongRequestModal'
 import BookingRequestModal from '@/components/audience/BookingRequestModal'
+import PointChargeModal from '@/components/common/PointChargeModal'
 import { Music, Clock, MessageCircle, X, Check, Archive, Calendar, MapPin, Share2, Home, MessageSquareOff, Heart } from 'lucide-react'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
@@ -20,6 +21,7 @@ export default function AudienceLivePage() {
     const [username, setUsername] = useState('')
     const [showRequestModal, setShowRequestModal] = useState(false)
     const [showBookingModal, setShowBookingModal] = useState(false)
+    const [showChargeModal, setShowChargeModal] = useState(false)
     const [singer, setSinger] = useState<any>(null)
     const [activeSocket, setActiveSocket] = useState<Socket | null>(null)
     const [showRedirectionModal, setShowRedirectionModal] = useState(false)
@@ -228,13 +230,7 @@ export default function AudienceLivePage() {
                     <span className="text-xs font-mono font-black text-amber-400">{userPoints.toLocaleString()}P</span>
                 </div>
                 <button 
-                    onClick={async () => {
-                        let fanId = user?.id || localStorage.getItem('busking_fan_id')
-                        if (fanId) {
-                            await chargePoints(fanId, 1000)
-                            refreshData()
-                        }
-                    }} 
+                    onClick={() => setShowChargeModal(true)} 
                     className="text-[8px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20 font-black uppercase"
                 >
                     {t('common.charge')} (TEST)
@@ -415,6 +411,15 @@ export default function AudienceLivePage() {
 
             <SongRequestModal isOpen={showRequestModal} onClose={() => setShowRequestModal(false)} onSubmit={handleSongRequest} />
             <BookingRequestModal isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} onSubmit={handleBookingRequest} singerName={singer?.stageName || 'Singer'} />
+            
+            {(user?.id || localStorage.getItem('busking_fan_id')) && (
+                <PointChargeModal
+                    userId={user?.id || localStorage.getItem('busking_fan_id')!}
+                    isOpen={showChargeModal}
+                    onClose={() => setShowChargeModal(false)}
+                    onSuccess={(newPoints) => setUserPoints(newPoints)}
+                />
+            )}
         </div>
     )
 }
