@@ -89,10 +89,10 @@ export const en = {
             success: 'Performance scheduled successfully!',
             error_submit: 'Failed to schedule performance',
             error_duplicate: 'Another performance is scheduled during this time.',
-            error_interval: 'Performances can only be scheduled in 30-minute intervals (e.g., 14:00, 14:30).',
             error_duration: 'End time must be after start time.',
-            error_insufficient_points: 'Insufficient points. (1000P/hr required)',
-            time_hint: '30m intervals',
+            error_min_duration: 'Minimum performance duration is 1 hour.',
+            error_insufficient_points: 'Insufficient points. (1000P/hr will be spent)',
+            time_hint: 'Min 1 hour',
         },
         details: {
             location_map: 'Location Map',

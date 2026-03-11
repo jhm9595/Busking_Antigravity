@@ -27,18 +27,33 @@ const pubClient = redisClient;
 const subClient = pubClient.duplicate();
 io.adapter(createAdapter(pubClient, subClient));
 
+/**
+ * Helper to append messages to Redis history and broadcast
+ */
+async function broadcastAndStore(performanceId, messageObj) {
+    const historyKey = `live_history:${performanceId}`;
+    try {
+        await redisClient.rpush(historyKey, JSON.stringify(messageObj));
+        await redisClient.expire(historyKey, 86400); // 1 day
+        io.in(performanceId).emit('receive_message', messageObj);
+    } catch (err) {
+        console.error('Failed to store history:', err);
+    }
+}
+
 io.on('connection', (socket) => {
     console.log(`User Connected: ${socket.id}`);
 
     socket.on('join_room', async (data) => {
         const { performanceId, username, userType, capacity = 50 } = data;
+        if (!performanceId) return;
 
-        // Count audiences across all nodes
+        // Idempotent join check can be added here if needed
         const sockets = await io.in(performanceId).fetchSockets();
         const audienceCount = sockets.filter(s => s.data && s.data.userType === 'audience').length;
 
         if (userType === 'audience' && audienceCount >= capacity) {
-            socket.emit('join_error', { message: '채팅방 인원이 가득 찼습니다. (Room is full)' });
+            socket.emit('join_error', { message: '채팅방 인원이 가득 찼습니다.' });
             return;
         }
 
@@ -55,6 +70,7 @@ io.on('connection', (socket) => {
 
         socket.emit('chat_status', { status });
 
+        // Always allow singer to see history, audience only if open
         if (status === 'open' || userType === 'singer') {
             const historyKey = `live_history:${performanceId}`;
             const historyStr = await redisClient.lrange(historyKey, 0, -1);
@@ -65,126 +81,116 @@ io.on('connection', (socket) => {
         }
     });
 
+    // Unify chat opening logic
     socket.on('open_chat', async (data) => {
         const { performanceId } = data;
+        if (!performanceId) return;
+
         const statusKey = `live_status:${performanceId}`;
-        await redisClient.set(statusKey, 'open', 'EX', 86400); // Expire in 1 day
+        await redisClient.set(statusKey, 'open', 'EX', 86400);
         io.in(performanceId).emit('chat_status', { status: 'open' });
 
-        const sysMsg = {
+        await broadcastAndStore(performanceId, {
             performanceId,
             author: 'System',
-            message: '채팅창이 열렸습니다! (Chat is now open!)',
+            message: '채팅창이 열렸습니다!',
             timestamp: new Date().toISOString(),
             type: 'system'
-        };
-        const historyKey = `live_history:${performanceId}`;
-        await redisClient.rpush(historyKey, JSON.stringify(sysMsg));
-        await redisClient.expire(historyKey, 86400);
-        io.in(performanceId).emit('receive_message', sysMsg);
+        });
     });
 
     socket.on('send_message', async (data) => {
         const { performanceId, userType } = data;
+        if (!performanceId) return;
+
         const statusKey = `live_status:${performanceId}`;
         const status = await redisClient.get(statusKey) || 'closed';
 
-        if (status !== 'open' && userType !== 'singer') {
-            // Ignore if not open
-            return;
-        }
+        if (status !== 'open' && userType !== 'singer') return;
 
-        const historyKey = `live_history:${performanceId}`;
-
-        await redisClient.rpush(historyKey, JSON.stringify(data));
-        await redisClient.expire(historyKey, 86400); // Expiry 1 day
-
-        io.in(performanceId).emit('receive_message', data);
+        await broadcastAndStore(performanceId, data);
     });
 
     socket.on('system_alert', async (data) => {
         const { performanceId, message } = data;
-        const sysMsg = {
+        if (!performanceId) return;
+
+        await broadcastAndStore(performanceId, {
             performanceId,
             author: 'System',
             message,
             timestamp: new Date().toISOString(),
             type: 'system',
             isAlert: true
-        };
-
-        const historyKey = `live_history:${performanceId}`;
-        await redisClient.rpush(historyKey, JSON.stringify(sysMsg));
-        await redisClient.expire(historyKey, 86400);
-
-        io.in(performanceId).emit('receive_message', sysMsg);
+        });
     });
 
     socket.on('song_requested', async (data) => {
         const { performanceId, title, artist, username, timestamp } = data;
+        if (!performanceId) return;
 
-        // Save as a system message in history so late-joiners see it
-        const sysMsg = {
+        await broadcastAndStore(performanceId, {
             performanceId,
             author: 'System',
-            message: `New Song Request: ${title} ${artist ? ' - ' + artist : ''} by ${username}`,
+            message: `새로운 신청곡: ${title} ${artist ? ' - ' + artist : ''} (신청: ${username})`,
             timestamp: timestamp || new Date().toISOString(),
             type: 'system',
             isRequest: true,
-            requestData: {
-                title,
-                artist,
-                username
-            }
-        };
-
-        const historyKey = `live_history:${performanceId}`;
-        await redisClient.rpush(historyKey, JSON.stringify(sysMsg));
-        await redisClient.expire(historyKey, 86400);
-
-        io.in(performanceId).emit('receive_message', sysMsg);
-        // Also emit the raw event for non-chat listeners
+            requestData: { title, artist, username }
+        });
+        
         io.in(performanceId).emit('song_requested', data);
-    });
-
-    socket.on('song_status_updated', (data) => {
-        const { performanceId } = data;
-        io.in(performanceId).emit('song_status_updated', data);
-    });
-
-    socket.on('performance_ended', (data) => {
-        const { performanceId } = data;
-        io.in(performanceId).emit('performance_ended', data);
-    });
-
-    socket.on('chat_status_toggled', (data) => {
-        const { performanceId, enabled } = data;
-        io.in(performanceId).emit('chat_status_toggled', { enabled });
     });
 
     socket.on('donation_received', async (data) => {
         const { performanceId, username, amount } = data;
-        const sysMsg = {
+        if (!performanceId) return;
+
+        await broadcastAndStore(performanceId, {
             performanceId,
             author: 'System',
-            message: `${username} sponsored ${amount} points! 💖`,
+            message: `${username}님이 ${amount} 포인트를 후원하셨습니다! 💖`,
             timestamp: new Date().toISOString(),
             type: 'donation',
             amount
-        };
+        });
+    });
 
-        const historyKey = `live_history:${performanceId}`;
-        await redisClient.rpush(historyKey, JSON.stringify(sysMsg));
-        await redisClient.expire(historyKey, 86400);
+    socket.on('chat_status_toggled', async (data) => {
+        const { performanceId, enabled } = data;
+        if (!performanceId) return;
 
-        io.in(performanceId).emit('receive_message', sysMsg);
+        const statusKey = `live_status:${performanceId}`;
+        const newStatus = enabled ? 'open' : 'closed';
+        await redisClient.set(statusKey, newStatus, 'EX', 86400);
+        
+        io.in(performanceId).emit('chat_status', { status: newStatus });
+        io.in(performanceId).emit('chat_status_toggled', { enabled });
+
+        if (enabled) {
+            await broadcastAndStore(performanceId, {
+                performanceId,
+                author: 'System',
+                message: '가수가 채팅방을 열었습니다!',
+                timestamp: new Date().toISOString(),
+                type: 'system'
+            });
+        }
+    });
+
+    socket.on('song_status_updated', (data) => {
+        const { performanceId } = data;
+        if (performanceId) io.in(performanceId).emit('song_status_updated', data);
+    });
+
+    socket.on('performance_ended', (data) => {
+        const { performanceId } = data;
+        if (performanceId) io.in(performanceId).emit('performance_ended', data);
     });
 
     socket.on('disconnect', () => {
-        console.log('User Disconnected', socket.id);
         if (socket.data && socket.data.performanceId) {
             const perfId = socket.data.performanceId;
-            // Slightly delay to ensure adapter fully removes the socket
             setTimeout(async () => {
                 try {
                     const sockets = await io.in(perfId).fetchSockets();

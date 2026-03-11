@@ -134,8 +134,8 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                 const error = (result as any).error
                 if (error === 'DUPLICATE_SCHEDULE') {
                     alert(t('performance.form.error_duplicate'))
-                } else if (error === 'INVALID_INTERVAL') {
-                    alert(t('performance.form.error_interval'))
+                } else if (error === 'MIN_DURATION_NOT_MET') {
+                    alert(t('performance.form.error_min_duration'))
                 } else if (error === 'INVALID_DURATION') {
                     alert(t('performance.form.error_duration'))
                 } else if (error === 'INSUFFICIENT_POINTS') {
@@ -209,12 +209,11 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                     </div>
                 )}
 
-                {/* Date Time Selection using Reusable Component */}
-                <div className="space-y-4">
-                    <div className="flex flex-col gap-1.5">
+                {/* Date Time Selection: Side-by-side on Desktop */}
+                <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 flex flex-col gap-1.5">
                         <div className="flex justify-between items-center px-1">
                             <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('performance.form.start_time')}</span>
-                            <span className="text-[10px] font-black text-indigo-500 italic uppercase">{t('performance.form.time_hint')}</span>
                         </div>
                         <DateTimePicker
                             label=""
@@ -223,7 +222,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                             required
                         />
                     </div>
-                    <div className="flex flex-col gap-1.5">
+                    <div className="flex-1 flex flex-col gap-1.5">
                         <div className="flex justify-between items-center px-1">
                             <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('performance.form.end_time')}</span>
                             <span className="text-[10px] font-black text-indigo-500 italic uppercase">{t('performance.form.time_hint')}</span>

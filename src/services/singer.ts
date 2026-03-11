@@ -254,17 +254,18 @@ export async function addPerformance(data: {
         const newStart = new Date(data.startTime)
         const newEnd = new Date(data.endTime)
 
-        // 1. Enforce 30-minute intervals
-        if (newStart.getMinutes() % 30 !== 0 || newEnd.getMinutes() % 30 !== 0) {
-            return { success: false, error: 'INVALID_INTERVAL' }
-        }
-
-        // 2. Calculate duration and cost (1000P per hour)
+        // 1. Calculate duration and enforce minimum (1 hour)
         const durationMs = newEnd.getTime() - newStart.getTime()
         const durationHours = durationMs / (1000 * 60 * 60)
-        const totalCost = Math.ceil(durationHours * 1000)
+        
+        if (durationHours < 1) {
+            return { success: false, error: 'MIN_DURATION_NOT_MET' }
+        }
 
-        if (totalCost <= 0) return { success: false, error: 'INVALID_DURATION' }
+        // 2. Calculate cost (1000P per hour, rounded UP)
+        // e.g., 58 mins -> 1000P, 1h 5m -> 2000P
+        const billableHours = Math.ceil(durationHours)
+        const totalCost = billableHours * 1000
 
         return await prisma.$transaction(async (tx) => {
             // 3. Check and deduct points

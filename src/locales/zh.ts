@@ -91,10 +91,10 @@ export const zh: LocaleTypes = {
             success: '演出登记成功！',
             error_submit: '登记失败',
             error_duplicate: '该时段已有其他演出排期。',
-            error_interval: '演出时间必须以30分钟为单位设定。(例如: 14:00, 14:30)',
             error_duration: '结束时间必须晚于开始时间。',
-            error_insufficient_points: '积分不足。(每小时需要1000积分)',
-            time_hint: '30分钟单位',
+            error_min_duration: '演出时长必须至少为1小时。',
+            error_insufficient_points: '积分不足。(每小时将消耗1000积分)',
+            time_hint: '至少1小时',
         },
         details: {
             location_map: '演出位置图',

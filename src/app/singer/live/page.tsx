@@ -68,22 +68,34 @@ function LivePerformanceContent() {
         }
     }, [performance?.singerId])
 
-    const handleOpenChatWithPoints = async () => {
+    const handleOpenChat = async (usePoints: boolean = false) => {
         if (!performance || isEnablingChat) return
-        if (userPoints < 100) {
+        
+        if (usePoints && userPoints < 100) {
             alert(t('common.insufficient_points'))
             return
         }
 
         setIsEnablingChat(true)
         try {
-            const res = await usePointsForChat(performance.singerId, performance.id)
-            if (res.success) {
+            let success = false
+            if (usePoints) {
+                const res = await usePointsForChat(performance.singerId, performance.id)
+                success = res.success
+            } else {
+                const res = await togglePerformanceChat(performance.id, true)
+                success = res.success
+            }
+
+            if (success) {
+                // autoritative signal to socket server to open chat and update Redis
                 if (socketRef.current) {
                     socketRef.current.emit('chat_status_toggled', { performanceId: performance.id, enabled: true })
                 }
-                const newPoints = await getUserPoints(performance.singerId)
-                setUserPoints(newPoints)
+                if (usePoints) {
+                    const newPoints = await getUserPoints(performance.singerId)
+                    setUserPoints(newPoints)
+                }
                 await refreshData()
             } else {
                 alert('Failed to open chat.')
@@ -358,16 +370,16 @@ function LivePerformanceContent() {
                             <span className="text-sm font-mono font-black">{userPoints.toLocaleString()}P</span>
                         </div>
                     </div>
-                    {!performance?.chatEnabled && (
-                        <button
-                            onClick={handleOpenChatWithPoints}
-                            disabled={isEnablingChat}
-                            className="hidden md:flex bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 px-4 py-2.5 rounded-xl text-xs font-black items-center gap-2 transition-all border border-amber-500/30 shadow-lg shadow-amber-500/5"
-                        >
-                            {isEnablingChat ? <RotateCcw className="w-4 h-4 animate-spin" /> : <MessageSquarePlus className="w-4 h-4" />}
-                            {t('chat.open_with_points')}
-                        </button>
-                    )}
+                        {!performance?.chatEnabled && (
+                            <button
+                                onClick={() => handleOpenChat(true)}
+                                disabled={isEnablingChat}
+                                className="hidden md:flex bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 px-4 py-2.5 rounded-xl text-xs font-black items-center gap-2 transition-all border border-amber-500/30 shadow-lg shadow-amber-500/5"
+                            >
+                                {isEnablingChat ? <RotateCcw className="w-4 h-4 animate-spin" /> : <MessageSquarePlus className="w-4 h-4" />}
+                                {t('chat.open_with_points')}
+                            </button>
+                        )}
                     <div className="hidden md:flex flex-col items-end justify-center px-4 border-r border-white/5">
                         <div className="text-[9px] uppercase font-black text-gray-500 tracking-[0.2em] mb-0.5">{t('live.header.viewing')}</div>
                         <div className="text-xl font-mono font-black text-indigo-400 leading-none">{viewingCount}</div>
@@ -414,7 +426,7 @@ function LivePerformanceContent() {
                     </button>
                 ) : (
                     <button
-                        onClick={handleOpenChatWithPoints}
+                        onClick={() => handleOpenChat(true)}
                         disabled={isEnablingChat}
                         className="flex-1 py-3 text-xs font-black transition-all rounded-lg text-amber-500 bg-amber-500/10 border border-amber-500/20 flex items-center justify-center gap-2"
                     >
