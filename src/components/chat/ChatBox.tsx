@@ -11,8 +11,9 @@ interface Message {
     author: string
     message: string
     timestamp: string
-    type: 'singer' | 'audience' | 'system'
+    type: 'singer' | 'audience' | 'system' | 'donation'
     avatarConfig?: AvatarConfig | null
+    amount?: number
     isRequest?: boolean
     isAlert?: boolean
     requestData?: {
@@ -344,6 +345,29 @@ export default function ChatBox({ performanceId, username, userType, chatCapacit
                                                     </button>
                                                 </div>
                                             )}
+                                        </div>
+                                        <span className="text-[9px] text-gray-600 mt-1">{formatTime(msg.timestamp)}</span>
+                                    </div>
+                                )
+                            }
+
+                            // Donation Message
+                            if (msg.type === 'donation') {
+                                return (
+                                    <div key={idx} className="flex flex-col items-center my-4 animate-in zoom-in duration-500 w-full">
+                                        <div className="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 p-[1px] rounded-2xl shadow-[0_0_20px_rgba(245,158,11,0.3)] w-[95%] transform hover:scale-[1.02] transition-transform">
+                                            <div className="bg-gray-900 rounded-[15px] p-4 flex flex-col items-center relative overflow-hidden">
+                                                <div className="absolute -top-4 -right-4 w-16 h-16 bg-amber-500/10 rounded-full blur-xl animate-pulse" />
+                                                <div className="flex items-center gap-2 mb-2 text-amber-400 font-black italic text-[10px] uppercase tracking-[0.2em]">
+                                                    <span className="animate-bounce">💖</span> SPONSORSHIP RECEIVED <span className="animate-bounce">💖</span>
+                                                </div>
+                                                <p className="text-white font-black text-center text-sm mb-1 leading-tight">
+                                                    <span className="text-amber-400">{msg.message.split('sponsored')[0]}</span>
+                                                    sponsored 
+                                                    <span className="text-amber-400 font-mono mx-1">{msg.amount?.toLocaleString()}P</span>
+                                                </p>
+                                                <div className="text-[10px] text-gray-500 font-bold italic opacity-60">THANK YOU FOR THE SUPPORT!</div>
+                                            </div>
                                         </div>
                                         <span className="text-[9px] text-gray-600 mt-1">{formatTime(msg.timestamp)}</span>
                                     </div>

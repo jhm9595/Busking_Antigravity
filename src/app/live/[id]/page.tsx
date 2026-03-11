@@ -64,12 +64,24 @@ export default function AudienceLivePage() {
 
     // ... handleSponsor logic
     const handleSponsor = async (amount: number) => {
-        let fanId = user?.id || localStorage.getItem('busking_fan_id')
-        if (!fanId || !singer?.id) return
+        if (!isLoaded) return
+        if (!user) {
+            router.push(`/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`)
+            return
+        }
 
-        const res = await sponsorSinger(fanId, singer.id, amount)
+        if (!singer?.id) return
+
+        const res = await sponsorSinger(user.id, singer.id, amount)
         if (res.success) {
-            alert(`Sponsored ${amount}P to ${singer.stageName}!`)
+            // alert(`Sponsored ${amount}P to ${singer.stageName}!`)
+            if (activeSocket) {
+                activeSocket.emit('donation_received', {
+                    performanceId: id,
+                    username: user.fullName || user.username || user.id,
+                    amount
+                })
+            }
             refreshData()
         } else {
             const error = (res as any).error

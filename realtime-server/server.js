@@ -157,6 +157,29 @@ io.on('connection', (socket) => {
         io.in(performanceId).emit('performance_ended', data);
     });
 
+    socket.on('chat_status_toggled', (data) => {
+        const { performanceId, enabled } = data;
+        io.in(performanceId).emit('chat_status_toggled', { enabled });
+    });
+
+    socket.on('donation_received', async (data) => {
+        const { performanceId, username, amount } = data;
+        const sysMsg = {
+            performanceId,
+            author: 'System',
+            message: `${username} sponsored ${amount} points! 💖`,
+            timestamp: new Date().toISOString(),
+            type: 'donation',
+            amount
+        };
+
+        const historyKey = `live_history:${performanceId}`;
+        await redisClient.rpush(historyKey, JSON.stringify(sysMsg));
+        await redisClient.expire(historyKey, 86400);
+
+        io.in(performanceId).emit('receive_message', sysMsg);
+    });
+
     socket.on('disconnect', () => {
         console.log('User Disconnected', socket.id);
         if (socket.data && socket.data.performanceId) {
