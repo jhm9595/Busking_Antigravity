@@ -7,8 +7,10 @@ If this file changed, treat it as the latest priority and routing source.
 ## Current Priority
 
 1. Restore build stability.
-2. Validate live chat and QA-critical flows.
-3. Review i18n and UX consistency.
+2. Fix the singer live remaining-time display to `HH:MM:SS`.
+3. Fix audience donation messages so the event appears in chat as expected.
+4. Validate live chat and QA-critical flows.
+5. Review i18n and UX consistency.
 
 ## Active Owner
 
@@ -21,11 +23,17 @@ If this file changed, treat it as the latest priority and routing source.
 - Fix the current build blocker first.
 - Reproduce with `npm run build`.
 - Remove or replace the external Google font dependency in `src/app/layout.tsx`.
+- After the build blocker, update singer live remaining-time display to `HH:MM:SS`.
+- The affected route is singer performance mode in `src/app/singer/live/page.tsx`.
+- After the timer fix, investigate why audience donations are not surfacing in chat as expected.
+- The donation fix must cover both realtime delivery and chat/system-message rendering.
 - Leave a handoff with files touched, commands run, and final build status.
 
 ### Scout QA
 
 - After the build blocker is addressed, validate singer and audience flows.
+- Confirm whether singer live remaining time shows `HH:MM:SS` for sub-hour and multi-hour cases.
+- Confirm that an audience donation produces the expected chat entry exactly once.
 - Focus on chat state sync, duplicate join behavior, donation/system messages, and i18n visibility.
 - Report only confirmed findings with repro steps, expected result, actual result, and affected files.
 
@@ -43,4 +51,4 @@ If this file changed, treat it as the latest priority and routing source.
 
 ## Next Review Point
 
-- `Atlas PM` reviews again after `Forge Dev` submits the next build-status handoff.
+- `Atlas PM` reviews again after `Forge Dev` submits the next build and live-chat handoff.
