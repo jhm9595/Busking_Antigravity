@@ -10,16 +10,33 @@ datasource db {
 }
 
 model Profile {
-  id        String   @id
-  email     String?
-  role      String   @default("audience")
-  nickname  String?
-  avatarUrl String?  @map("avatar_url")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  singer    Singer?
+  id         String   @id
+  email      String?
+  role       String   @default("audience")
+  nickname   String?
+  avatarUrl  String?  @map("avatar_url")
+  points     Int      @default(0) // Added for point system
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  singer     Singer?
+  transactions PointTransaction[] // Relation to transactions
 
   @@map("profiles")
+}
+
+model PointTransaction {
+  id            String   @id @default(uuid())
+  profileId     String   @map("profile_id")
+  amount        Int      // Positive for earning/charging, negative for spending
+  type          String   // "CHARGE", "SPONSORSHIP", "CHAT_OPEN", "REWARD"
+  description   String?
+  targetSingerId String?  @map("target_singer_id") // For sponsorship tracking
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  profile       Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("point_transactions")
 }
 
 model Singer {

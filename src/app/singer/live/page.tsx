@@ -12,9 +12,13 @@ import {
     getSongs,
     updatePerformanceSetlist,
     createSongRequest,
-    updateSongStatus
+    updateSongStatus,
+    getUserPoints,
+    usePointsForChat,
+    togglePerformanceChat,
+    chargePoints
 } from '@/services/singer'
-import { Music, Clock, MessageCircle, X, Check, Plus, List, GripVertical, Search, MessageSquare, User as UserIcon, Trash2, LayoutDashboard, LogOut, Play, RotateCcw } from 'lucide-react'
+import { Music, Clock, MessageCircle, X, Check, Plus, List, GripVertical, Search, MessageSquare, User as UserIcon, Trash2, LayoutDashboard, LogOut, Play, RotateCcw, MessageSquarePlus, Coins } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ChatBox from '@/components/chat/ChatBox'
 import ConfirmationModal from '@/components/common/ConfirmationModal'
@@ -54,6 +58,40 @@ function LivePerformanceContent() {
     const [realtimeStatus, setRealtimeStatus] = useState<'connecting' | 'connected' | 'error'>('connecting')
     const [socket, setSocket] = useState<any>(null)
     const [isMobile, setIsMobile] = useState(false)
+    const [userPoints, setUserPoints] = useState(0)
+    const [isEnablingChat, setIsEnablingChat] = useState(false)
+
+    // Fetch user points
+    useEffect(() => {
+        if (performance?.singerId) {
+            getUserPoints(performance.singerId).then(setUserPoints)
+        }
+    }, [performance?.singerId])
+
+    const handleOpenChatWithPoints = async () => {
+        if (!performance || isEnablingChat) return
+        if (userPoints < 100) {
+            alert(t('common.insufficient_points'))
+            return
+        }
+
+        setIsEnablingChat(true)
+        try {
+            const res = await usePointsForChat(performance.singerId, performance.id)
+            if (res.success) {
+                if (socketRef.current) {
+                    socketRef.current.emit('chat_status_toggled', { performanceId: performance.id, enabled: true })
+                }
+                const newPoints = await getUserPoints(performance.singerId)
+                setUserPoints(newPoints)
+                await refreshData()
+            } else {
+                alert('Failed to open chat.')
+            }
+        } finally {
+            setIsEnablingChat(false)
+        }
+    }
 
     // Handle screen resize to toggle between mobile and desktop views
     useEffect(() => {
@@ -314,6 +352,22 @@ function LivePerformanceContent() {
                     </div>
                 </div>
                 <div className="flex gap-2">
+                    <div className="hidden lg:flex flex-col items-end justify-center px-4 border-r border-white/5 bg-black/20 rounded-xl mr-2">
+                        <div className="flex items-center gap-1.5 text-amber-400">
+                            <Coins className="w-3.5 h-3.5" />
+                            <span className="text-sm font-mono font-black">{userPoints.toLocaleString()}P</span>
+                        </div>
+                    </div>
+                    {!performance?.chatEnabled && (
+                        <button
+                            onClick={handleOpenChatWithPoints}
+                            disabled={isEnablingChat}
+                            className="hidden md:flex bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 px-4 py-2.5 rounded-xl text-xs font-black items-center gap-2 transition-all border border-amber-500/30 shadow-lg shadow-amber-500/5"
+                        >
+                            {isEnablingChat ? <RotateCcw className="w-4 h-4 animate-spin" /> : <MessageSquarePlus className="w-4 h-4" />}
+                            {t('chat.open_with_points')}
+                        </button>
+                    )}
                     <div className="hidden md:flex flex-col items-end justify-center px-4 border-r border-white/5">
                         <div className="text-[9px] uppercase font-black text-gray-500 tracking-[0.2em] mb-0.5">{t('live.header.viewing')}</div>
                         <div className="text-xl font-mono font-black text-indigo-400 leading-none">{viewingCount}</div>
@@ -351,12 +405,23 @@ function LivePerformanceContent() {
                         </span>
                     )}
                 </button>
-                <button
-                    onClick={() => setActiveTab('chat')}
-                    className={`flex-1 py-3 text-xs font-black transition-all rounded-lg ${activeTab === 'chat' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-gray-500 hover:text-gray-300'}`}
-                >
-                    {t('live.tabs.chat')}
-                </button>
+                {performance?.chatEnabled ? (
+                    <button
+                        onClick={() => setActiveTab('chat')}
+                        className={`flex-1 py-3 text-xs font-black transition-all rounded-lg ${activeTab === 'chat' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-gray-500 hover:text-gray-300'}`}
+                    >
+                        {t('live.tabs.chat')}
+                    </button>
+                ) : (
+                    <button
+                        onClick={handleOpenChatWithPoints}
+                        disabled={isEnablingChat}
+                        className="flex-1 py-3 text-xs font-black transition-all rounded-lg text-amber-500 bg-amber-500/10 border border-amber-500/20 flex items-center justify-center gap-2"
+                    >
+                        {isEnablingChat ? <RotateCcw className="w-3 h-3 animate-spin" /> : <Coins className="w-3 h-3" />}
+                        {t('common.points')}
+                    </button>
+                )}
             </div>
 
             <div className="flex-1 min-h-0 relative">

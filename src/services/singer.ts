@@ -405,6 +405,115 @@ export async function deletePerformance(id: string) {
     }
 }
 
+// --- Point System ---
+export async function getUserPoints(userId: string) {
+    const profile = await prisma.profile.findUnique({
+        where: { id: userId },
+        select: { points: true }
+    })
+    return profile?.points || 0
+}
+
+export async function chargePoints(userId: string, amount: number) {
+    try {
+        const profile = await prisma.profile.update({
+            where: { id: userId },
+            data: { points: { increment: amount } }
+        })
+        await prisma.pointTransaction.create({
+            data: {
+                profileId: userId,
+                amount,
+                type: 'CHARGE',
+                description: 'Point charged'
+            }
+        })
+        revalidatePath('/singer/dashboard')
+        return { success: true, points: profile.points }
+    } catch (error) {
+        return { success: false, error }
+    }
+}
+
+export async function sponsorSinger(fanId: string, singerId: string, amount: number) {
+    try {
+        return await prisma.$transaction(async (tx) => {
+            // 1. Deduct from fan
+            const fan = await tx.profile.findUnique({ where: { id: fanId } })
+            if (!fan || fan.points < amount) throw new Error('INSUFFICIENT_POINTS')
+
+            await tx.profile.update({
+                where: { id: fanId },
+                data: { points: { decrement: amount } }
+            })
+
+            // 2. Add to singer (singer's profile)
+            await tx.profile.update({
+                where: { id: singerId },
+                data: { points: { increment: amount } }
+            })
+
+            // 3. Record transactions
+            await tx.pointTransaction.create({
+                data: {
+                    profileId: fanId,
+                    amount: -amount,
+                    type: 'SPONSORSHIP',
+                    targetSingerId: singerId,
+                    description: `Sponsored singer ${singerId}`
+                }
+            })
+
+            await tx.pointTransaction.create({
+                data: {
+                    profileId: singerId,
+                    amount: amount,
+                    type: 'REWARD',
+                    description: `Received sponsorship from fan ${fanId}`
+                }
+            })
+
+            return { success: true }
+        })
+    } catch (error: any) {
+        console.error('Sponsorship failed:', error)
+        return { success: false, error: error.message }
+    }
+}
+
+export async function usePointsForChat(singerId: string, performanceId: string) {
+    const CHAT_OPEN_COST = 100 // Example cost
+    try {
+        return await prisma.$transaction(async (tx) => {
+            const profile = await tx.profile.findUnique({ where: { id: singerId } })
+            if (!profile || profile.points < CHAT_OPEN_COST) throw new Error('INSUFFICIENT_POINTS')
+
+            await tx.profile.update({
+                where: { id: singerId },
+                data: { points: { decrement: CHAT_OPEN_COST } }
+            })
+
+            await tx.pointTransaction.create({
+                data: {
+                    profileId: singerId,
+                    amount: -CHAT_OPEN_COST,
+                    type: 'CHAT_OPEN',
+                    description: `Opened chat for performance ${performanceId}`
+                }
+            })
+
+            await tx.performance.update({
+                where: { id: performanceId },
+                data: { chatEnabled: true }
+            })
+
+            return { success: true }
+        })
+    } catch (error: any) {
+        return { success: false, error: error.message }
+    }
+}
+
 export async function getSinger(id: string) {
     const singer = await prisma.singer.findUnique({
         where: { id },

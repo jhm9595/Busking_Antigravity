@@ -4,11 +4,11 @@ import { useParams, useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ChatBox from '@/components/chat/ChatBox'
 import io, { Socket } from 'socket.io-client'
-import { getPerformanceById, getSinger, createBookingRequest } from '@/services/singer'
+import { getPerformanceById, getSinger, createBookingRequest, getUserPoints, chargePoints, sponsorSinger } from '@/services/singer'
 import { getEffectiveStatus } from '@/utils/performance'
 import SongRequestModal from '@/components/audience/SongRequestModal'
 import BookingRequestModal from '@/components/audience/BookingRequestModal'
-import { Music, Clock, MessageCircle, X, Check, Archive, Calendar, MapPin, Share2, Home, MessageSquareOff } from 'lucide-react'
+import { Music, Clock, MessageCircle, X, Check, Archive, Calendar, MapPin, Share2, Home, MessageSquareOff, Heart } from 'lucide-react'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 
@@ -27,6 +27,7 @@ export default function AudienceLivePage() {
     const [realtimeStatus, setRealtimeStatus] = useState<'connecting' | 'connected' | 'error'>('connecting')
     const [viewingCount, setViewingCount] = useState(0)
     const [isFollowed, setIsFollowed] = useState(false)
+    const [userPoints, setUserPoints] = useState(0)
     const { user, isLoaded } = useUser()
     const { t } = useLanguage()
 
@@ -40,6 +41,13 @@ export default function AudienceLivePage() {
                 if (p.singerId) {
                     const s = await getSinger(p.singerId)
                     setSinger(s)
+                    
+                    // Fetch user points if logged in
+                    let fanId = user?.id || localStorage.getItem('busking_fan_id')
+                    if (fanId) {
+                        getUserPoints(fanId).then(setUserPoints)
+                    }
+
                     if (user?.id) {
                         const followRes = await fetch(`/api/singers/${p.singerId}/follow?fanId=${user.id}`)
                         if (followRes.ok) {
@@ -53,6 +61,21 @@ export default function AudienceLivePage() {
             console.error('Error refreshing audience data:', error)
         }
     }, [id, user?.id])
+
+    // ... handleSponsor logic
+    const handleSponsor = async (amount: number) => {
+        let fanId = user?.id || localStorage.getItem('busking_fan_id')
+        if (!fanId || !singer?.id) return
+
+        const res = await sponsorSinger(fanId, singer.id, amount)
+        if (res.success) {
+            alert(`Sponsored ${amount}P to ${singer.stageName}!`)
+            refreshData()
+        } else {
+            const error = (res as any).error
+            alert(error === 'INSUFFICIENT_POINTS' ? t('common.insufficient_points') : 'Sponsorship failed.')
+        }
+    }
 
     useEffect(() => {
         if (isLoaded) refreshData()
@@ -172,6 +195,10 @@ export default function AudienceLivePage() {
                     </Link>
                 </div>
                 <div className="flex gap-2">
+                    <div className="hidden sm:flex flex-col items-end justify-center px-3 bg-white/5 rounded-xl border border-white/5">
+                        <span className="text-[8px] font-black text-amber-400/50 uppercase tracking-widest leading-none mb-1">{t('common.points')}</span>
+                        <span className="text-xs font-mono font-black text-amber-400 leading-none">{userPoints.toLocaleString()}P</span>
+                    </div>
                     <button
                         onClick={handleFollow}
                         className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg italic ${isFollowed ? 'bg-white/5 text-gray-400 border border-white/10' : 'bg-indigo-600 text-white shadow-indigo-600/30'}`}
@@ -181,6 +208,26 @@ export default function AudienceLivePage() {
                     <button onClick={handleShare} className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 transition-all active:scale-95"><Share2 className="w-4 h-4" /></button>
                 </div>
             </header>
+
+            {/* Sub-header for points on mobile */}
+            <div className="sm:hidden bg-gray-950/40 px-4 py-1.5 border-b border-white/5 flex justify-between items-center shrink-0">
+                <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black text-amber-400/70 uppercase tracking-widest">{t('common.points')}:</span>
+                    <span className="text-xs font-mono font-black text-amber-400">{userPoints.toLocaleString()}P</span>
+                </div>
+                <button 
+                    onClick={async () => {
+                        let fanId = user?.id || localStorage.getItem('busking_fan_id')
+                        if (fanId) {
+                            await chargePoints(fanId, 1000)
+                            refreshData()
+                        }
+                    }} 
+                    className="text-[8px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20 font-black uppercase"
+                >
+                    {t('common.charge')} (TEST)
+                </button>
+            </div>
 
             <main className="flex-1 overflow-y-auto flex flex-col p-4 pb-32 custom-scrollbar">
                 {isCompleted ? (
@@ -313,16 +360,22 @@ export default function AudienceLivePage() {
 
             {!isCompleted && (
                 <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/90 to-transparent flex justify-center z-40 pointer-events-none">
-                    <div className="flex gap-3 w-full max-w-lg pointer-events-auto">
+                    <div className="flex gap-2 w-full max-w-lg pointer-events-auto">
                         <button
                             onClick={() => setShowRequestModal(true)}
-                            className="flex-1 bg-indigo-600 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-2xl shadow-indigo-600/40 flex items-center justify-center gap-2 hover:bg-indigo-500 hover:scale-[1.02] active:scale-95 transition-all border border-indigo-500/50 italic"
+                            className="flex-1 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all border border-indigo-500/30 italic flex items-center justify-center gap-2"
                         >
                             <Music className="w-4 h-4" /> {t('song_request.title')}
                         </button>
                         <button
+                            onClick={() => handleSponsor(500)}
+                            className="flex-1 bg-amber-500 text-black py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl hover:bg-amber-400 hover:scale-[1.02] active:scale-95 transition-all border border-amber-400/50 italic flex items-center justify-center gap-2"
+                        >
+                            <Heart className="w-4 h-4 fill-current" /> {t('live.sponsor_btn')} (500P)
+                        </button>
+                        <button
                             onClick={() => setShowBookingModal(true)}
-                            className="flex-1 bg-white text-black py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-2xl hover:bg-gray-100 hover:scale-[1.02] active:scale-95 transition-all border border-white/20 flex items-center justify-center gap-2 italic"
+                            className="flex-1 bg-white text-black py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl hover:bg-gray-100 hover:scale-[1.02] active:scale-95 transition-all border border-white/20 italic flex items-center justify-center gap-2"
                         >
                             <Clock className="w-4 h-4" /> {t('booking.modal.title')}
                         </button>

@@ -10,7 +10,7 @@ import PerformanceManagement from '@/components/singer/PerformanceManagement'
 import BookingRequestsList from '@/components/singer/BookingRequestsList'
 import SingerQRCard from '@/components/singer/SingerQRCard'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher'
-import { syncUserProfile, getSinger, registerSinger, updateSingerProfile, getPerformances, updatePerformanceStatus, withdrawUser, updateNickname } from '@/services/singer'
+import { syncUserProfile, getSinger, registerSinger, updateSingerProfile, getPerformances, updatePerformanceStatus, withdrawUser, updateNickname, getUserPoints, chargePoints } from '@/services/singer'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ConfirmationModal from '@/components/common/ConfirmationModal'
 import FollowersList from '@/components/singer/FollowersList'
@@ -28,12 +28,28 @@ export default function SingerDashboard() {
     const [songsRefreshKey, setSongsRefreshKey] = useState(0)
     const [origin, setOrigin] = useState('')
     const [currentTime, setCurrentTime] = useState(new Date())
+    const [userPoints, setUserPoints] = useState(0)
 
     useEffect(() => {
         setOrigin(window.location.origin)
         const timer = setInterval(() => setCurrentTime(new Date()), 1000)
         return () => clearInterval(timer)
     }, [])
+
+    useEffect(() => {
+        if (user?.id) {
+            getUserPoints(user.id).then(setUserPoints)
+        }
+    }, [user?.id])
+
+    const handleChargeTest = async () => {
+        if (!user?.id) return
+        const res = await chargePoints(user.id, 1000)
+        if (res.success) {
+            setUserPoints(res.points!)
+            alert(`Charged 1000P! Total: ${res.points}P`)
+        }
+    }
 
     const triggerSongsRefresh = () => setSongsRefreshKey(prev => prev + 1)
 
@@ -235,6 +251,15 @@ export default function SingerDashboard() {
                         <p className="text-indigo-100/70 text-lg font-bold max-w-xl italic">{t('dashboard.subtitle') || 'Ready to take the stage tonight?'}</p>
                     </div>
                     <div className="flex gap-4 relative z-10 w-full md:w-auto">
+                        <div className="flex flex-col items-end justify-center px-6 bg-black/20 rounded-3xl border border-white/10 backdrop-blur-md">
+                            <span className="text-[10px] font-black text-indigo-200/50 uppercase tracking-widest mb-1">{t('common.points')}</span>
+                            <div className="flex items-center gap-3">
+                                <span className="text-2xl font-mono font-black text-amber-400">{userPoints.toLocaleString()}P</span>
+                                <button onClick={handleChargeTest} className="text-[9px] bg-amber-500/20 hover:bg-amber-500/40 text-amber-400 px-2 py-1 rounded-lg border border-amber-500/30 transition-all font-black uppercase">
+                                    {t('common.charge')}
+                                </button>
+                            </div>
+                        </div>
                         <button
                             onClick={handleStartMode}
                             className="flex-1 md:flex-none bg-white text-black px-10 py-5 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 border border-white/20"
