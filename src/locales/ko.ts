@@ -4,6 +4,7 @@ export const ko: LocaleTypes = {
     common: {
         loading: '불러오는 중...',
         error: '문제가 발생했습니다',
+        unknown_error: '알 수 없는 오류가 발생했습니다',
         save: '저장',
         cancel: '취소',
         delete: '삭제',
@@ -31,10 +32,13 @@ export const ko: LocaleTypes = {
         best_value: '최고의 가성비',
         most_popular: '가장 인기있는',
         insufficient_points: '포인트가 부족합니다.',
+        sponsorship_failed: '후원에 실패했습니다.',
         home_button: '홈으로',
         follow: '팔로우',
         following: '팔로잉',
-        login_to_follow: '로그인 후 팔로우 가능합니다'
+        login_to_follow: '로그인 후 팔로우 가능합니다',
+        anonymous: '익명',
+        singer_fallback: '가수'
     },
     home: {
         title: 'BuskerKing',
@@ -89,9 +93,11 @@ export const ko: LocaleTypes = {
             alert_times: '시작 및 종료 시간을 확인해주세요.',
             alert_order: '종료 시간은 시작 시간보다 늦어야 합니다.',
             success: '공연이 성공적으로 등록되었습니다!',
+            confirm_payment: '이 공연을 등록하는 데 {points}포인트가 소모됩니다. 계속하시겠습니까?',
             error_submit: '공연 등록에 실패했습니다.',
             error_duplicate: '해당 시간에 이미 다른 공연 일정이 있습니다.',
-            error_duration: '공연 종료 시간은 시작 시간보다 늦어야 합니다.',
+            error_interval: '공연 시간은 30분 단위로 설정 가능합니다.',
+            error_duration: '종료 시간은 시작 시간보다 늦어야 합니다.',
             error_min_duration: '공연은 최소 1시간 이상이어야 합니다.',
             error_insufficient_points: '포인트가 부족합니다. (시간당 1000P 소모)',
             time_hint: '최소 1시간',
@@ -228,6 +234,11 @@ export const ko: LocaleTypes = {
             add_new: '직접 추가하기',
             close: '닫기',
         },
+        meta: {
+            date: '날짜',
+            time: '시간',
+            venue: '장소'
+        },
         chat_ready_desc: '관객들과 소통할 준비가 되셨나요? 대화를 시작해보세요.',
         enter_live: '공연 입장',
         enter_chat: '채팅 참여',
@@ -251,6 +262,7 @@ export const ko: LocaleTypes = {
         watching: '명 시청 중',
         redirecting: '이동 중...',
         stay_here: '여기 머물기',
+        not_found: '공연 정보를 찾을 수 없습니다',
     },
     avatar: {
         title: '라이브 참여하기',
@@ -333,13 +345,25 @@ export const ko: LocaleTypes = {
         title: '실시간 채팅',
         placeholder: '메시지를 입력하세요...',
         send: '전송',
+        leave: '나가기',
+        join_title: '채팅방에 참여하시겠습니까?',
+        join_desc: '다른 팬들과 가수가 실시간으로 소통하고 있습니다.',
+        join_button: '입장하기',
         closed_placeholder: '채팅창이 아직 열리지 않았습니다.',
         open_button: '채팅방 열기',
         open_with_points: '포인트로 채팅방 열기 (100P)',
+        open_failed: '채팅방 개설에 실패했습니다.',
         not_ready: '아직 열 수 없음',
         closed_title: '채팅방이 닫혀 있습니다',
         closed_desc: '팬들과 소통을 시작해보세요!\n공연 10분 전부터 채팅방을 열 수 있습니다.',
         closed_alert: '공연 시작 10분 전부터 활성화됩니다.',
+        sponsorship_title: '후원 알림',
+        sponsored_by: '후원',
+        thank_you: '응원해주셔서 감사합니다!',
+        opened_message: '채팅창이 열렸습니다!',
+        singer_opened: '가수가 채팅방을 열었습니다!',
+        song_request_msg: '새로운 신청곡: {title} ({username}님 신청)',
+        donation_msg: '{username}님이 {amount} 포인트를 후원하셨습니다! 💖'
     },
     song_request: {
         title: '신청곡 보내기',
@@ -351,6 +375,7 @@ export const ko: LocaleTypes = {
         submit: '신청하기',
         requested_by: '{name}님의 신청곡',
         request_by: '신청자:',
+        new_request: '신청곡 알림'
     },
     singer: {
         withdrawal_link: '회원 탈퇴 (Withdraw)',

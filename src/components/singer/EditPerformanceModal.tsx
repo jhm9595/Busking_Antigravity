@@ -59,13 +59,16 @@ export default function EditPerformanceModal({ performance, onClose, onSuccess }
         e.preventDefault()
         if (isSubmitting) return
 
-        if (!editPerf.start_time || !editPerf.end_time) {
+        const startTimeObj = new Date(editPerf.start_time)
+        const endTimeObj = new Date(editPerf.end_time)
+
+        if (isNaN(startTimeObj.getTime()) || isNaN(endTimeObj.getTime())) {
             alert(t('performance.form.alert_times'))
             return
         }
 
-        if (editPerf.end_time <= editPerf.start_time) {
-            alert(t('performance.form.alert_order'))
+        if (endTimeObj <= startTimeObj) {
+            alert(t('performance.form.error_duration'))
             return
         }
 
@@ -78,18 +81,18 @@ export default function EditPerformanceModal({ performance, onClose, onSuccess }
                 locationText: editPerf.location_text,
                 lat: editPerf.lat || undefined,
                 lng: editPerf.lng || undefined,
-                startTime: new Date(editPerf.start_time).toISOString(),
-                endTime: new Date(editPerf.end_time).toISOString()
+                startTime: startTimeObj.toISOString(),
+                endTime: endTimeObj.toISOString()
             })
 
             if (result.success) {
                 onSuccess()
             } else {
-                alert(t('performance.form.error_submit') || 'Failed to update performance.')
+                alert(t('performance.form.error_submit'))
             }
         } catch (error: any) {
             console.error('Failed to update performance:', error)
-            alert(t('common.error') || 'Error occurred')
+            alert(`${t('performance.form.error_submit')}\nError: ${error.message}`)
         } finally {
             setIsSubmitting(false)
         }

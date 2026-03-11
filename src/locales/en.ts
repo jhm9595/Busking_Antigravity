@@ -2,6 +2,7 @@ export const en = {
     common: {
         loading: 'Loading...',
         error: 'An error occurred',
+        unknown_error: 'Unknown error occurred',
         save: 'Save',
         cancel: 'Cancel',
         delete: 'Delete',
@@ -29,10 +30,13 @@ export const en = {
         best_value: 'Best Value',
         most_popular: 'Most Popular',
         insufficient_points: 'Insufficient points.',
+        sponsorship_failed: 'Sponsorship failed.',
         home_button: 'Home',
         follow: 'Follow',
         following: 'Following',
-        login_to_follow: 'Login to Follow'
+        login_to_follow: 'Login to Follow',
+        anonymous: 'Anonymous',
+        singer_fallback: 'Singer'
     },
     home: {
         title: 'BuskerKing',
@@ -87,8 +91,10 @@ export const en = {
             alert_times: 'Please check start and end times.',
             alert_order: 'End time must be after start time.',
             success: 'Performance scheduled successfully!',
+            confirm_payment: 'Registering this performance will cost {points} points. Continue?',
             error_submit: 'Failed to schedule performance',
             error_duplicate: 'Another performance is scheduled during this time.',
+            error_interval: 'Performances can only be scheduled in 30-minute intervals.',
             error_duration: 'End time must be after start time.',
             error_min_duration: 'Minimum performance duration is 1 hour.',
             error_insufficient_points: 'Insufficient points. (1000P/hr will be spent)',
@@ -226,6 +232,11 @@ export const en = {
             add_new: 'Add Manually',
             close: 'Close',
         },
+        meta: {
+            date: 'Date',
+            time: 'Time',
+            venue: 'Venue'
+        },
         chat_ready_desc: 'Ready to connect with your audience? Start the conversation.',
         enter_live: 'Enter Performance',
         enter_chat: 'Join Chat',
@@ -249,6 +260,7 @@ export const en = {
         watching: 'watching',
         redirecting: 'Redirecting...',
         stay_here: 'Stay here',
+        not_found: 'Performance not found',
     },
     avatar: {
         title: 'Join the Live',
@@ -331,13 +343,25 @@ export const en = {
         title: 'Live Chat',
         placeholder: 'Enter a message...',
         send: 'Send',
+        leave: 'Leave',
+        join_title: 'Ready to join the talk?',
+        join_desc: 'Connect with the artist and other fans in real-time.',
+        join_button: 'Join Chat',
         closed_placeholder: 'Chat is not yet open.',
         open_button: 'Open Chat Room',
         open_with_points: 'Open Chat with Points (100P)',
+        open_failed: 'Failed to open chat.',
         not_ready: 'Not ready yet',
         closed_title: 'Chat is Closed',
         closed_desc: 'Start interacting with your fans!\nYou can open the chat 10 minutes before showtime.',
         closed_alert: 'Activated 10 minutes before the start time.',
+        sponsorship_title: 'SPONSORSHIP RECEIVED',
+        sponsored_by: 'sponsored',
+        thank_you: 'THANK YOU FOR THE SUPPORT!',
+        opened_message: 'Chat is now open!',
+        singer_opened: 'The singer has opened the chat!',
+        song_request_msg: 'New Song Request: {title} (Requested by {username})',
+        donation_msg: '{username} sponsored {amount} points! 💖'
     },
     song_request: {
         title: 'Request a Song',
@@ -349,12 +373,13 @@ export const en = {
         submit: 'Send Request',
         requested_by: 'Request by {name}',
         request_by: 'Requested by:',
+        new_request: 'New Song Request'
     },
     singer: {
         withdrawal_link: 'Withdraw Account',
         withdrawal_confirm: 'Are you sure you want to withdraw? All your data will be permanently deleted.',
         withdrawal_success: 'Account successfully withdrawn.',
-        withdrawal_failed: 'Withdrawal failed.'
+        withdrawal_failed: 'Failed to withdraw account.'
     }
 }
 

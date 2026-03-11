@@ -30,14 +30,17 @@ export async function syncUserProfile(user: { id: string, email?: string, fullNa
                 }
             })
         } else {
-            // Update existing profile info
-            await prisma.profile.update({
-                where: { id: user.id },
-                data: {
-                    email: user.email,
-                    avatarUrl: user.imageUrl,
-                }
-            })
+            // Efficiency: Only update if changed
+            const needsUpdate = existing.email !== user.email || existing.avatarUrl !== user.imageUrl
+            if (needsUpdate) {
+                await prisma.profile.update({
+                    where: { id: user.id },
+                    data: {
+                        email: user.email,
+                        avatarUrl: user.imageUrl,
+                    }
+                })
+            }
         }
         return { success: true }
     } catch (error) {
@@ -255,7 +258,17 @@ export async function getPerformances(singerId: string) {
         orderBy: { startTime: 'desc' },
         include: {
             performanceSongs: {
-                include: { song: true }
+                select: {
+                    order: true,
+                    status: true,
+                    song: {
+                        select: {
+                            id: true,
+                            title: true,
+                            artist: true
+                        }
+                    }
+                }
             }
         }
     })

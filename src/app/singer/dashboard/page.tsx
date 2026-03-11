@@ -65,45 +65,58 @@ export default function SingerDashboard() {
 
     useEffect(() => {
         async function sync() {
-            if (!user) return
+            if (!user || !isLoaded) return
 
-            await syncUserProfile({
-                id: user.id,
-                email: user.primaryEmailAddress?.emailAddress,
-                fullName: user.fullName || user.username || 'Singer',
-                imageUrl: user.imageUrl,
-            })
+            try {
+                // 1. Concurrent initial data fetch
+                const [syncResult, initialPoints] = await Promise.all([
+                    syncUserProfile({
+                        id: user.id,
+                        email: user.primaryEmailAddress?.emailAddress,
+                        fullName: user.fullName || user.username || 'Singer',
+                        imageUrl: user.imageUrl,
+                    }),
+                    getUserPoints(user.id)
+                ])
 
-            // Fetch fresh singer data
-            const data = await getSinger(user.id)
+                setUserPoints(initialPoints)
 
-            if (data) {
-                setSingerData(data)
-                setIsSinger(true)
+                // 2. Concurrent singer data and performances fetch
+                const [data, perfs] = await Promise.all([
+                    getSinger(user.id),
+                    getPerformances(user.id)
+                ])
 
-                // Auto-detect live performances for resume prompt
-                const perfs = await getPerformances(user.id)
-                const activeLive = perfs.find((p: any) => p.status === 'live')
+                if (data) {
+                    setSingerData(data)
+                    setIsSinger(true)
 
-                if (activeLive) {
-                    const ignoreCheck = sessionStorage.getItem('ignore_resume_check')
-                    if (!ignoreCheck) {
-                        setConfirmModal({
-                            isOpen: true,
-                            title: t('dashboard.alerts.resume_title'),
-                            message: t('dashboard.alerts.resume_message').replace('{title}', activeLive.title),
-                            onConfirm: () => {
-                                sessionStorage.setItem('ignore_resume_check', 'true')
-                                router.push(`/singer/live?performanceId=${activeLive.id}`)
-                                setConfirmModal(prev => ({ ...prev, isOpen: false }))
-                            }
-                        })
+                    // Auto-detect live performances for resume prompt
+                    const activeLive = perfs.find((p: any) => p.status === 'live')
+
+                    if (activeLive) {
+                        const ignoreCheck = sessionStorage.getItem('ignore_resume_check')
+                        if (!ignoreCheck) {
+                            setConfirmModal({
+                                isOpen: true,
+                                title: t('dashboard.alerts.resume_title'),
+                                message: t('dashboard.alerts.resume_message').replace('{title}', activeLive.title),
+                                onConfirm: () => {
+                                    sessionStorage.setItem('ignore_resume_check', 'true')
+                                    router.push(`/singer/live?performanceId=${activeLive.id}`)
+                                    setConfirmModal(prev => ({ ...prev, isOpen: false }))
+                                }
+                            })
+                        }
                     }
+                } else {
+                    setIsSinger(false)
                 }
-            } else {
-                setIsSinger(false)
+            } catch (err) {
+                console.error('Dashboard Sync Error:', err)
+            } finally {
+                setIsSyncing(false)
             }
-            setIsSyncing(false)
         }
 
         if (isLoaded && user) {

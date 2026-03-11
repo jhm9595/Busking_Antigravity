@@ -11,7 +11,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 
 // Dynamic MapPicker
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
-    loading: () => <div className="h-[300px] w-full bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">Loading...</div>,
+    loading: () => <div className="h-[300px] w-full bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">Loading Map...</div>,
     ssr: false
 })
 
@@ -39,17 +39,32 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
     const [selectedSongIds, setSelectedSongIds] = useState<string[]>([])
     const [showMap, setShowMap] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
-
+    const [costPreview, setCostPreview] = useState(0)
 
     // Initialize dates on client side to avoid hydration mismatch
     useEffect(() => {
-        // We set empty strings to ensure user must pick them
         setNewPerf(prev => ({
             ...prev,
             start_time: '',
             end_time: ''
         }))
     }, [])
+
+    // Calculate cost preview when times change
+    useEffect(() => {
+        if (newPerf.start_time && newPerf.end_time) {
+            const start = new Date(newPerf.start_time).getTime()
+            const end = new Date(newPerf.end_time).getTime()
+            if (end > start) {
+                const hours = Math.ceil((end - start) / (1000 * 60 * 60))
+                setCostPreview(hours * 1000)
+            } else {
+                setCostPreview(0)
+            }
+        } else {
+            setCostPreview(0)
+        }
+    }, [newPerf.start_time, newPerf.end_time])
 
     const toggleSongSelection = (songId: string) => {
         setSelectedSongIds(prev =>
@@ -76,26 +91,30 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
         e.preventDefault()
         if (isSubmitting) return
 
-        if (!newPerf.start_time || !newPerf.end_time) {
+        const startTimeObj = new Date(newPerf.start_time)
+        const endTimeObj = new Date(newPerf.end_time)
+
+        if (isNaN(startTimeObj.getTime()) || isNaN(endTimeObj.getTime())) {
             alert(t('performance.form.alert_times'))
             return
         }
 
-        if (newPerf.end_time <= newPerf.start_time) {
-            alert(t('performance.form.alert_order'))
+        if (endTimeObj <= startTimeObj) {
+            alert(t('performance.form.error_duration'))
             return
         }
 
-        if (newPerf.chat_enabled) {
-            const startMs = new Date(newPerf.start_time).getTime()
-            const endMs = new Date(newPerf.end_time).getTime()
-            const hours = Math.ceil((endMs - startMs) / (1000 * 60 * 60))
-            const estimatedCost = hours * 1000 // 1000 KRW per hour
-
-            // Using window.confirm for mock payment
-            const confirmed = window.confirm(`채팅 서버 사용이 선택되었습니다. 예상 비용은 ${estimatedCost.toLocaleString()}원 입니다.\n(현재 오픈 베타 기간으로 실제 과금되진 않습니다.)\n진행하시겠습니까?`)
-            if (!confirmed) return
+        const durationHours = (endTimeObj.getTime() - startTimeObj.getTime()) / (1000 * 60 * 60)
+        if (durationHours < 1) {
+            alert(t('performance.form.error_min_duration'))
+            return
         }
+
+        const billableHours = Math.ceil(durationHours)
+        const totalCost = billableHours * 1000
+
+        const confirmMsg = t('performance.form.confirm_payment').replace('{points}', totalCost.toLocaleString())
+        if (!window.confirm(confirmMsg)) return
 
         setIsSubmitting(true)
         try {
@@ -105,8 +124,8 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                 locationText: newPerf.location_text,
                 lat: newPerf.lat || undefined,
                 lng: newPerf.lng || undefined,
-                startTime: new Date(newPerf.start_time).toISOString(),
-                endTime: new Date(newPerf.end_time).toISOString(),
+                startTime: startTimeObj.toISOString(),
+                endTime: endTimeObj.toISOString(),
                 chatEnabled: newPerf.chat_enabled,
                 streamingEnabled: newPerf.streaming_enabled,
                 chatCost: 0,
@@ -115,7 +134,6 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
             })
 
             if (result.success) {
-                // Reset to empty
                 setNewPerf({
                     title: '',
                     location_text: '',
@@ -136,8 +154,6 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                     alert(t('performance.form.error_duplicate'))
                 } else if (error === 'MIN_DURATION_NOT_MET') {
                     alert(t('performance.form.error_min_duration'))
-                } else if (error === 'INVALID_DURATION') {
-                    alert(t('performance.form.error_duration'))
                 } else if (error === 'INSUFFICIENT_POINTS') {
                     alert(t('performance.form.error_insufficient_points'))
                 } else {
@@ -150,13 +166,11 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
         } finally {
             setIsSubmitting(false)
         }
-
     }
 
     return (
         <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.gridContainer}>
-                {/* Title */}
                 <div className={styles.fieldGroup}>
                     <label className={styles.label}>{t('performance.form.title')} <span className="text-red-500">*</span></label>
                     <input
@@ -168,9 +182,6 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                     />
                 </div>
 
-
-
-                {/* Location Input & Map Toggle */}
                 <div className={styles.fieldGroup}>
                     <div className={styles.locationLabelRow}>
                         <label className={styles.label}>{t('performance.form.location')} <span className="text-red-500">*</span></label>
@@ -199,17 +210,13 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                     </div>
                 </div>
 
-                {/* Leaflet Map Section */}
                 {showMap && (
                     <div className={styles.mapWrapper}>
                         <MapPicker onLocationSelect={handleLocationSelect} initialLat={newPerf.lat || undefined} initialLng={newPerf.lng || undefined} />
-                        <p className={styles.mapHelpText}>
-                            {t('performance.form.map_help')}
-                        </p>
+                        <p className={styles.mapHelpText}>{t('performance.form.map_help')}</p>
                     </div>
                 )}
 
-                {/* Date Time Selection: Side-by-side on Desktop */}
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 flex flex-col gap-1.5">
                         <div className="flex justify-between items-center px-1">
@@ -240,19 +247,15 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                     <input
                         type="checkbox"
                         checked={newPerf.streaming_enabled}
-                        onChange={(e) => setNewPerf({ ...newPerf, streaming_enabled: e.target.checked })}
                         className={`${styles.checkbox} opacity-50 cursor-not-allowed`}
                         disabled
                     />
                     <span className={styles.checkboxText}>
                         {t('performance.form.enable_streaming')} <span className="text-red-500 text-xs font-bold ml-1">{t('performance.form.streaming_beta')}</span>
                     </span>
-                    <p className="text-xs text-gray-500 mt-1 ml-6">
-                        * {t('performance.form.streaming_help')}
-                    </p>
+                    <p className="text-xs text-gray-500 mt-1 ml-6">* {t('performance.form.streaming_help')}</p>
                 </label>
 
-                {/* Chat Options */}
                 <label className={styles.checkboxLabel}>
                     <input
                         type="checkbox"
@@ -281,7 +284,6 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                 </div>
             )}
 
-            {/* Song Selection using Reusable Component */}
             <SongSelector
                 songs={allSongs}
                 selectedSongIds={selectedSongIds}
@@ -293,7 +295,14 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                 disabled={isSubmitting}
                 className={styles.submitButton}
             >
-                {isSubmitting ? t('performance.form.registering') : t('performance.form.register')}
+                <div className="flex flex-col items-center justify-center">
+                    <span>{isSubmitting ? t('performance.form.registering') : t('performance.form.register')}</span>
+                    {!isSubmitting && costPreview > 0 && (
+                        <span className="text-[10px] opacity-70 font-normal mt-0.5">
+                            ({costPreview.toLocaleString()}P 소모)
+                        </span>
+                    )}
+                </div>
             </button>
         </form>
     )
