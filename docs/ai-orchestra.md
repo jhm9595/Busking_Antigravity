@@ -14,6 +14,7 @@ This repository uses a four-agent operating model. Every agent reads this file f
 - GitHub is the only handoff system of record.
 - Every agent should prefer GitHub workflow summaries, workflow artifacts, PR comments, and repository docs over chat copy-paste.
 - iCloud Notes should not be required for normal handoff.
+- `docs/pm-directive.md` is the current PM instruction file and should be treated as the live execution directive.
 
 ## Notifications And Secrets
 
@@ -90,6 +91,8 @@ Every agent should write handoffs using this structure:
 - Report only actionable findings.
 - Include exact repro steps and affected route or component.
 - Separate confirmed bugs from assumptions.
+- If a confirmed bug is found, set `Next Owner` to `Atlas PM`.
+- Do not assign implementation work directly unless `Atlas PM` has already delegated that path.
 
 ## Required Reading Order For Any Agent
 
@@ -97,14 +100,16 @@ After every `git pull`, every agent must read `docs/ai-orchestra.md` before anal
 If this file changed, the new rules override prior working assumptions immediately.
 
 1. `docs/ai-orchestra.md`
-2. Latest GitHub workflow artifact from `ai-handoff`
-3. Relevant PR comments or workflow summary
-4. Code
+2. `docs/pm-directive.md`
+3. Latest GitHub workflow artifact from `ai-handoff`
+4. Relevant PR comments or workflow summary
+5. Code
 
 ## Escalation Policy
 
 - If two agents disagree, `Atlas PM` resolves it.
 - If a workflow report is stale, generate a fresh one before major work.
+- Confirmed QA findings always route back to `Atlas PM` before implementation is reassigned.
 - If a task spans design, code, and QA, the order is:
   1. `Atlas PM`
   2. `Pixel Design` or `Forge Dev`
