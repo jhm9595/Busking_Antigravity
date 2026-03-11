@@ -91,6 +91,10 @@ export const ko: LocaleTypes = {
             success: '공연이 성공적으로 등록되었습니다!',
             error_submit: '공연 등록에 실패했습니다.',
             error_duplicate: '해당 시간에 이미 다른 공연 일정이 있습니다.',
+            error_interval: '공연 시간은 30분 단위로만 설정 가능합니다. (예: 14:00, 14:30)',
+            error_duration: '공연 종료 시간은 시작 시간보다 늦어야 합니다.',
+            error_insufficient_points: '포인트가 부족합니다. (시간당 1000P 필요)',
+            time_hint: '30분 단위',
         },
         details: {
             location_map: '공연 위치 지도',
@@ -133,7 +137,8 @@ export const ko: LocaleTypes = {
     },
     dashboard: {
         title: '가수 대시보드',
-        welcome: '환영합니다, ',
+        welcome: '환영합니다, {name}님!',
+        subtitle: '오늘 밤, 당신의 무대를 화려하게 장식할 준비가 되셨나요?',
         logout: '로그아웃',
         start_mode: '공연 모드 시작',
         resume_live: '공연 이어하기',

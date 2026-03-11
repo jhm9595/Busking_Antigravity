@@ -131,10 +131,17 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                 setShowMap(false)
                 onSuccess()
             } else {
-                if (result.error === 'DUPLICATE_SCHEDULE') {
+                const error = (result as any).error
+                if (error === 'DUPLICATE_SCHEDULE') {
                     alert(t('performance.form.error_duplicate'))
+                } else if (error === 'INVALID_INTERVAL') {
+                    alert(t('performance.form.error_interval'))
+                } else if (error === 'INVALID_DURATION') {
+                    alert(t('performance.form.error_duration'))
+                } else if (error === 'INSUFFICIENT_POINTS') {
+                    alert(t('performance.form.error_insufficient_points'))
                 } else {
-                    alert(`${t('performance.form.error_submit')}\nReason: ${result.error}`)
+                    alert(`${t('performance.form.error_submit')}\nReason: ${error}`)
                 }
             }
         } catch (error: any) {
@@ -203,18 +210,32 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                 )}
 
                 {/* Date Time Selection using Reusable Component */}
-                <DateTimePicker
-                    label={t('performance.form.start_time')}
-                    value={newPerf.start_time}
-                    onChange={(val) => setNewPerf({ ...newPerf, start_time: val })}
-                    required
-                />
-                <DateTimePicker
-                    label={t('performance.form.end_time')}
-                    value={newPerf.end_time}
-                    onChange={(val) => setNewPerf({ ...newPerf, end_time: val })}
-                    required
-                />
+                <div className="space-y-4">
+                    <div className="flex flex-col gap-1.5">
+                        <div className="flex justify-between items-center px-1">
+                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('performance.form.start_time')}</span>
+                            <span className="text-[10px] font-black text-indigo-500 italic uppercase">{t('performance.form.time_hint')}</span>
+                        </div>
+                        <DateTimePicker
+                            label=""
+                            value={newPerf.start_time}
+                            onChange={(val) => setNewPerf({ ...newPerf, start_time: val })}
+                            required
+                        />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <div className="flex justify-between items-center px-1">
+                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('performance.form.end_time')}</span>
+                            <span className="text-[10px] font-black text-indigo-500 italic uppercase">{t('performance.form.time_hint')}</span>
+                        </div>
+                        <DateTimePicker
+                            label=""
+                            value={newPerf.end_time}
+                            onChange={(val) => setNewPerf({ ...newPerf, end_time: val })}
+                            required
+                        />
+                    </div>
+                </div>
 
                 <label className={`${styles.checkboxLabel} mb-4 block`}>
                     <input

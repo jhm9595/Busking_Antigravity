@@ -230,8 +230,12 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                         <p className="mt-4 text-center text-[10px] text-gray-600 font-bold uppercase tracking-widest italic opacity-50">
                             Secure Encrypted Payment via {paymentMethod === 'kakao' ? 'Portone' : 'Stripe'}
                         </p>
-                    </footer>
-                </div>
+                        {paymentMethod === 'kakao' && (
+                            <p className="mt-2 text-center text-[8px] text-indigo-500/50 font-medium">
+                                * Tip: Ensure Kakao Pay is enabled in your Portone console for this Merchant ID.
+                            </p>
+                        )}
+                        </footer>                </div>
             </div>
         </>
     )

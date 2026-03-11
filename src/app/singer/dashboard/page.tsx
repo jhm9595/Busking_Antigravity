@@ -204,7 +204,7 @@ export default function SingerDashboard() {
 
     return (
         <div className="bg-[#0f1117] min-h-screen text-slate-100 font-display selection:bg-indigo-500/30 pb-20">
-            <nav className="sticky top-0 z-50 bg-gray-950/80 backdrop-blur-xl border-b border-white/5 px-6 py-4">
+            <nav className="sticky top-0 z-[40] bg-gray-950/80 backdrop-blur-xl border-b border-white/5 px-6 py-4">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                     <div className="flex items-center gap-6">
                         <Link href="/" className="text-2xl font-black bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent italic tracking-tighter hover:scale-105 transition-transform">
@@ -245,7 +245,7 @@ export default function SingerDashboard() {
                         <h1 className="text-5xl md:text-6xl font-black text-white italic tracking-tighter leading-none mb-4 group-hover:scale-[1.01] transition-transform duration-500">
                             {t('dashboard.welcome').replace('{name}', user?.fullName || user?.username || '')}
                         </h1>
-                        <p className="text-indigo-100/70 text-lg font-bold max-w-xl italic">{t('dashboard.subtitle') || 'Ready to take the stage tonight?'}</p>
+                        <p className="text-indigo-100/70 text-lg font-bold max-w-xl italic">{t('dashboard.subtitle')}</p>
                     </div>
                     <div className="flex gap-4 relative z-10 w-full md:w-auto">
                         <div className="flex flex-col items-end justify-center px-6 bg-black/20 rounded-3xl border border-white/10 backdrop-blur-md">

@@ -6,21 +6,39 @@ import { revalidatePath } from 'next/cache'
 // --- Profile & Singer Sync ---
 export async function syncUserProfile(user: { id: string, email?: string, fullName?: string | null, imageUrl?: string }) {
     try {
-        // 1. Upsert Profile (Default role is 'audience', it shouldn't overwrite if they are already 'singer')
-        await prisma.profile.upsert({
-            where: { id: user.id },
-            update: {
-                email: user.email,
-                avatarUrl: user.imageUrl,
-            },
-            create: {
-                id: user.id,
-                email: user.email,
-                role: 'audience',
-                nickname: user.fullName || `user_${user.id.slice(-4)}`,
-                avatarUrl: user.imageUrl,
-            },
-        })
+        const existing = await prisma.profile.findUnique({ where: { id: user.id } })
+        
+        if (!existing) {
+            // Give 2000 free points to new users on first sync
+            await prisma.profile.create({
+                data: {
+                    id: user.id,
+                    email: user.email,
+                    role: 'audience',
+                    nickname: user.fullName || `user_${user.id.slice(-4)}`,
+                    avatarUrl: user.imageUrl,
+                    points: 2000
+                },
+            })
+            // Record welcome bonus
+            await prisma.pointTransaction.create({
+                data: {
+                    profileId: user.id,
+                    amount: 2000,
+                    type: 'REWARD',
+                    description: 'Welcome Bonus Points'
+                }
+            })
+        } else {
+            // Update existing profile info
+            await prisma.profile.update({
+                where: { id: user.id },
+                data: {
+                    email: user.email,
+                    avatarUrl: user.imageUrl,
+                }
+            })
+        }
         return { success: true }
     } catch (error) {
         console.error('Sync Error:', error)
@@ -233,58 +251,86 @@ export async function addPerformance(data: {
     try {
         console.log('Adding performance:', data)
 
-        // Overlap check
         const newStart = new Date(data.startTime)
         const newEnd = new Date(data.endTime)
 
-        // Fetch existing active performances for this singer
-        const existingPerformances = await prisma.performance.findMany({
-            where: {
-                singerId: data.singerId,
-                status: { in: ['scheduled', 'live'] }
-            }
-        })
-
-        const overlapping = existingPerformances.find(p => {
-            const start = new Date(p.startTime)
-            const end = new Date(p.endTime!)
-
-            // Check for any overlap: (StartA < EndB) && (EndA > StartB)
-            return (newStart < end) && (newEnd > start)
-        })
-
-        if (overlapping) {
-            return { success: false, error: 'DUPLICATE_SCHEDULE' }
+        // 1. Enforce 30-minute intervals
+        if (newStart.getMinutes() % 30 !== 0 || newEnd.getMinutes() % 30 !== 0) {
+            return { success: false, error: 'INVALID_INTERVAL' }
         }
 
+        // 2. Calculate duration and cost (1000P per hour)
+        const durationMs = newEnd.getTime() - newStart.getTime()
+        const durationHours = durationMs / (1000 * 60 * 60)
+        const totalCost = Math.ceil(durationHours * 1000)
 
-        const performanceData = {
-            singerId: data.singerId,
-            title: data.title,
-            locationText: data.locationText,
-            locationLat: data.lat || 37.5665,
-            locationLng: data.lng || 126.9780,
-            startTime: new Date(data.startTime),
-            endTime: new Date(data.endTime),
-            chatEnabled: data.chatEnabled,
-            streamingEnabled: data.streamingEnabled || false,
-            chatCostPerHour: Number(data.chatCost) || 0,
-            expectedAudience: data.expectedAudience || 0,
-            chatCapacity: data.expectedAudience || 50,
-            status: 'scheduled',
-            performanceSongs: {
-                create: data.songIds?.map((id, index) => ({
-                    songId: id,
-                    order: index
-                })) || []
+        if (totalCost <= 0) return { success: false, error: 'INVALID_DURATION' }
+
+        return await prisma.$transaction(async (tx) => {
+            // 3. Check and deduct points
+            const profile = await tx.profile.findUnique({ where: { id: data.singerId } })
+            if (!profile || profile.points < totalCost) {
+                throw new Error('INSUFFICIENT_POINTS')
             }
-        }
 
-        await prisma.performance.create({
-            data: performanceData
+            // 4. Overlap check
+            const existingPerformances = await tx.performance.findMany({
+                where: {
+                    singerId: data.singerId,
+                    status: { in: ['scheduled', 'live'] }
+                }
+            })
+
+            const overlapping = existingPerformances.find(p => {
+                const start = new Date(p.startTime)
+                const end = new Date(p.endTime!)
+                return (newStart < end) && (newEnd > start)
+            })
+
+            if (overlapping) throw new Error('DUPLICATE_SCHEDULE')
+
+            // 5. Point deduction & transaction
+            await tx.profile.update({
+                where: { id: data.singerId },
+                data: { points: { decrement: totalCost } }
+            })
+
+            await tx.pointTransaction.create({
+                data: {
+                    profileId: data.singerId,
+                    amount: -totalCost,
+                    type: 'PERFORMANCE_REGISTER',
+                    description: `Registration Fee: ${data.title} (${durationHours.toFixed(1)}h)`
+                }
+            })
+
+            // 6. Create performance
+            const result = await tx.performance.create({
+                data: {
+                    singerId: data.singerId,
+                    title: data.title,
+                    locationText: data.locationText,
+                    locationLat: data.lat || 37.5665,
+                    locationLng: data.lng || 126.9780,
+                    startTime: newStart,
+                    endTime: newEnd,
+                    chatEnabled: data.chatEnabled,
+                    streamingEnabled: data.streamingEnabled || false,
+                    chatCostPerHour: 0,
+                    expectedAudience: data.expectedAudience || 0,
+                    chatCapacity: data.expectedAudience || 50,
+                    status: 'scheduled',
+                    performanceSongs: {
+                        create: data.songIds?.map((id, index) => ({
+                            songId: id,
+                            order: index
+                        })) || []
+                    }
+                }
+            })
+
+            return { success: true, id: result.id }
         })
-        revalidatePath('/singer/dashboard')
-        return { success: true }
     } catch (error: any) {
         console.error('Failed to add performance:', error)
         return { success: false, error: error.message || 'UNKNOWN_ERROR' }

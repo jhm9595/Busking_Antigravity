@@ -91,6 +91,10 @@ export const zhTW: LocaleTypes = {
             success: '表演行程登記成功！',
             error_submit: '行程登記失敗',
             error_duplicate: '此時段已有其他表演行程。',
+            error_interval: '表演時間必須以30分鐘為單位設定。(例如: 14:00, 14:30)',
+            error_duration: '結束時間必須晚於開始時間。',
+            error_insufficient_points: '點數不足。(每小時需要1000點數)',
+            time_hint: '30分鐘單位',
         },
         details: {
             location_map: '表演位置圖',
@@ -133,7 +137,8 @@ export const zhTW: LocaleTypes = {
     },
     dashboard: {
         title: '表演者儀表板',
-        welcome: '歡迎回來，',
+        welcome: '歡迎回來，{name}！',
+        subtitle: '今晚，準備好開啟您的精彩演出了嗎？',
         logout: '登出',
         start_mode: '進入表演模式',
         resume_live: '繼續目前表演',

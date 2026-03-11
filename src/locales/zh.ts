@@ -91,6 +91,10 @@ export const zh: LocaleTypes = {
             success: '演出登记成功！',
             error_submit: '登记失败',
             error_duplicate: '该时段已有其他演出排期。',
+            error_interval: '演出时间必须以30分钟为单位设定。(例如: 14:00, 14:30)',
+            error_duration: '结束时间必须晚于开始时间。',
+            error_insufficient_points: '积分不足。(每小时需要1000积分)',
+            time_hint: '30分钟单位',
         },
         details: {
             location_map: '演出位置图',
@@ -133,7 +137,8 @@ export const zh: LocaleTypes = {
     },
     dashboard: {
         title: '艺人控制面板',
-        welcome: '欢迎回来，',
+        welcome: '欢迎回来，{name}！',
+        subtitle: '今晚，准备好开启您的精彩演出了吗？',
         logout: '登出',
         start_mode: '开启演出模式',
         resume_live: '继续演出',

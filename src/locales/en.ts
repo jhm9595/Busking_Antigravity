@@ -89,6 +89,10 @@ export const en = {
             success: 'Performance scheduled successfully!',
             error_submit: 'Failed to schedule performance',
             error_duplicate: 'Another performance is scheduled during this time.',
+            error_interval: 'Performances can only be scheduled in 30-minute intervals (e.g., 14:00, 14:30).',
+            error_duration: 'End time must be after start time.',
+            error_insufficient_points: 'Insufficient points. (1000P/hr required)',
+            time_hint: '30m intervals',
         },
         details: {
             location_map: 'Location Map',
@@ -131,7 +135,8 @@ export const en = {
     },
     dashboard: {
         title: 'Singer Dashboard',
-        welcome: 'Welcome, ',
+        welcome: 'Welcome back, {name}!',
+        subtitle: 'Are you ready to light up the stage tonight?',
         logout: 'Log Out',
         start_mode: 'Start Performance Mode',
         resume_live: 'Resume Performance',

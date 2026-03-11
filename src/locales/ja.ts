@@ -91,7 +91,11 @@ export const ja: LocaleTypes = {
             success: '登録が完了しました！',
             error_submit: '登録に失敗しました。',
             error_duplicate: 'この時間帯には既に他の予定が入っています。',
-        },
+            error_interval: '公演時間は30分単位で設定してください。(例: 14:00, 14:30)',
+            error_duration: '終了時間は開始時間より後の時刻にしてください。',
+            error_insufficient_points: 'ポイントが不足しています。(1時間あたり1000P必要)',
+            time_hint: '30分単位',
+            },
         details: {
             location_map: '開催場所マップ',
             view_details: '詳細情報と地図',
@@ -133,7 +137,8 @@ export const ja: LocaleTypes = {
     },
     dashboard: {
         title: 'アーティスト管理',
-        welcome: 'ようこそ、',
+        welcome: 'おかえりなさい、{name}さん！',
+        subtitle: '今夜、あなたのステージを輝かせる準備はできていますか？',
         logout: 'ログアウト',
         start_mode: 'ライブモード開始',
         resume_live: 'ライブを再開',
