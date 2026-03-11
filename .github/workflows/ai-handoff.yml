@@ -1,0 +1,189 @@
+name: ai-handoff
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+      - 'fix/**'
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  handoff:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build handoff report
+        id: report
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p tmp/ai-handoff
+
+          EVENT_NAME="${{ github.event_name }}"
+          REF_NAME="${{ github.ref_name }}"
+          SHA_FULL="${{ github.sha }}"
+          SHA_SHORT="$(printf '%s' "$SHA_FULL" | cut -c1-7)"
+          AUTHOR="${{ github.actor }}"
+          REPO="${{ github.repository }}"
+          RUN_URL="https://github.com/${REPO}/actions/runs/${{ github.run_id }}"
+
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+            git diff --name-only "$BASE_SHA" "$HEAD_SHA" > tmp/ai-handoff/changed_files.txt
+            CONTEXT_LINE="PR #${{ github.event.pull_request.number }}"
+          elif [[ -n "${{ github.event.before }}" && "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
+            git diff --name-only "${{ github.event.before }}" "${SHA_FULL}" > tmp/ai-handoff/changed_files.txt
+            CONTEXT_LINE="Push on ${REF_NAME}"
+          else
+            git show --name-only --pretty="" "${SHA_FULL}" > tmp/ai-handoff/changed_files.txt
+            CONTEXT_LINE="Manual run on ${REF_NAME}"
+          fi
+
+          if [[ ! -s tmp/ai-handoff/changed_files.txt ]]; then
+            printf '%s\n' "(no changed files detected)" > tmp/ai-handoff/changed_files.txt
+          fi
+
+          {
+            echo "## AI Handoff Report"
+            echo
+            echo "- Context: ${CONTEXT_LINE}"
+            echo "- Commit: \`${SHA_SHORT}\`"
+            echo "- Author: \`${AUTHOR}\`"
+            echo "- Branch: \`${REF_NAME}\`"
+            echo "- Workflow Run: ${RUN_URL}"
+            echo
+            echo "### Agent Roster"
+            echo "- Atlas PM: Codex CLI, planning and routing owner"
+            echo "- Forge Dev: Gemini CLI, implementation owner"
+            echo "- Pixel Design: Codex App, Figma and design owner"
+            echo "- Scout QA: Antigravity browser tester, QA owner"
+            echo
+            echo "### Required Reading"
+            echo "1. \`docs/ai-orchestra.md\`"
+            echo "2. This report"
+            echo "3. Relevant PR comments"
+            echo "4. Changed files"
+            echo
+            echo "### Current Change Set"
+            sed 's/^/- /' tmp/ai-handoff/changed_files.txt
+            echo
+            echo "### Handoff Rules"
+            echo "- Use the standard template in \`docs/ai-handoff-template.md\`"
+            echo "- Each agent must name a single next owner"
+            echo "- QA findings must include repro steps"
+            echo "- Dev handoff must include files touched and verification run"
+            echo "- PM decides sequencing when agents disagree"
+            echo
+            echo "### Standard Template"
+            echo '```md'
+            cat docs/ai-handoff-template.md
+            echo '```'
+          } > tmp/ai-handoff/report.md
+
+          {
+            echo "report_path=tmp/ai-handoff/report.md"
+            echo "report_body<<EOF"
+            cat tmp/ai-handoff/report.md
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Upload handoff artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-handoff-${{ github.run_number }}
+          path: tmp/ai-handoff/report.md
+
+      - name: Write workflow summary
+        shell: bash
+        run: cat "${{ steps.report.outputs.report_path }}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upsert PR comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- ai-handoff-report -->';
+            const body = `${marker}\n${process.env.REPORT_BODY}`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100
+            });
+
+            const existing = comments.find((comment) =>
+              comment.user.type === 'Bot' && comment.body.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body
+              });
+            }
+        env:
+          REPORT_BODY: ${{ steps.report.outputs.report_body }}
+
+      - name: Send optional Discord notification
+        if: env.DISCORD_WEBHOOK_URL != ''
+        shell: bash
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          repo = "${{ github.repository }}"
+          sha = "${{ github.sha }}"[:7]
+          actor = "${{ github.actor }}"
+          ref_name = "${{ github.ref_name }}"
+          run_url = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          payload = {
+              "content": (
+                  f"[AI Handoff] {repo}\n"
+                  f"branch={ref_name} commit={sha} actor={actor}\n"
+                  f"report={run_url}"
+              )
+          }
+
+          req = urllib.request.Request(
+              os.environ["DISCORD_WEBHOOK_URL"],
+              data=json.dumps(payload).encode("utf-8"),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+          urllib.request.urlopen(req).read()
+          PY
