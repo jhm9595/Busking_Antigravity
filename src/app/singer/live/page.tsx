@@ -88,9 +88,9 @@ function LivePerformanceContent() {
             }
 
             if (success) {
-                // autoritative signal to socket server to open chat and update Redis
+                // Authoritative signal to socket server to open chat and update Redis
                 if (socketRef.current) {
-                    socketRef.current.emit('chat_status_toggled', { performanceId: performance.id, enabled: true })
+                    socketRef.current.emit('open_chat', { performanceId: performance.id })
                 }
                 if (usePoints) {
                     const newPoints = await getUserPoints(performance.singerId)

@@ -30,21 +30,24 @@ export default function AudienceLivePage() {
     const [viewingCount, setViewingCount] = useState(0)
     const [isFollowed, setIsFollowed] = useState(false)
     const [userPoints, setUserPoints] = useState(0)
+    const [chatStatus, setChatStatus] = useState<'open' | 'closed'>('closed')
+    
     const { user, isLoaded } = useUser()
     const { t } = useLanguage()
 
     const refreshData = useCallback(async () => {
         if (!id) return
         try {
-            // Fetch with a clean state
             const p = await getPerformanceById(id)
             if (p) {
-                setPerformance({ ...p }) // Spread to trigger state update
+                setPerformance({ ...p })
+                // The DB chatEnabled acts as the fallback/initial state
+                setChatStatus(p.chatEnabled ? 'open' : 'closed')
+                
                 if (p.singerId) {
                     const s = await getSinger(p.singerId)
                     setSinger(s)
                     
-                    // Fetch user points if logged in
                     let fanId = user?.id || localStorage.getItem('busking_fan_id')
                     if (fanId) {
                         getUserPoints(fanId).then(setUserPoints)
@@ -63,33 +66,6 @@ export default function AudienceLivePage() {
             console.error('Error refreshing audience data:', error)
         }
     }, [id, user?.id])
-
-    // ... handleSponsor logic
-    const handleSponsor = async (amount: number) => {
-        if (!isLoaded) return
-        if (!user) {
-            router.push(`/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`)
-            return
-        }
-
-        if (!singer?.id) return
-
-        const res = await sponsorSinger(user.id, singer.id, amount)
-        if (res.success) {
-            // alert(`Sponsored ${amount}P to ${singer.stageName}!`)
-            if (activeSocket) {
-                activeSocket.emit('donation_received', {
-                    performanceId: id,
-                    username: user.fullName || user.username || user.id,
-                    amount
-                })
-            }
-            refreshData()
-        } else {
-            const error = (res as any).error
-            alert(error === 'INSUFFICIENT_POINTS' ? t('common.insufficient_points') : 'Sponsorship failed.')
-        }
-    }
 
     useEffect(() => {
         if (isLoaded) refreshData()
@@ -120,19 +96,26 @@ export default function AudienceLivePage() {
         socket.on('disconnect', () => setRealtimeStatus('error'))
         socket.on('connect_error', () => setRealtimeStatus('error'))
         
-        // Critical: Handle song status updates and setlist changes
         socket.on('song_status_updated', () => {
-            console.log('Realtime: Song status updated signal received')
             router.refresh()
             refreshData()
         })
 
         socket.on('performance_ended', () => {
             refreshData()
+            setChatStatus('closed') // Explicitly close chat on end
             setShowRedirectionModal(true)
         })
         
+        socket.on('chat_status', (data: { status: 'open' | 'closed' }) => {
+            setChatStatus(data.status)
+            // Synchronize performance state for layout purposes
+            setPerformance((prev: any) => prev ? { ...prev, chatEnabled: data.status === 'open' } : prev)
+        })
+
         socket.on('chat_status_toggled', (data: { enabled: boolean }) => {
+            const newStatus = data.enabled ? 'open' : 'closed'
+            setChatStatus(newStatus)
             setPerformance((prev: any) => prev ? { ...prev, chatEnabled: data.enabled } : prev)
         })
 
@@ -145,6 +128,30 @@ export default function AudienceLivePage() {
         const timer = setInterval(() => { setRedirectCountdown(prev => prev - 1) }, 1000)
         return () => clearInterval(timer)
     }, [showRedirectionModal, redirectCountdown, singer, router])
+
+    const handleSponsor = async (amount: number) => {
+        if (!isLoaded) return
+        if (!user) {
+            router.push(`/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`)
+            return
+        }
+        if (!singer?.id) return
+
+        const res = await sponsorSinger(user.id, singer.id, amount)
+        if (res.success) {
+            if (activeSocket) {
+                activeSocket.emit('donation_received', {
+                    performanceId: id,
+                    username: user.fullName || user.username || user.id,
+                    amount
+                })
+            }
+            refreshData()
+        } else {
+            const error = (res as any).error
+            alert(error === 'INSUFFICIENT_POINTS' ? t('common.insufficient_points') : 'Sponsorship failed.')
+        }
+    }
 
     const handleSongRequest = async (title: string, artist: string) => {
         try {
@@ -188,10 +195,12 @@ export default function AudienceLivePage() {
     if (!performance) return <div className="h-screen bg-black text-white flex items-center justify-center italic">{t('common.loading')}</div>
 
     const isCompleted = getEffectiveStatus(performance) === 'completed'
+    // Source of Truth for chat: socket status or database state if socket not yet connected
+    const isChatOpen = chatStatus === 'open'
 
     return (
         <div className="bg-[#0f1117] text-slate-100 h-[100dvh] flex flex-col w-full md:max-w-xl mx-auto font-display overflow-hidden selection:bg-indigo-500/30">
-            <header className="sticky top-0 z-30 bg-gray-950/80 backdrop-blur-xl border-b border-white/5 px-4 py-3 flex items-center justify-between shadow-2xl">
+            <header className="sticky top-0 z-30 bg-gray-950/80 backdrop-blur-xl border-b border-white/5 px-4 py-3 flex items-center justify-between shadow-2xl shrink-0">
                 <div className="flex items-center gap-3">
                     <Link href="/explore" className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white transition-all active:scale-95 shadow-lg">
                         <Home className="w-5 h-5 text-indigo-400" />
@@ -223,18 +232,12 @@ export default function AudienceLivePage() {
                 </div>
             </header>
 
-            {/* Sub-header for points on mobile */}
             <div className="sm:hidden bg-gray-950/40 px-4 py-1.5 border-b border-white/5 flex justify-between items-center shrink-0">
                 <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black text-amber-400/70 uppercase tracking-widest">{t('common.points')}:</span>
                     <span className="text-xs font-mono font-black text-amber-400">{userPoints.toLocaleString()}P</span>
                 </div>
-                <button 
-                    onClick={() => setShowChargeModal(true)} 
-                    className="text-[8px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20 font-black uppercase"
-                >
-                    {t('common.charge')} (TEST)
-                </button>
+                <button onClick={() => setShowChargeModal(true)} className="text-[8px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20 font-black uppercase">{t('common.charge')} (TEST)</button>
             </div>
 
             <main className="flex-1 overflow-y-auto flex flex-col p-4 pb-32 custom-scrollbar">
@@ -249,38 +252,27 @@ export default function AudienceLivePage() {
                     </div>
                 ) : (
                     <div className="flex-1 flex flex-col space-y-4">
-                        {/* 1. 공연 제목 및 시간 정보 (지도 제거됨) */}
                         <div className="bg-gradient-to-br from-gray-900 to-[#161922] rounded-[32px] p-6 border border-white/5 shadow-2xl relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-indigo-600/10 transition-all" />
                             <h1 className="text-2xl font-black mb-6 text-white italic tracking-tight leading-tight uppercase underline decoration-indigo-500/50 underline-offset-8">{performance.title}</h1>
-                            
                             <div className="space-y-3 relative z-10">
                                 <div className="flex items-center gap-4 text-sm font-bold text-gray-400">
-                                    <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-                                        <Calendar className="w-5 h-5 text-indigo-400" />
-                                    </div>
+                                    <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20"><Calendar className="w-5 h-5 text-indigo-400" /></div>
                                     <div className="flex flex-col">
                                         <span className="text-[10px] text-gray-600 uppercase tracking-widest">Date</span>
                                         <span className="text-white">{new Date(performance.startTime).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4 text-sm font-bold text-gray-400">
-                                    <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                                        <Clock className="w-5 h-5 text-emerald-400" />
-                                    </div>
+                                    <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20"><Clock className="w-5 h-5 text-emerald-400" /></div>
                                     <div className="flex flex-col">
                                         <span className="text-[10px] text-gray-600 uppercase tracking-widest">Time</span>
-                                        <span className="text-white font-mono">
-                                            {new Date(performance.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -
-                                            {performance.endTime ? new Date(performance.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '...'}
-                                        </span>
+                                        <span className="text-white font-mono">{new Date(performance.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {performance.endTime ? new Date(performance.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '...'}</span>
                                     </div>
                                 </div>
                                 {performance.locationText && (
                                     <div className="flex items-center gap-4 text-sm font-bold text-gray-400">
-                                        <div className="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
-                                            <MapPin className="w-5 h-5 text-amber-500" />
-                                        </div>
+                                        <div className="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20"><MapPin className="w-5 h-5 text-amber-500" /></div>
                                         <div className="flex flex-col min-w-0">
                                             <span className="text-[10px] text-gray-600 uppercase tracking-widest">Venue</span>
                                             <span className="text-white truncate italic">{performance.locationText}</span>
@@ -290,17 +282,12 @@ export default function AudienceLivePage() {
                             </div>
                         </div>
 
-                        {/* 2. 셋리스트 섹션 */}
                         <section className="bg-gray-900/50 rounded-[32px] p-6 border border-white/5 shadow-xl">
                             <div className="flex items-center justify-between mb-5">
-                                <h2 className="text-md font-black flex items-center gap-3 italic uppercase tracking-wider">
-                                    <Music className="w-5 h-5 text-indigo-500" />
-                                    {t('performance.details.setlist_title')}
-                                </h2>
+                                <h2 className="text-md font-black flex items-center gap-3 italic uppercase tracking-wider"><Music className="w-5 h-5 text-indigo-500" />{t('performance.details.setlist_title')}</h2>
                                 <span className="text-[10px] font-black bg-white/5 px-2.5 py-1 rounded-full text-gray-500 uppercase tracking-widest italic">{performance.songs?.length || 0} {t('live.tracks')}</span>
                             </div>
-                            
-                            <div className={`space-y-3 ${performance.chatEnabled ? 'max-h-[300px] overflow-y-auto custom-scrollbar pr-1' : ''}`}>
+                            <div className={`space-y-3 ${isChatOpen ? 'max-h-[300px] overflow-y-auto custom-scrollbar pr-1' : ''}`}>
                                 {performance.songs?.length > 0 ? (
                                     performance.songs.map((s: any, i: number) => {
                                         const isLive = s.status !== 'completed' && i === performance.songs.findIndex((x: any) => x.status !== 'completed')
@@ -308,37 +295,24 @@ export default function AudienceLivePage() {
                                             <div key={i} className={`group p-4 rounded-2xl border transition-all duration-500 ${s.status === 'completed' ? 'bg-black/20 border-white/5 text-gray-600' : 'bg-gray-900 border-white/5 shadow-lg shadow-black/20 hover:border-indigo-500/30'}`}>
                                                 <div className="flex justify-between items-center">
                                                     <div className="min-w-0">
-                                                        <p className="font-black text-base flex items-center gap-3 truncate text-white uppercase italic tracking-tight group-hover:text-indigo-400 transition-colors">
-                                                            {s.title}
-                                                            {s.status === 'completed' && <Check className="w-4 h-4 text-emerald-500" />}
-                                                        </p>
+                                                        <p className="font-black text-base flex items-center gap-3 truncate text-white uppercase italic tracking-tight group-hover:text-indigo-400 transition-colors">{s.title}{s.status === 'completed' && <Check className="w-4 h-4 text-emerald-500" />}</p>
                                                         <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mt-0.5">{s.artist}</p>
                                                     </div>
-                                                    {isLive && (
-                                                        <div className="flex flex-col items-end gap-1">
-                                                            <span className="text-[8px] bg-red-600 text-white px-2.5 py-1 rounded-full font-black animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter">NOW</span>
-                                                        </div>
-                                                    )}
+                                                    {isLive && <span className="text-[8px] bg-red-600 text-white px-2.5 py-1 rounded-full font-black animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter">NOW</span>}
                                                 </div>
                                             </div>
                                         )
                                     })
                                 ) : (
-                                    <div className="p-10 text-center text-xs text-gray-700 bg-black/20 border border-dashed border-white/5 rounded-[24px] italic font-bold">
-                                        {t('performance.details.empty_setlist')}
-                                    </div>
+                                    <div className="p-10 text-center text-xs text-gray-700 bg-black/20 border border-dashed border-white/5 rounded-[24px] italic font-bold">{t('performance.details.empty_setlist')}</div>
                                 )}
                             </div>
                         </section>
 
-                        {/* 3. 채팅 섹션 (활성화 시에만 노출) */}
-                        {performance.chatEnabled ? (
+                        {isChatOpen ? (
                             <section className="bg-gray-900 rounded-[32px] border border-white/5 flex flex-col flex-1 min-h-[450px] overflow-hidden shadow-2xl relative mb-20 animate-in slide-in-from-bottom-6 duration-700">
                                 <div className="p-4 bg-gray-950/60 backdrop-blur-md border-b border-white/5 flex justify-between items-center sticky top-0 z-10">
-                                    <h2 className="font-black text-sm flex items-center gap-3 italic uppercase">
-                                        <MessageCircle className="w-5 h-5 text-indigo-500" />
-                                        {t('chat.title')}
-                                    </h2>
+                                    <h2 className="font-black text-sm flex items-center gap-3 italic uppercase"><MessageCircle className="w-5 h-5 text-indigo-500" />{t('chat.title')}</h2>
                                     <div className="flex items-center gap-2 bg-indigo-500/10 px-3 py-1.5 rounded-full border border-indigo-500/20">
                                         <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
                                         <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest italic">{viewingCount} {t('live.watching')}</span>
@@ -355,9 +329,7 @@ export default function AudienceLivePage() {
                             </section>
                         ) : (
                             <div className="flex-1 flex flex-col items-center justify-center p-12 bg-white/5 rounded-[48px] border border-dashed border-white/5 text-center mt-6 min-h-[300px] italic shadow-inner">
-                                <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-6 opacity-30 shadow-2xl">
-                                    <MessageSquareOff className="w-10 h-10 text-white" />
-                                </div>
+                                <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-6 opacity-30 shadow-2xl"><MessageSquareOff className="w-10 h-10 text-white" /></div>
                                 <p className="text-gray-400 text-xs font-black uppercase tracking-[0.3em]">{t('chat.closed_placeholder')}</p>
                                 <p className="text-gray-600 text-[11px] mt-3 max-w-[240px] font-medium leading-relaxed">{t('live.chat_ready_desc')}</p>
                             </div>
@@ -369,33 +341,16 @@ export default function AudienceLivePage() {
             {!isCompleted && (
                 <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/90 to-transparent flex justify-center z-40 pointer-events-none">
                     <div className="flex gap-2 w-full max-w-lg pointer-events-auto">
-                        <button
-                            onClick={() => setShowRequestModal(true)}
-                            className="flex-1 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all border border-indigo-500/30 italic flex items-center justify-center gap-2"
-                        >
-                            <Music className="w-4 h-4" /> {t('song_request.title')}
-                        </button>
-                        <button
-                            onClick={() => handleSponsor(500)}
-                            className="flex-1 bg-amber-500 text-black py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl hover:bg-amber-400 hover:scale-[1.02] active:scale-95 transition-all border border-amber-400/50 italic flex items-center justify-center gap-2"
-                        >
-                            <Heart className="w-4 h-4 fill-current" /> {t('live.sponsor_btn')} (500P)
-                        </button>
-                        <button
-                            onClick={() => setShowBookingModal(true)}
-                            className="flex-1 bg-white text-black py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl hover:bg-gray-100 hover:scale-[1.02] active:scale-95 transition-all border border-white/20 italic flex items-center justify-center gap-2"
-                        >
-                            <Clock className="w-4 h-4" /> {t('booking.modal.title')}
-                        </button>
+                        <button onClick={() => setShowRequestModal(true)} className="flex-1 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all border border-indigo-500/30 italic flex items-center justify-center gap-2"><Music className="w-4 h-4" /> {t('song_request.title')}</button>
+                        <button onClick={() => handleSponsor(500)} className="flex-1 bg-amber-500 text-black py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl hover:bg-amber-400 hover:scale-[1.02] active:scale-95 transition-all border border-amber-400/50 italic flex items-center justify-center gap-2"><Heart className="w-4 h-4 fill-current" /> {t('live.sponsor_btn')} (500P)</button>
+                        <button onClick={() => setShowBookingModal(true)} className="flex-1 bg-white text-black py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl hover:bg-gray-100 hover:scale-[1.02] active:scale-95 transition-all border border-white/20 italic flex items-center justify-center gap-2"><Clock className="w-4 h-4" /> {t('booking.modal.title')}</button>
                     </div>
                 </div>
             )}
 
             {showRedirectionModal && (
                 <div className="fixed inset-0 z-[100] bg-gray-950/98 backdrop-blur-3xl flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-1000 italic">
-                    <div className="w-24 h-24 bg-indigo-600/10 rounded-full flex items-center justify-center mb-8 border border-indigo-500/20 shadow-[0_0_60px_rgba(79,70,229,0.2)]">
-                        <Archive className="w-10 h-10 text-indigo-500" />
-                    </div>
+                    <div className="w-24 h-24 bg-indigo-600/10 rounded-full flex items-center justify-center mb-8 border border-indigo-500/20 shadow-[0_0_60px_rgba(79,70,229,0.2)]"><Archive className="w-10 h-10 text-indigo-500" /></div>
                     <h2 className="text-3xl font-black mb-4 text-white uppercase tracking-tighter">{t('live.ended_title')}</h2>
                     <p className="text-gray-500 mb-14 max-w-[280px] leading-relaxed">{t('live.ended_desc')}</p>
                     <div className="bg-white/5 border border-white/10 px-12 py-8 rounded-[40px] mb-14 relative shadow-2xl">
@@ -411,8 +366,7 @@ export default function AudienceLivePage() {
 
             <SongRequestModal isOpen={showRequestModal} onClose={() => setShowRequestModal(false)} onSubmit={handleSongRequest} />
             <BookingRequestModal isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} onSubmit={handleBookingRequest} singerName={singer?.stageName || 'Singer'} />
-            
-            {(user?.id || localStorage.getItem('busking_fan_id')) && (
+            { (user?.id || (typeof window !== 'undefined' && localStorage.getItem('busking_fan_id'))) && (
                 <PointChargeModal
                     userId={user?.id || localStorage.getItem('busking_fan_id')!}
                     isOpen={showChargeModal}

@@ -30,7 +30,6 @@ interface ChatBoxProps {
     chatCapacity?: number
     avatarConfig?: AvatarConfig | null
     className?: string
-    onRequestSong?: () => void
     onSocketReady?: (socket: Socket) => void
     onAcceptRequest?: (title: string) => void
     onRejectRequest?: (title: string) => void
@@ -54,7 +53,7 @@ export default function ChatBox({
     const [chatStatus, setChatStatus] = useState<'open' | 'closed'>('closed')
     const [showAvatarSetup, setShowAvatarSetup] = useState(false)
     const [isJoined, setIsJoined] = useState(userType === 'singer')
-    const joinedRef = useRef(false)
+    const joinedRoomRef = useRef<string | null>(null) // To prevent duplicate join
 
     const [localUsername, setLocalUsername] = useState(username || '')
     const [localAvatarConfig, setLocalAvatarConfig] = useState<AvatarConfig | null>(avatarConfig || null)
@@ -68,7 +67,7 @@ export default function ChatBox({
         return isNaN(date.getTime()) ? ts : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
     }
 
-    // Effect for Socket initialization & Event Listeners
+    // Initialize/Sync Socket
     useEffect(() => {
         let activeSocket: Socket | null = null
 
@@ -87,10 +86,13 @@ export default function ChatBox({
         if (!activeSocket) return
 
         const handleConnect = () => setIsConnected(true)
-        const handleDisconnect = () => { setIsConnected(false); joinedRef.current = false }
+        const handleDisconnect = () => {
+            setIsConnected(false)
+            joinedRoomRef.current = null
+        }
         const handleChatStatus = (data: { status: 'open' | 'closed' }) => {
             setChatStatus(data.status)
-            if (onChatStatusChange) onChatStatusChange(data.status)
+            onChatStatusChange?.(data.status)
         }
         const handleReceiveMessage = (data: Message) => {
             setMessages(list => [...list, data])
@@ -122,21 +124,24 @@ export default function ChatBox({
                 activeSocket.off('song_status_updated', handleSongStatus)
                 if (!externalSocket) activeSocket.disconnect()
             }
-            joinedRef.current = false
+            joinedRoomRef.current = null
         }
     }, [isJoined, externalSocket, performanceId])
 
-    // Effect for Room Join (Idempotent)
+    // Unified Idempotent Room Join
     useEffect(() => {
-        if (socket && isJoined && isConnected && !joinedRef.current) {
-            socket.emit('join_room', { 
-                performanceId, 
-                username: effectiveUsername, 
-                userType, 
-                capacity: chatCapacity,
-                avatarConfig: effectiveAvatarConfig
-            })
-            joinedRef.current = true
+        if (socket && isJoined && isConnected) {
+            const joinKey = `${performanceId}:${effectiveUsername}`
+            if (joinedRoomRef.current !== joinKey) {
+                socket.emit('join_room', { 
+                    performanceId, 
+                    username: effectiveUsername, 
+                    userType, 
+                    capacity: chatCapacity,
+                    avatarConfig: effectiveAvatarConfig
+                })
+                joinedRoomRef.current = joinKey
+            }
         }
     }, [socket, isJoined, isConnected, performanceId, effectiveUsername, userType, chatCapacity, effectiveAvatarConfig])
 
@@ -165,11 +170,11 @@ export default function ChatBox({
 
     return (
         <div className={`flex flex-col bg-gray-900 border border-gray-800 rounded-xl overflow-hidden ${className}`}>
-            <div className="bg-gray-800 p-3 border-b border-gray-700 flex justify-between items-center">
+            <div className="bg-gray-800 p-3 border-b border-gray-700 flex justify-between items-center shrink-0">
                 <h3 className="text-white font-bold text-sm">{t('chat.title')}</h3>
                 {userType === 'audience' && isJoined && (
                     <button
-                        onClick={() => { setIsJoined(false); joinedRef.current = false }}
+                        onClick={() => { setIsJoined(false); joinedRoomRef.current = null }}
                         className="text-[10px] text-red-400 bg-red-900/20 hover:bg-red-900/40 px-3 py-1 rounded-full transition-colors font-black uppercase italic"
                     >
                         Leave
@@ -204,7 +209,7 @@ export default function ChatBox({
                                                     <span className="animate-bounce">💖</span> SPONSORSHIP <span className="animate-bounce">💖</span>
                                                 </div>
                                                 <p className="text-white font-black text-center text-[13px] mb-1 leading-tight">
-                                                    <span className="text-amber-400 mr-1.5">{msg.message.split('sponsored')[0]}</span>
+                                                    <span className="text-amber-400 mr-1.5">{msg.message.split('님')[0]}</span>
                                                     <span className="opacity-60">sponsored</span> 
                                                     <span className="text-amber-400 font-mono ml-1.5">{msg.amount?.toLocaleString()}P</span>
                                                 </p>
@@ -299,7 +304,7 @@ export default function ChatBox({
             {showAvatarSetup && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
                     <AvatarCreator
-                        onComplete={(name, config, type) => {
+                        onComplete={(name, config) => {
                             setLocalUsername(name)
                             setLocalAvatarConfig(config)
                             setShowAvatarSetup(false)

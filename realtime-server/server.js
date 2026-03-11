@@ -17,9 +17,7 @@ const io = new Server(server, {
     }
 });
 
-// Configure Redis client
 const redisClient = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379');
-
 redisClient.on('error', (err) => console.log('Redis Client Error', err));
 redisClient.on('connect', () => console.log('Connected to Redis'));
 
@@ -27,14 +25,11 @@ const pubClient = redisClient;
 const subClient = pubClient.duplicate();
 io.adapter(createAdapter(pubClient, subClient));
 
-/**
- * Helper to append messages to Redis history and broadcast
- */
 async function broadcastAndStore(performanceId, messageObj) {
     const historyKey = `live_history:${performanceId}`;
     try {
         await redisClient.rpush(historyKey, JSON.stringify(messageObj));
-        await redisClient.expire(historyKey, 86400); // 1 day
+        await redisClient.expire(historyKey, 86400); 
         io.in(performanceId).emit('receive_message', messageObj);
     } catch (err) {
         console.error('Failed to store history:', err);
@@ -48,7 +43,6 @@ io.on('connection', (socket) => {
         const { performanceId, username, userType, capacity = 50 } = data;
         if (!performanceId) return;
 
-        // Idempotent join check can be added here if needed
         const sockets = await io.in(performanceId).fetchSockets();
         const audienceCount = sockets.filter(s => s.data && s.data.userType === 'audience').length;
 
@@ -60,17 +54,13 @@ io.on('connection', (socket) => {
         socket.data = { performanceId, userType };
         socket.join(performanceId);
 
-        // Broadcast updated viewing count
         const newCount = userType === 'audience' ? audienceCount + 1 : audienceCount;
         io.in(performanceId).emit('update_viewing_count', { count: newCount });
 
-        // Check room status
         const statusKey = `live_status:${performanceId}`;
         const status = await redisClient.get(statusKey) || 'closed';
-
         socket.emit('chat_status', { status });
 
-        // Always allow singer to see history, audience only if open
         if (status === 'open' || userType === 'singer') {
             const historyKey = `live_history:${performanceId}`;
             const historyStr = await redisClient.lrange(historyKey, 0, -1);
@@ -81,7 +71,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Unify chat opening logic
     socket.on('open_chat', async (data) => {
         const { performanceId } = data;
         if (!performanceId) return;
@@ -105,7 +94,6 @@ io.on('connection', (socket) => {
 
         const statusKey = `live_status:${performanceId}`;
         const status = await redisClient.get(statusKey) || 'closed';
-
         if (status !== 'open' && userType !== 'singer') return;
 
         await broadcastAndStore(performanceId, data);
@@ -138,7 +126,6 @@ io.on('connection', (socket) => {
             isRequest: true,
             requestData: { title, artist, username }
         });
-        
         io.in(performanceId).emit('song_requested', data);
     });
 
@@ -165,8 +152,6 @@ io.on('connection', (socket) => {
         await redisClient.set(statusKey, newStatus, 'EX', 86400);
         
         io.in(performanceId).emit('chat_status', { status: newStatus });
-        io.in(performanceId).emit('chat_status_toggled', { enabled });
-
         if (enabled) {
             await broadcastAndStore(performanceId, {
                 performanceId,

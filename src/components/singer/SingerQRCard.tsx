@@ -116,7 +116,7 @@ export default function SingerQRCard({ singerId, displayId, nickname, qrValue, s
             hairColor,
             topColor,
             bottomColor,
-            socialLinks: links
+            socialLinks: JSON.stringify(links)
         })
         setIsSaving(false)
         if (res.success) {
