@@ -40,8 +40,14 @@ export default function AudienceLivePage() {
         try {
             const p = await getPerformanceById(id)
             if (p) {
+                // Check if performance is already ended
+                if (p.status === 'completed' || p.status === 'canceled') {
+                    setPerformance({ ...p })
+                    setShowRedirectionModal(true)
+                    return
+                }
+
                 setPerformance({ ...p })
-                // The DB chatEnabled acts as the fallback/initial state
                 setChatStatus(p.chatEnabled ? 'open' : 'closed')
                 
                 if (p.singerId) {
