@@ -15,6 +15,14 @@ This repository uses a four-agent operating model. Every agent reads this file f
 - Every agent should prefer GitHub workflow summaries, workflow artifacts, PR comments, and repository docs over chat copy-paste.
 - iCloud Notes should not be required for normal handoff.
 
+## Notifications And Secrets
+
+- GitHub Actions may send notifications through the repository secret `DISCORD_WEBHOOK_URL`.
+- Agents may assume Discord notification is enabled only when the workflow references `secrets.DISCORD_WEBHOOK_URL`.
+- Agents must never print, request, expose, or attempt to recover the webhook value.
+- Agents can know the secret name and usage from repository code, but not the secret value.
+- To verify delivery, agents should check the `ai-handoff` workflow run and its Discord notification step instead of asking for the webhook URL.
+
 ## Core Rules
 
 1. `Atlas PM` decides which agent should act next.
@@ -84,6 +92,9 @@ Every agent should write handoffs using this structure:
 - Separate confirmed bugs from assumptions.
 
 ## Required Reading Order For Any Agent
+
+After every `git pull`, every agent must read `docs/ai-orchestra.md` before analysis, coding, design, or QA.
+If this file changed, the new rules override prior working assumptions immediately.
 
 1. `docs/ai-orchestra.md`
 2. Latest GitHub workflow artifact from `ai-handoff`
