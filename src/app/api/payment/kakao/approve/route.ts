@@ -23,6 +23,16 @@ export async function GET(req: Request) {
         const secretKey = process.env.KAKAO_PAY_SECRET_KEY || process.env.KAKAO_PAY_ADMIN_KEY
         const cid = process.env.KAKAO_PAY_CID || 'TC0ONETIME'
 
+        // If in mock mode, skip the Kakao Pay server verification
+        if (pg_token === 'mock_token_123' || tid?.startsWith('T_MOCK_')) {
+            console.log('Mock payment approval detected. Processing DB update.')
+            const result = await chargePoints(userId, parseInt(pointsStr))
+            if (result.success) {
+                return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/explore?payment=success&points=${result.points}`)
+            }
+            return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/explore?payment=error&error=db_update_failed`)
+        }
+
         const body = {
             cid,
             tid,
