@@ -98,10 +98,131 @@ jobs:
             echo '```'
           } > tmp/ai-handoff/report.md
 
+          export CONTEXT_LINE SHA_SHORT AUTHOR REF_NAME REPO RUN_URL
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          changed_path = Path("tmp/ai-handoff/changed_files.txt")
+          changed_files = [
+              line.strip()
+              for line in changed_path.read_text(encoding="utf-8").splitlines()
+              if line.strip() and line.strip() != "(no changed files detected)"
+          ]
+
+          def pick_handoff_file(files: list[str]) -> str | None:
+              candidates = [
+                  path for path in files
+                  if path.startswith("tmp/ai-handoff-latest/")
+                  and path.endswith(".md")
+                  and not path.endswith("report.md")
+              ]
+              if not candidates:
+                  folder = Path("tmp/ai-handoff-latest")
+                  if folder.exists():
+                      candidates = [
+                          str(path).replace("\\", "/")
+                          for path in folder.glob("*.md")
+                          if path.name != "report.md"
+                      ]
+              if not candidates:
+                  return None
+              candidates.sort(key=lambda path: ("charter" in path.lower(), path))
+              return candidates[0]
+
+          def parse_sections(text: str) -> dict[str, str]:
+              sections: dict[str, list[str]] = {}
+              current = None
+              for line in text.splitlines():
+                  if line.startswith("## "):
+                      current = line[3:].strip()
+                      sections[current] = []
+                  elif current is not None:
+                      sections[current].append(line)
+              return {
+                  key: "\n".join(value).strip()
+                  for key, value in sections.items()
+              }
+
+          def compact(text: str, *, max_lines: int = 3) -> str:
+              if not text:
+                  return "없음"
+              lines = [line.strip() for line in text.splitlines() if line.strip()]
+              compacted = []
+              for line in lines:
+                  if line.startswith("- "):
+                      compacted.append(f"• {line[2:].strip()}")
+                  else:
+                      compacted.append(line)
+              if len(compacted) > max_lines:
+                  compacted = compacted[:max_lines]
+                  compacted.append("• ...(생략)")
+              return "\n".join(compacted)
+
+          handoff_file = pick_handoff_file(changed_files)
+          sections = {}
+          if handoff_file and Path(handoff_file).exists():
+              sections = parse_sections(Path(handoff_file).read_text(encoding="utf-8"))
+
+          task = compact(sections.get("Task", "이번 변경사항을 확인하고 다음 작업을 정리해 주세요."), max_lines=2)
+          result = compact(
+              sections.get("Result", f"변경 파일 {len(changed_files)}개가 감지되었습니다."),
+              max_lines=4,
+          )
+          risks = compact(sections.get("Risks", "별도 리스크가 기록되지 않았습니다."), max_lines=3)
+          next_owner = compact(sections.get("Next Owner", "미지정"), max_lines=1)
+          next_action = compact(
+              sections.get("Next Action", "워크플로우 실행 결과와 변경 파일을 확인해 다음 담당자를 지정해 주세요."),
+              max_lines=2,
+          )
+
+          changed_preview = changed_files[:5]
+          changed_text = "\n".join(f"- {path}" for path in changed_preview) if changed_preview else "- 변경 파일 없음"
+          if len(changed_files) > 5:
+              changed_text += f"\n- 외 {len(changed_files) - 5}개"
+
+          lines = [
+              f"[AI 핸드오프] {os.environ['REPO']}",
+              f"브랜치: {os.environ['REF_NAME']} / 커밋: {os.environ['SHA_SHORT']} / 작성자: {os.environ['AUTHOR']}",
+              f"맥락: {os.environ['CONTEXT_LINE']}",
+          ]
+          if handoff_file:
+              lines.append(f"핸드오프 문서: {handoff_file}")
+          lines.extend([
+              "",
+              "무엇을 해야 하나요?",
+              task,
+              "",
+              "무엇을 했나요?",
+              result,
+              "",
+              "리스크",
+              risks,
+              "",
+              f"다음 담당자: {next_owner}",
+              "다음 액션",
+              next_action,
+              "",
+              "변경 파일",
+              changed_text,
+              "",
+              f"워크플로우: {os.environ['RUN_URL']}",
+          ])
+
+          Path("tmp/ai-handoff/discord_message.txt").write_text(
+              "\n".join(lines),
+              encoding="utf-8",
+          )
+          PY
+
           {
             echo "report_path=tmp/ai-handoff/report.md"
             echo "report_body<<EOF"
             cat tmp/ai-handoff/report.md
+            echo "EOF"
+            echo "discord_message_path=tmp/ai-handoff/discord_message.txt"
+            echo "discord_message<<EOF"
+            cat tmp/ai-handoff/discord_message.txt
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -159,24 +280,15 @@ jobs:
         shell: bash
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_MESSAGE: ${{ steps.report.outputs.discord_message }}
         run: |
           python - <<'PY'
           import json
           import os
           import urllib.request
 
-          repo = "${{ github.repository }}"
-          sha = "${{ github.sha }}"[:7]
-          actor = "${{ github.actor }}"
-          ref_name = "${{ github.ref_name }}"
-          run_url = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
           payload = {
-              "content": (
-                  f"[AI Handoff] {repo}\n"
-                  f"branch={ref_name} commit={sha} actor={actor}\n"
-                  f"report={run_url}"
-              )
+              "content": os.environ["DISCORD_MESSAGE"]
           }
 
           req = urllib.request.Request(
