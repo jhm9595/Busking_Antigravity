@@ -14,6 +14,7 @@ interface Message {
     type: 'singer' | 'audience' | 'system' | 'donation'
     avatarConfig?: AvatarConfig | null
     amount?: number
+    donorName?: string
     isRequest?: boolean
     isAlert?: boolean
     requestData?: {
@@ -209,7 +210,7 @@ export default function ChatBox({
                                                     <span className="animate-bounce">💖</span> {t('chat.sponsorship_title')} <span className="animate-bounce">💖</span>
                                                 </div>
                                                 <p className="text-white font-black text-center text-[13px] mb-1 leading-tight">
-                                                    <span className="text-amber-400 mr-1.5">{msg.author}</span>
+                                                    <span className="text-amber-400 mr-1.5">{msg.donorName || (msg.message.includes('님') ? msg.message.split('님')[0] : msg.author)}</span>
                                                     <span className="opacity-60">{t('chat.sponsored_by')}</span> 
                                                     <span className="text-amber-400 font-mono ml-1.5">{msg.amount?.toLocaleString()}P</span>
                                                 </p>
