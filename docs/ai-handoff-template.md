@@ -16,6 +16,7 @@ Copy this template when an agent needs to hand work to another agent.
 - files:
 - commands:
 - logs:
+- branch/worktree:
 
 ## Risks
 - <risk>
@@ -26,6 +27,11 @@ Copy this template when an agent needs to hand work to another agent.
 ## Next Action
 <single next step>
 ```
+
+## Required Header Check Before Work
+
+Every agent should record the branch/worktree they used in `Evidence`.
+If the work happened in the shared root checkout, the handoff must say why that was allowed.
 
 ## Minimal Examples
 
@@ -45,6 +51,7 @@ Removed duplicate `join_room` emit path and added idempotent join guard.
 - files: `src/components/chat/ChatBox.tsx`
 - commands: `npm.cmd run lint`, `npx.cmd tsc --noEmit`
 - logs: typecheck passed for touched file path; repo-wide lint still has unrelated failures
+- branch/worktree: `forge/fix-chat-join` in `..\wt-forge-dev`
 
 ## Risks
 - Full live room count should still be validated in browser.
@@ -72,6 +79,7 @@ Happy path passed. One remaining issue: donation banner text is still English-on
 - files: `src/components/chat/ChatBox.tsx`, `realtime-server/server.js`
 - commands: browser manual test
 - logs: reproduced on `/live/[id]`
+- branch/worktree: `scout/qa-live-chat` in `..\wt-scout-qa`
 
 ## Risks
 - i18n is still incomplete in realtime system messages.

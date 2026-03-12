@@ -16,6 +16,33 @@ This repository uses a four-agent operating model. Every agent reads this file f
 - iCloud Notes should not be required for normal handoff.
 - `docs/pm-directive.md` is the current PM instruction file and should be treated as the live execution directive.
 
+## Workspace Model
+
+- Agents must not share one live worktree for active work.
+- `main` is the integration branch and PM reference branch. It is not the default place for concurrent implementation, QA, or design edits.
+- Each agent must work in its own branch and its own git worktree when making changes or generating agent-specific artifacts.
+- Recommended branch names:
+  - `atlas/<task>`
+  - `forge/<task>`
+  - `pixel/<task>`
+  - `scout/<task>`
+- Recommended local worktree folders:
+  - `..\wt-atlas-pm`
+  - `..\wt-forge-dev`
+  - `..\wt-pixel-design`
+  - `..\wt-scout-qa`
+- If an agent is not prepared to create a branch/worktree, that agent should stay read-only and leave a handoff instead of editing in the shared root checkout.
+
+## Shared Root Checkout Rule
+
+- The repository root checkout should be treated as a coordination view, not a multi-agent scratch workspace.
+- Only `Atlas PM` may update shared directive docs in the root checkout by default:
+  - `docs/ai-orchestra.md`
+  - `docs/pm-directive.md`
+  - `docs/ai-handoff-template.md`
+- Other agents should not leave temporary files, test outputs, or agent-specific notes in the shared root checkout.
+- If a shared-root file already has unrelated local changes, do not overwrite them blindly. Route the conflict to `Atlas PM`.
+
 ## Notifications And Secrets
 
 - GitHub Actions may send notifications through the repository secret `DISCORD_WEBHOOK_URL`.
@@ -71,6 +98,8 @@ Every agent should write handoffs using this structure:
 - Prefer one next owner at a time.
 - Convert vague requests into executable tasks.
 - Maintain the release perspective: correctness, priority, and scope.
+- Keep `docs/pm-directive.md` current when ownership or operating rules change.
+- Decide when a task needs a new branch/worktree before assigning implementation.
 
 ### Forge Dev
 
@@ -78,12 +107,14 @@ Every agent should write handoffs using this structure:
 - Prefer repository docs and workflow reports before asking for context.
 - When finishing implementation, leave a handoff that QA can execute without guessing.
 - When blocked by environment or secrets, say exactly which dependency is missing.
+- Do implementation work in the Forge branch/worktree, not in the shared root checkout.
 
 ### Pixel Design
 
 - Preserve established design language unless asked to explore.
 - Provide named variants, intended usage, and handoff notes for implementation.
 - Document which screens, flows, or components are affected.
+- If design work touches repository files, use the Pixel branch/worktree or stay read-only.
 
 ### Scout QA
 
@@ -93,6 +124,7 @@ Every agent should write handoffs using this structure:
 - Separate confirmed bugs from assumptions.
 - If a confirmed bug is found, set `Next Owner` to `Atlas PM`.
 - Do not assign implementation work directly unless `Atlas PM` has already delegated that path.
+- Put QA logs, screenshots, and temporary artifacts in the Scout branch/worktree, not the shared root checkout.
 
 ## Required Reading Order For Any Agent
 
@@ -101,9 +133,17 @@ If this file changed, the new rules override prior working assumptions immediate
 
 1. `docs/ai-orchestra.md`
 2. `docs/pm-directive.md`
-3. Latest GitHub workflow artifact from `ai-handoff`
-4. Relevant PR comments or workflow summary
-5. Code
+3. `git status --short --branch` and confirm the current branch/worktree matches the assigned role
+4. Latest GitHub workflow artifact from `ai-handoff`
+5. Relevant PR comments or workflow summary
+6. Code
+
+Before editing, each agent must confirm all of the following:
+
+1. I am not on the shared root checkout unless I am updating PM coordination docs.
+2. My branch name matches my role.
+3. My worktree does not contain unrelated local changes I do not understand.
+4. My handoff target is a single next owner.
 
 ## Escalation Policy
 
@@ -116,3 +156,4 @@ If this file changed, the new rules override prior working assumptions immediate
   3. `Forge Dev`
   4. `Scout QA`
   5. `Atlas PM`
+- If a shared-root checkout becomes dirty from multiple agents, stop new edits there, create clean role-specific worktrees, and resume from those worktrees.

@@ -4,6 +4,14 @@ This file is the current execution directive from `Atlas PM`.
 Every agent must read this file after `git pull` and before starting new work.
 If this file changed, treat it as the latest priority and routing source.
 
+## Operating Mode
+
+- The shared root checkout is a coordination view only.
+- Active implementation, QA artifact generation, and design-file edits must happen in role-specific branches and role-specific git worktrees.
+- Before starting work, each agent must confirm `git status --short --branch` and verify the branch/worktree matches the assigned role.
+- `Atlas PM` owns updates to shared coordination docs in the root checkout unless explicitly delegated.
+- If the current checkout contains unrelated local changes, stop and route the conflict to `Atlas PM` before continuing.
+
 ## Current Priority
 
 1. Validate live chat and payment flows (Scout QA).
