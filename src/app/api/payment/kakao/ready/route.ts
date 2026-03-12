@@ -41,10 +41,18 @@ export async function POST(req: Request) {
             fail_url: `${appUrl}/explore?payment=fail`,
         }
 
+        // Determine authorization header based on key prefix
+        // Admin Key usually starts with nothing or specific prefix, Payment Secret Key starts with DEV_/TEST_/PROC_
+        const authHeader = secretKey.startsWith('DEV_') || secretKey.startsWith('TEST_') || secretKey.startsWith('PROC_')
+            ? `SECRET_KEY ${secretKey}`
+            : `KakaoAK ${secretKey}` // Default to Admin Key format
+
+        console.log('Kakao Pay Request Info:', { cid, partnerOrderId: body.partner_order_id, authHeaderPrefix: authHeader.split(' ')[0] })
+
         const response = await fetch('https://open-api.kakaopay.com/online/v1/payment/ready', {
             method: 'POST',
             headers: {
-                Authorization: `SECRET_KEY ${secretKey}`,
+                Authorization: authHeader,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(body),
@@ -73,8 +81,12 @@ export async function POST(req: Request) {
             
             return res
         } else {
-            console.error('Kakao Pay Ready Error:', data)
-            return NextResponse.json({ error: data.msg || 'Kakao Pay preparation failed' }, { status: 400 })
+            console.error('Kakao Pay Ready Error:', JSON.stringify(data))
+            return NextResponse.json({ 
+                error: data.msg || 'Kakao Pay preparation failed', 
+                details: data, // Forward Kakao error details for debugging
+                code: data.code
+            }, { status: 400 })
         }
     } catch (error) {
         console.error('Payment Ready Server Error:', error)

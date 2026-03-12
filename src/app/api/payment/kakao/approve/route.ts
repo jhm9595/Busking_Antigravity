@@ -24,7 +24,7 @@ export async function GET(req: Request) {
         const cid = process.env.KAKAO_PAY_CID || 'TC0ONETIME'
 
         // If in mock mode, skip the Kakao Pay server verification
-        if (pg_token === 'mock_token_123' || tid?.startsWith('T_MOCK_')) {
+        if (!secretKey || pg_token === 'mock_token_123' || tid?.startsWith('T_MOCK_')) {
             console.log('Mock payment approval detected. Processing DB update.')
             const result = await chargePoints(userId, parseInt(pointsStr))
             if (result.success) {
@@ -41,10 +41,15 @@ export async function GET(req: Request) {
             pg_token,
         }
 
+        // Determine authorization header based on key prefix
+        const authHeader = secretKey.startsWith('DEV_') || secretKey.startsWith('TEST_') || secretKey.startsWith('PROC_')
+            ? `SECRET_KEY ${secretKey}`
+            : `KakaoAK ${secretKey}`
+
         const response = await fetch('https://open-api.kakaopay.com/online/v1/payment/approve', {
             method: 'POST',
             headers: {
-                Authorization: `SECRET_KEY ${secretKey}`,
+                Authorization: authHeader,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(body),
