@@ -1,0 +1,22 @@
+
+- Clerk is already the app-wide auth provider via `ClerkProvider` in `src/app/layout.tsx` and `auth()` is already used server-side in `src/app/page.tsx`.
+- Official Clerk guidance favors `auth()` for server actions and route handlers, with ownership enforced by comparing `auth().userId` to DB owner fields inside every mutation.
+- Lifecycle logic is duplicated across `src/utils/performance.ts`, `src/app/api/performances/route.ts`, and `src/app/api/singers/[id]/route.ts`.
+- GET handlers currently mutate DB state to auto-live/auto-complete performances, while UI code also derives status client-side.
+- Socket.IO server currently trusts client-claimed `userType`, `capacity`, and privileged control events; official guidance is to authenticate on connection, store trusted identity in `socket.data`, and authorize privileged events server-side.
+- Wave 1 foundation can stay decoupled from route refactors by codifying pure trust-boundary decisions around Clerk-style `auth().userId` and owner-id comparisons.
+- Existing `GET` handlers in `src/app/api/performances/route.ts` and `src/app/api/singers/[id]/route.ts` still include Prisma writes, so lifecycle foundation should verify contract logic and separately report current route compliance.
+- Task 2 hardening in `src/services/singer.ts` is most stable when every mutating action calls shared auth/ownership helpers first, then validates Prisma ownership (`Performance.singerId`, `Song.singerId`, `SongRequest.performance.singerId`) before writes.
+- For write routes that previously trusted payload identity (`fanId`, `requesterName`), using Clerk-derived actor identity plus profile lookups preserves behavior while removing client-controlled actor claims.
+- Task 2 verification is stable with lightweight regression assertions that combine `evaluateTrustBoundary` outcomes and file-level checks for server-derived identity usage in hardened handlers.
+- Task 3 replaced GET-side Prisma auto-live/auto-complete writes with read-only status projection using `resolvePerformanceLifecycleStatus` from `src/lib/performance-lifecycle.ts`.
+- `src/utils/performance.ts` now delegates to the same lifecycle resolver used by API GET routes, so UI and API read paths derive stale scheduled/live transitions from one source.
+- Resolver boundary normalizes `cancelled` to `canceled`, and UI status typing now treats `canceled` as the canonical read-side value.
+- Task 4 hardened realtime control by minting short-lived owner control tokens server-side (`createRealtimeOwnerControlToken`) and validating them in the realtime server before privileged socket actions.
+- Realtime join/history behavior now derives trusted owner status from verified token claims and `socket.data`, so claimed `userType`/`capacity` payloads no longer grant privileged history or control paths.
+- Task 5 chat smoke is most reliable when closed-room message blocking is validated on a fresh performance room id, because previously opened rooms in shared Redis state can produce false negatives.
+- Task 5 Playwright smoke runs in this repo once `@playwright/test` is installed as a dev dependency; the spec can still skip gracefully when there are no visible performances.
+- Task 5 Playwright smoke is most stable in this worktree when it validates app/API contracts and token/authorization source contracts without depending on a live realtime server process lifecycle during test runtime.
+- Final Wave fidelity fix: lifecycle foundation must include real route contract checks in `pass` evaluation; fixture-only assertions can mask write regressions in actual GET handlers.
+- Final Wave fidelity fix: chat smoke should treat static source guards as supplemental only; runtime denial must be proven from socket behavior (authorization error and/or absence of privileged effects) before passing.
+- Final Wave fidelity fix: Playwright live auth smoke is more trustworthy when it verifies end-to-end runtime control flow (anonymous denied, owner token accepted for control events) instead of source-regex checks.

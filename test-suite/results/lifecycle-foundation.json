@@ -1,0 +1,48 @@
+{
+  "suite": "lifecycle-foundation",
+  "case": "no-get-writes-contract",
+  "pass": true,
+  "generatedAt": "2026-03-12T14:48:40.631Z",
+  "details": {
+    "pass": true,
+    "expected": "GET lifecycle contract identifies writes and allows read-only handlers",
+    "fixtureChecks": {
+      "compliant": {
+        "routePath": "fixture/compliant.ts",
+        "hasGetHandler": true,
+        "writeCallCount": 0,
+        "writeCalls": [],
+        "passesNoWriteContract": true
+      },
+      "violation": {
+        "routePath": "fixture/violation.ts",
+        "hasGetHandler": true,
+        "writeCallCount": 1,
+        "writeCalls": [
+          {
+            "operation": "update",
+            "index": 42
+          }
+        ],
+        "passesNoWriteContract": false
+      }
+    },
+    "routeChecks": [
+      {
+        "routePath": "src/app/api/performances/route.ts",
+        "hasGetHandler": true,
+        "writeCallCount": 0,
+        "writeCalls": [],
+        "passesNoWriteContract": true
+      },
+      {
+        "routePath": "src/app/api/singers/[id]/route.ts",
+        "hasGetHandler": true,
+        "writeCallCount": 0,
+        "writeCalls": [],
+        "passesNoWriteContract": true
+      }
+    ],
+    "routeViolationsDetected": 0
+  }
+}

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { resolvePerformanceLifecycleStatus } from '@/lib/performance-lifecycle'
 
 export async function GET(request: Request) {
     try {
@@ -53,45 +54,15 @@ export async function GET(request: Request) {
             }
         })
 
-        // Auto-update status logic: Check for stale live/scheduled performances
-        const now = new Date()
-        const requests = performances.map(async (p: any) => {
-            const start = new Date(p.startTime)
-            let end = p.endTime ? new Date(p.endTime) : null
-            if (!end) end = new Date(start.getTime() + 3 * 60 * 60 * 1000)
+        const updatedPerformances = performances.map((p: any) => {
+            const currentStatus = resolvePerformanceLifecycleStatus(p)
 
-            let currentStatus = p.status
-            if (end < now) {
-                currentStatus = 'completed'
-                try {
-                    await prisma.performance.update({
-                        where: { id: p.id },
-                        data: { status: 'completed' }
-                    })
-                } catch (e) {
-                    console.error('Auto-close error map:', e)
-                }
-            } else if (start <= now && p.status === 'scheduled') {
-                currentStatus = 'live'
-                try {
-                    await prisma.performance.update({
-                        where: { id: p.id },
-                        data: { status: 'live' }
-                    })
-                } catch (e) {
-                    console.error('Auto-live error map:', e)
-                }
-            }
-
-            // Add isFollowed flag
             return {
                 ...p,
                 status: currentStatus,
                 isFollowed: followedSingerIds.includes(p.singerId)
             }
         })
-
-        const updatedPerformances = await Promise.all(requests)
 
         // Filter and Sort
         const validPerformances = updatedPerformances

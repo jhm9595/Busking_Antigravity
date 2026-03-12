@@ -1,0 +1,15 @@
+{
+  "suite": "lifecycle-read-only",
+  "case": "canceled-status-normalized",
+  "pass": true,
+  "generatedAt": "2026-03-12T14:47:11.254Z",
+  "details": {
+    "pass": true,
+    "expected": "canceled/cancelled values normalize to a single boundary status",
+    "details": {
+      "mapsCancelledToCanceled": true,
+      "utilsStatusTypeIsCanonical": true,
+      "apiRoutesAvoidCancelledLiteral": true
+    }
+  }
+}

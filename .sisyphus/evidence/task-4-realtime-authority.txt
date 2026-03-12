@@ -1,0 +1,12 @@
+Task 4: Remove Client Authority from the Realtime Control Plane
+Scenario: Owning singer can trigger an authorized realtime control action
+
+Commands:
+node test-suite/realtime/authority.test.js --case owner-open-chat-allowed --out test-suite/results/realtime-owner-open-chat.json
+node test-suite/realtime/authority.test.js --case owner-end-performance-allowed --out test-suite/results/realtime-owner-end.json
+
+Results:
+- realtime-owner-open-chat.json: PASS. Authenticated owner token can open chat.
+- realtime-owner-end.json: PASS. Trusted owner socket can end performance.
+
+Owning singers can successfully trigger authorized control actions using server-verified tokens, with broadcasts observed by test clients.

@@ -1,0 +1,14 @@
+Task 1: Establish Trust-Boundary Foundation
+Scenario: Foundation contract passes for public read and protected write
+
+Commands:
+node test-suite/security/foundation.test.js --case anonymous-read-allowed --out test-suite/results/security-foundation-anon-read.json
+node test-suite/security/foundation.test.js --case anonymous-write-rejected --out test-suite/results/security-foundation-anon-write.json
+node test-suite/security/foundation.test.js --case cross-owner-write-forbidden --out test-suite/results/security-foundation-cross-owner.json
+
+Results:
+- security-foundation-anon-read.json: PASS. HTTP 200. Reason: ALLOWED_PUBLIC_READ.
+- security-foundation-anon-write.json: PASS. HTTP 401. Reason: REJECT_UNAUTHENTICATED.
+- security-foundation-cross-owner.json: PASS. HTTP 403. Reason: REJECT_FORBIDDEN_OWNER_MISMATCH.
+
+The foundation contract correctly allows public reads while rejecting unauthenticated or unauthorized writes at the boundary.

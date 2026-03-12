@@ -1,0 +1,12 @@
+Task 2: Derive Identity Server-Side for All In-Scope Writes
+Scenario: Owner can perform an authorized performance mutation
+
+Commands:
+node test-suite/security/mutating-writes.test.js --case owner-performance-update-succeeds --out test-suite/results/mutating-owner-performance.json
+node test-suite/security/mutating-writes.test.js --case follow-route-derives-identity --out test-suite/results/mutating-follow.json
+
+Results:
+- mutating-owner-performance.json: PASS. HTTP 200. Reason: ALLOWED_OWNER. Actor: singer-1.
+- mutating-follow.json: PASS. Identity derived from Clerk auth() instead of request body.
+
+The server correctly derives identity and allows authorized owners to perform mutations.

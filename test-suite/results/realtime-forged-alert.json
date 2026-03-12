@@ -1,0 +1,31 @@
+{
+  "suite": "realtime-authority",
+  "case": "forged-system-alert-rejected",
+  "pass": true,
+  "generatedAt": "2026-03-12T14:47:11.396Z",
+  "details": {
+    "pass": true,
+    "expected": "forged or replayed owner token for another performance is rejected",
+    "details": {
+      "decision": {
+        "allowed": false,
+        "performanceId": "perf-authority-1",
+        "actorUserId": null,
+        "tokenPayload": null,
+        "reason": "PERFORMANCE_MISMATCH"
+      },
+      "sourceChecks": {
+        "serverOpenChatGuarded": true,
+        "serverSystemAlertGuarded": true,
+        "serverPerformanceEndedGuarded": true,
+        "serverJoinNoClaimedCapacity": true,
+        "serverNoClaimedSingerBypass": true,
+        "serverHistoryRequiresTrustedOwner": true,
+        "singerUsesTokenAction": true,
+        "singerPrivilegedFlowUsesControlToken": true,
+        "chatJoinSendsControlToken": true,
+        "chatJoinDoesNotSendUserTypeOrCapacity": true
+      }
+    }
+  }
+}

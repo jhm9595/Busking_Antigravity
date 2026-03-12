@@ -1,59 +1,117 @@
-# Busking Antigravity Master Test Script 🚀 (PowerShell 한글판)
+# Busking Antigravity one-click smoke runner (PowerShell)
+
+$ErrorActionPreference = 'Stop'
+$summaryPath = Join-Path $PSScriptRoot 'results/one-click-smoke-summary.json'
+
+$summary = [ordered]@{
+    suite = 'one-click-smoke'
+    pass = $false
+    startedAt = (Get-Date).ToString('o')
+    finishedAt = $null
+    checks = @()
+}
+
+function Write-Summary {
+    param([bool]$Pass)
+    $summary.pass = $Pass
+    $summary.finishedAt = (Get-Date).ToString('o')
+
+    $summaryDir = Split-Path -Parent $summaryPath
+    if (-not (Test-Path $summaryDir)) {
+        New-Item -ItemType Directory -Path $summaryDir | Out-Null
+    }
+
+    $summary | ConvertTo-Json -Depth 8 | Set-Content -Path $summaryPath -Encoding UTF8
+}
+
+function Invoke-Step {
+    param(
+        [string]$Name,
+        [string]$Command
+    )
+
+    Write-Output "--> $Name"
+    try {
+        $global:LASTEXITCODE = 0
+        Invoke-Expression $Command
+        if ($LASTEXITCODE -ne 0) {
+            throw "Command exited with code ${LASTEXITCODE}: $Command"
+        }
+        $summary.checks += [ordered]@{ name = $Name; pass = $true }
+        Write-Output "[pass] $Name"
+    } catch {
+        $summary.checks += [ordered]@{ name = $Name; pass = $false; error = $_.Exception.Message }
+        throw
+    }
+}
 
 Write-Output "==============================================="
-Write-Output "   🎸 Busking Antigravity 통합 테스트 스위트   "
+Write-Output " Busking Antigravity one-click smoke runner "
 Write-Output "==============================================="
 
-# 1. 서버 연결 확인
-Write-Output "[1/6] 서버 연결 확인 중 (localhost:3000)..."
-$response = try { Invoke-WebRequest -Uri "http://localhost:3000/api/performances" -Method Head -ErrorAction Stop } catch { $null }
+try {
+    Write-Output "[1/17] Checking API server reachability..."
+    $health = Invoke-WebRequest -Uri 'http://localhost:3000/api/performances' -Method Get
+    if ($health.StatusCode -ne 200) {
+        throw "Unexpected API status code: $($health.StatusCode)"
+    }
+    $summary.checks += [ordered]@{ name = 'server-reachable'; pass = $true; statusCode = $health.StatusCode }
 
-if ($response -and $response.StatusCode -eq 200) {
-    Write-Output "✅ 서버 온라인 확인!"
-} else {
-    Write-Output "❌ 에러: localhost:3000에 연결할 수 없습니다."
-    Write-Output "   먼저 'npm run dev'로 서버를 실행해 주세요."
+    Write-Output "[2/17] Running API smoke..."
+    Invoke-Step -Name 'api-smoke' -Command 'node ./test-suite/api-tester.js'
+
+    Write-Output "[3/17] Running realtime chat smoke..."
+    Invoke-Step -Name 'chat-smoke' -Command 'node ./test-suite/chat-tester.js'
+
+    Write-Output "[4/17] Security foundation: anonymous read allowed"
+    Invoke-Step -Name 'security-foundation-anon-read' -Command 'node ./test-suite/security/foundation.test.js --case anonymous-read-allowed --out ./test-suite/results/security-foundation-anon-read.json'
+
+    Write-Output "[5/17] Security foundation: anonymous write rejected"
+    Invoke-Step -Name 'security-foundation-anon-write' -Command 'node ./test-suite/security/foundation.test.js --case anonymous-write-rejected --out ./test-suite/results/security-foundation-anon-write.json'
+
+    Write-Output "[6/17] Security foundation: cross-owner write forbidden"
+    Invoke-Step -Name 'security-foundation-cross-owner' -Command 'node ./test-suite/security/foundation.test.js --case cross-owner-write-forbidden --out ./test-suite/results/security-foundation-cross-owner.json'
+
+    Write-Output "[7/17] Security mutating: follow derives identity"
+    Invoke-Step -Name 'mutating-follow' -Command 'node ./test-suite/security/mutating-writes.test.js --case follow-route-derives-identity --out ./test-suite/results/mutating-follow.json'
+
+    Write-Output "[8/17] Security mutating: owner performance update"
+    Invoke-Step -Name 'mutating-owner-performance' -Command 'node ./test-suite/security/mutating-writes.test.js --case owner-performance-update-succeeds --out ./test-suite/results/mutating-owner-performance.json'
+
+    Write-Output "[9/17] Security mutating: unauthenticated writes"
+    Invoke-Step -Name 'mutating-unauthenticated' -Command 'node ./test-suite/security/mutating-writes.test.js --case unauthenticated-write-returns-401 --out ./test-suite/results/mutating-unauthenticated.json'
+
+    Write-Output "[10/17] Security mutating: cross-owner writes"
+    Invoke-Step -Name 'mutating-cross-owner' -Command 'node ./test-suite/security/mutating-writes.test.js --case foreign-performance-update-returns-403 --out ./test-suite/results/mutating-cross-owner.json'
+
+    Write-Output "[11/17] Lifecycle foundation checks"
+    Invoke-Step -Name 'lifecycle-foundation' -Command 'node ./test-suite/lifecycle/foundation.test.js --case no-get-writes-contract --out ./test-suite/results/lifecycle-foundation.json'
+
+    Write-Output "[12/17] Lifecycle read-only: performances route"
+    Invoke-Step -Name 'lifecycle-performances-no-write' -Command 'node ./test-suite/lifecycle/read-only.test.js --case get-performances-no-db-write --out ./test-suite/results/lifecycle-performances-no-write.json'
+
+    Write-Output "[13/17] Lifecycle read-only: singer route"
+    Invoke-Step -Name 'lifecycle-singer-no-write' -Command 'node ./test-suite/lifecycle/read-only.test.js --case get-singer-no-db-write --out ./test-suite/results/lifecycle-singer-no-write.json'
+
+    Write-Output "[14/17] Lifecycle consistency checks"
+    Invoke-Step -Name 'lifecycle-consistency' -Command 'node ./test-suite/lifecycle/read-only.test.js --case stale-scheduled-exposed-consistently --out ./test-suite/results/lifecycle-consistency.json'
+
+    Write-Output "[15/17] Lifecycle canceled normalization"
+    Invoke-Step -Name 'lifecycle-canceled-normalized' -Command 'node ./test-suite/lifecycle/read-only.test.js --case canceled-status-normalized --out ./test-suite/results/lifecycle-canceled-normalized.json'
+
+    Write-Output "[16/17] Realtime authority regression checks"
+    Invoke-Step -Name 'realtime-audience-open-chat' -Command 'node ./test-suite/realtime/authority.test.js --case audience-open-chat-denied --out ./test-suite/results/realtime-audience-open-chat.json'
+    Invoke-Step -Name 'realtime-audience-end' -Command 'node ./test-suite/realtime/authority.test.js --case audience-end-performance-denied --out ./test-suite/results/realtime-audience-end.json'
+    Invoke-Step -Name 'realtime-forged-alert' -Command 'node ./test-suite/realtime/authority.test.js --case forged-system-alert-rejected --out ./test-suite/results/realtime-forged-alert.json'
+    Invoke-Step -Name 'realtime-owner-open-chat' -Command 'node ./test-suite/realtime/authority.test.js --case owner-open-chat-allowed --out ./test-suite/results/realtime-owner-open-chat.json'
+    Invoke-Step -Name 'realtime-owner-end' -Command 'node ./test-suite/realtime/authority.test.js --case owner-end-performance-allowed --out ./test-suite/results/realtime-owner-end.json'
+
+    Write-Summary -Pass $true
+    Write-Output "[17/17] Summary written: $summaryPath"
+    Write-Output "All smoke checks passed."
+} catch {
+    Write-Summary -Pass $false
+    Write-Output "Smoke runner failed: $($_.Exception.Message)"
+    Write-Output "Summary written: $summaryPath"
     exit 1
 }
-
-# 2. 백엔드 API 스캔
-Write-Output "[2/6] 백엔드 API 로직 스캔 중..."
-try {
-    node ./test-suite/api-tester.js
-    Write-Output "✅ API 스캔 완료!"
-} catch {
-    Write-Output "❌ API 스캔 실패."
-    exit 1
-}
-
-# 3. 채팅 서버 연결 확인
-Write-Output "[3/6] WebSocket 채팅 서버 상태 점검..."
-try {
-    node ./test-suite/chat-tester.js
-    Write-Output "✅ 채팅 서버 연결 확인 완료!"
-} catch {
-    Write-Output "❌ 채팅 서버 연결 실패."
-    exit 1
-}
-
-# 4. DB 및 Prisma 동기화 체크
-Write-Output "[4/6] 데이터베이스(DB) 및 Prisma 스키마 일치 여부 확인..."
-node ./test-suite/health-check.js
-
-# 5. 전체 서비스 생명주기 시뮬레이션
-Write-Output "[5/6] 전체 프로세스 흐름 시뮬레이션 실행..."
-try {
-    node ./test-suite/full-lifecycle-test.js
-    Write-Output "✅ 프로세스 시뮬레이션 완료!"
-} catch {
-    Write-Output "⚠️ 시뮬레이션 중 오류가 발생했습니다. (위의 DB 싱크 상태를 확인하세요)"
-}
-
-# 6. 비주얼 대시보드 실행
-Write-Output "[6/6] 시각적 테스트 대시보드 실행 중..."
-$dashboardPath = Join-Path $PSScriptRoot "visual-dashboard.html"
-Start-Process $dashboardPath
-
-Write-Output "==============================================="
-Write-Output "   ✨ 모든 테스트 완료! 즐거운 코딩 되세요!    "
-Write-Output "==============================================="

@@ -1,7 +1,67 @@
 'use server'
 
 import { prisma } from '@/lib/prisma'
+import securityContract from '@/lib/security-contract'
+import realtimeControlToken from '@/lib/realtime-control-token'
 import { revalidatePath } from 'next/cache'
+
+const { auth } = require('@clerk/nextjs/server') as {
+    auth: () => Promise<{ userId: string | null }>
+}
+
+type AuthDecision = {
+    allowed: boolean
+    statusCode: number
+    actorUserId: string | null
+}
+
+const { evaluateTrustBoundary } = securityContract as {
+    evaluateTrustBoundary: (options: {
+        action: 'read' | 'write'
+        authState: { userId?: string | null }
+        ownerId?: string | null
+        allowAnonymousRead?: boolean
+        ownerRequired?: boolean
+    }) => AuthDecision
+}
+
+const { createRealtimeControlToken } = realtimeControlToken as {
+    createRealtimeControlToken: (payload: {
+        userId: string
+        performanceId: string
+        role?: 'owner'
+        capacity?: number | null
+    }, options?: {
+        ttlSeconds?: number
+    }) => string | null
+}
+
+async function requireAuthenticatedWrite(): Promise<AuthDecision> {
+    const authState = await auth()
+    return evaluateTrustBoundary({
+        action: 'write',
+        authState,
+        ownerRequired: false
+    })
+}
+
+async function requireOwnerWrite(ownerId: string | null | undefined): Promise<AuthDecision> {
+    const authState = await auth()
+    return evaluateTrustBoundary({
+        action: 'write',
+        authState,
+        ownerId: ownerId || null,
+        ownerRequired: Boolean(ownerId)
+    })
+}
+
+function deniedWriteResult(statusCode: number): { success: false, statusCode: number, error: 'UNAUTHORIZED' | 'FORBIDDEN' } {
+    return {
+        success: false,
+        statusCode,
+        error: statusCode === 401 ? 'UNAUTHORIZED' : 'FORBIDDEN'
+    }
+}
 
 // --- Profile & Singer Sync ---
 export async function syncUserProfile(user: { id: string, email?: string, fullName?: string | null, imageUrl?: string | null }) {
@@ -61,6 +121,11 @@ export async function checkNicknameUnique(nickname: string, excludeUserId?: stri
 
 export async function updateNickname(userId: string, newNickname: string) {
     try {
+        const access = await requireOwnerWrite(userId)
+        if (!access.allowed) {
+            return deniedWriteResult(access.statusCode)
+        }
+
         const isUnique = await checkNicknameUnique(newNickname, userId)
         if (!isUnique) return { success: false, error: 'NICKNAME_DUPLICATE' }
 
@@ -82,8 +147,7 @@ export async function registerSinger(user: { id: string, stageName: string }) {
             return { success: false, error: 'NICKNAME_DUPLICATE' }
         }
 
-        await prisma.$transaction(async (tx) => {
-            // Update Profile to role: 'singer'
+        await prisma.$transaction(async (tx: any) => {
             await tx.profile.update({
                 where: { id: user.id },
                 data: {
@@ -92,7 +156,6 @@ export async function registerSinger(user: { id: string, stageName: string }) {
                 }
             })
 
-            // Create Singer profile
             await tx.singer.upsert({
                 where: { id: user.id },
                 update: {
@@ -116,6 +179,11 @@ export async function registerSinger(user: { id: string, stageName: string }) {
 
 export async function updateSingerProfile(singerId: string, data: { bio?: string, socialLinks?: string, hairColor?: string, topColor?: string, bottomColor?: string }) {
     try {
+        const access = await requireOwnerWrite(singerId)
+        if (!access.allowed) {
+            return deniedWriteResult(access.statusCode)
+        }
+
         await prisma.singer.update({
             where: { id: singerId },
             data
@@ -139,6 +207,11 @@ export async function getUserPoints(userId: string) {
 
 export async function chargePoints(userId: string, amount: number) {
     try {
+        const access = await requireOwnerWrite(userId)
+        if (!access.allowed) {
+            return deniedWriteResult(access.statusCode)
+        }
+
         const profile = await prisma.profile.update({
             where: { id: userId },
             data: { points: { increment: amount } }
@@ -160,8 +233,12 @@ export async function chargePoints(userId: string, amount: number) {
 
 export async function sponsorSinger(fanId: string, singerId: string, amount: number) {
     try {
-        return await prisma.$transaction(async (tx) => {
-            // 1. Deduct from fan
+        const access = await requireOwnerWrite(fanId)
+        if (!access.allowed) {
+            return deniedWriteResult(access.statusCode)
+        }
+
+        return await prisma.$transaction(async (tx: any) => {
             const fan = await tx.profile.findUnique({ where: { id: fanId } })
             if (!fan || fan.points < amount) throw new Error('INSUFFICIENT_POINTS')
 
@@ -170,13 +247,11 @@ export async function sponsorSinger(fanId: string, singerId: string, amount: num
                 data: { points: { decrement: amount } }
             })
 
-            // 2. Add to singer (singer's profile)
             await tx.profile.update({
                 where: { id: singerId },
                 data: { points: { increment: amount } }
             })
 
-            // 3. Record transactions
             await tx.pointTransaction.create({
                 data: {
                     profileId: fanId,
@@ -207,18 +282,32 @@ export async function sponsorSinger(fanId: string, singerId: string, amount: num
 export async function usePointsForChat(singerId: string, performanceId: string) {
     const CHAT_OPEN_COST = 100 // Example cost
     try {
-        return await prisma.$transaction(async (tx) => {
-            const profile = await tx.profile.findUnique({ where: { id: singerId } })
+        const performance = await prisma.performance.findUnique({
+            where: { id: performanceId },
+            select: { singerId: true }
+        })
+
+        if (!performance) {
+            return { success: false, statusCode: 404, error: 'PERFORMANCE_NOT_FOUND' }
+        }
+
+        const access = await requireOwnerWrite(performance.singerId)
+        if (!access.allowed) {
+            return deniedWriteResult(access.statusCode)
+        }
+
+        return await prisma.$transaction(async (tx: any) => {
+            const profile = await tx.profile.findUnique({ where: { id: performance.singerId } })
             if (!profile || profile.points < CHAT_OPEN_COST) throw new Error('INSUFFICIENT_POINTS')
 
             await tx.profile.update({
-                where: { id: singerId },
+                where: { id: performance.singerId },
                 data: { points: { decrement: CHAT_OPEN_COST } }
             })
 
             await tx.pointTransaction.create({
                 data: {
-                    profileId: singerId,
+                    profileId: performance.singerId,
                     amount: -CHAT_OPEN_COST,
                     type: 'CHAT_OPEN',
                     description: `Opened chat for performance ${performanceId}`
@@ -296,12 +385,69 @@ export async function getPerformanceById(id: string) {
 }
 
 export async function updatePerformanceStatus(id: string, status: 'scheduled' | 'live' | 'completed' | 'canceled') {
+    const performance = await prisma.performance.findUnique({
+        where: { id },
+        select: { singerId: true }
+    })
+
+    if (!performance) {
+        return { success: false, statusCode: 404, error: 'PERFORMANCE_NOT_FOUND' }
+    }
+
+    const access = await requireOwnerWrite(performance.singerId)
+    if (!access.allowed) {
+        return deniedWriteResult(access.statusCode)
+    }
+
     await prisma.performance.update({
         where: { id },
         data: { status }
     })
     revalidatePath('/singer/dashboard')
     revalidatePath(`/live/${id}`)
+    return { success: true }
+}
+
+export async function createRealtimeOwnerControlToken(performanceId: string) {
+    try {
+        const performance = await prisma.performance.findUnique({
+            where: { id: performanceId },
+            select: {
+                singerId: true,
+                chatCapacity: true
+            }
+        })
+
+        if (!performance) {
+            return { success: false, statusCode: 404, error: 'PERFORMANCE_NOT_FOUND' }
+        }
+
+        const access = await requireOwnerWrite(performance.singerId)
+        if (!access.allowed || !access.actorUserId) {
+            return deniedWriteResult(access.statusCode)
+        }
+
+        const token = createRealtimeControlToken({
+            userId: access.actorUserId,
+            performanceId,
+            role: 'owner',
+            capacity: performance.chatCapacity
+        }, {
+            ttlSeconds: 5 * 60
+        })
+
+        if (!token) {
+            return { success: false, statusCode: 500, error: 'REALTIME_TOKEN_SECRET_MISSING' }
+        }
+
+        return {
+            success: true,
+            token,
+            capacity: performance.chatCapacity
+        }
+    } catch (error) {
+        return { success: false, error }
+    }
 }
 
 // --- Songs ---
@@ -313,20 +459,41 @@ export async function getSongs(singerId: string) {
 }
 
 export async function addSong(data: { singerId: string, title: string, artist: string, youtubeUrl?: string }) {
+    const access = await requireAuthenticatedWrite()
+    if (!access.allowed || !access.actorUserId) {
+        return deniedWriteResult(access.statusCode)
+    }
+
     await prisma.song.create({
         data: {
-            singerId: data.singerId,
+            singerId: access.actorUserId,
             title: data.title,
             artist: data.artist,
             youtubeUrl: data.youtubeUrl,
         }
     })
     revalidatePath('/singer/dashboard')
+    return { success: true }
 }
 
 export async function deleteSong(songId: string) {
+    const song = await prisma.song.findUnique({
+        where: { id: songId },
+        select: { singerId: true }
+    })
+
+    if (!song) {
+        return { success: false, statusCode: 404, error: 'SONG_NOT_FOUND' }
+    }
+
+    const access = await requireOwnerWrite(song.singerId)
+    if (!access.allowed) {
+        return deniedWriteResult(access.statusCode)
+    }
+
     await prisma.song.delete({ where: { id: songId } })
     revalidatePath('/singer/dashboard')
+    return { success: true }
 }
 
 export async function updatePerformanceSetlist(data: {
@@ -335,24 +502,49 @@ export async function updatePerformanceSetlist(data: {
     songIds: string[]
 }) {
     try {
-        await prisma.$transaction(async (tx) => {
-            // 1. Get current statuses to preserve them
+        const performance = await prisma.performance.findUnique({
+            where: { id: data.performanceId },
+            select: { singerId: true }
+        })
+
+        if (!performance) {
+            return { success: false, statusCode: 404, error: 'PERFORMANCE_NOT_FOUND' }
+        }
+
+        const access = await requireOwnerWrite(performance.singerId)
+        if (!access.allowed || !access.actorUserId) {
+            return deniedWriteResult(access.statusCode)
+        }
+
+        if (data.songIds.length > 0) {
+            const ownedSongs = await prisma.song.findMany({
+                where: {
+                    id: { in: data.songIds },
+                    singerId: access.actorUserId
+                },
+                select: { id: true }
+            })
+
+            if (ownedSongs.length !== data.songIds.length) {
+                return deniedWriteResult(403)
+            }
+        }
+
+        await prisma.$transaction(async (tx: any) => {
             const existingMapping = await tx.performanceSong.findMany({
                 where: { performanceId: data.performanceId },
                 select: { songId: true, status: true }
             })
-            
+
             const statusMap: Record<string, string> = {}
-            existingMapping.forEach(m => {
+            existingMapping.forEach((m: any) => {
                 statusMap[m.songId] = m.status
             })
 
-            // 2. Clear existing songs
             await tx.performanceSong.deleteMany({
                 where: { performanceId: data.performanceId }
             })
 
-            // 3. Add new songs with order AND preserved status
             if (data.songIds.length > 0) {
                 await tx.performanceSong.createMany({
                     data: data.songIds.map((songId, index) => ({
@@ -376,6 +568,20 @@ export async function updatePerformanceSetlist(data: {
 
 export async function updateSongStatus(performanceId: string, songId: string, status: 'pending' | 'completed') {
     try {
+        const performance = await prisma.performance.findUnique({
+            where: { id: performanceId },
+            select: { singerId: true }
+        })
+
+        if (!performance) {
+            return { success: false, statusCode: 404, error: 'PERFORMANCE_NOT_FOUND' }
+        }
+
+        const access = await requireOwnerWrite(performance.singerId)
+        if (!access.allowed) {
+            return deniedWriteResult(access.statusCode)
+        }
+
         await prisma.performanceSong.updateMany({
             where: {
                 performanceId,
@@ -393,6 +599,20 @@ export async function updateSongStatus(performanceId: string, songId: string, st
 }
 
 export async function updateSetlistOrder(performanceId: string, songIds: string[]) {
+    const performance = await prisma.performance.findUnique({
+        where: { id: performanceId },
+        select: { singerId: true }
+    })
+
+    if (!performance) {
+        return { success: false, statusCode: 404, error: 'PERFORMANCE_NOT_FOUND' }
+    }
+
+    const access = await requireOwnerWrite(performance.singerId)
+    if (!access.allowed) {
+        return deniedWriteResult(access.statusCode)
+    }
+
     await prisma.$transaction(
         songIds.map((id, index) =>
             prisma.performanceSong.updateMany({
@@ -402,6 +622,7 @@ export async function updateSetlistOrder(performanceId: string, songIds: string[
         )
     )
     revalidatePath(`/live/${performanceId}`)
+    return { success: true }
 }
 
 export async function addPerformance(data: {
@@ -419,6 +640,11 @@ export async function addPerformance(data: {
     songIds?: string[]
 }) {
     try {
+        const access = await requireAuthenticatedWrite()
+        if (!access.allowed || !access.actorUserId) {
+            return deniedWriteResult(access.statusCode)
+        }
+
         const newStart = new Date(data.startTime)
         const newEnd = new Date(data.endTime)
 
@@ -432,20 +658,20 @@ export async function addPerformance(data: {
         const billableHours = Math.ceil(durationHours)
         const totalCost = billableHours * 1000
 
-        return await prisma.$transaction(async (tx) => {
-            const profile = await tx.profile.findUnique({ where: { id: data.singerId } })
+        return await prisma.$transaction(async (tx: any) => {
+            const profile = await tx.profile.findUnique({ where: { id: access.actorUserId } })
             if (!profile || profile.points < totalCost) {
                 throw new Error('INSUFFICIENT_POINTS')
             }
 
             const existingPerformances = await tx.performance.findMany({
                 where: {
-                    singerId: data.singerId,
+                    singerId: access.actorUserId,
                     status: { in: ['scheduled', 'live'] }
                 }
             })
 
-            const overlapping = existingPerformances.find(p => {
+            const overlapping = existingPerformances.find((p: any) => {
                 const start = new Date(p.startTime)
                 const end = new Date(p.endTime!)
                 return (newStart < end) && (newEnd > start)
@@ -454,13 +680,13 @@ export async function addPerformance(data: {
             if (overlapping) throw new Error('DUPLICATE_SCHEDULE')
 
             await tx.profile.update({
-                where: { id: data.singerId },
+                where: { id: access.actorUserId },
                 data: { points: { decrement: totalCost } }
             })
 
             await tx.pointTransaction.create({
                 data: {
-                    profileId: data.singerId,
+                    profileId: access.actorUserId,
                     amount: -totalCost,
                     type: 'PERFORMANCE_REGISTER',
                     description: `Registration Fee: ${data.title} (${durationHours.toFixed(1)}h)`
@@ -469,7 +695,7 @@ export async function addPerformance(data: {
 
             const result = await tx.performance.create({
                 data: {
-                    singerId: data.singerId,
+                    singerId: access.actorUserId,
                     title: data.title,
                     locationText: data.locationText,
                     locationLat: data.lat || 37.5665,
@@ -500,12 +726,41 @@ export async function addPerformance(data: {
 }
 
 export async function deletePerformance(id: string) {
+    const performance = await prisma.performance.findUnique({
+        where: { id },
+        select: { singerId: true }
+    })
+
+    if (!performance) {
+        return { success: false, statusCode: 404, error: 'PERFORMANCE_NOT_FOUND' }
+    }
+
+    const access = await requireOwnerWrite(performance.singerId)
+    if (!access.allowed) {
+        return deniedWriteResult(access.statusCode)
+    }
+
     await prisma.performance.delete({ where: { id } })
     revalidatePath('/singer/dashboard')
+    return { success: true }
 }
 
 export async function togglePerformanceChat(performanceId: string, enabled: boolean) {
     try {
+        const performance = await prisma.performance.findUnique({
+            where: { id: performanceId },
+            select: { singerId: true }
+        })
+
+        if (!performance) {
+            return { success: false, statusCode: 404, error: 'PERFORMANCE_NOT_FOUND' }
+        }
+
+        const access = await requireOwnerWrite(performance.singerId)
+        if (!access.allowed) {
+            return deniedWriteResult(access.statusCode)
+        }
+
         await prisma.performance.update({
             where: { id: performanceId },
             data: { chatEnabled: enabled }
@@ -532,6 +787,20 @@ export async function updatePerformance(data: {
     streamingEnabled?: boolean
 }) {
     try {
+        const performance = await prisma.performance.findUnique({
+            where: { id: data.id },
+            select: { singerId: true }
+        })
+
+        if (!performance) {
+            return { success: false, statusCode: 404, error: 'PERFORMANCE_NOT_FOUND' }
+        }
+
+        const access = await requireOwnerWrite(performance.singerId)
+        if (!access.allowed) {
+            return deniedWriteResult(access.statusCode)
+        }
+
         const updateData: any = {}
         if (data.title) updateData.title = data.title
         if (data.locationText) updateData.locationText = data.locationText
@@ -561,20 +830,48 @@ export async function getPerformanceRequests(performanceId: string) {
     })
 }
 
-export async function createSongRequest(data: { performanceId: string, title: string, artist?: string, requesterName: string }) {
+export async function createSongRequest(data: { performanceId: string, title: string, artist?: string }) {
+    const access = await requireAuthenticatedWrite()
+    if (!access.allowed || !access.actorUserId) {
+        return deniedWriteResult(access.statusCode)
+    }
+
+    const requesterProfile = await prisma.profile.findUnique({
+        where: { id: access.actorUserId },
+        select: { nickname: true }
+    })
+
     return await prisma.songRequest.create({
         data: {
             performanceId: data.performanceId,
             title: data.title,
             artist: data.artist || '',
-            requesterName: data.requesterName,
+            requesterName: requesterProfile?.nickname || access.actorUserId,
             status: 'pending'
         }
     })
 }
 
 export async function acceptSongRequest(id: string, singerId: string) {
-    return await prisma.$transaction(async (tx) => {
+    const songRequest = await prisma.songRequest.findUnique({
+        where: { id },
+        select: {
+            performance: {
+                select: { singerId: true }
+            }
+        }
+    })
+
+    if (!songRequest?.performance) {
+        return { success: false, statusCode: 404, error: 'SONG_REQUEST_NOT_FOUND' }
+    }
+
+    const access = await requireOwnerWrite(songRequest.performance.singerId)
+    if (!access.allowed) {
+        return deniedWriteResult(access.statusCode)
+    }
+
+    return await prisma.$transaction(async (tx: any) => {
         const request = await tx.songRequest.update({
             where: { id },
             data: { status: 'accepted' }
@@ -582,7 +879,7 @@ export async function acceptSongRequest(id: string, singerId: string) {
 
         const song = await tx.song.create({
             data: {
-                singerId,
+                singerId: songRequest.performance.singerId,
                 title: request.title,
                 artist: request.artist || 'Unknown',
                 isRepertoire: false,
@@ -608,6 +905,24 @@ export async function acceptSongRequest(id: string, singerId: string) {
 }
 
 export async function rejectSongRequest(id: string) {
+    const songRequest = await prisma.songRequest.findUnique({
+        where: { id },
+        select: {
+            performance: {
+                select: { singerId: true }
+            }
+        }
+    })
+
+    if (!songRequest?.performance) {
+        return { success: false, statusCode: 404, error: 'SONG_REQUEST_NOT_FOUND' }
+    }
+
+    const access = await requireOwnerWrite(songRequest.performance.singerId)
+    if (!access.allowed) {
+        return deniedWriteResult(access.statusCode)
+    }
+
     return await prisma.songRequest.update({
         where: { id },
         data: { status: 'rejected' }
@@ -634,10 +949,20 @@ export async function createBookingRequest(data: {
     budget?: string,
     message?: string
 }) {
+    const access = await requireAuthenticatedWrite()
+    if (!access.allowed || !access.actorUserId) {
+        return deniedWriteResult(access.statusCode)
+    }
+
+    const requesterProfile = await prisma.profile.findUnique({
+        where: { id: access.actorUserId },
+        select: { nickname: true }
+    })
+
     return await prisma.bookingRequest.create({
         data: {
             singerId: data.singerId,
-            requesterName: data.name,
+            requesterName: requesterProfile?.nickname || data.name,
             contactInfo: data.contact,
             eventType: data.eventType,
             eventDate: data.eventDate ? new Date(data.eventDate) : null,
@@ -651,6 +976,11 @@ export async function createBookingRequest(data: {
 
 export async function withdrawUser(userId: string) {
     try {
+        const access = await requireOwnerWrite(userId)
+        if (!access.allowed) {
+            return deniedWriteResult(access.statusCode)
+        }
+
         await prisma.profile.delete({ where: { id: userId } })
         return { success: true }
     } catch (error) {

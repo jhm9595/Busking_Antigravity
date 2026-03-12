@@ -1,0 +1,16 @@
+{
+  "suite": "security-mutating-writes",
+  "case": "follow-route-derives-identity",
+  "pass": true,
+  "generatedAt": "2026-03-12T14:47:10.907Z",
+  "details": {
+    "pass": true,
+    "expected": "follow POST derives identity from Clerk auth() instead of request body",
+    "result": {
+      "pass": true,
+      "hasAuthCall": true,
+      "hasActorDerivedFanId": true,
+      "doesNotTrustBodyFanId": true
+    }
+  }
+}

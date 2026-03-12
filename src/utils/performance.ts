@@ -1,4 +1,6 @@
-export type PerformanceStatus = 'planned' | 'scheduled' | 'live' | 'completed' | 'cancelled' | 'canceled';
+import { resolvePerformanceLifecycleStatus } from '@/lib/performance-lifecycle'
+
+export type PerformanceStatus = 'planned' | 'scheduled' | 'live' | 'completed' | 'canceled'
 
 /**
  * Determines the effective status of a performance by comparing the DB status 
@@ -9,27 +11,7 @@ export function getEffectiveStatus(performance: {
     startTime: string | Date;
     endTime?: string | Date | null;
 }): PerformanceStatus {
-    const now = new Date();
-    const start = new Date(performance.startTime);
-    const end = performance.endTime ? new Date(performance.endTime) : null;
-    const dbStatus = performance.status as PerformanceStatus;
-
-    // If cancelled or completed in DB, respect that first
-    if (dbStatus === 'cancelled' || dbStatus === 'canceled' || dbStatus === 'completed') {
-        return dbStatus;
-    }
-
-    // If DB says live, keep it live
-    if (dbStatus === 'live') {
-        return 'live';
-    }
-
-    // If DB says planned or scheduled but time has passed start, it's effectively live
-    if ((dbStatus === 'planned' || dbStatus === 'scheduled') && now >= start) {
-        return 'live';
-    }
-
-    return dbStatus;
+    return resolvePerformanceLifecycleStatus(performance)
 }
 
 /**

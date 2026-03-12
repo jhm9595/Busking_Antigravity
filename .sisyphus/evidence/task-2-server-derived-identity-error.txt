@@ -1,0 +1,12 @@
+Task 2: Derive Identity Server-Side for All In-Scope Writes
+Scenario: Spoofed or missing identity cannot mutate protected state
+
+Commands:
+node test-suite/security/mutating-writes.test.js --case unauthenticated-write-returns-401 --out test-suite/results/mutating-unauthenticated.json
+node test-suite/security/mutating-writes.test.js --case foreign-performance-update-returns-403 --out test-suite/results/mutating-cross-owner.json
+
+Results:
+- mutating-unauthenticated.json: PASS. HTTP 401. Reason: REJECT_UNAUTHENTICATED.
+- mutating-cross-owner.json: PASS. HTTP 403. Reason: REJECT_FORBIDDEN_OWNER_MISMATCH.
+
+Spoofed or missing identities are correctly rejected with 401 or 403, with zero unauthorized row changes.

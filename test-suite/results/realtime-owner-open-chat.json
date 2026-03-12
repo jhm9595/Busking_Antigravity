@@ -1,0 +1,52 @@
+{
+  "suite": "realtime-authority",
+  "case": "owner-open-chat-allowed",
+  "pass": true,
+  "generatedAt": "2026-03-12T14:47:11.441Z",
+  "details": {
+    "pass": true,
+    "expected": "authenticated owner token can open chat and trusted owner join can load closed-room history",
+    "details": {
+      "joinDecision": {
+        "performanceId": "perf-authority-1",
+        "isOwner": true,
+        "actorUserId": "owner-user-1",
+        "tokenPayload": {
+          "sub": "owner-user-1",
+          "performanceId": "perf-authority-1",
+          "role": "owner",
+          "iat": 1773326831,
+          "exp": 1773327131,
+          "capacity": 120
+        },
+        "reason": "OK"
+      },
+      "decision": {
+        "allowed": true,
+        "performanceId": "perf-authority-1",
+        "actorUserId": "owner-user-1",
+        "tokenPayload": {
+          "sub": "owner-user-1",
+          "performanceId": "perf-authority-1",
+          "role": "owner",
+          "iat": 1773326831,
+          "exp": 1773327131,
+          "capacity": 120
+        },
+        "reason": "OK"
+      },
+      "sourceChecks": {
+        "serverOpenChatGuarded": true,
+        "serverSystemAlertGuarded": true,
+        "serverPerformanceEndedGuarded": true,
+        "serverJoinNoClaimedCapacity": true,
+        "serverNoClaimedSingerBypass": true,
+        "serverHistoryRequiresTrustedOwner": true,
+        "singerUsesTokenAction": true,
+        "singerPrivilegedFlowUsesControlToken": true,
+        "chatJoinSendsControlToken": true,
+        "chatJoinDoesNotSendUserTypeOrCapacity": true
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+Task 3: Make Lifecycle Resolution Read-Only and Shared
+Scenario: Repeated GET requests do not mutate persisted data
+
+Commands:
+node test-suite/lifecycle/read-only.test.js --case get-performances-no-db-write --out test-suite/results/lifecycle-performances-no-write.json
+node test-suite/lifecycle/read-only.test.js --case get-singer-no-db-write --out test-suite/results/lifecycle-singer-no-write.json
+
+Results:
+- lifecycle-performances-no-write.json: PASS. 0 write calls in src/app/api/performances/route.ts.
+- lifecycle-singer-no-write.json: PASS. 0 write calls in src/app/api/singers/[id]/route.ts.
+
+GET requests are now strictly read-only and delegate lifecycle resolution to the shared resolver without persisting state changes.

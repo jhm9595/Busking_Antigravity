@@ -1,5 +1,20 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import securityContract from '@/lib/security-contract'
+
+const { auth } = require('@clerk/nextjs/server') as {
+    auth: () => Promise<{ userId: string | null }>
+}
+
+const { evaluateTrustBoundary } = securityContract as {
+    evaluateTrustBoundary: (options: {
+        action: 'read' | 'write'
+        authState: { userId?: string | null }
+        ownerId?: string | null
+        allowAnonymousRead?: boolean
+        ownerRequired?: boolean
+    }) => { allowed: boolean, statusCode: number, actorUserId: string | null }
+}
 
 export async function GET(
     request: Request,
@@ -7,7 +22,8 @@ export async function GET(
 ) {
     const { id } = await params
     const { searchParams } = new URL(request.url)
-    const fanId = searchParams.get('fanId')
+    const { userId } = await auth()
+    const fanId = userId || searchParams.get('fanId')
 
     try {
         const singer = await prisma.singer.findUnique({
@@ -47,12 +63,18 @@ export async function POST(
 ) {
     const { id } = await params
     try {
-        const body = await request.json()
-        const { fanId } = body
+        const authState = await auth()
+        const access = evaluateTrustBoundary({
+            action: 'write',
+            authState,
+            ownerRequired: false
+        })
 
-        if (!fanId) {
-            return NextResponse.json({ error: 'Fan ID required' }, { status: 400 })
+        if (!access.allowed || !access.actorUserId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: access.statusCode })
         }
+
+        const fanId = access.actorUserId
 
         // Check if already following
         const existingFollow = await prisma.follow.findUnique({

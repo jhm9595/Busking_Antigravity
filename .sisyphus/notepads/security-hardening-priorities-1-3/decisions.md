@@ -1,0 +1,17 @@
+
+- Use Clerk `auth()` as the canonical identity source for this plan's server-side mutation guards.
+- Preserve anonymous read-only access; all write/control actions in scope require authenticated server-derived identity.
+- Treat Prisma as the authority for persisted performance/chat state and Redis as transport/history/cache only.
+- Task 1 should create shared auth/ownership and lifecycle test foundations before any mutating-surface or realtime hardening work.
+- Implement Wave 1 shared helpers as plain JS modules under `src/lib/` to keep Node regression scripts dependency-free and executable directly with `node`.
+- Keep lifecycle foundation test contract-focused with machine-checkable JSON output while also surfacing current GET-route write violations for downstream Task 3 work.
+- Task 2 write protections should reuse Wave 1 `evaluateTrustBoundary` in both server actions and route handlers to avoid introducing a second authorization contract.
+- Owner-only performance mutations should authorize against Prisma-owned records fetched server-side, not against client-submitted `singerId` fields.
+- Keep anonymous GET access for `/api/singers/[id]/follow` while preferring authenticated viewer identity when available and never accepting body identity for POST toggles.
+- Keep Task 3 lifecycle resolver implementation in one shared pure module (`src/lib/performance-lifecycle.ts`) and consume it from both API GET handlers and UI utility wrappers.
+- Keep Task 3 regression script (`test-suite/lifecycle/read-only.test.js`) dependency-free and source-contract based so it runs with plain `node` in worktree CI checks.
+- For Task 4 privileged realtime control, use server-minted signed owner control tokens and server-side token verification for socket authorization; client role claims are non-authoritative metadata only.
+- Keep Redis scoped to realtime transport/history/cache concerns (`live_status`, `live_history`, capacity cache) while ownership/auth authority remains server-side via Clerk-backed token minting and verification logic.
+- For Task 5 chat smoke, enforce authorization behavior with a hybrid check: runtime socket observations plus source-contract guard assertions in `realtime-server/server.js` to avoid flaky false negatives from shared room state.
+- For Task 5 one-click aggregation, treat non-zero child process exits as hard failures by checking `$LASTEXITCODE` after each `Invoke-Expression` step.
+- For Task 5 Playwright smoke in this worktree, prefer deterministic checks (anonymous write rejection, owner token validity, guarded realtime source handlers) over direct websocket orchestration to keep CI-style verification reproducible.

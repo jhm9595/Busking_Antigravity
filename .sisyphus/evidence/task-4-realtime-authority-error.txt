@@ -1,0 +1,14 @@
+Task 4: Remove Client Authority from the Realtime Control Plane
+Scenario: Forged audience socket cannot escalate privilege
+
+Commands:
+node test-suite/realtime/authority.test.js --case audience-open-chat-denied --out test-suite/results/realtime-audience-open-chat.json
+node test-suite/realtime/authority.test.js --case audience-end-performance-denied --out test-suite/results/realtime-audience-end.json
+node test-suite/realtime/authority.test.js --case forged-system-alert-rejected --out test-suite/results/realtime-forged-alert.json
+
+Results:
+- realtime-audience-open-chat.json: PASS. REJECTED (MISSING_TOKEN).
+- realtime-audience-end.json: PASS. REJECTED (MISSING_TOKEN).
+- realtime-forged-alert.json: PASS. REJECTED (PERFORMANCE_MISMATCH).
+
+Forged or unauthenticated audience sockets are correctly prevented from escalating privilege or triggering unauthorized state changes.

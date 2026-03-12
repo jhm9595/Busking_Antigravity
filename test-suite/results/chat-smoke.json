@@ -1,0 +1,17 @@
+{
+  "suite": "chat-smoke",
+  "pass": true,
+  "startedAt": "2026-03-12T14:48:40.775Z",
+  "finishedAt": "2026-03-12T14:48:43.829Z",
+  "checks": {
+    "connected": true,
+    "joined": true,
+    "unauthorizedOpenChatRejected": true,
+    "unauthorizedToggleRejected": true,
+    "audienceWriteBlockedWhenClosed": true,
+    "sourceGuards": {
+      "openChatGuarded": true,
+      "toggleGuarded": true
+    }
+  }
+}

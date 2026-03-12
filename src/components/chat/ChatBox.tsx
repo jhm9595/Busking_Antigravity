@@ -28,6 +28,7 @@ interface ChatBoxProps {
     performanceId: string
     username: string
     userType: 'singer' | 'audience'
+    controlToken?: string | null
     chatCapacity?: number
     avatarConfig?: AvatarConfig | null
     className?: string
@@ -41,7 +42,7 @@ interface ChatBoxProps {
 }
 
 export default function ChatBox({ 
-    performanceId, username, userType, chatCapacity, avatarConfig, 
+    performanceId, username, userType, controlToken, chatCapacity, avatarConfig, 
     onAcceptRequest, onRejectRequest, onChatStatusChange, 
     onViewingCountChange, onSongStatusUpdate, socket: externalSocket, className = '' 
 }: ChatBoxProps) {
@@ -132,19 +133,18 @@ export default function ChatBox({
     // Unified Idempotent Room Join
     useEffect(() => {
         if (socket && isJoined && isConnected) {
-            const joinKey = `${performanceId}:${effectiveUsername}`
+            const joinKey = `${performanceId}:${effectiveUsername}:${controlToken ? 'owner' : 'audience'}`
             if (joinedRoomRef.current !== joinKey) {
-                socket.emit('join_room', { 
+                socket.emit('join_room', {
                     performanceId, 
                     username: effectiveUsername, 
-                    userType, 
-                    capacity: chatCapacity,
-                    avatarConfig: effectiveAvatarConfig
+                    avatarConfig: effectiveAvatarConfig,
+                    controlToken: controlToken || undefined
                 })
                 joinedRoomRef.current = joinKey
             }
         }
-    }, [socket, isJoined, isConnected, performanceId, effectiveUsername, userType, chatCapacity, effectiveAvatarConfig])
+    }, [socket, isJoined, isConnected, performanceId, effectiveUsername, effectiveAvatarConfig, controlToken])
 
     const handleJoinClick = () => {
         if (!effectiveUsername || effectiveUsername === 'Guest') {
@@ -156,12 +156,11 @@ export default function ChatBox({
 
     const sendMessage = () => {
         if (currentMessage.trim() && socket && isConnected) {
-            const messageData: Message = {
+            const messageData = {
                 performanceId,
                 author: effectiveUsername,
                 message: currentMessage,
                 timestamp: new Date().toISOString(),
-                type: userType,
                 avatarConfig: effectiveAvatarConfig
             }
             socket.emit('send_message', messageData)

@@ -1,0 +1,14 @@
+Task 5: Refresh Regression and Smoke Coverage for the New Trust Model
+Scenario: Updated smoke scripts validate backend and realtime contracts
+
+Commands:
+node test-suite/api-tester.js
+node test-suite/chat-tester.js
+powershell -ExecutionPolicy Bypass -File .\test-suite\one-click-test.ps1
+
+Results:
+- api-smoke.json: PASS.
+- chat-smoke.json: PASS. Unauthorized open/toggle rejected.
+- one-click-smoke-summary.json: PASS. All 20 checks passed (auth, lifecycle, realtime).
+
+The refreshed smoke scripts successfully validate the new trust model across API and realtime layers.

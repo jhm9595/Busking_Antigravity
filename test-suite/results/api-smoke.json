@@ -1,0 +1,31 @@
+{
+  "suite": "api-smoke",
+  "pass": true,
+  "startedAt": "2026-03-12T14:47:06.579Z",
+  "finishedAt": "2026-03-12T14:47:07.581Z",
+  "checks": {
+    "publicPerformances": {
+      "count": 0,
+      "samplePerformanceId": null,
+      "sampleSingerId": null
+    },
+    "performanceFilters": [
+      {
+        "filter": "live",
+        "count": 0
+      },
+      {
+        "filter": "all",
+        "count": 0
+      }
+    ],
+    "singerProfile": {
+      "skipped": true,
+      "reason": "no visible performances"
+    },
+    "anonymousSongRequest": {
+      "skipped": true,
+      "reason": "no visible performances"
+    }
+  }
+}

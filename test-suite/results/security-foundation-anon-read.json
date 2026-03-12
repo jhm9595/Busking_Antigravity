@@ -1,0 +1,16 @@
+{
+  "suite": "security-foundation",
+  "case": "anonymous-read-allowed",
+  "pass": true,
+  "generatedAt": "2026-03-12T14:47:10.782Z",
+  "details": {
+    "pass": true,
+    "expected": "anonymous read allowed",
+    "result": {
+      "allowed": true,
+      "statusCode": 200,
+      "reason": "ALLOWED_PUBLIC_READ",
+      "actorUserId": null
+    }
+  }
+}

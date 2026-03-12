@@ -39,7 +39,7 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
     const getStatusInfo = () => {
         const effectiveStatus = getEffectiveStatus(perf)
 
-        if (perf.status === 'canceled' || effectiveStatus === 'cancelled') return { key: 'canceled', style: styles.statusDefault }
+        if (perf.status === 'canceled' || effectiveStatus === 'canceled') return { key: 'canceled', style: styles.statusDefault }
         if (effectiveStatus === 'live') return { key: 'live', style: styles.statusLive }
         if (effectiveStatus === 'completed') return { key: 'completed', style: styles.statusDefault }
 
