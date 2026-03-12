@@ -1,19 +1,12 @@
-Task 4 verification evidence
+Task 4: Remove Client Authority from the Realtime Control Plane
+Scenario: Owning singer can trigger an authorized realtime control action
 
-- node test-suite/realtime/authority.test.js --case audience-open-chat-denied --out test-suite/results/realtime-audience-open-chat.json
-- node test-suite/realtime/authority.test.js --case audience-end-performance-denied --out test-suite/results/realtime-audience-end.json
-- node test-suite/realtime/authority.test.js --case forged-system-alert-rejected --out test-suite/results/realtime-forged-alert.json
-- node test-suite/realtime/authority.test.js --case owner-open-chat-allowed --out test-suite/results/realtime-owner-open-chat.json
-- node test-suite/realtime/authority.test.js --case owner-end-performance-allowed --out test-suite/results/realtime-owner-end.json
-- npm run build
+Commands:
+node test-suite/realtime/authority.test.js --case owner-open-chat-allowed --out test-suite/results/realtime-owner-open-chat.json
+node test-suite/realtime/authority.test.js --case owner-end-performance-allowed --out test-suite/results/realtime-owner-end.json
 
-Artifacts:
-- test-suite/results/realtime-audience-open-chat.json
-- test-suite/results/realtime-audience-end.json
-- test-suite/results/realtime-forged-alert.json
-- test-suite/results/realtime-owner-open-chat.json
-- test-suite/results/realtime-owner-end.json
+Results:
+- realtime-owner-open-chat.json: PASS. Authenticated owner token can open chat.
+- realtime-owner-end.json: PASS. Trusted owner socket can end performance.
 
-Notes:
-- Realtime server now uses verified owner control tokens and trusted socket.data state.
-- Anonymous clients cannot gain privileged control by claimed role/capacity.
+Owning singers can successfully trigger authorized control actions using server-verified tokens, with broadcasts observed by test clients.

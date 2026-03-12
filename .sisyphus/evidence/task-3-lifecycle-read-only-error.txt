@@ -1,0 +1,12 @@
+Task 3: Make Lifecycle Resolution Read-Only and Shared
+Scenario: Lifecycle output stays consistent for stale and canceled records
+
+Commands:
+node test-suite/lifecycle/read-only.test.js --case stale-scheduled-exposed-consistently --out test-suite/results/lifecycle-consistency.json
+node test-suite/lifecycle/read-only.test.js --case canceled-status-normalized --out test-suite/results/lifecycle-canceled-normalized.json
+
+Results:
+- lifecycle-consistency.json: PASS. Stale records resolve consistently across API and UI.
+- lifecycle-canceled-normalized.json: PASS. "cancelled" and "canceled" normalize to a single canonical status.
+
+The shared resolver ensures consistent lifecycle classification across all consumers while normalizing spelling drift.

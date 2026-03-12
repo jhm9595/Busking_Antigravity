@@ -1,0 +1,12 @@
+Task 1: Establish Trust-Boundary Foundation
+Scenario: Lifecycle contract rejects DB writes in GET handlers
+
+Commands:
+node test-suite/lifecycle/foundation.test.js --case no-get-writes-contract --out test-suite/results/lifecycle-foundation.json
+
+Results:
+- lifecycle-foundation.json: PASS.
+- Route checks for src/app/api/performances/route.ts and src/app/api/singers/[id]/route.ts show 0 write calls.
+- Contract violation detection verified using fixture/violation.ts (detected 1 write).
+
+The lifecycle contract successfully identifies and prevents Prisma mutations within GET handlers for the target routes.

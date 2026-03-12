@@ -1,19 +1,12 @@
-Task 2 verification evidence
+Task 2: Derive Identity Server-Side for All In-Scope Writes
+Scenario: Owner can perform an authorized performance mutation
 
-- node test-suite/security/mutating-writes.test.js --case follow-route-derives-identity --out test-suite/results/mutating-follow.json
-- node test-suite/security/mutating-writes.test.js --case owner-performance-update-succeeds --out test-suite/results/mutating-owner-performance.json
-- node test-suite/security/mutating-writes.test.js --case unauthenticated-write-returns-401 --out test-suite/results/mutating-unauthenticated.json
-- node test-suite/security/mutating-writes.test.js --case foreign-performance-update-returns-403 --out test-suite/results/mutating-cross-owner.json
-- node test-suite/security/mutating-writes.test.js --case song-request-derives-identity --out test-suite/results/mutating-song-request-identity.json
-- npm run build
+Commands:
+node test-suite/security/mutating-writes.test.js --case owner-performance-update-succeeds --out test-suite/results/mutating-owner-performance.json
+node test-suite/security/mutating-writes.test.js --case follow-route-derives-identity --out test-suite/results/mutating-follow.json
 
-Artifacts:
-- test-suite/results/mutating-follow.json
-- test-suite/results/mutating-owner-performance.json
-- test-suite/results/mutating-unauthenticated.json
-- test-suite/results/mutating-cross-owner.json
-- test-suite/results/mutating-song-request-identity.json
+Results:
+- mutating-owner-performance.json: PASS. HTTP 200. Reason: ALLOWED_OWNER. Actor: singer-1.
+- mutating-follow.json: PASS. Identity derived from Clerk auth() instead of request body.
 
-Notes:
-- Protected writes now derive actor identity from Clerk auth().
-- Remaining createSongRequest gap was closed in final-wave follow-up.
+The server correctly derives identity and allows authorized owners to perform mutations.
