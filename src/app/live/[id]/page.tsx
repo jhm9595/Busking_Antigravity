@@ -5,9 +5,8 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import ChatBox from '@/components/chat/ChatBox'
 import io, { Socket } from 'socket.io-client'
 import { getPerformanceById, getSinger, createBookingRequest, getUserPoints, chargePoints, sponsorSinger } from '@/services/singer'
-import { getEffectiveStatus } from '@/utils/performance'
+import { getEffectiveStatus, formatLocalTime } from '@/utils/performance'
 import SongRequestModal from '@/components/audience/SongRequestModal'
-import BookingRequestModal from '@/components/audience/BookingRequestModal'
 import PointChargeModal from '@/components/common/PointChargeModal'
 import { Music, Clock, MessageCircle, X, Check, Archive, Calendar, MapPin, Share2, Home, MessageSquareOff, Heart } from 'lucide-react'
 import Link from 'next/link'
@@ -20,7 +19,6 @@ export default function AudienceLivePage() {
     const [performance, setPerformance] = useState<any>(null)
     const [username, setUsername] = useState('')
     const [showRequestModal, setShowRequestModal] = useState(false)
-    const [showBookingModal, setShowBookingModal] = useState(false)
     const [showChargeModal, setShowChargeModal] = useState(false)
     const [singer, setSinger] = useState<any>(null)
     const [activeSocket, setActiveSocket] = useState<Socket | null>(null)
@@ -193,12 +191,6 @@ export default function AudienceLivePage() {
         }
     }
 
-    const handleBookingRequest = async (data: any) => {
-        if (!performance?.singerId) return
-        await createBookingRequest({ singerId: performance.singerId, ...data })
-        alert(t('common.enquiry_sent'))
-    }
-
     if (!performance) return <div className="h-screen bg-black text-white flex items-center justify-center italic">{t('common.loading')}</div>
 
     const isCompleted = getEffectiveStatus(performance) === 'completed'
@@ -259,40 +251,13 @@ export default function AudienceLivePage() {
                     </div>
                 ) : (
                     <div className="flex-1 flex flex-col space-y-4">
-                        <div className="bg-gradient-to-br from-gray-900 to-[#161922] rounded-[32px] p-6 border border-white/5 shadow-2xl relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-indigo-600/10 transition-all" />
-                            <h1 className="text-2xl font-black mb-6 text-white italic tracking-tight leading-tight uppercase underline decoration-indigo-500/50 underline-offset-8">{performance.title}</h1>
-                            <div className="space-y-3 relative z-10">
-                                <div className="flex items-center gap-4 text-sm font-bold text-gray-400">
-                                    <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20"><Calendar className="w-5 h-5 text-indigo-400" /></div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] text-gray-600 uppercase tracking-widest">{t('live.label_date')}</span>
-                                        <span className="text-white" suppressHydrationWarning>{new Date(performance.startTime).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</span>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-4 text-sm font-bold text-gray-400">
-                                    <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20"><Clock className="w-5 h-5 text-emerald-400" /></div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] text-gray-600 uppercase tracking-widest">{t('live.label_time')}</span>
-                                        <span className="text-white font-mono" suppressHydrationWarning>{new Date(performance.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {performance.endTime ? new Date(performance.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '...'}</span>
-                                    </div>
-                                </div>
-                                {performance.locationText && (
-                                    <div className="flex items-center gap-4 text-sm font-bold text-gray-400">
-                                        <div className="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20"><MapPin className="w-5 h-5 text-amber-500" /></div>
-                                        <div className="flex flex-col min-w-0">
-                                            <span className="text-[10px] text-gray-600 uppercase tracking-widest">{t('live.label_venue')}</span>
-                                            <span className="text-white truncate italic">{performance.locationText}</span>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
                         <section className="bg-gray-900/50 rounded-[32px] p-6 border border-white/5 shadow-xl">
                             <div className="flex items-center justify-between mb-5">
                                 <h2 className="text-md font-black flex items-center gap-3 italic uppercase tracking-wider"><Music className="w-5 h-5 text-indigo-500" />{t('performance.details.setlist_title')}</h2>
-                                <span className="text-[10px] font-black bg-white/5 px-2.5 py-1 rounded-full text-gray-500 uppercase tracking-widest italic">{performance.songs?.length || 0} {t('live.tracks')}</span>
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => setShowRequestModal(true)} className="bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 px-3 py-1.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border border-indigo-500/30 italic flex items-center gap-2 shadow-lg"><Music className="w-3 h-3" /> {t('song_request.title')}</button>
+                                    <span className="text-[10px] font-black bg-white/5 px-2.5 py-1 rounded-full text-gray-500 uppercase tracking-widest italic">{performance.songs?.length || 0} {t('live.tracks')}</span>
+                                </div>
                             </div>
                             <div className={`space-y-3 ${isChatOpen ? 'max-h-[300px] overflow-y-auto custom-scrollbar pr-1' : ''}`}>
                                 {performance.songs?.length > 0 ? (
@@ -348,9 +313,7 @@ export default function AudienceLivePage() {
             {!isCompleted && (
                 <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/90 to-transparent flex justify-center z-40 pointer-events-none">
                     <div className="flex gap-2 w-full max-w-lg pointer-events-auto">
-                        <button onClick={() => setShowRequestModal(true)} className="flex-1 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all border border-indigo-500/30 italic flex items-center justify-center gap-2"><Music className="w-4 h-4" /> {t('song_request.title')}</button>
-                        <button onClick={() => handleSponsor(500)} className="flex-1 bg-amber-500 text-black py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl hover:bg-amber-400 hover:scale-[1.02] active:scale-95 transition-all border border-amber-400/50 italic flex items-center justify-center gap-2"><Heart className="w-4 h-4 fill-current" /> {t('live.sponsor_btn')} (500P)</button>
-                        <button onClick={() => setShowBookingModal(true)} className="flex-1 bg-white text-black py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl hover:bg-gray-100 hover:scale-[1.02] active:scale-95 transition-all border border-white/20 italic flex items-center justify-center gap-2"><Clock className="w-4 h-4" /> {t('booking.modal.title')}</button>
+                        <button onClick={() => handleSponsor(500)} className="flex-1 bg-amber-500 text-black py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl hover:bg-amber-400 hover:scale-[1.02] active:scale-95 transition-all border border-amber-400/50 italic flex items-center justify-center gap-2"><Heart className="w-4 h-4 fill-current" /> {t('live.sponsor_btn')} (500P)</button>
                     </div>
                 </div>
             )}
@@ -372,7 +335,6 @@ export default function AudienceLivePage() {
             )}
 
             <SongRequestModal isOpen={showRequestModal} onClose={() => setShowRequestModal(false)} onSubmit={handleSongRequest} />
-            <BookingRequestModal isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} onSubmit={handleBookingRequest} singerName={singer?.stageName || t('common.singer_fallback')} />
             { (user?.id || (typeof window !== 'undefined' && localStorage.getItem('busking_fan_id'))) && (
                 <PointChargeModal
                     userId={user?.id || (typeof window !== 'undefined' ? localStorage.getItem('busking_fan_id')! : '')}

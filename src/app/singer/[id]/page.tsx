@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { Share2, Heart, Music, Mail, ExternalLink, User, MapPin, Calendar, MessageCircle, Play } from 'lucide-react'
+import { Share2, Heart, Music, Mail, ExternalLink, User, MapPin, Calendar, MessageCircle, Play, Home, Clock } from 'lucide-react'
 import { FaFacebook, FaYoutube, FaInstagram, FaSoundcloud, FaTiktok } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher'
@@ -12,7 +12,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { useUser } from '@clerk/nextjs'
 import BookingRequestModal from '@/components/audience/BookingRequestModal'
 import { getPerformanceById, getSinger, updatePerformanceStatus } from '@/services/singer'
-import { getEffectiveStatus, formatLocalDate } from '@/utils/performance'
+import { getEffectiveStatus, formatLocalDate, formatLocalTime } from '@/utils/performance'
 
 // Dynamically import MapPicker
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
@@ -54,6 +54,13 @@ export default function SingerDetailPage() {
                 if (!res.ok) throw new Error(t('common.error_fetch_singer'))
                 const data = await res.json()
                 setSinger(data)
+
+                // Auto-redirect to live if a performance is currently live
+                const activeLive = data.performances?.find((p: any) => getEffectiveStatus(p) === 'live')
+                if (activeLive) {
+                    router.push(`/live/${activeLive.id}`)
+                    return
+                }
 
                 if (typeof window !== 'undefined') {
                     let fanId = user?.id
@@ -176,6 +183,12 @@ export default function SingerDetailPage() {
                     </div>
                 </div>
 
+                <div className="absolute top-4 left-4 z-20">
+                    <Link href="/" className="p-2.5 rounded-xl bg-white/10 border border-white/10 text-white hover:bg-white/20 transition-all active:scale-95 shadow-lg backdrop-blur-md" title={t('common.home_button')}>
+                        <Home className="w-5 h-5" />
+                    </Link>
+                </div>
+
                 <div className="absolute top-4 right-4 z-20">
                     <LanguageSwitcher />
                 </div>
@@ -274,12 +287,12 @@ export default function SingerDetailPage() {
 
                 {/* 4. LIVE NOW HIGHLIGHT (HIGHEST PRIORITY) */}
                 {singer.performances.some((p: any) => getEffectiveStatus(p) === 'live') && (
-                    <div className="space-y-4">
+                    <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-1000">
                         <div className="flex items-center justify-between">
                             <h2 className="text-xl font-black italic flex items-center gap-2 tracking-tight uppercase">
-                                <span className="relative flex h-2.5 w-2.5">
+                                <span className="relative flex h-3 w-3">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.8)]"></span>
+                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_15px_rgba(239,68,68,1)]"></span>
                                 </span>
                                 {t('live.status_live')}
                             </h2>
@@ -287,23 +300,44 @@ export default function SingerDetailPage() {
                         {singer.performances
                             .filter((p: any) => getEffectiveStatus(p) === 'live')
                             .map((perf: any) => (
-                                <div key={perf.id} className="relative group p-[1px] rounded-3xl bg-gradient-to-br from-red-500 via-indigo-600 to-purple-700 shadow-2xl shadow-indigo-600/30 overflow-hidden hover:scale-[1.01] transition-transform duration-500">
-                                    <div className="bg-gray-950 rounded-[23px] p-6 relative z-10 overflow-hidden">
-                                        <div className="absolute -right-8 -top-8 w-32 h-32 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
-                                        <div className="flex justify-between items-start mb-6">
-                                            <div className="min-w-0">
-                                                <h3 className="font-black text-2xl text-white italic truncate tracking-tight mb-1 uppercase">{perf.title}</h3>
-                                                <div className="flex items-center gap-2 text-xs font-bold text-gray-400 italic">
-                                                    <MapPin className="w-3.5 h-3.5 text-indigo-400" />
-                                                    <span className="truncate">{perf.locationText}</span>
+                                <div key={perf.id} className="relative group p-[2px] rounded-[36px] bg-gradient-to-br from-red-500 via-rose-600 to-indigo-700 shadow-[0_0_40px_rgba(239,68,68,0.2)] overflow-hidden hover:scale-[1.02] transition-all duration-700">
+                                    <div className="bg-gray-950 rounded-[34px] p-8 relative z-10 overflow-hidden">
+                                        {/* Animated Background Pulse */}
+                                        <div className="absolute -right-12 -top-12 w-48 h-48 bg-red-600/20 rounded-full blur-[80px] group-hover:bg-red-600/30 transition-all duration-1000" />
+                                        <div className="absolute -left-12 -bottom-12 w-48 h-48 bg-indigo-600/10 rounded-full blur-[80px] group-hover:bg-indigo-600/20 transition-all duration-1000" />
+                                        
+                                        <div className="relative z-20">
+                                            <div className="flex justify-between items-start mb-8">
+                                                <div className="min-w-0">
+                                                    <div className="text-[10px] font-black text-rose-500 uppercase tracking-[0.3em] mb-2 italic flex items-center gap-2">
+                                                        <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
+                                                        {t('live.performing_now')}
+                                                    </div>
+                                                    <h3 className="font-black text-3xl text-white italic truncate tracking-tighter mb-6 uppercase leading-none">{perf.title}</h3>
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-center gap-3 text-xs font-bold text-indigo-300 italic bg-white/5 w-fit px-4 py-2 rounded-2xl border border-white/5 shadow-inner">
+                                                            <Calendar className="w-4 h-4 text-indigo-400" />
+                                                            <span suppressHydrationWarning>{new Date(perf.startTime).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 text-xs font-bold text-emerald-400 italic bg-white/5 w-fit px-4 py-2 rounded-2xl border border-white/5 shadow-inner">
+                                                            <Clock className="w-4 h-4 text-emerald-400" />
+                                                            <span suppressHydrationWarning>{formatLocalTime(perf.startTime)} - {perf.endTime ? formatLocalTime(perf.endTime) : '...'}</span>
+                                                        </div>
+                                                        {perf.locationText && (
+                                                            <div className="flex items-center gap-3 text-xs font-bold text-amber-400 italic bg-white/5 w-fit px-4 py-2 rounded-2xl border border-white/5 shadow-inner max-w-full">
+                                                                <MapPin className="w-4 h-4 text-amber-500 shrink-0" />
+                                                                <span className="truncate">{perf.locationText}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
+                                            
+                                            <Link href={`/live/${perf.id}`} className="w-full bg-white text-black py-6 rounded-[24px] font-black text-base uppercase tracking-[0.2em] flex items-center justify-center gap-4 shadow-[0_20px_40px_rgba(255,255,255,0.1)] hover:bg-rose-50 hover:scale-[1.02] active:scale-95 transition-all italic border-b-4 border-gray-200">
+                                                <Play className="w-6 h-6 fill-current animate-pulse" />
+                                                {t('live.enter_live')}
+                                            </Link>
                                         </div>
-                                        
-                                        <Link href={`/live/${perf.id}`} className="w-full bg-white text-black py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl hover:bg-gray-100 hover:scale-[1.02] active:scale-95 transition-all italic">
-                                            <Play className="w-5 h-5 animate-pulse" />
-                                            {t('live.enter_live')}
-                                        </Link>
                                     </div>
                                 </div>
                             ))

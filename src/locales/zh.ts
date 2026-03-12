@@ -284,6 +284,7 @@ export const zh: LocaleTypes = {
         label_time: '时间',
         label_venue: '地点',
         badge_now: '直播中',
+        performing_now: '当前演出中',
     },
     avatar: {
         title: '参与直播',

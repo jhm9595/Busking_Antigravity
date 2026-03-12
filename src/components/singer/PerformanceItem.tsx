@@ -4,20 +4,15 @@ import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 
 import styles from '@/styles/singer/PerformanceItem.module.css'
-import { formatPerformanceDate } from '@/utils/date'
 import SetlistManager from './SetlistManager'
 import EditPerformanceModal from './EditPerformanceModal'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { getEffectiveStatus } from '@/utils/performance'
+import { getEffectiveStatus, formatLocalTime } from '@/utils/performance'
 import { updatePerformanceStatus } from '@/services/singer'
 
 // Dynamic MapPicker (Readonly)
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
     loading: () => {
-        // Since this is outside component, we might not get context easily, but we can try to use a simple text or just leave it. 
-        // Best practice: The loading component is usually static. 
-        // Let's create a small component if we really want to translate it, but "Loading Map..." is often acceptable. 
-        // However, user said "Globally check".
         return <div className="h-[200px] w-full bg-gray-100 flex items-center justify-center text-gray-400">Loading...</div>
     },
     ssr: false
@@ -40,7 +35,6 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
     const [isSetlistEditing, setIsSetlistEditing] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
 
-    // Status Logic
     // Status Logic
     const getStatusInfo = () => {
         const effectiveStatus = getEffectiveStatus(perf)
@@ -75,11 +69,11 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                             <Clock className="w-4 h-4 mr-1.5 opacity-70" />
                             <span>
                                 {new Date(perf.startTime).toLocaleDateString()} <span className="mx-1">•</span>
-                                {new Date(perf.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {formatLocalTime(perf.startTime)}
                                 {perf.endTime && (
                                     <>
                                         <span className="mx-1">-</span>
-                                        {new Date(perf.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+                                        {formatLocalTime(perf.endTime)}
                                     </>
                                 )}
                             </span>
@@ -91,7 +85,6 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                             </div>
                         )}
                     </div>
-                    {/* Removed duplicated "Completed" text since status badge handles it */}
 
                     <div className="mt-2">
                         {expanded ? (
@@ -107,7 +100,6 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                         {t(`performance.status.${statusKey}`)}
                     </span>
 
-                    {/* Management Buttons */}
                     {(statusKey === 'scheduled' || statusKey === 'live') && (
                         <div className="flex gap-2 mt-2" onClick={(e) => e.stopPropagation()}>
                             {statusKey === 'scheduled' && (
@@ -164,83 +156,74 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                             )}
                         </div>
                     )}
-
                 </div>
             </div>
 
-            {/* ... rest of component */}
-
-
-            {/* Expandable Section: Map & Setlist */}
-            {
-                expanded && (
-                    <div className={styles.expandedSection}>
-                        {/* Map View */}
-                        {perf.locationLat && perf.locationLng && (
-                            <div className={styles.mapSection}>
-                                <h4 className={styles.sectionTitle}><MapPin className={styles.icon} /> {t('performance.details.location_map')}</h4>
-                                <div className={styles.mapContainer}>
-                                    <MapPicker
-                                        onLocationSelect={() => { }}
-                                        initialLat={perf.locationLat}
-                                        initialLng={perf.locationLng}
-                                        readonly={true}
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Setlist View / Edit */}
-                        <div className={styles.setlistSection}>
-                            <div className="flex justify-between items-center mb-2">
-                                <h4 className={styles.sectionTitle}><Music className={styles.icon} /> {t('performance.details.setlist_title')} ({setlist.length})</h4>
-                                {!isPast && (
-                                    <button
-                                        onClick={() => setIsSetlistEditing(!isSetlistEditing)}
-                                        className="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded hover:bg-indigo-100 transition-colors font-medium border border-indigo-200"
-                                    >
-                                        {isSetlistEditing ? t('performance.details.finish_editing') : t('performance.details.manage_setlist')}
-                                    </button>
-                                )}
-                            </div>
-
-                            {isSetlistEditing ? (
-                                <SetlistManager
-                                    performanceId={perf.id}
-                                    singerId={perf.singerId}
-                                    currentSongs={setlist}
-                                    allSongs={allSongs}
-                                    onUpdate={() => {
-                                        router.refresh()
-                                    }}
+            {expanded && (
+                <div className={styles.expandedSection}>
+                    {perf.locationLat && perf.locationLng && (
+                        <div className={styles.mapSection}>
+                            <h4 className={styles.sectionTitle}><MapPin className={styles.icon} /> {t('performance.details.location_map')}</h4>
+                            <div className={styles.mapContainer}>
+                                <MapPicker
+                                    onLocationSelect={() => { }}
+                                    initialLat={perf.locationLat}
+                                    initialLng={perf.locationLng}
+                                    readonly={true}
                                 />
-                            ) : (
-                                <>
-                                    {setlist.length > 0 ? (
-                                        <ul className={styles.songList}>
-                                            {setlist.map((song: any) => (
-                                                <li key={song.id} className={styles.songItem}>
-                                                    <div>
-                                                        <span className={styles.songTitle}>{song.title}</span>
-                                                        <span className={styles.songArtist}>{song.artist}</span>
-                                                    </div>
-                                                    {song.youtubeUrl && (
-                                                        <a href={song.youtubeUrl} target="_blank" rel="noopener noreferrer" className={styles.linkIcon}>
-                                                            <LinkIcon className="w-4 h-4" />
-                                                        </a>
-                                                    )}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <p className={styles.emptyMsg}>{t('performance.details.empty_setlist')}</p>
-                                    )}
-                                </>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className={styles.setlistSection}>
+                        <div className="flex justify-between items-center mb-2">
+                            <h4 className={styles.sectionTitle}><Music className={styles.icon} /> {t('performance.details.setlist_title')} ({setlist.length})</h4>
+                            {!isPast && (
+                                <button
+                                    onClick={() => setIsSetlistEditing(!isSetlistEditing)}
+                                    className="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded hover:bg-indigo-100 transition-colors font-medium border border-indigo-200"
+                                >
+                                    {isSetlistEditing ? t('performance.details.finish_editing') : t('performance.details.manage_setlist')}
+                                </button>
                             )}
                         </div>
+
+                        {isSetlistEditing ? (
+                            <SetlistManager
+                                performanceId={perf.id}
+                                singerId={perf.singerId}
+                                currentSongs={setlist}
+                                allSongs={allSongs}
+                                onUpdate={() => {
+                                    router.refresh()
+                                }}
+                            />
+                        ) : (
+                            <>
+                                {setlist.length > 0 ? (
+                                    <ul className={styles.songList}>
+                                        {setlist.map((song: any) => (
+                                            <li key={song.id} className={styles.songItem}>
+                                                <div>
+                                                    <span className={styles.songTitle}>{song.title}</span>
+                                                    <span className={styles.songArtist}>{song.artist}</span>
+                                                </div>
+                                                {song.youtubeUrl && (
+                                                    <a href={song.youtubeUrl} target="_blank" rel="noopener noreferrer" className={styles.linkIcon}>
+                                                        <LinkIcon className="w-4 h-4" />
+                                                    </a>
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className={styles.emptyMsg}>{t('performance.details.empty_setlist')}</p>
+                                )}
+                            </>
+                        )}
                     </div>
-                )
-            }
+                </div>
+            )}
 
             {isEditing && (
                 <EditPerformanceModal

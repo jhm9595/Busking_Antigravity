@@ -18,11 +18,12 @@ import {
     togglePerformanceChat,
     chargePoints
 } from '@/services/singer'
-import { Music, Clock, MessageCircle, X, Check, Plus, List, GripVertical, Search, MessageSquare, User as UserIcon, Trash2, LayoutDashboard, LogOut, Play, RotateCcw, MessageSquarePlus, Coins } from 'lucide-react'
+import { Music, Clock, MessageCircle, X, Check, Plus, List, GripVertical, Search, MessageSquare, User as UserIcon, Trash2, LayoutDashboard, LogOut, Play, RotateCcw, MessageSquarePlus, Coins, Home } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ChatBox from '@/components/chat/ChatBox'
 import ConfirmationModal from '@/components/common/ConfirmationModal'
 import io from 'socket.io-client'
+import Link from 'next/link'
 import { Group as PanelGroup, Panel, Separator as PanelResizeHandle } from 'react-resizable-panels'
 import { getEffectiveStatus } from '@/utils/performance'
 
@@ -312,6 +313,7 @@ function LivePerformanceContent() {
         ns.splice(to, 0, m)
         setPerformance({ ...performance, songs: ns })
         await updateSetlistOrder(performanceId!, ns.map(s => s.id))
+        if (socketRef.current) socketRef.current.emit('song_status_updated', { performanceId })
     }
 
     const handleRemoveSong = async (id: string) => {
@@ -351,6 +353,9 @@ function LivePerformanceContent() {
         <div className="bg-[#0f1117] text-slate-100 h-[100dvh] flex flex-col w-full md:max-w-[100vw] mx-auto font-display overflow-hidden selection:bg-indigo-500/30">
             <header className="px-4 py-3 bg-gray-950/80 backdrop-blur-xl border-b border-white/5 flex justify-between items-center shrink-0 z-20">
                 <div className="flex items-center gap-4 min-w-0">
+                    <Link href="/" className="p-2 hover:bg-white/10 rounded-xl transition-all hover:scale-105 active:scale-95 bg-white/5 border border-white/10 text-indigo-400" title={t('common.home_button')}>
+                        <Home className="w-5 h-5" />
+                    </Link>
                     <button
                         onClick={() => router.push('/singer/dashboard')}
                         className="p-2 hover:bg-white/10 rounded-xl transition-all hover:scale-105 active:scale-95 bg-white/5 border border-white/10"

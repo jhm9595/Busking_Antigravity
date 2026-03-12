@@ -284,6 +284,7 @@ export const zhTW: LocaleTypes = {
         label_time: '時間',
         label_venue: '地點',
         badge_now: '直播中',
+        performing_now: '當前演出中',
     },
     avatar: {
         title: '參與直播',

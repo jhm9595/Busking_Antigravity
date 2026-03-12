@@ -282,6 +282,7 @@ export const en = {
         label_time: 'Time',
         label_venue: 'Venue',
         badge_now: 'NOW',
+        performing_now: 'Performing Now',
     },
     avatar: {
         title: 'Join the Live',

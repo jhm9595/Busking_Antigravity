@@ -13,7 +13,6 @@ export const metadata: Metadata = {
 };
 
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import GlobalHomeButton from "@/components/common/GlobalHomeButton";
 
 export default function RootLayout({
   children,
@@ -40,7 +39,6 @@ export default function RootLayout({
             />
           ) : null}
           <LanguageProvider>
-            <GlobalHomeButton />
             {children}
           </LanguageProvider>
         </body>

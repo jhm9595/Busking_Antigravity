@@ -10,8 +10,8 @@ export function formatPerformanceDate(startTime: string | Date, endTime?: string
             month: 'numeric',
             day: 'numeric'
         })
-        const timeStr = start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        const endTimeStr = end ? end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '?'
+        const timeStr = start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+        const endTimeStr = end ? end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '?'
 
         return `${dateStr} ${timeStr} - ${endTimeStr}`
     } catch (e) {

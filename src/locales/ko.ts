@@ -284,6 +284,7 @@ export const ko: LocaleTypes = {
         label_time: '시간',
         label_venue: '장소',
         badge_now: 'LIVE',
+        performing_now: '현재 공연 중',
     },
     avatar: {
         title: '라이브 참여하기',

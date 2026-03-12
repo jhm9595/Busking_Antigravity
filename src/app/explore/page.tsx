@@ -3,15 +3,16 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { List, Map as MapIcon, LogOut, X, User as UserIcon } from 'lucide-react'
+import { List, Map as MapIcon, LogOut, X, User as UserIcon, Home } from 'lucide-react'
 import { getEffectiveStatus, formatLocalDate } from '@/utils/performance'
 import { useClerk, useUser } from '@clerk/nextjs'
 import { useLanguage } from '@/contexts/LanguageContext'
+import Link from 'next/link'
 
 // Dynamically import Map to avoid SSR issues with Leaflet
 const BuskingMap = dynamic(() => import('@/components/audience/BuskingMap'), {
     ssr: false,
-    loading: () => <div className="h-full w-full bg-gray-100 flex items-center justify-center italic text-sm text-gray-400">Loading Map...</div>
+    loading: () => <div className="h-full w-full bg-gray-100 flex items-center justify-center italic text-sm text-gray-400">Loading...</div>
 })
 
 interface Performance {
@@ -88,9 +89,14 @@ export default function ExplorePage() {
 
     return (
         <div className="h-screen flex flex-col bg-white text-black overflow-hidden">
-            <header className="flex justify-between items-center p-3 pl-16 md:p-4 md:pl-20 border-b bg-white z-10 shadow-sm shrink-0">
-                <h1 className="text-lg md:text-2xl font-black text-indigo-700 truncate hidden sm:block uppercase italic tracking-tighter">{t('home.explore_title')}</h1>
-                <div className="flex items-center space-x-2 ml-auto">
+            <header className="flex justify-between items-center p-3 md:p-4 border-b bg-white z-10 shadow-sm shrink-0">
+                <div className="flex items-center gap-3">
+                    <Link href="/" className="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all active:scale-95 shadow-sm" title={t('common.home_button')}>
+                        <Home className="w-5 h-5" />
+                    </Link>
+                    <h1 className="text-lg md:text-2xl font-black text-indigo-700 truncate hidden sm:block uppercase italic tracking-tighter">{t('home.explore_title')}</h1>
+                </div>
+                <div className="flex items-center space-x-2">
                     <div className="flex bg-gray-100 rounded-lg p-1">
                         <button
                             onClick={() => setViewMode('map')}

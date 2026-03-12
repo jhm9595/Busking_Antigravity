@@ -284,6 +284,7 @@ export const ja: LocaleTypes = {
         label_time: '時間',
         label_venue: '場所',
         badge_now: 'ライブ中',
+        performing_now: '現在公演中',
     },
     avatar: {
         title: 'ライブに参加',
