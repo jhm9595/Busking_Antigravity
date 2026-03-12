@@ -29,6 +29,7 @@ export default function AudienceLivePage() {
     const [isFollowed, setIsFollowed] = useState(false)
     const [userPoints, setUserPoints] = useState(0)
     const [chatStatus, setChatStatus] = useState<'open' | 'closed'>('closed')
+    const [isSponsoring, setIsSponsoring] = useState(false)
     
     const { user, isLoaded } = useUser()
     const { t } = useLanguage()
@@ -135,14 +136,16 @@ export default function AudienceLivePage() {
     }, [showRedirectionModal, redirectCountdown, singer, router])
 
     const handleSponsor = async (amount: number) => {
-        if (!isLoaded) return
+        if (!isLoaded || isSponsoring) return
         if (!user) {
             router.push(`/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`)
             return
         }
         if (!singer?.id) return
 
-        const res = await sponsorSinger(user.id, singer.id, amount)
+        setIsSponsoring(true)
+        try {
+            const res = await sponsorSinger(user.id, singer.id, amount)
         if (res.success) {
             if (activeSocket) {
                 activeSocket.emit('donation_received', {
@@ -155,6 +158,9 @@ export default function AudienceLivePage() {
         } else {
             const error = (res as any).error
             alert(error === 'INSUFFICIENT_POINTS' ? t('common.insufficient_points') : t('common.sponsorship_failed'))
+        }
+        } finally {
+            setIsSponsoring(false)
         }
     }
 
@@ -313,7 +319,7 @@ export default function AudienceLivePage() {
             {!isCompleted && (
                 <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/90 to-transparent flex justify-center z-40 pointer-events-none">
                     <div className="flex gap-2 w-full max-w-lg pointer-events-auto">
-                        <button onClick={() => handleSponsor(500)} className="flex-1 bg-amber-500 text-black py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl hover:bg-amber-400 hover:scale-[1.02] active:scale-95 transition-all border border-amber-400/50 italic flex items-center justify-center gap-2"><Heart className="w-4 h-4 fill-current" /> {t('live.sponsor_btn')} (500P)</button>
+                        <button onClick={() => handleSponsor(500)} disabled={isSponsoring} className="flex-1 bg-amber-500 text-black py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl hover:bg-amber-400 hover:scale-[1.02] active:scale-95 transition-all border border-amber-400/50 italic flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">{isSponsoring ? '...' : <><Heart className="w-4 h-4 fill-current" /> {t('live.sponsor_btn')} (500P)</>}</button>
                     </div>
                 </div>
             )}

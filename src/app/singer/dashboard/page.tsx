@@ -31,6 +31,7 @@ export default function SingerDashboard() {
     const [currentTime, setCurrentTime] = useState(new Date())
     const [userPoints, setUserPoints] = useState(0)
     const [showChargeModal, setShowChargeModal] = useState(false)
+    const [isStarting, setIsStarting] = useState(false)
 
     useEffect(() => {
         setOrigin(window.location.origin)
@@ -132,8 +133,10 @@ export default function SingerDashboard() {
     }
 
     const handleStartMode = async () => {
-        if (!user?.id) return
-        const perfs = await getPerformances(user.id)
+        if (!user?.id || isStarting) return
+        setIsStarting(true)
+        try {
+            const perfs = await getPerformances(user.id)
 
         // 1. Check for active LIVE performance first
         const activeLive = perfs.find((p: any) => p.status === 'live')
@@ -173,6 +176,9 @@ export default function SingerDashboard() {
         const best = candidates[0]
         await updatePerformanceStatus(best.id, 'live')
         router.push(`/singer/live?performanceId=${best.id}`)
+        } finally {
+            setIsStarting(false)
+        }
     }
 
     if (!isLoaded || isSyncing) {
@@ -272,9 +278,14 @@ export default function SingerDashboard() {
                         </div>
                         <button
                             onClick={handleStartMode}
-                            className="flex-1 md:flex-none bg-white text-black px-10 py-5 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 border border-white/20"
+                            disabled={isStarting}
+                            className="flex-1 md:flex-none bg-white text-black px-10 py-5 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 border border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <Music className="w-5 h-5" /> {t('dashboard.start_mode')}
+                            {isStarting ? (
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                <><Music className="w-5 h-5" /> {t('dashboard.start_mode')}</>
+                            )}
                         </button>
                     </div>
                 </header>
