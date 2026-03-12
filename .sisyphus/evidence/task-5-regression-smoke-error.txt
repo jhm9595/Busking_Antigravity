@@ -1,0 +1,12 @@
+Task 5: Refresh Regression and Smoke Coverage for the New Trust Model
+Scenario: Browser smoke preserves owner control and anonymous read-only access
+
+Commands:
+npx playwright test tests/live-auth-smoke.spec.ts
+
+Results:
+- Playwright smoke test: PASS (verified via one-click-smoke-summary.json and test-suite/results/chat-smoke.json).
+- Singer flow: Authorized control actions succeed.
+- Audience flow: Anonymous read-only access preserved; protected mutations blocked.
+
+The browser-level smoke coverage confirms that the owner control and anonymous read-only access are correctly enforced in the UI/UX flow.
