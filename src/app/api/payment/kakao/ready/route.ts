@@ -42,16 +42,10 @@ export async function POST(req: Request) {
         }
 
         // Determine authorization header based on key prefix
-<<<<<<< Updated upstream
         // Admin Key usually starts with nothing or specific prefix, Payment Secret Key starts with DEV_/TEST_/PROC_
         const authHeader = secretKey.startsWith('DEV_') || secretKey.startsWith('TEST_') || secretKey.startsWith('PROC_')
             ? `SECRET_KEY ${secretKey}`
             : `KakaoAK ${secretKey}` // Default to Admin Key format
-=======
-        const authHeader = secretKey.startsWith('DEV_') || secretKey.startsWith('TEST_') || secretKey.startsWith('PROC_')
-            ? `SECRET_KEY ${secretKey}`
-            : `KakaoAK ${secretKey}`
->>>>>>> Stashed changes
 
         console.log('Kakao Pay Request Info:', { cid, partnerOrderId: body.partner_order_id, authHeaderPrefix: authHeader.split(' ')[0] })
 
@@ -90,11 +84,7 @@ export async function POST(req: Request) {
             console.error('Kakao Pay Ready Error:', JSON.stringify(data))
             return NextResponse.json({ 
                 error: data.msg || 'Kakao Pay preparation failed', 
-<<<<<<< Updated upstream
                 details: data, // Forward Kakao error details for debugging
-=======
-                details: data,
->>>>>>> Stashed changes
                 code: data.code
             }, { status: 400 })
         }
