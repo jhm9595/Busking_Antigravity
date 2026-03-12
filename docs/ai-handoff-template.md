@@ -4,7 +4,7 @@ Copy this template when an agent needs to hand work to another agent.
 
 ```md
 ## Agent
-<Atlas PM | Forge Dev | Pixel Design | Scout QA>
+<Atlas | Codex App | Antigravity>
 
 ## Task
 <what was requested>
@@ -35,58 +35,58 @@ If the work happened in the shared root checkout, the handoff must say why that 
 
 ## Minimal Examples
 
-### Dev To QA
+### Atlas To Antigravity
 
 ```md
 ## Agent
-Forge Dev
+Atlas
 
 ## Task
-Fix duplicate socket join in chat flow.
+Validate security hardening changes on staging.
 
 ## Result
-Removed duplicate `join_room` emit path and added idempotent join guard.
+Implemented server identity verification, GET read-only, realtime token hardening.
 
 ## Evidence
-- files: `src/components/chat/ChatBox.tsx`
-- commands: `npm.cmd run lint`, `npx.cmd tsc --noEmit`
-- logs: typecheck passed for touched file path; repo-wide lint still has unrelated failures
-- branch/worktree: `forge/fix-chat-join` in `..\wt-forge-dev`
+- files: `src/services/singer.ts`, `src/app/api/*/route.ts`, `realtime-server/server.js`
+- commands: `bun test`, `npm run build`
+- logs: All tests passed
+- branch/worktree: `atlas/security-hardening` in `..\wt-atlas`
 
 ## Risks
-- Full live room count should still be validated in browser.
+- Full realtime token validation should be tested on live site.
 
 ## Next Owner
-Scout QA
+Antigravity
 
 ## Next Action
-Verify room count does not double-increment when audience joins chat.
+Test realtime control on staging - verify only valid tokens can control.
 ```
 
-### QA To PM
+### Antigravity To Atlas
 
 ```md
 ## Agent
-Scout QA
+Antigravity
 
 ## Task
-Validate live audience chat after duplicate join fix.
+Validate realtime token hardening on staging.
 
 ## Result
-Happy path passed. One remaining issue: donation banner text is still English-only.
+Happy path passed. One remaining issue: invalid token still allows partial control.
 
 ## Evidence
-- files: `src/components/chat/ChatBox.tsx`, `realtime-server/server.js`
-- commands: browser manual test
-- logs: reproduced on `/live/[id]`
-- branch/worktree: `scout/qa-live-chat` in `..\wt-scout-qa`
+- files: `realtime-server/server.js`
+- commands: Manual test on staging
+- logs: Reproduced on staging
+- branch/worktree: `antigravity/qa-token` in `..\wt-antigravity`
 
 ## Risks
-- i18n is still incomplete in realtime system messages.
+- Invalid token validation is incomplete.
 
 ## Next Owner
-Atlas PM
+Atlas
 
 ## Next Action
-Route i18n cleanup to Forge Dev.
+Fix token validation logic in realtime-server.
 ```

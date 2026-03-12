@@ -1,13 +1,12 @@
 # AI Orchestra
 
-This repository uses a four-agent operating model. Every agent reads this file first before starting work.
+This repository uses a three-agent operating model. Every agent reads this file first before starting work.
 
 ## Agent Names
 
-- `Atlas PM`: Codex CLI. Owns planning, routing, prioritization, risk framing, and final integration decisions.
-- `Forge Dev`: Gemini CLI on the MacBook. Owns implementation, refactors, debugging, migrations, and code-level delivery.
-- `Pixel Design`: Codex App for Figma design work. Owns UI concepts, layout variants, component visuals, and design-to-code handoff notes.
-- `Scout QA`: Antigravity in the browser. Owns end-to-end validation, regression checks, repro steps, UX defects, and release-readiness notes.
+- `Atlas`: 나 (총괄 + 구현). Owns planning, routing, prioritization, risk framing, implementation, and final integration decisions.
+- `Codex App`: 디자인/Figma 작업. Owns UI concepts, layout variants, component visuals, and design-to-code handoff notes.
+- `Antigravity`: 실제 사이트 QA. Owns end-to-end validation, regression checks, repro steps, UX defects, and release-readiness notes on the live site.
 
 ## Source Of Truth
 
@@ -23,14 +22,12 @@ This repository uses a four-agent operating model. Every agent reads this file f
 - Each agent must work in its own branch and its own git worktree when making changes or generating agent-specific artifacts.
 - Recommended branch names:
   - `atlas/<task>`
-  - `forge/<task>`
-  - `pixel/<task>`
-  - `scout/<task>`
+  - `codex/<task>`
+  - `antigravity/<task>`
 - Recommended local worktree folders:
-  - `..\wt-atlas-pm`
-  - `..\wt-forge-dev`
-  - `..\wt-pixel-design`
-  - `..\wt-scout-qa`
+  - `..\wt-atlas`
+  - `..\wt-codex`
+  - `..\wt-antigravity`
 - If an agent is not prepared to create a branch/worktree, that agent should stay read-only and leave a handoff instead of editing in the shared root checkout.
 
 ## Shared Root Checkout Rule
@@ -51,12 +48,48 @@ This repository uses a four-agent operating model. Every agent reads this file f
 - Agents can know the secret name and usage from repository code, but not the secret value.
 - To verify delivery, agents should check the `ai-handoff` workflow run and its Discord notification step instead of asking for the webhook URL.
 
+## Discord Korean Webhook Format
+
+Discord 메시지는 한글 사용자가 **3초內**에 파악할 수 있도록 다음 형식을 사용합니다:
+
+```
+[{상태}] {프로젝트명}
+- 담당 AI: {이름}
+- 역할: {한글 역할명}
+- 작업 요약: {한 줄 요약}
+- 환경: {staging|production}
+- 결과: {성공|실패|확인 필요}
+- 검증: {핵심 검증 결과}
+- 링크: {PR 또는 배포 URL}
+- 다음 액션: {없음 또는 필요한 확인}
+```
+
+**상태 옵션**: `완료`, `진행중`, `검증필요`, `실패`
+
+**역할 한گ글명**:
+- `Atlas`: 총괄+구현
+- `Codex App`: 디자인
+- `Antigravity`: 실제 사이트 QA
+
+예시:
+```
+[완료] Busking Antigravity
+- 담당 AI: Atlas
+- 역할: 총괄+구현
+- 작업 요약: 서버 신원 검증硬化, GET 읽기 전용화, 실시간 제어 token硬化
+- 환경: staging
+- 결과: 성공
+- 검증: 全4개 reviewer APPROVE
+- 링크: https://github.com/jhm9595/Busking_Antigravity/pull/1
+- 다음 액션: 없음
+```
+
 ## Core Rules
 
-1. `Atlas PM` decides which agent should act next.
-2. `Forge Dev` changes code unless the task is strictly design-only or QA-only.
-3. `Pixel Design` never invents product requirements. It translates product intent into design options.
-4. `Scout QA` reports defects with repro steps, expected behavior, actual behavior, and affected files when possible.
+1. `Atlas` decides which agent should act next.
+2. `Atlas` handles both frontend and backend implementation unless the task is strictly design-only or QA-only.
+3. `Codex App` never invents product requirements. It translates product intent into design options.
+4. `Antigravity` reports defects with repro steps, expected behavior, actual behavior, and affected files when possible.
 5. Any agent that finds a blocker must write it in the standard handoff format.
 6. All agents must keep outputs concise, structured, and directly reusable by another AI.
 
@@ -66,7 +99,7 @@ Every agent should write handoffs using this structure:
 
 ```md
 ## Agent
-<Atlas PM | Forge Dev | Pixel Design | Scout QA>
+<Atlas | Codex App | Antigravity>
 
 ## Task
 <what was attempted>
@@ -92,7 +125,7 @@ Every agent should write handoffs using this structure:
 
 ## Role-Specific Rules
 
-### Atlas PM
+### Atlas
 
 - Triage requests and split work by agent.
 - Prefer one next owner at a time.
@@ -100,31 +133,25 @@ Every agent should write handoffs using this structure:
 - Maintain the release perspective: correctness, priority, and scope.
 - Keep `docs/pm-directive.md` current when ownership or operating rules change.
 - Decide when a task needs a new branch/worktree before assigning implementation.
+- Handle both frontend and backend implementation work.
 
-### Forge Dev
-
-- Read current code before changing it.
-- Prefer repository docs and workflow reports before asking for context.
-- When finishing implementation, leave a handoff that QA can execute without guessing.
-- When blocked by environment or secrets, say exactly which dependency is missing.
-- Do implementation work in the Forge branch/worktree, not in the shared root checkout.
-
-### Pixel Design
+### Codex App
 
 - Preserve established design language unless asked to explore.
 - Provide named variants, intended usage, and handoff notes for implementation.
 - Document which screens, flows, or components are affected.
-- If design work touches repository files, use the Pixel branch/worktree or stay read-only.
+- If design work touches repository files, use the Codex branch/worktree or stay read-only.
 
-### Scout QA
+### Antigravity
 
-- Validate both happy path and obvious edge cases.
+- Validate both happy path and obvious edge cases on the actual live site.
 - Report only actionable findings.
 - Include exact repro steps and affected route or component.
 - Separate confirmed bugs from assumptions.
-- If a confirmed bug is found, set `Next Owner` to `Atlas PM`.
-- Do not assign implementation work directly unless `Atlas PM` has already delegated that path.
-- Put QA logs, screenshots, and temporary artifacts in the Scout branch/worktree, not the shared root checkout.
+- If a confirmed bug is found, set `Next Owner` to `Atlas`.
+- Do not assign implementation work directly unless `Atlas` has already delegated that path.
+- Put QA logs, screenshots, and temporary artifacts in the Antigravity branch/worktree, not the shared root checkout.
+- **Do NOT modify code files** - only test and report on the live site.
 
 ## Required Reading Order For Any Agent
 
@@ -147,13 +174,13 @@ Before editing, each agent must confirm all of the following:
 
 ## Escalation Policy
 
-- If two agents disagree, `Atlas PM` resolves it.
+- If two agents disagree, `Atlas` resolves it.
 - If a workflow report is stale, generate a fresh one before major work.
-- Confirmed QA findings always route back to `Atlas PM` before implementation is reassigned.
+- Confirmed QA findings always route back to `Atlas` before implementation is reassigned.
 - If a task spans design, code, and QA, the order is:
-  1. `Atlas PM`
-  2. `Pixel Design` or `Forge Dev`
-  3. `Forge Dev`
-  4. `Scout QA`
-  5. `Atlas PM`
+  1. `Atlas`
+  2. `Codex App` or `Antigravity`
+  3. `Atlas` (implementation)
+  4. `Antigravity` (validation)
+  5. `Atlas` (final review)
 - If a shared-root checkout becomes dirty from multiple agents, stop new edits there, create clean role-specific worktrees, and resume from those worktrees.

@@ -71,10 +71,9 @@ jobs:
             echo "- Workflow Run: ${RUN_URL}"
             echo
             echo "### Agent Roster"
-            echo "- Atlas PM: Codex CLI, planning and routing owner"
-            echo "- Forge Dev: Gemini CLI, implementation owner"
-            echo "- Pixel Design: Codex App, Figma and design owner"
-            echo "- Scout QA: Antigravity browser tester, QA owner"
+            echo "- Atlas: 총괄+구현 ( planning, routing, implementation )"
+            echo "- Codex App: 디자인 ( UI/UX, Figma )"
+            echo "- Antigravity: 실제 사이트 QA ( staging/production validation )"
             echo
             echo "### Required Reading"
             echo "1. \`docs/ai-orchestra.md\`"
