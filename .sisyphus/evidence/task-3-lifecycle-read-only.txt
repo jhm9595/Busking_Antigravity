@@ -1,0 +1,17 @@
+Task 3 verification evidence
+
+- node test-suite/lifecycle/read-only.test.js --case get-performances-no-db-write --out test-suite/results/lifecycle-performances-no-write.json
+- node test-suite/lifecycle/read-only.test.js --case get-singer-no-db-write --out test-suite/results/lifecycle-singer-no-write.json
+- node test-suite/lifecycle/read-only.test.js --case stale-scheduled-exposed-consistently --out test-suite/results/lifecycle-consistency.json
+- node test-suite/lifecycle/read-only.test.js --case canceled-status-normalized --out test-suite/results/lifecycle-canceled-normalized.json
+- npm run build
+
+Artifacts:
+- test-suite/results/lifecycle-performances-no-write.json
+- test-suite/results/lifecycle-singer-no-write.json
+- test-suite/results/lifecycle-consistency.json
+- test-suite/results/lifecycle-canceled-normalized.json
+
+Notes:
+- GET handlers no longer mutate Prisma state.
+- Shared lifecycle resolver is consumed by API and UI paths.

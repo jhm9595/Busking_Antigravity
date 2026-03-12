@@ -1,0 +1,18 @@
+Task 5 verification evidence
+
+- node test-suite/api-tester.js
+- node test-suite/chat-tester.js
+- powershell -ExecutionPolicy Bypass -File .\test-suite\one-click-test.ps1
+- npx playwright test tests/live-auth-smoke.spec.ts
+- npm run build
+
+Artifacts:
+- test-suite/results/api-smoke.json
+- test-suite/results/chat-smoke.json
+- test-suite/results/one-click-smoke-summary.json
+- test-results/.last-run.json
+
+Notes:
+- API/chat smoke scripts were refreshed to match the new auth/lifecycle/realtime contracts.
+- PowerShell aggregate runner now fails correctly on child command non-zero exit codes.
+- Playwright smoke now exercises runtime owner-token and anonymous audience behavior.

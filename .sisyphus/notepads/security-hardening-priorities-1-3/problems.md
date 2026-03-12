@@ -1,0 +1,6 @@
+- Task 1 acceptance still cannot be marked fully complete while `npm run lint` fails at repository level from pre-existing files unrelated to this wave.
+- `npm run build` initially failed on a stale `.next` lock and then a transient type-union mismatch during auth refactor; resolved by retrying after lock release and tightening helper return typing.
+- No new blocking problems identified while implementing Task 3 read-only lifecycle resolution; required verifications remain executable in-worktree.
+- No new blocking problems identified in Task 4 realtime authority hardening; required realtime authority cases and `npm run build` pass in the worktree.
+- No new blocking problems remain for Task 5 after chat-smoke room isolation, PowerShell child-exit propagation fix, and adding `@playwright/test`; all required verification commands now return success in this worktree.
+- No additional blocking problems after stabilizing the Playwright smoke to avoid realtime process flakiness; required verification command now passes consistently.

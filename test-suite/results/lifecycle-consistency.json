@@ -1,0 +1,18 @@
+{
+  "suite": "lifecycle-read-only",
+  "case": "stale-scheduled-exposed-consistently",
+  "pass": true,
+  "generatedAt": "2026-03-12T14:47:11.214Z",
+  "details": {
+    "pass": true,
+    "expected": "stale scheduled/live records resolve consistently from one shared read resolver",
+    "details": {
+      "hasFallbackWindow": true,
+      "hasAutoCompleteTransition": true,
+      "hasAutoLiveTransition": true,
+      "uiDelegatesToSharedResolver": true,
+      "performancesRouteUsesSharedResolver": true,
+      "singerRouteUsesSharedResolver": true
+    }
+  }
+}

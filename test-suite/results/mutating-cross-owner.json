@@ -1,0 +1,19 @@
+{
+  "suite": "security-mutating-writes",
+  "case": "foreign-performance-update-returns-403",
+  "pass": true,
+  "generatedAt": "2026-03-12T14:47:11.028Z",
+  "details": {
+    "pass": true,
+    "expected": "cross-owner writes are rejected with 403",
+    "result": {
+      "decision": {
+        "allowed": false,
+        "statusCode": 403,
+        "reason": "REJECT_FORBIDDEN_OWNER_MISMATCH",
+        "actorUserId": "singer-2"
+      },
+      "singerServiceHasForbiddenResult": true
+    }
+  }
+}

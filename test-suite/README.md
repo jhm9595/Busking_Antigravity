@@ -1,42 +1,37 @@
-# Busking Antigravity Test Suite 🚀
+# Busking Antigravity Test Suite
 
-This folder contains the official testing tools for the **Busking Antigravity** platform.
-It is designed to be a "one-click" testing solution that covers both backend API logic and simulated frontend flows.
+This folder contains smoke and regression checks for API contracts, lifecycle read paths, and realtime authorization hardening.
 
-## 📂 Project Structure
+## Core commands
 
-- `api-tester.js`: A Node.js script that performs automated testing on all key REST endpoints.
-- `flow-simulatior.js`: Simulates a complete performance lifecycle (Scheduling -> Going Live -> Chat Interaction -> Ending).
-- `one-click-test.sh`: The master script that runs all tests sequentially.
-- `visual-dashboard.html`: A luxurious web dashboard to trigger and visualize test results.
+Run these with the app stack running (`npm run dev`):
 
-## ⚡ How to Run
-
-### Option 1: Terminal (One-Click)
-Run the following command while the app is running (`npm run dev`):
 ```bash
-./test-suite/one-click-test.sh
+node test-suite/api-tester.js
+node test-suite/chat-tester.js
+powershell -ExecutionPolicy Bypass -File .\test-suite\one-click-test.ps1
+npx playwright test tests/live-auth-smoke.spec.ts
 ```
 
-### Option 2: Visual Dashboard
-Open the standalone dashboard in your browser while your server is running:
-- Open `test-suite/visual-dashboard.html` directly in your browser.
-  - *Note: Ensure localhost:3000 is accessible for API calls.*
+## Smoke coverage
 
-## 🧪 Test Coverage
+- `api-tester.js`
+  - Verifies `/api/performances` now returns an array payload (not legacy `data.items`).
+  - Verifies singer profile lookup shape from `/api/singers/:id`.
+  - Verifies anonymous `POST /api/song-requests` is rejected with `401`.
+- `chat-tester.js`
+  - Verifies current socket events (`chat_status`, `load_history`, `receive_message`, `authorization_error`).
+  - Verifies anonymous audience cannot call owner controls (`open_chat`, `chat_status_toggled`).
+  - Verifies audience messages are blocked while chat is closed.
+- `one-click-test.ps1` / `one-click-test.sh`
+  - Runs API/chat smoke plus security/lifecycle/realtime regression suites from Tasks 1-4.
+  - Writes aggregate machine-readable summary to `test-suite/results/one-click-smoke-summary.json`.
 
-1. **Singer Lifecycle**:
-   - Profile creation & verification.
-   - Song repertoire management.
-2. **Performance Lifecycle**:
-   - Scheduling a performance.
-   - Starting a live session (Status transition).
-   - Auto-status update (API level).
-3. **Audience Interactions**:
-   - Joining a live performance.
-   - Sending song requests.
-   - Following/Unfollowing singers.
-4. **Chat & Real-time**:
-   - Room capacity checks.
-   - System alerts (5-minute warning).
-   - Automatic closing logic.
+## Result artifacts
+
+Smoke and regression scripts write JSON artifacts under `test-suite/results/`.
+Key outputs include:
+
+- `api-smoke.json`
+- `chat-smoke.json`
+- `one-click-smoke-summary.json`

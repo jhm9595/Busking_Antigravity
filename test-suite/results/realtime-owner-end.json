@@ -1,0 +1,31 @@
+{
+  "suite": "realtime-authority",
+  "case": "owner-end-performance-allowed",
+  "pass": true,
+  "generatedAt": "2026-03-12T14:47:11.484Z",
+  "details": {
+    "pass": true,
+    "expected": "trusted owner socket can end performance",
+    "details": {
+      "decision": {
+        "allowed": true,
+        "performanceId": "perf-authority-1",
+        "actorUserId": "owner-user-1",
+        "tokenPayload": null,
+        "reason": "SOCKET_OWNER"
+      },
+      "sourceChecks": {
+        "serverOpenChatGuarded": true,
+        "serverSystemAlertGuarded": true,
+        "serverPerformanceEndedGuarded": true,
+        "serverJoinNoClaimedCapacity": true,
+        "serverNoClaimedSingerBypass": true,
+        "serverHistoryRequiresTrustedOwner": true,
+        "singerUsesTokenAction": true,
+        "singerPrivilegedFlowUsesControlToken": true,
+        "chatJoinSendsControlToken": true,
+        "chatJoinDoesNotSendUserTypeOrCapacity": true
+      }
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { resolvePerformanceLifecycleStatus } from '@/lib/performance-lifecycle'
 
 export async function GET(
     request: Request,
@@ -24,36 +25,9 @@ export async function GET(
             )
         }
 
-        // Auto-update performance status: Close stale live/scheduled sessions
-        const now = new Date()
-        const updatedPerformances = await Promise.all(singer.performances.map(async (p) => {
-            const start = new Date(p.startTime)
-            // Use endTime if present, otherwise assume 3 hours max duration from start
-            const end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
-
-            // Auto-update status: complete if time passed, or set live if start time reached
-            if (end < now && (p.status === 'live' || p.status === 'scheduled')) {
-                try {
-                    await prisma.performance.update({
-                        where: { id: p.id },
-                        data: { status: 'completed' }
-                    })
-                } catch (e) {
-                    console.error('Auto-close error:', e)
-                }
-                return { ...p, status: 'completed' }
-            } else if (start <= now && p.status === 'scheduled') {
-                try {
-                    await prisma.performance.update({
-                        where: { id: p.id },
-                        data: { status: 'live' }
-                    })
-                } catch (e) {
-                    console.error('Auto-live error:', e)
-                }
-                return { ...p, status: 'live' }
-            }
-            return p
+        const updatedPerformances = singer.performances.map((p) => ({
+            ...p,
+            status: resolvePerformanceLifecycleStatus(p)
         }))
 
         // Sort by startTime ASC (Earliest first)

@@ -1,0 +1,21 @@
+{
+  "suite": "lifecycle-read-only",
+  "case": "get-singer-no-db-write",
+  "pass": true,
+  "generatedAt": "2026-03-12T14:47:11.174Z",
+  "details": {
+    "pass": true,
+    "expected": "GET route is read-only and uses shared lifecycle resolver",
+    "details": {
+      "noWriteContract": {
+        "routePath": "src/app/api/singers/[id]/route.ts",
+        "hasGetHandler": true,
+        "writeCallCount": 0,
+        "writeCalls": [],
+        "passesNoWriteContract": true
+      },
+      "usesSharedResolverImport": true,
+      "usesSharedResolverCall": true
+    }
+  }
+}

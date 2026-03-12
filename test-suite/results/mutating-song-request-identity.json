@@ -1,0 +1,20 @@
+{
+  "suite": "security-mutating-writes",
+  "case": "song-request-derives-identity",
+  "pass": true,
+  "generatedAt": "2026-03-12T14:48:40.789Z",
+  "details": {
+    "pass": true,
+    "expected": "createSongRequest derives requester identity from Clerk-authenticated actor",
+    "result": {
+      "pass": true,
+      "hasFunction": true,
+      "hasAuthGuard": true,
+      "hasActorGuard": true,
+      "looksUpRequesterProfile": true,
+      "derivesRequesterNameFromProfile": true,
+      "doesNotTrustBodyRequesterName": true,
+      "doesNotAcceptRequesterNameInput": true
+    }
+  }
+}

@@ -33,7 +33,7 @@ export default function PerformanceList({ performances, loading, allSongs, onRef
 
     const past = performances.filter(p => {
         const status = getEffectiveStatus(p)
-        return status === 'completed' || status === 'cancelled' || status === 'canceled'
+        return status === 'completed' || status === 'canceled'
     })
 
     const displayList = activeTab === 'live' ? live : (activeTab === 'upcoming' ? upcoming : [...past].reverse())

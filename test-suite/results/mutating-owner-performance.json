@@ -1,0 +1,23 @@
+{
+  "suite": "security-mutating-writes",
+  "case": "owner-performance-update-succeeds",
+  "pass": true,
+  "generatedAt": "2026-03-12T14:47:10.947Z",
+  "details": {
+    "pass": true,
+    "expected": "owner write path remains allowed and performance owner guard exists",
+    "result": {
+      "decision": {
+        "allowed": true,
+        "statusCode": 200,
+        "reason": "ALLOWED_OWNER",
+        "actorUserId": "singer-1"
+      },
+      "performanceGuard": {
+        "pass": true,
+        "hasOwnerLookup": true,
+        "hasOwnerCheck": true
+      }
+    }
+  }
+}

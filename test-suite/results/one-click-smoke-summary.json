@@ -1,0 +1,89 @@
+﻿{
+    "suite":  "one-click-smoke",
+    "pass":  true,
+    "startedAt":  "2026-03-12T23:47:06.2786956+09:00",
+    "finishedAt":  "2026-03-12T23:47:11.4996061+09:00",
+    "checks":  [
+                   {
+                       "name":  "server-reachable",
+                       "pass":  true,
+                       "statusCode":  200
+                   },
+                   {
+                       "name":  "api-smoke",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "chat-smoke",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "security-foundation-anon-read",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "security-foundation-anon-write",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "security-foundation-cross-owner",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "mutating-follow",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "mutating-owner-performance",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "mutating-unauthenticated",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "mutating-cross-owner",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "lifecycle-foundation",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "lifecycle-performances-no-write",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "lifecycle-singer-no-write",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "lifecycle-consistency",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "lifecycle-canceled-normalized",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "realtime-audience-open-chat",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "realtime-audience-end",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "realtime-forged-alert",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "realtime-owner-open-chat",
+                       "pass":  true
+                   },
+                   {
+                       "name":  "realtime-owner-end",
+                       "pass":  true
+                   }
+               ]
+}

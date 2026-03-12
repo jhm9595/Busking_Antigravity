@@ -1,0 +1,20 @@
+{
+  "suite": "security-mutating-writes",
+  "case": "unauthenticated-write-returns-401",
+  "pass": true,
+  "generatedAt": "2026-03-12T14:47:10.987Z",
+  "details": {
+    "pass": true,
+    "expected": "unauthenticated writes are rejected with 401",
+    "result": {
+      "decision": {
+        "allowed": false,
+        "statusCode": 401,
+        "reason": "REJECT_UNAUTHENTICATED",
+        "actorUserId": null
+      },
+      "songRequestRouteHas401": true,
+      "bookingRouteHas401": true
+    }
+  }
+}

@@ -1,0 +1,19 @@
+Task 4 verification evidence
+
+- node test-suite/realtime/authority.test.js --case audience-open-chat-denied --out test-suite/results/realtime-audience-open-chat.json
+- node test-suite/realtime/authority.test.js --case audience-end-performance-denied --out test-suite/results/realtime-audience-end.json
+- node test-suite/realtime/authority.test.js --case forged-system-alert-rejected --out test-suite/results/realtime-forged-alert.json
+- node test-suite/realtime/authority.test.js --case owner-open-chat-allowed --out test-suite/results/realtime-owner-open-chat.json
+- node test-suite/realtime/authority.test.js --case owner-end-performance-allowed --out test-suite/results/realtime-owner-end.json
+- npm run build
+
+Artifacts:
+- test-suite/results/realtime-audience-open-chat.json
+- test-suite/results/realtime-audience-end.json
+- test-suite/results/realtime-forged-alert.json
+- test-suite/results/realtime-owner-open-chat.json
+- test-suite/results/realtime-owner-end.json
+
+Notes:
+- Realtime server now uses verified owner control tokens and trusted socket.data state.
+- Anonymous clients cannot gain privileged control by claimed role/capacity.

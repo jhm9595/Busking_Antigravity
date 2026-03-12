@@ -16,7 +16,8 @@ import {
     getUserPoints,
     usePointsForChat,
     togglePerformanceChat,
-    chargePoints
+    chargePoints,
+    createRealtimeOwnerControlToken
 } from '@/services/singer'
 import { Music, Clock, MessageCircle, X, Check, Plus, List, GripVertical, Search, MessageSquare, User as UserIcon, Trash2, LayoutDashboard, LogOut, Play, RotateCcw, MessageSquarePlus, Coins } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -60,6 +61,57 @@ function LivePerformanceContent() {
     const [isMobile, setIsMobile] = useState(false)
     const [userPoints, setUserPoints] = useState(0)
     const [isEnablingChat, setIsEnablingChat] = useState(false)
+    const [ownerControlToken, setOwnerControlToken] = useState<string | null>(null)
+    const ownerControlTokenRef = useRef<string | null>(null)
+
+    const updateOwnerControlToken = useCallback((nextToken: string | null) => {
+        ownerControlTokenRef.current = nextToken
+        setOwnerControlToken(nextToken)
+    }, [])
+
+    const requestOwnerControlToken = useCallback(async () => {
+        if (!performanceId) {
+            updateOwnerControlToken(null)
+            return null
+        }
+
+        const result = await createRealtimeOwnerControlToken(performanceId)
+        if (result && result.success && result.token) {
+            updateOwnerControlToken(result.token)
+            return result.token
+        }
+
+        updateOwnerControlToken(null)
+        return null
+    }, [performanceId, updateOwnerControlToken])
+
+    const emitOwnerControlEvent = useCallback(async (eventName: string, payload: Record<string, any> = {}) => {
+        if (!socketRef.current) {
+            return false
+        }
+
+        const resolvedPerformanceId = payload.performanceId || performanceId || performance?.id
+        if (!resolvedPerformanceId) {
+            return false
+        }
+
+        let token = ownerControlTokenRef.current
+        if (!token) {
+            token = await requestOwnerControlToken()
+        }
+
+        if (!token) {
+            return false
+        }
+
+        socketRef.current.emit(eventName, {
+            ...payload,
+            performanceId: resolvedPerformanceId,
+            controlToken: token
+        })
+
+        return true
+    }, [performanceId, performance?.id, requestOwnerControlToken])
 
     // Fetch user points
     useEffect(() => {
@@ -88,9 +140,9 @@ function LivePerformanceContent() {
             }
 
             if (success) {
-                // Authoritative signal to socket server to open chat and update Redis
-                if (socketRef.current) {
-                    socketRef.current.emit('open_chat', { performanceId: performance.id })
+                const wasEmitted = await emitOwnerControlEvent('open_chat', { performanceId: performance.id })
+                if (!wasEmitted) {
+                    alert('Failed to authorize chat open.')
                 }
                 if (usePoints) {
                     const newPoints = await getUserPoints(performance.singerId)
@@ -165,6 +217,15 @@ function LivePerformanceContent() {
     }, [performanceId, router, refreshData])
 
     useEffect(() => {
+        if (!performanceId) {
+            updateOwnerControlToken(null)
+            return
+        }
+
+        requestOwnerControlToken()
+    }, [performanceId, requestOwnerControlToken, updateOwnerControlToken])
+
+    useEffect(() => {
         let url = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
         
         // Fallback logic including the specific production chat server URL
@@ -184,10 +245,16 @@ function LivePerformanceContent() {
         if (!url || !performanceId) return
         if (!socketRef.current) {
             const s = io(url, { reconnectionAttempts: 5, reconnectionDelay: 3000 })
-            s.on('connect', () => {
+            s.on('connect', async () => {
                 setRealtimeStatus('connected')
                 setSocket(s)
-                s.emit('join_room', { performanceId, username: 'singer', userType: 'singer' })
+
+                const controlToken = ownerControlTokenRef.current || await requestOwnerControlToken()
+                s.emit('join_room', {
+                    performanceId,
+                    username: 'Singer',
+                    controlToken: controlToken || undefined
+                })
             })
             s.on('disconnect', () => {
                 setRealtimeStatus('error')
@@ -203,10 +270,25 @@ function LivePerformanceContent() {
                 const status = typeof data === 'string' ? data : data.status
                 setChatStatus(status)
             })
+            s.on('authorization_error', async () => {
+                await requestOwnerControlToken()
+            })
             socketRef.current = s
         }
         return () => { if (socketRef.current) { socketRef.current.disconnect(); socketRef.current = null; setSocket(null) } }
-    }, [performanceId, refreshRequests, refreshData])
+    }, [performanceId, refreshRequests, refreshData, requestOwnerControlToken])
+
+    useEffect(() => {
+        if (!performanceId || !ownerControlToken || !socketRef.current?.connected) {
+            return
+        }
+
+        socketRef.current.emit('join_room', {
+            performanceId,
+            username: 'Singer',
+            controlToken: ownerControlToken
+        })
+    }, [ownerControlToken, performanceId])
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -223,14 +305,17 @@ function LivePerformanceContent() {
                 if ((start - now) <= 10 * 60 * 1000 || status === 'live') setCanOpenChat(true)
                 if (end && !isAlertSent && socketRef.current && chatStatus === 'open') {
                     if ((end - now) <= 5 * 60 * 1000) {
-                        socketRef.current.emit('system_alert', { performanceId: performance.id, message: t('live.ending_soon') })
+                        void emitOwnerControlEvent('system_alert', {
+                            performanceId: performance.id,
+                            message: t('live.ending_soon')
+                        })
                         setIsAlertSent(true)
                     }
                 }
             }
         }, 1000)
         return () => clearInterval(timer)
-    }, [performance, isAlertSent, chatStatus, t])
+    }, [performance, isAlertSent, chatStatus, t, emitOwnerControlEvent])
 
     if (loading) return <div className="h-screen bg-black text-white flex items-center justify-center">{t('common.loading')}</div>
     if (fetchError || !performance) return <div className="h-screen bg-black text-white flex flex-col items-center justify-center p-4"><h1 className="text-xl font-bold text-red-500">Error</h1><p>{fetchError || 'Performance not found'}</p></div>
@@ -243,7 +328,7 @@ function LivePerformanceContent() {
             title: t('live.header.confirm_end'),
             message: t('live.header.confirm_end'),
             onConfirm: async () => {
-                if (socketRef.current) socketRef.current.emit('performance_ended', { performanceId })
+                await emitOwnerControlEvent('performance_ended', { performanceId })
                 await updatePerformanceStatus(performanceId!, 'completed')
                 router.push('/singer/dashboard')
             }
@@ -255,8 +340,8 @@ function LivePerformanceContent() {
         setProcessingRequestIds(p => new Set(p).add(id))
         try {
             const req = requests.find(r => r.id === id)
-            if (req && socketRef.current) {
-                socketRef.current.emit('system_alert', {
+            if (req) {
+                await emitOwnerControlEvent('system_alert', {
                     performanceId: performance.id,
                     message: t('live.requests.accepted_alert').replace('{title}', req.title).replace('{artist}', req.artist || '')
                 })
@@ -289,7 +374,7 @@ function LivePerformanceContent() {
             await new Promise(r => setTimeout(r, 100));
             
             // ONLY emit the socket event AFTER the DB is updated
-            if (socketRef.current) socketRef.current.emit('song_status_updated', { performanceId, songId: id, status: next })
+            await emitOwnerControlEvent('song_status_updated', { performanceId, songId: id, status: next })
             
             delete optimisticStatusRef.current[id]
             await refreshData()
@@ -313,7 +398,7 @@ function LivePerformanceContent() {
         const ns = performance.songs.filter((s: any) => s.id !== id)
         setPerformance({ ...performance, songs: ns })
         await updatePerformanceSetlist({ performanceId: performanceId!, singerId: performance.singerId, songIds: ns.map((s: any) => s.id) })
-        if (socketRef.current) socketRef.current.emit('song_status_updated', { performanceId })
+        await emitOwnerControlEvent('song_status_updated', { performanceId })
         await refreshData()
     }
 
@@ -325,7 +410,7 @@ function LivePerformanceContent() {
             if (added) setPerformance((p: any) => ({ ...p, songs: [...p.songs, { ...added, status: 'pending' }] }))
             const ids = [...performance.songs.map((s: any) => s.id), id]
             await updatePerformanceSetlist({ performanceId: performanceId!, singerId: performance.singerId, songIds: ids })
-            if (socketRef.current) socketRef.current.emit('song_status_updated', { performanceId })
+            await emitOwnerControlEvent('song_status_updated', { performanceId })
             await refreshData()
             setShowAddModal(false)
         } finally { setAddingSongId(null) }
@@ -333,7 +418,7 @@ function LivePerformanceContent() {
 
     const handleManualAddSong = async () => {
         if (!manualSongTitle.trim() || !performanceId) return
-        await createSongRequest({ performanceId, title: manualSongTitle, artist: manualSongArtist || 'Unknown', requesterName: 'Singer' })
+        await createSongRequest({ performanceId, title: manualSongTitle, artist: manualSongArtist || 'Unknown' })
         await refreshData()
         setActiveTab('requests')
         setShowAddModal(false)
@@ -527,12 +612,12 @@ function LivePerformanceContent() {
                                         <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6 border border-indigo-500/20"><MessageSquare className="w-10 h-10 text-indigo-500" /></div>
                                         <h3 className="text-2xl font-black mb-2 text-white italic tracking-tight">{t('chat.closed_title')}</h3>
                                         <p className="text-gray-500 text-sm mb-8 leading-relaxed max-w-[240px] italic">{t('live.chat_ready_desc')}</p>
-                                        <button disabled={!canOpenChat} onClick={() => socketRef.current?.emit('open_chat', { performanceId: performance.id })} className={`px-8 py-4 rounded-2xl font-bold text-white text-sm transition-all w-full max-w-[200px] ${canOpenChat ? 'bg-gradient-to-br from-indigo-500 to-indigo-700' : 'bg-white/5 text-gray-600 cursor-not-allowed'}`}>
+                                        <button disabled={!canOpenChat || isEnablingChat} onClick={() => handleOpenChat(false)} className={`px-8 py-4 rounded-2xl font-bold text-white text-sm transition-all w-full max-w-[200px] ${canOpenChat ? 'bg-gradient-to-br from-indigo-500 to-indigo-700' : 'bg-white/5 text-gray-600 cursor-not-allowed'}`}>
                                             {canOpenChat ? t('chat.open_button') : t('chat.not_ready')}
                                         </button>
                                     </div>
                                 )}
-                                <ChatBox performanceId={performanceId!} username="Singer" userType="singer" socket={socket} className="flex-1 !rounded-none !border-0" onViewingCountChange={setViewingCount} onChatStatusChange={setChatStatus} onAcceptRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleAcceptRequest(r.id) }} onRejectRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleRejectRequest(r.id) }} />
+                                <ChatBox performanceId={performanceId!} username="Singer" userType="singer" controlToken={ownerControlToken} socket={socket} className="flex-1 !rounded-none !border-0" onViewingCountChange={setViewingCount} onChatStatusChange={setChatStatus} onAcceptRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleAcceptRequest(r.id) }} onRejectRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleRejectRequest(r.id) }} />
                             </div>
                         )}
                     </div>
@@ -710,14 +795,8 @@ function LivePerformanceContent() {
                                     <h3 className="text-2xl font-black mb-2 text-white italic tracking-tight">{t('chat.closed_title')}</h3>
                                     <p className="text-gray-500 text-sm mb-8 leading-relaxed max-w-[240px] italic">{t('live.chat_ready_desc')}</p>
                                     <button
-                                        disabled={!canOpenChat}
-                                        onClick={() => {
-                                            if (socketRef.current?.connected) {
-                                                socketRef.current.emit('open_chat', { performanceId: performance.id })
-                                            } else {
-                                                setChatStatus('open')
-                                            }
-                                        }}
+                                        disabled={!canOpenChat || isEnablingChat}
+                                        onClick={() => handleOpenChat(false)}
                                         className={`px-8 py-4 rounded-2xl font-bold text-white text-sm transition-all w-full max-w-[200px] shadow-xl ${canOpenChat ? 'bg-gradient-to-br from-indigo-500 to-indigo-700 hover:from-indigo-400 hover:to-indigo-600 shadow-indigo-600/30' : 'bg-white/5 text-gray-600 cursor-not-allowed grayscale'}`}
                                     >
                                         {canOpenChat ? t('chat.open_button') : t('chat.not_ready')}
@@ -728,6 +807,7 @@ function LivePerformanceContent() {
                                 performanceId={performanceId!}
                                 username="Singer"
                                 userType="singer"
+                                controlToken={ownerControlToken}
                                 socket={socket}
                                 className="flex-1 !rounded-none !border-0"
                                 onViewingCountChange={setViewingCount}

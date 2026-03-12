@@ -1,0 +1,16 @@
+Task 1 verification evidence
+
+- node test-suite/security/foundation.test.js --case anonymous-read-allowed --out test-suite/results/security-foundation-anon-read.json
+- node test-suite/security/foundation.test.js --case anonymous-write-rejected --out test-suite/results/security-foundation-anon-write.json
+- node test-suite/security/foundation.test.js --case cross-owner-write-forbidden --out test-suite/results/security-foundation-cross-owner.json
+- node test-suite/lifecycle/foundation.test.js --case no-get-writes-contract --out test-suite/results/lifecycle-foundation.json
+
+Artifacts:
+- test-suite/results/security-foundation-anon-read.json
+- test-suite/results/security-foundation-anon-write.json
+- test-suite/results/security-foundation-cross-owner.json
+- test-suite/results/lifecycle-foundation.json
+
+Notes:
+- Shared auth/lifecycle contract helpers added under src/lib/.
+- Repo-wide lint remained pre-existing debt outside changed files.

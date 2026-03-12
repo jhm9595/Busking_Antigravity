@@ -1,96 +1,173 @@
-/**
- * Busking Antigravity API 테스터 🚀
- * 
- * 이 스크립트는 플랫폼의 주요 REST 엔드포인트를 자동으로 점검합니다.
- * 백엔드 로직과 프론트엔드 흐름을 시뮬레이션하여 한 번에 테스트할 수 있도록 설계되었습니다.
- */
+const fs = require('node:fs')
+const path = require('node:path')
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'http://localhost:3000/api'
+const RESULTS_PATH = path.resolve(process.cwd(), 'test-suite/results/api-smoke.json')
 
-async function runTests() {
-    console.log('--- 🎸 Busking Antigravity API 테스트 시작 ---');
-
-    try {
-        const tests = [
-            { name: '공개 공연 정보 조회', run: testPublicPerformances },
-            { name: '가수 프로필 접근 권한', run: testSingerProfile },
-            { name: '공연 목록 필터링 (라이브/전체)', run: testPerformanceFilters },
-            { name: '신청곡 생성 프로세스', run: testSongRequestFlow }
-        ];
-
-        for (const test of tests) {
-            console.log(`[시작] ${test.name}...`);
-            await test.run();
-            console.log(`[성공] ${test.name}`);
-        }
-
-        console.log('--- ✨ 모든 API 테스트가 성공적으로 완료되었습니다! ---');
-    } catch (error) {
-        console.error('--- ❌ 테스트 실패! ---');
-        console.error(error.message);
-        process.exit(1);
+function ensure(condition, message, details) {
+  if (!condition) {
+    const error = new Error(message)
+    if (details !== undefined) {
+      error.details = details
     }
+    throw error
+  }
+}
+
+async function parseJsonResponse(response, endpointName) {
+  const text = await response.text()
+
+  try {
+    return text ? JSON.parse(text) : null
+  } catch (error) {
+    throw new Error(`Invalid JSON from ${endpointName}: ${error.message}`)
+  }
+}
+
+function writeResult(payload) {
+  fs.mkdirSync(path.dirname(RESULTS_PATH), { recursive: true })
+  fs.writeFileSync(RESULTS_PATH, `${JSON.stringify(payload, null, 2)}\n`, 'utf8')
+}
+
+async function fetchPerformances(filter) {
+  const suffix = filter ? `?filter=${encodeURIComponent(filter)}` : ''
+  const response = await fetch(`${API_BASE}/performances${suffix}`)
+  const body = await parseJsonResponse(response, `/performances${suffix}`)
+  return { response, body }
 }
 
 async function testPublicPerformances() {
-    const res = await fetch(`${API_BASE}/performances`);
-    if (!res.ok) throw new Error('공개 공연 정보 조회에 실패했습니다.');
-    const data = await res.json();
-    console.log(`  - 현재 ${data.items?.length || 0}개의 활성 또는 예정된 공연이 있습니다.`);
-}
+  const { response, body } = await fetchPerformances()
+  ensure(response.ok, 'GET /api/performances failed', { status: response.status, body })
+  ensure(Array.isArray(body), 'GET /api/performances must return an array payload', { bodyType: typeof body })
 
-async function testSingerProfile() {
-    const res = await fetch(`${API_BASE}/performances`);
-    const perfs = await res.json();
-    const items = perfs.items || [];
-    if (items.length > 0) {
-        const singerId = items[0].singerId;
-        const singerRes = await fetch(`${API_BASE}/singers/${singerId}`);
-        if (!singerRes.ok) throw new Error(`가수 프로필 조회 실패 (ID: ${singerId})`);
-        const data = await singerRes.json();
-        console.log(`  - 가수 프로필 조회 완료: ${data.stageName}`);
-    } else {
-        console.log('  - 활성화된 공연이 없어 가수 프로필 테스트를 건너뜁니다.');
-    }
+  const invalidShape = body.find((item) => !item || typeof item !== 'object' || typeof item.id !== 'string' || typeof item.singerId !== 'string')
+  ensure(!invalidShape, 'GET /api/performances returned an invalid performance shape', { invalidShape })
+
+  const invalidStatus = body.find((item) => item.status === 'completed')
+  ensure(!invalidStatus, 'GET /api/performances should not include completed performances', { invalidStatus })
+
+  return {
+    count: body.length,
+    samplePerformanceId: body[0]?.id || null,
+    sampleSingerId: body[0]?.singerId || null
+  }
 }
 
 async function testPerformanceFilters() {
-    const filters = ['live', 'all'];
-    for (const filter of filters) {
-        const res = await fetch(`${API_BASE}/performances?filter=${filter}`);
-        if (!res.ok) throw new Error(`필터 [${filter}] 조회에 실패했습니다.`);
-        const data = await res.json();
-        console.log(`  - 필터 [${filter}] 결과: ${data.items?.length || 0} 건`);
-    }
+  const checks = []
+
+  for (const filter of ['live', 'all']) {
+    const { response, body } = await fetchPerformances(filter)
+    ensure(response.ok, `GET /api/performances?filter=${filter} failed`, { status: response.status, body })
+    ensure(Array.isArray(body), `Filter '${filter}' must return an array`, { bodyType: typeof body })
+
+    checks.push({ filter, count: body.length })
+  }
+
+  return checks
 }
 
-async function testSongRequestFlow() {
-    const res = await fetch(`${API_BASE}/performances`);
-    const perfs = await res.json();
-    const items = perfs.items || [];
-    if (items.length === 0) {
-        console.log('  - 활성화된 공연이 없어 신청곡 테스트를 건너뜁니다.');
-        return;
+async function testSingerProfile() {
+  const { body: performances } = await fetchPerformances()
+  ensure(Array.isArray(performances), 'GET /api/performances must return an array for singer profile lookup')
+
+  if (!performances.length) {
+    return {
+      skipped: true,
+      reason: 'no visible performances'
     }
+  }
 
-    const performanceId = items[0].id;
-    console.log(`  - 공연 ID [${performanceId}]로 신청곡 테스트를 진행 중...`);
+  const singerId = performances[0].singerId
+  const response = await fetch(`${API_BASE}/singers/${encodeURIComponent(singerId)}`)
+  const body = await parseJsonResponse(response, `/singers/${singerId}`)
 
-    const requestBody = {
-        performanceId,
-        title: '테스트용 노래 ' + Date.now(),
-        artist: '테스트 가수',
-        requesterName: '자동화 테스터'
-    };
+  ensure(response.ok, `GET /api/singers/${singerId} failed`, { status: response.status, body })
+  ensure(body && body.id === singerId, 'Singer response ID mismatch', { expected: singerId, received: body && body.id })
+  ensure(Array.isArray(body.performances), 'Singer response must include performances array', { body })
 
-    const postRes = await fetch(`${API_BASE}/song-requests`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-    });
-
-    if (!postRes.ok) throw new Error('POST /api/song-requests 요청이 실패했습니다.');
-    console.log('  - 신청곡이 성공적으로 생성되었습니다.');
+  return {
+    singerId,
+    stageName: body.stageName || null,
+    performanceCount: body.performances.length
+  }
 }
 
-runTests();
+async function testAnonymousSongRequestIsRejected() {
+  const { body: performances } = await fetchPerformances()
+  ensure(Array.isArray(performances), 'GET /api/performances must return an array before POST /song-requests test')
+
+  if (!performances.length) {
+    return {
+      skipped: true,
+      reason: 'no visible performances'
+    }
+  }
+
+  const performanceId = performances[0].id
+  const response = await fetch(`${API_BASE}/song-requests`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      performanceId,
+      title: `api-smoke-${Date.now()}`,
+      artist: 'Smoke Artist'
+    })
+  })
+
+  const body = await parseJsonResponse(response, '/song-requests')
+  ensure(response.status === 401, 'Anonymous POST /api/song-requests must return 401', { status: response.status, body })
+
+  return {
+    performanceId,
+    status: response.status,
+    error: body && body.error ? body.error : null
+  }
+}
+
+async function runTests() {
+  const startedAt = new Date().toISOString()
+  const suite = {
+    suite: 'api-smoke',
+    pass: false,
+    startedAt,
+    finishedAt: null,
+    checks: {}
+  }
+
+  try {
+    console.log('--- Busking Antigravity API smoke start ---')
+
+    suite.checks.publicPerformances = await testPublicPerformances()
+    console.log(`[pass] GET /api/performances returns array contract (${suite.checks.publicPerformances.count} rows)`)
+
+    suite.checks.performanceFilters = await testPerformanceFilters()
+    console.log('[pass] GET /api/performances filter contract is valid')
+
+    suite.checks.singerProfile = await testSingerProfile()
+    console.log('[pass] GET /api/singers/:id returns current response shape')
+
+    suite.checks.anonymousSongRequest = await testAnonymousSongRequestIsRejected()
+    console.log('[pass] Anonymous POST /api/song-requests is blocked with 401')
+
+    suite.pass = true
+    suite.finishedAt = new Date().toISOString()
+    writeResult(suite)
+    console.log(`API smoke result written to ${path.relative(process.cwd(), RESULTS_PATH)}`)
+    console.log('--- API smoke completed ---')
+  } catch (error) {
+    suite.pass = false
+    suite.finishedAt = new Date().toISOString()
+    suite.error = {
+      message: error.message,
+      details: error.details || null
+    }
+    writeResult(suite)
+    console.error('--- API smoke failed ---')
+    console.error(error.message)
+    process.exit(1)
+  }
+}
+
+runTests()
