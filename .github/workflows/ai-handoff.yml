@@ -215,17 +215,8 @@ jobs:
           )
           PY
 
-          REPORT_DELIMITER=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 20)
-          {
-            echo "report_path=tmp/ai-handoff/report.md"
-            echo "report_body<<$REPORT_DELIMITER"
-            cat tmp/ai-handoff/report.md
-            echo "$REPORT_DELIMITER"
-            echo "discord_message_path=tmp/ai-handoff/discord_message.txt"
-            echo "discord_message<<$REPORT_DELIMITER"
-            cat tmp/ai-handoff/discord_message.txt
-            echo "$REPORT_DELIMITER"
-          } >> "$GITHUB_OUTPUT"
+          echo "report_path=tmp/ai-handoff/report.md" >> "$GITHUB_OUTPUT"
+          echo "discord_message_path=tmp/ai-handoff/discord_message.txt" >> "$GITHUB_OUTPUT"
 
       - name: Upload handoff artifact
         uses: actions/upload-artifact@v4
@@ -242,8 +233,10 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const fs = require('fs');
+            const reportBody = fs.readFileSync(process.env.REPORT_PATH, 'utf8');
             const marker = '<!-- ai-handoff-report -->';
-            const body = `${marker}\n${process.env.REPORT_BODY}`;
+            const body = `${marker}\n${reportBody}`;
             const { owner, repo } = context.repo;
             const issue_number = context.payload.pull_request.number;
 
@@ -274,22 +267,25 @@ jobs:
               });
             }
         env:
-          REPORT_BODY: ${{ steps.report.outputs.report_body }}
+          REPORT_PATH: ${{ steps.report.outputs.report_path }}
 
       - name: Send optional Discord notification
         if: env.DISCORD_WEBHOOK_URL != ''
         shell: bash
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          DISCORD_MESSAGE: ${{ steps.report.outputs.discord_message }}
+          DISCORD_MESSAGE_PATH: ${{ steps.report.outputs.discord_message_path }}
         run: |
           python - <<'PY'
           import json
           import os
           import urllib.request
 
+          with open(os.environ["DISCORD_MESSAGE_PATH"], "r", encoding="utf-8") as f:
+              message = f.read()
+
           payload = {
-              "content": os.environ["DISCORD_MESSAGE"]
+              "content": message
           }
 
           req = urllib.request.Request(
