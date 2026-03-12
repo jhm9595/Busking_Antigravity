@@ -215,15 +215,16 @@ jobs:
           )
           PY
 
+          REPORT_DELIMITER=$(dd if=/dev/urandom bs=15 count=1 2>/dev/null | base64)
           {
             echo "report_path=tmp/ai-handoff/report.md"
-            echo "report_body<<EOF"
+            echo "report_body<<$REPORT_DELIMITER"
             cat tmp/ai-handoff/report.md
-            echo "EOF"
+            echo "$REPORT_DELIMITER"
             echo "discord_message_path=tmp/ai-handoff/discord_message.txt"
-            echo "discord_message<<EOF"
+            echo "discord_message<<$REPORT_DELIMITER"
             cat tmp/ai-handoff/discord_message.txt
-            echo "EOF"
+            echo "$REPORT_DELIMITER"
           } >> "$GITHUB_OUTPUT"
 
       - name: Upload handoff artifact
