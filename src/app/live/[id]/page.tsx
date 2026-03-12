@@ -54,9 +54,11 @@ export default function AudienceLivePage() {
                     const s = await getSinger(p.singerId)
                     setSinger(s)
                     
-                    let fanId = user?.id || localStorage.getItem('busking_fan_id')
-                    if (fanId) {
-                        getUserPoints(fanId).then(setUserPoints)
+                    if (typeof window !== 'undefined') {
+                        let fanId = user?.id || localStorage.getItem('busking_fan_id')
+                        if (fanId) {
+                            getUserPoints(fanId).then(setUserPoints)
+                        }
                     }
 
                     if (user?.id) {
@@ -103,7 +105,6 @@ export default function AudienceLivePage() {
         socket.on('connect_error', () => setRealtimeStatus('error'))
         
         socket.on('song_status_updated', () => {
-            router.refresh()
             refreshData()
         })
 
@@ -126,7 +127,7 @@ export default function AudienceLivePage() {
         })
 
         return () => { socket.disconnect() }
-    }, [id, refreshData, router])
+    }, [id, refreshData])
 
     useEffect(() => {
         if (!showRedirectionModal) return
@@ -155,13 +156,13 @@ export default function AudienceLivePage() {
             refreshData()
         } else {
             const error = (res as any).error
-            alert(error === 'INSUFFICIENT_POINTS' ? t('common.insufficient_points') : 'Sponsorship failed.')
+            alert(error === 'INSUFFICIENT_POINTS' ? t('common.insufficient_points') : t('common.sponsorship_failed'))
         }
     }
 
     const handleSongRequest = async (title: string, artist: string) => {
         try {
-            const finalName = username || user?.fullName || user?.username || user?.id || 'Anonymous';
+            const finalName = username || user?.fullName || user?.username || user?.id || t('common.anonymous');
             const res = await fetch('/api/song-requests', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -213,12 +214,12 @@ export default function AudienceLivePage() {
                     </Link>
                     <Link href={`/singer/${singer?.id}`} className="flex items-center gap-3 group">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px] shadow-lg shadow-indigo-600/20 group-hover:scale-105 transition-transform">
-                            <div className="w-full h-full rounded-full bg-gray-900 flex items-center justify-center font-black overflow-hidden border border-black/20 text-xs">
-                                {singer?.profile?.avatarUrl ? <img src={singer.profile.avatarUrl} className="w-full h-full object-cover" /> : singer?.stageName?.[0]}
+                            <div className="w-full h-full rounded-full bg-gray-900 flex items-center justify-center font-black overflow-hidden border border-black/20 text-xs text-indigo-400 uppercase italic">
+                                {singer?.profile?.avatarUrl ? <img src={singer.profile.avatarUrl} className="w-full h-full object-cover" /> : (singer?.stageName?.[0] || t('common.singer_fallback')[0])}
                             </div>
                         </div>
                         <div className="flex flex-col">
-                            <span className="font-black text-sm text-white group-hover:text-indigo-400 transition-colors leading-tight uppercase italic">{singer?.stageName}</span>
+                            <span className="font-black text-sm text-white group-hover:text-indigo-400 transition-colors leading-tight uppercase italic">{singer?.stageName || t('common.singer_fallback')}</span>
                             <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest italic">{realtimeStatus === 'connected' ? t('live.status_live') : t('live.status_syncing')}</span>
                         </div>
                     </Link>
@@ -265,22 +266,22 @@ export default function AudienceLivePage() {
                                 <div className="flex items-center gap-4 text-sm font-bold text-gray-400">
                                     <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20"><Calendar className="w-5 h-5 text-indigo-400" /></div>
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] text-gray-600 uppercase tracking-widest">Date</span>
-                                        <span className="text-white">{new Date(performance.startTime).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+                                        <span className="text-[10px] text-gray-600 uppercase tracking-widest">{t('live.label_date')}</span>
+                                        <span className="text-white" suppressHydrationWarning>{new Date(performance.startTime).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4 text-sm font-bold text-gray-400">
                                     <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20"><Clock className="w-5 h-5 text-emerald-400" /></div>
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] text-gray-600 uppercase tracking-widest">Time</span>
-                                        <span className="text-white font-mono">{new Date(performance.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {performance.endTime ? new Date(performance.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '...'}</span>
+                                        <span className="text-[10px] text-gray-600 uppercase tracking-widest">{t('live.label_time')}</span>
+                                        <span className="text-white font-mono" suppressHydrationWarning>{new Date(performance.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {performance.endTime ? new Date(performance.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '...'}</span>
                                     </div>
                                 </div>
                                 {performance.locationText && (
                                     <div className="flex items-center gap-4 text-sm font-bold text-gray-400">
                                         <div className="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20"><MapPin className="w-5 h-5 text-amber-500" /></div>
                                         <div className="flex flex-col min-w-0">
-                                            <span className="text-[10px] text-gray-600 uppercase tracking-widest">Venue</span>
+                                            <span className="text-[10px] text-gray-600 uppercase tracking-widest">{t('live.label_venue')}</span>
                                             <span className="text-white truncate italic">{performance.locationText}</span>
                                         </div>
                                     </div>
@@ -304,7 +305,7 @@ export default function AudienceLivePage() {
                                                         <p className="font-black text-base flex items-center gap-3 truncate text-white uppercase italic tracking-tight group-hover:text-indigo-400 transition-colors">{s.title}{s.status === 'completed' && <Check className="w-4 h-4 text-emerald-500" />}</p>
                                                         <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mt-0.5">{s.artist}</p>
                                                     </div>
-                                                    {isLive && <span className="text-[8px] bg-red-600 text-white px-2.5 py-1 rounded-full font-black animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter">NOW</span>}
+                                                    {isLive && <span className="text-[8px] bg-red-600 text-white px-2.5 py-1 rounded-full font-black animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter">{t('live.badge_now')}</span>}
                                                 </div>
                                             </div>
                                         )
@@ -371,10 +372,10 @@ export default function AudienceLivePage() {
             )}
 
             <SongRequestModal isOpen={showRequestModal} onClose={() => setShowRequestModal(false)} onSubmit={handleSongRequest} />
-            <BookingRequestModal isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} onSubmit={handleBookingRequest} singerName={singer?.stageName || 'Singer'} />
+            <BookingRequestModal isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} onSubmit={handleBookingRequest} singerName={singer?.stageName || t('common.singer_fallback')} />
             { (user?.id || (typeof window !== 'undefined' && localStorage.getItem('busking_fan_id'))) && (
                 <PointChargeModal
-                    userId={user?.id || localStorage.getItem('busking_fan_id')!}
+                    userId={user?.id || (typeof window !== 'undefined' ? localStorage.getItem('busking_fan_id')! : '')}
                     isOpen={showChargeModal}
                     onClose={() => setShowChargeModal(false)}
                     onSuccess={(newPoints) => setUserPoints(newPoints)}

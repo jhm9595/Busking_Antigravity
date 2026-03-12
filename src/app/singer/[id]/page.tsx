@@ -16,7 +16,7 @@ import { getEffectiveStatus, formatLocalDate } from '@/utils/performance'
 
 // Dynamically import MapPicker
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
-    loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-800 text-gray-500 italic">Loading Map...</div>,
+    loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-800 text-gray-500 italic text-sm">Loading Map...</div>,
     ssr: false
 })
 
@@ -51,22 +51,24 @@ export default function SingerDetailPage() {
 
             try {
                 const res = await fetch(`/api/singers/${singerId}`)
-                if (!res.ok) throw new Error('Failed to fetch singer')
+                if (!res.ok) throw new Error(t('common.error_fetch_singer'))
                 const data = await res.json()
                 setSinger(data)
 
-                let fanId = user?.id
-                if (!fanId) {
-                    const storedFanId = localStorage.getItem('busking_fan_id') || `fan_${Math.random().toString(36).substr(2, 9)}`
-                    localStorage.setItem('busking_fan_id', storedFanId)
-                    fanId = storedFanId
-                }
+                if (typeof window !== 'undefined') {
+                    let fanId = user?.id
+                    if (!fanId) {
+                        const storedFanId = localStorage.getItem('busking_fan_id') || `fan_${Math.random().toString(36).substr(2, 9)}`
+                        localStorage.setItem('busking_fan_id', storedFanId)
+                        fanId = storedFanId
+                    }
 
-                const followRes = await fetch(`/api/singers/${singerId}/follow?fanId=${fanId}`)
-                if (followRes.ok) {
-                    const followData = await followRes.json()
-                    setIsFollowed(followData.isFollowed)
-                    setSinger(prev => prev ? { ...prev, fanCount: followData.fanCount } : null)
+                    const followRes = await fetch(`/api/singers/${singerId}/follow?fanId=${fanId}`)
+                    if (followRes.ok) {
+                        const followData = await followRes.json()
+                        setIsFollowed(followData.isFollowed)
+                        setSinger(prev => prev ? { ...prev, fanCount: followData.fanCount } : null)
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching data:', error)
@@ -75,7 +77,7 @@ export default function SingerDetailPage() {
             }
         }
         fetchData()
-    }, [params.id, user, isLoaded])
+    }, [params.id, user, isLoaded, t])
 
     const handleFollow = async () => {
         if (!singer) return
@@ -84,7 +86,7 @@ export default function SingerDetailPage() {
         setIsFollowed(!isFollowed)
         setSinger({ ...singer, fanCount: isFollowed ? singer.fanCount - 1 : singer.fanCount + 1 })
 
-        let fanId = user?.id || localStorage.getItem('busking_fan_id')
+        let fanId = user?.id || (typeof window !== 'undefined' ? localStorage.getItem('busking_fan_id') : null)
         if (!fanId) return
 
         try {
@@ -93,7 +95,7 @@ export default function SingerDetailPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ fanId })
             })
-            if (!res.ok) throw new Error('Failed to follow')
+            if (!res.ok) throw new Error(t('common.error_follow'))
             const data = await res.json()
             setIsFollowed(data.isFollowed)
             setSinger(prev => prev ? { ...prev, fanCount: data.fanCount } : null)
@@ -157,7 +159,7 @@ export default function SingerDetailPage() {
     }
 
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0f1117] text-white italic">{t('common.loading')}</div>
-    if (!singer) return <div className="min-h-screen flex items-center justify-center bg-[#0f1117] text-white font-black italic">ARTIST NOT FOUND</div>
+    if (!singer) return <div className="min-h-screen flex items-center justify-center bg-[#0f1117] text-white font-black italic uppercase tracking-widest">{t('common.not_found_artist')}</div>
 
     return (
         <div className="min-h-screen bg-[#0f1117] text-white pb-24 font-display selection:bg-indigo-500/30">
@@ -185,22 +187,22 @@ export default function SingerDetailPage() {
                                 <img src={singer.profile.avatarUrl} className="w-full h-full object-cover" alt={singer.stageName} />
                             ) : (
                                 <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-4xl font-black text-white italic">
-                                    {singer.stageName[0]}
+                                    {singer.stageName?.[0] || t('common.singer_fallback')[0]}
                                 </div>
                             )}
                         </div>
                         {singer.performances.some((p: any) => getEffectiveStatus(p) === 'live') && (
                             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter italic">
-                                LIVE NOW
+                                {t('live.status_live')}
                             </div>
                         )}
                     </div>
                     
-                    <h1 className="text-3xl font-black italic tracking-tight mb-1 uppercase">{singer.stageName}</h1>
+                    <h1 className="text-3xl font-black italic tracking-tight mb-1 uppercase">{singer.stageName || t('common.singer_fallback')}</h1>
                     <div className="flex items-center gap-4 text-xs font-bold text-gray-400 mb-4">
                         <span className="flex items-center gap-1.5 bg-white/5 px-3 py-1 rounded-full border border-white/5 italic">
                             <Heart className={`w-3.5 h-3.5 ${isFollowed ? 'text-red-500 fill-current animate-bounce' : 'text-gray-500'}`} />
-                            {singer.fanCount} Fans
+                            {singer.fanCount} {t('common.fans')}
                         </span>
                     </div>
 
@@ -234,7 +236,7 @@ export default function SingerDetailPage() {
                     <div className="bg-white/5 rounded-3xl p-5 border border-white/5 shadow-2xl relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-600/5 rounded-full blur-3xl -mr-12 -mt-12 group-hover:bg-indigo-600/10 transition-all" />
                         <div className="flex items-center gap-2 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-3 italic">
-                            <User className="w-3 h-3" /> About Artist
+                            <User className="w-3 h-3" /> {t('common.about_artist')}
                         </div>
                         <p className="text-sm text-gray-300 leading-relaxed italic font-medium whitespace-pre-line relative z-10">
                             {singer.bio}
@@ -244,7 +246,7 @@ export default function SingerDetailPage() {
 
                 {/* 3. PRIMARY ACTION BUTTONS */}
                 <div className="flex gap-3 sticky top-4 z-30 pointer-events-auto">
-                    {user ? (
+                    {isLoaded && user ? (
                         <button
                             onClick={handleFollow}
                             className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.1em] transition-all active:scale-95 shadow-2xl italic border ${isFollowed
@@ -279,7 +281,7 @@ export default function SingerDetailPage() {
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.8)]"></span>
                                 </span>
-                                {t('performance.status.live')}
+                                {t('live.status_live')}
                             </h2>
                         </div>
                         {singer.performances
@@ -378,7 +380,7 @@ export default function SingerDetailPage() {
                 isOpen={isBookingModalOpen}
                 onClose={() => setIsBookingModalOpen(false)}
                 onSubmit={handleBookingSubmit}
-                singerName={singer.stageName}
+                singerName={singer.stageName || t('common.singer_fallback')}
             />
         </div>
     )

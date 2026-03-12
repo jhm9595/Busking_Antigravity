@@ -232,10 +232,15 @@ function LivePerformanceContent() {
         return () => clearInterval(timer)
     }, [performance, isAlertSent, chatStatus, t])
 
-    if (loading) return <div className="h-screen bg-black text-white flex items-center justify-center">{t('common.loading')}</div>
-    if (fetchError || !performance) return <div className="h-screen bg-black text-white flex flex-col items-center justify-center p-4"><h1 className="text-xl font-bold text-red-500">Error</h1><p>{fetchError || 'Performance not found'}</p></div>
+    if (loading) return <div className="h-screen bg-black text-white flex items-center justify-center italic">{t('common.loading')}</div>
+    if (fetchError || !performance) return <div className="h-screen bg-black text-white flex flex-col items-center justify-center p-4"><h1 className="text-xl font-bold text-red-500">{t('common.error')}</h1><p>{fetchError || t('live.not_found')}</p></div>
 
-    const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
+    const formatTime = (s: number) => {
+        const hours = Math.floor(s / 3600);
+        const minutes = Math.floor((s % 3600) / 60);
+        const seconds = s % 60;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
 
     const handleEndPerformance = () => {
         setConfirmModal({
@@ -333,7 +338,7 @@ function LivePerformanceContent() {
 
     const handleManualAddSong = async () => {
         if (!manualSongTitle.trim() || !performanceId) return
-        await createSongRequest({ performanceId, title: manualSongTitle, artist: manualSongArtist || 'Unknown', requesterName: 'Singer' })
+        await createSongRequest({ performanceId, title: manualSongTitle, artist: manualSongArtist || t('common.anonymous'), requesterName: t('common.singer_fallback') })
         await refreshData()
         setActiveTab('requests')
         setShowAddModal(false)
@@ -349,12 +354,12 @@ function LivePerformanceContent() {
                     <button
                         onClick={() => router.push('/singer/dashboard')}
                         className="p-2 hover:bg-white/10 rounded-xl transition-all hover:scale-105 active:scale-95 bg-white/5 border border-white/10"
-                        title="Dashboard"
+                        title={t('home.dashboard_button')}
                     >
                         <LayoutDashboard className="w-5 h-5 text-indigo-400" />
                     </button>
                     <div className="min-w-0">
-                        <h1 className="text-lg md:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 truncate tracking-tight">{performance.title}</h1>
+                        <h1 className="text-lg md:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 truncate tracking-tight uppercase italic">{performance.title}</h1>
                         <div className="flex items-center gap-2 text-[10px] md:text-xs">
                             <span className={`inline-flex items-center px-2 py-0.5 rounded-full border ${realtimeStatus === 'connected' ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
                                 <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${realtimeStatus === 'connected' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-red-500 animate-pulse'}`}></span>
@@ -807,8 +812,9 @@ function DeleteSongButton({ songId, onRemove }: { songId: string, onRemove: (id:
 }
 
 export default function LivePerformancePage() {
+    const { t } = useLanguage()
     return (
-        <Suspense fallback={<div className="h-screen bg-black text-white flex items-center justify-center">Loading...</div>}>
+        <Suspense fallback={<div className="h-screen bg-black text-white flex items-center justify-center italic">{t('common.loading')}</div>}>
             <LivePerformanceContent />
         </Suspense>
     )

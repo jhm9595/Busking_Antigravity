@@ -135,7 +135,7 @@ io.on('connection', (socket) => {
 
         await broadcastAndStore(performanceId, {
             performanceId,
-            author: 'System',
+            author: username || 'Fan',
             message: `${username}님이 ${amount} 포인트를 후원하셨습니다! 💖`,
             timestamp: new Date().toISOString(),
             type: 'donation',
