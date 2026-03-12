@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import Script from "next/script";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// Replaced external Google fonts with system fonts for build stability
+const systemSans = "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+const systemMono = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
 
 export const metadata: Metadata = {
   title: "BuskerKing",
@@ -19,7 +13,6 @@ export const metadata: Metadata = {
 };
 
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import GlobalHomeButton from "@/components/common/GlobalHomeButton";
 
 export default function RootLayout({
   children,
@@ -31,10 +24,21 @@ export default function RootLayout({
       <html lang="en">
         <body
           suppressHydrationWarning
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className="antialiased"
+          style={{ 
+            fontFamily: systemSans,
+            // @ts-ignore
+            '--font-geist-sans': systemSans,
+            '--font-geist-mono': systemMono
+          } as React.CSSProperties}
         >
+          {process.env.NODE_ENV === "development" ? (
+            <Script
+              src="https://mcp.figma.com/mcp/html-to-design/capture.js"
+              strategy="afterInteractive"
+            />
+          ) : null}
           <LanguageProvider>
-            <GlobalHomeButton />
             {children}
           </LanguageProvider>
         </body>

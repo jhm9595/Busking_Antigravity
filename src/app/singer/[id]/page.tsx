@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { Share2, Heart, Music, Mail, ExternalLink, User, MapPin, Calendar, MessageCircle, Play } from 'lucide-react'
+import { Share2, Heart, Music, Mail, ExternalLink, User, MapPin, Calendar, MessageCircle, Play, Home, Clock } from 'lucide-react'
 import { FaFacebook, FaYoutube, FaInstagram, FaSoundcloud, FaTiktok } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher'
@@ -12,11 +12,11 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { useUser } from '@clerk/nextjs'
 import BookingRequestModal from '@/components/audience/BookingRequestModal'
 import { getPerformanceById, getSinger, updatePerformanceStatus } from '@/services/singer'
-import { getEffectiveStatus, formatLocalDate } from '@/utils/performance'
+import { getEffectiveStatus, formatLocalDate, formatLocalTime } from '@/utils/performance'
 
 // Dynamically import MapPicker
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
-    loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-800 text-gray-500 italic">Loading Map...</div>,
+    loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-800 text-gray-500 italic text-sm">Loading Map...</div>,
     ssr: false
 })
 
@@ -51,22 +51,31 @@ export default function SingerDetailPage() {
 
             try {
                 const res = await fetch(`/api/singers/${singerId}`)
-                if (!res.ok) throw new Error('Failed to fetch singer')
+                if (!res.ok) throw new Error(t('common.error_fetch_singer'))
                 const data = await res.json()
                 setSinger(data)
 
-                let fanId = user?.id
-                if (!fanId) {
-                    const storedFanId = localStorage.getItem('busking_fan_id') || `fan_${Math.random().toString(36).substr(2, 9)}`
-                    localStorage.setItem('busking_fan_id', storedFanId)
-                    fanId = storedFanId
+                // Auto-redirect to live if a performance is currently live
+                const activeLive = data.performances?.find((p: any) => getEffectiveStatus(p) === 'live')
+                if (activeLive) {
+                    router.push(`/live/${activeLive.id}`)
+                    return
                 }
 
-                const followRes = await fetch(`/api/singers/${singerId}/follow?fanId=${fanId}`)
-                if (followRes.ok) {
-                    const followData = await followRes.json()
-                    setIsFollowed(followData.isFollowed)
-                    setSinger(prev => prev ? { ...prev, fanCount: followData.fanCount } : null)
+                if (typeof window !== 'undefined') {
+                    let fanId = user?.id
+                    if (!fanId) {
+                        const storedFanId = localStorage.getItem('busking_fan_id') || `fan_${Math.random().toString(36).substr(2, 9)}`
+                        localStorage.setItem('busking_fan_id', storedFanId)
+                        fanId = storedFanId
+                    }
+
+                    const followRes = await fetch(`/api/singers/${singerId}/follow?fanId=${fanId}`)
+                    if (followRes.ok) {
+                        const followData = await followRes.json()
+                        setIsFollowed(followData.isFollowed)
+                        setSinger(prev => prev ? { ...prev, fanCount: followData.fanCount } : null)
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching data:', error)
@@ -75,7 +84,7 @@ export default function SingerDetailPage() {
             }
         }
         fetchData()
-    }, [params.id, user, isLoaded])
+    }, [params.id, user, isLoaded, t])
 
     const handleFollow = async () => {
         if (!singer) return
@@ -84,7 +93,7 @@ export default function SingerDetailPage() {
         setIsFollowed(!isFollowed)
         setSinger({ ...singer, fanCount: isFollowed ? singer.fanCount - 1 : singer.fanCount + 1 })
 
-        let fanId = user?.id || localStorage.getItem('busking_fan_id')
+        let fanId = user?.id || (typeof window !== 'undefined' ? localStorage.getItem('busking_fan_id') : null)
         if (!fanId) return
 
         try {
@@ -93,7 +102,7 @@ export default function SingerDetailPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ fanId })
             })
-            if (!res.ok) throw new Error('Failed to follow')
+            if (!res.ok) throw new Error(t('common.error_follow'))
             const data = await res.json()
             setIsFollowed(data.isFollowed)
             setSinger(prev => prev ? { ...prev, fanCount: data.fanCount } : null)
@@ -157,7 +166,7 @@ export default function SingerDetailPage() {
     }
 
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0f1117] text-white italic">{t('common.loading')}</div>
-    if (!singer) return <div className="min-h-screen flex items-center justify-center bg-[#0f1117] text-white font-black italic">ARTIST NOT FOUND</div>
+    if (!singer) return <div className="min-h-screen flex items-center justify-center bg-[#0f1117] text-white font-black italic uppercase tracking-widest">{t('common.not_found_artist')}</div>
 
     return (
         <div className="min-h-screen bg-[#0f1117] text-white pb-24 font-display selection:bg-indigo-500/30">
@@ -174,6 +183,12 @@ export default function SingerDetailPage() {
                     </div>
                 </div>
 
+                <div className="absolute top-4 left-4 z-20">
+                    <Link href="/" className="p-2.5 rounded-xl bg-white/10 border border-white/10 text-white hover:bg-white/20 transition-all active:scale-95 shadow-lg backdrop-blur-md" title={t('common.home_button')}>
+                        <Home className="w-5 h-5" />
+                    </Link>
+                </div>
+
                 <div className="absolute top-4 right-4 z-20">
                     <LanguageSwitcher />
                 </div>
@@ -185,22 +200,22 @@ export default function SingerDetailPage() {
                                 <img src={singer.profile.avatarUrl} className="w-full h-full object-cover" alt={singer.stageName} />
                             ) : (
                                 <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-4xl font-black text-white italic">
-                                    {singer.stageName[0]}
+                                    {singer.stageName?.[0] || t('common.singer_fallback')[0]}
                                 </div>
                             )}
                         </div>
                         {singer.performances.some((p: any) => getEffectiveStatus(p) === 'live') && (
                             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter italic">
-                                LIVE NOW
+                                {t('live.status_live')}
                             </div>
                         )}
                     </div>
                     
-                    <h1 className="text-3xl font-black italic tracking-tight mb-1 uppercase">{singer.stageName}</h1>
+                    <h1 className="text-3xl font-black italic tracking-tight mb-1 uppercase">{singer.stageName || t('common.singer_fallback')}</h1>
                     <div className="flex items-center gap-4 text-xs font-bold text-gray-400 mb-4">
                         <span className="flex items-center gap-1.5 bg-white/5 px-3 py-1 rounded-full border border-white/5 italic">
                             <Heart className={`w-3.5 h-3.5 ${isFollowed ? 'text-red-500 fill-current animate-bounce' : 'text-gray-500'}`} />
-                            {singer.fanCount} Fans
+                            {singer.fanCount} {t('common.fans')}
                         </span>
                     </div>
 
@@ -234,7 +249,7 @@ export default function SingerDetailPage() {
                     <div className="bg-white/5 rounded-3xl p-5 border border-white/5 shadow-2xl relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-600/5 rounded-full blur-3xl -mr-12 -mt-12 group-hover:bg-indigo-600/10 transition-all" />
                         <div className="flex items-center gap-2 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-3 italic">
-                            <User className="w-3 h-3" /> About Artist
+                            <User className="w-3 h-3" /> {t('common.about_artist')}
                         </div>
                         <p className="text-sm text-gray-300 leading-relaxed italic font-medium whitespace-pre-line relative z-10">
                             {singer.bio}
@@ -244,7 +259,7 @@ export default function SingerDetailPage() {
 
                 {/* 3. PRIMARY ACTION BUTTONS */}
                 <div className="flex gap-3 sticky top-4 z-30 pointer-events-auto">
-                    {user ? (
+                    {isLoaded && user ? (
                         <button
                             onClick={handleFollow}
                             className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.1em] transition-all active:scale-95 shadow-2xl italic border ${isFollowed
@@ -272,36 +287,57 @@ export default function SingerDetailPage() {
 
                 {/* 4. LIVE NOW HIGHLIGHT (HIGHEST PRIORITY) */}
                 {singer.performances.some((p: any) => getEffectiveStatus(p) === 'live') && (
-                    <div className="space-y-4">
+                    <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-1000">
                         <div className="flex items-center justify-between">
                             <h2 className="text-xl font-black italic flex items-center gap-2 tracking-tight uppercase">
-                                <span className="relative flex h-2.5 w-2.5">
+                                <span className="relative flex h-3 w-3">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.8)]"></span>
+                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_15px_rgba(239,68,68,1)]"></span>
                                 </span>
-                                {t('performance.status.live')}
+                                {t('live.status_live')}
                             </h2>
                         </div>
                         {singer.performances
                             .filter((p: any) => getEffectiveStatus(p) === 'live')
                             .map((perf: any) => (
-                                <div key={perf.id} className="relative group p-[1px] rounded-3xl bg-gradient-to-br from-red-500 via-indigo-600 to-purple-700 shadow-2xl shadow-indigo-600/30 overflow-hidden hover:scale-[1.01] transition-transform duration-500">
-                                    <div className="bg-gray-950 rounded-[23px] p-6 relative z-10 overflow-hidden">
-                                        <div className="absolute -right-8 -top-8 w-32 h-32 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
-                                        <div className="flex justify-between items-start mb-6">
-                                            <div className="min-w-0">
-                                                <h3 className="font-black text-2xl text-white italic truncate tracking-tight mb-1 uppercase">{perf.title}</h3>
-                                                <div className="flex items-center gap-2 text-xs font-bold text-gray-400 italic">
-                                                    <MapPin className="w-3.5 h-3.5 text-indigo-400" />
-                                                    <span className="truncate">{perf.locationText}</span>
+                                <div key={perf.id} className="relative group p-[2px] rounded-[36px] bg-gradient-to-br from-red-500 via-rose-600 to-indigo-700 shadow-[0_0_40px_rgba(239,68,68,0.2)] overflow-hidden hover:scale-[1.02] transition-all duration-700">
+                                    <div className="bg-gray-950 rounded-[34px] p-8 relative z-10 overflow-hidden">
+                                        {/* Animated Background Pulse */}
+                                        <div className="absolute -right-12 -top-12 w-48 h-48 bg-red-600/20 rounded-full blur-[80px] group-hover:bg-red-600/30 transition-all duration-1000" />
+                                        <div className="absolute -left-12 -bottom-12 w-48 h-48 bg-indigo-600/10 rounded-full blur-[80px] group-hover:bg-indigo-600/20 transition-all duration-1000" />
+                                        
+                                        <div className="relative z-20">
+                                            <div className="flex justify-between items-start mb-8">
+                                                <div className="min-w-0">
+                                                    <div className="text-[10px] font-black text-rose-500 uppercase tracking-[0.3em] mb-2 italic flex items-center gap-2">
+                                                        <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
+                                                        {t('live.performing_now')}
+                                                    </div>
+                                                    <h3 className="font-black text-3xl text-white italic truncate tracking-tighter mb-6 uppercase leading-none">{perf.title}</h3>
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-center gap-3 text-xs font-bold text-indigo-300 italic bg-white/5 w-fit px-4 py-2 rounded-2xl border border-white/5 shadow-inner">
+                                                            <Calendar className="w-4 h-4 text-indigo-400" />
+                                                            <span suppressHydrationWarning>{new Date(perf.startTime).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 text-xs font-bold text-emerald-400 italic bg-white/5 w-fit px-4 py-2 rounded-2xl border border-white/5 shadow-inner">
+                                                            <Clock className="w-4 h-4 text-emerald-400" />
+                                                            <span suppressHydrationWarning>{formatLocalTime(perf.startTime)} - {perf.endTime ? formatLocalTime(perf.endTime) : '...'}</span>
+                                                        </div>
+                                                        {perf.locationText && (
+                                                            <div className="flex items-center gap-3 text-xs font-bold text-amber-400 italic bg-white/5 w-fit px-4 py-2 rounded-2xl border border-white/5 shadow-inner max-w-full">
+                                                                <MapPin className="w-4 h-4 text-amber-500 shrink-0" />
+                                                                <span className="truncate">{perf.locationText}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
+                                            
+                                            <Link href={`/live/${perf.id}`} className="w-full bg-white text-black py-6 rounded-[24px] font-black text-base uppercase tracking-[0.2em] flex items-center justify-center gap-4 shadow-[0_20px_40px_rgba(255,255,255,0.1)] hover:bg-rose-50 hover:scale-[1.02] active:scale-95 transition-all italic border-b-4 border-gray-200">
+                                                <Play className="w-6 h-6 fill-current animate-pulse" />
+                                                {t('live.enter_live')}
+                                            </Link>
                                         </div>
-                                        
-                                        <Link href={`/live/${perf.id}`} className="w-full bg-white text-black py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl hover:bg-gray-100 hover:scale-[1.02] active:scale-95 transition-all italic">
-                                            <Play className="w-5 h-5 animate-pulse" />
-                                            {t('live.enter_live')}
-                                        </Link>
                                     </div>
                                 </div>
                             ))
@@ -378,7 +414,7 @@ export default function SingerDetailPage() {
                 isOpen={isBookingModalOpen}
                 onClose={() => setIsBookingModalOpen(false)}
                 onSubmit={handleBookingSubmit}
-                singerName={singer.stageName}
+                singerName={singer.stageName || t('common.singer_fallback')}
             />
         </div>
     )

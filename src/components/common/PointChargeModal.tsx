@@ -22,12 +22,6 @@ interface PointChargeModalProps {
     onSuccess: (newPoints: number) => void
 }
 
-declare global {
-    interface Window {
-        IMP: any
-    }
-}
-
 export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }: PointChargeModalProps) {
     const { t } = useLanguage()
     const [selectedPackage, setSelectedPackage] = useState<string>('silver')
@@ -48,48 +42,47 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
         setIsSubmitting(true)
         try {
             if (paymentMethod === 'kakao') {
-                handleKakaoPay(pkg)
+                await handleKakaoPay(pkg)
             } else {
                 handleStripePay(pkg)
             }
         } catch (error) {
             console.error('Payment initiation failed:', error)
+            alert('결제 준비 중 오류가 발생했습니다.')
             setIsSubmitting(false)
         }
     }
 
-    const handleKakaoPay = (pkg: PointPackage) => {
-        if (!window.IMP) {
-            alert('Payment module not loaded. Please try again.')
-            setIsSubmitting(false)
-            return
-        }
+    const handleKakaoPay = async (pkg: PointPackage) => {
+        try {
+            const res = await fetch('/api/payment/kakao/ready', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId,
+                    points: pkg.points + pkg.bonus,
+                    amount: pkg.price,
+                    packageName: pkg.label
+                })
+            })
 
-        const { IMP } = window
-        IMP.init('imp83151515') // Sample Store ID (Needs to be replaced with real one)
-
-        IMP.request_pay({
-            pg: 'kakaopay.TC0ONETIME', // Test MID for Kakao Pay
-            pay_method: 'card',
-            merchant_uid: `charge_${userId}_${Date.now()}`,
-            name: `${pkg.points + pkg.bonus}P Charge`,
-            amount: pkg.price,
-            buyer_email: '',
-            buyer_name: userId,
-        }, async (rsp: any) => {
-            if (rsp.success) {
-                // Verify on server and add points
-                const res = await chargePoints(userId, pkg.points + pkg.bonus)
-                if (res.success) {
-                    alert(t('common.charge_success'))
-                    onSuccess(res.points!)
-                    onClose()
-                }
+            const data = await res.json()
+            
+            if (res.ok && (data.next_redirect_pc_url || data.next_redirect_mobile_url)) {
+                // Determine if mobile or PC
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+                const redirectUrl = isMobile ? data.next_redirect_mobile_url : data.next_redirect_pc_url
+                
+                // Redirect user to Kakao Pay payment page
+                window.location.href = redirectUrl
             } else {
-                alert(`Payment failed: ${rsp.error_msg}`)
+                throw new Error(data.error || 'Failed to prepare Kakao Pay')
             }
+        } catch (error: any) {
+            console.error('Kakao Pay Error:', error)
+            alert(error.message || '카카오페이 결제 준비에 실패했습니다.')
             setIsSubmitting(false)
-        })
+        }
     }
 
     const handleStripePay = async (pkg: PointPackage) => {
@@ -107,10 +100,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
     if (!isOpen) return null
 
     return (
-        <>
-            <Script src="https://cdn.iamport.kr/v1/iamport.js" />
-            
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
                 <div className="bg-[#0f1117] w-full max-w-xl rounded-[48px] border border-white/10 shadow-2xl overflow-hidden flex flex-col relative max-h-[95vh]">
                     <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-indigo-600/10 to-transparent pointer-events-none" />
                     
@@ -237,6 +227,5 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                         )}
                         </footer>                </div>
             </div>
-        </>
     )
 }

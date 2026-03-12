@@ -195,16 +195,16 @@ export default function SingerDashboard() {
                     <p className="text-gray-500 mb-10 leading-relaxed font-bold italic">{t('dashboard.not_singer_desc')}</p>
                     <button
                         onClick={async () => {
-                            const name = prompt(t('dashboard.enter_stage_name'))
+                            const name = prompt(t('dashboard.onboarding_nickname_placeholder'))
                             if (name) {
                                 const res = await registerSinger({ id: user!.id, stageName: name })
                                 if (res.success) window.location.reload()
-                                else alert(res.error === 'NICKNAME_DUPLICATE' ? 'This name is already taken.' : 'Registration failed.')
+                                else alert(res.error === 'NICKNAME_DUPLICATE' ? t('dashboard.error_nickname_taken') : t('dashboard.error_registration_failed'))
                             }
                         }}
                         className="w-full bg-indigo-600 py-4 rounded-2xl font-black text-white shadow-xl shadow-indigo-600/20 hover:bg-indigo-500 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest text-sm"
                     >
-                        {t('dashboard.register_btn')}
+                        {t('dashboard.onboarding_btn')}
                     </button>
                 </div>
             </div>
@@ -298,7 +298,7 @@ export default function SingerDashboard() {
                             <section className="bg-gray-900/40 rounded-[40px] border border-white/5 p-8 shadow-2xl">
                                 <h3 className="text-xl font-black text-white italic mb-8 flex items-center gap-3">
                                     <Users className="w-6 h-6 text-indigo-500" />
-                                    {t('followers.title') || 'Followers'}
+                                    {t('common.fans')}
                                 </h3>
                                 <FollowersList singerId={singerId} />
                             </section>
@@ -308,22 +308,22 @@ export default function SingerDashboard() {
                             onClick={() => {
                                 setConfirmModal({
                                     isOpen: true,
-                                    title: t('dashboard.withdraw_title') || 'Withdraw Account',
-                                    message: t('dashboard.withdraw_message') || 'Are you sure you want to delete all your information? This cannot be undone.',
+                                    title: t('dashboard.withdraw_title'),
+                                    message: t('dashboard.withdraw_message'),
                                     onConfirm: async () => {
                                         const res = await withdrawUser(user!.id)
                                         if (res.success) {
                                             await signOut()
                                             router.push('/')
                                         } else {
-                                            alert('Withdrawal failed.')
+                                            alert(t('dashboard.error_withdrawal_failed'))
                                         }
                                     }
                                 })
                             }}
                             className="w-full py-4 text-xs font-black text-gray-600 hover:text-red-500 transition-all uppercase tracking-widest border border-dashed border-white/5 rounded-3xl"
                         >
-                            {t('dashboard.withdraw_btn') || 'Withdraw Account'}
+                            {t('dashboard.withdraw_btn')}
                         </button>
                     </div>
 

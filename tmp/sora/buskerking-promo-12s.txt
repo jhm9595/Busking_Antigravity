@@ -1,0 +1,14 @@
+Use case: app promotion video for BuskerKing
+Primary request: create a premium motion-graphics teaser for a street performance app called BuskerKing, based on a Figma product design showing a landing page, audience profile, live performance discovery, singer dashboard, QR profile card, booking flow, follower growth, and points-based fan interaction
+Scene/background: dark concert-inspired digital space with floating app screens, soft haze, subtle neon light streaks, and layered UI panels moving in depth
+Subject: BuskerKing mobile and desktop product screens, stylized as polished interface panels with no real people and no human faces
+Action: start on the BuskerKing hero screen, then transition through audience discovery, following an artist, opening a live performance, sending a song request, showing a singer control dashboard, revealing a QR card and booking tools, and end on the brand title with a strong call-to-action feel
+Camera: cinematic push-in at the start, smooth lateral parallax between UI cards, macro close-up on important buttons and stats, fast but readable transitions, final centered lock-off hero frame
+Lighting/mood: energetic, modern, optimistic, nightlife busking atmosphere, premium startup ad feeling
+Color palette: black, indigo, electric purple, hot pink, cool blue
+Style/format: high-end product advertisement, motion design, glossy UI animation, crisp typography, no live-action footage
+Timing/beats: 0-2 seconds brand hero and tagline, 2-5 seconds explore live busking and artist profile, 5-8 seconds fan actions including follow and song request, 8-10 seconds singer dashboard with QR and booking tools, 10-12 seconds final logo hold and payoff
+Audio: uplifting electronic beat with a subtle crowd ambience swell, no vocals
+Text (verbatim): "BuskerKing", "거리 공연자와 팬을 잇는 최고의 플랫폼", "공연하고, 소통하고, 당신을 알리세요"
+Constraints: no real people, no faces, no copyrighted music, no copyrighted characters, keep on-screen text sharp and minimal, preserve a sleek Korean app-brand feel, emphasize discovery, live engagement, booking conversion, QR identity, followers, and points
+Avoid: distorted text, unreadable UI, random extra icons, cluttered layouts, camera shake, low-resolution screens, uncanny humans, logo mutations, excessive particle effects

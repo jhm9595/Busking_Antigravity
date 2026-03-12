@@ -14,6 +14,7 @@ interface Message {
     type: 'singer' | 'audience' | 'system' | 'donation'
     avatarConfig?: AvatarConfig | null
     amount?: number
+    donorName?: string
     isRequest?: boolean
     isAlert?: boolean
     requestData?: {
@@ -176,7 +177,7 @@ export default function ChatBox({
                         onClick={() => { setIsJoined(false); joinedRoomRef.current = null }}
                         className="text-[10px] text-red-400 bg-red-900/20 hover:bg-red-900/40 px-3 py-1 rounded-full transition-colors font-black uppercase italic"
                     >
-                        Leave
+                        {t('chat.leave')}
                     </button>
                 )}
             </div>
@@ -186,13 +187,13 @@ export default function ChatBox({
                     <div className="w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6 border border-indigo-500/20">
                         <MessageCircle className="w-8 h-8 text-indigo-500" />
                     </div>
-                    <h4 className="text-white font-black italic mb-2 tracking-tight uppercase">Ready to join the talk?</h4>
-                    <p className="text-[10px] text-slate-500 mb-8 max-w-[200px] font-bold leading-relaxed uppercase italic">Connect with the artist and other fans in real-time.</p>
+                    <h4 className="text-white font-black italic mb-2 tracking-tight uppercase">{t('chat.join_title')}</h4>
+                    <p className="text-[10px] text-slate-500 mb-8 max-w-[200px] font-bold leading-relaxed uppercase italic">{t('chat.join_desc')}</p>
                     <button
                         onClick={handleJoinClick}
                         className="bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 px-10 rounded-2xl shadow-xl transition-all hover:scale-[1.02] active:scale-95 text-xs uppercase tracking-widest italic"
                     >
-                        Join Chat
+                        {t('chat.join_button')}
                     </button>
                 </div>
             ) : (
@@ -205,11 +206,11 @@ export default function ChatBox({
                                         <div className="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 p-[1px] rounded-2xl shadow-[0_0_20px_rgba(245,158,11,0.2)] w-[95%]">
                                             <div className="bg-gray-900 rounded-[15px] p-4 flex flex-col items-center relative overflow-hidden">
                                                 <div className="flex items-center gap-2 mb-2 text-amber-400 font-black italic text-[9px] uppercase tracking-[0.2em]">
-                                                    <span className="animate-bounce">💖</span> SPONSORSHIP <span className="animate-bounce">💖</span>
+                                                    <span className="animate-bounce">💖</span> {t('chat.sponsorship_title')} <span className="animate-bounce">💖</span>
                                                 </div>
                                                 <p className="text-white font-black text-center text-[13px] mb-1 leading-tight">
-                                                    <span className="text-amber-400 mr-1.5">{msg.message.split('님')[0]}</span>
-                                                    <span className="opacity-60">sponsored</span> 
+                                                    <span className="text-amber-400 mr-1.5">{msg.donorName || (msg.message.includes('님') ? msg.message.split('님')[0] : msg.author)}</span>
+                                                    <span className="opacity-60">{t('chat.sponsored_by')}</span> 
                                                     <span className="text-amber-400 font-mono ml-1.5">{msg.amount?.toLocaleString()}P</span>
                                                 </p>
                                             </div>
@@ -223,11 +224,11 @@ export default function ChatBox({
                                 return (
                                     <div key={idx} className="flex flex-col items-center my-2 w-full">
                                         <div className="bg-indigo-900/20 border border-indigo-500/20 rounded-2xl p-4 w-[90%] text-center">
-                                            <div className="text-indigo-400 text-[9px] font-black uppercase tracking-widest mb-2 italic">New Song Request</div>
+                                            <div className="text-indigo-400 text-[9px] font-black uppercase tracking-widest mb-2 italic">{t('chat.song_request_title')}</div>
                                             <p className="text-white font-black text-sm mb-1 italic uppercase truncate">{msg.requestData.title}</p>
-                                            <p className="text-indigo-300/60 text-[10px] font-bold italic mb-3">Requested by {msg.requestData.username}</p>
+                                            <p className="text-indigo-300/60 text-[10px] font-bold italic mb-3">{t('chat.song_request_by').replace('{username}', msg.requestData.username)}</p>
                                             {userType === 'singer' && onAcceptRequest && (
-                                                <button onClick={() => onAcceptRequest(msg.requestData!.title)} className="bg-indigo-600 text-white text-[10px] font-black px-4 py-2 rounded-xl uppercase italic shadow-lg">Accept</button>
+                                                <button onClick={() => onAcceptRequest(msg.requestData!.title)} className="bg-indigo-600 text-white text-[10px] font-black px-4 py-2 rounded-xl uppercase italic shadow-lg">{t('chat.accept_button')}</button>
                                             )}
                                         </div>
                                     </div>
