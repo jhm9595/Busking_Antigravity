@@ -13,6 +13,9 @@ export const metadata: Metadata = {
 };
 
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { LanguageHandler } from "@/components/common/LanguageHandler";
 
 export default function RootLayout({
   children,
@@ -21,10 +24,10 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html suppressHydrationWarning>
         <body
           suppressHydrationWarning
-          className="antialiased"
+          className="antialiased bg-background text-foreground transition-colors duration-300"
           style={{ 
             fontFamily: systemSans,
             // @ts-ignore
@@ -32,15 +35,26 @@ export default function RootLayout({
             '--font-geist-mono': systemMono
           } as React.CSSProperties}
         >
-          {process.env.NODE_ENV === "development" ? (
-            <Script
-              src="https://mcp.figma.com/mcp/html-to-design/capture.js"
-              strategy="afterInteractive"
-            />
-          ) : null}
-          <LanguageProvider>
-            {children}
-          </LanguageProvider>
+          <ThemeProvider
+            attribute="data-theme"
+            defaultTheme="system"
+            enableSystem
+          >
+            {process.env.NODE_ENV === "development" ? (
+              <Script
+                src="https://mcp.figma.com/mcp/html-to-design/capture.js"
+                strategy="afterInteractive"
+              />
+            ) : null}
+            <LanguageProvider>
+              <LanguageHandler>
+                <div className="fixed bottom-4 right-4 z-50">
+                  <ThemeSwitcher />
+                </div>
+                {children}
+              </LanguageHandler>
+            </LanguageProvider>
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>
