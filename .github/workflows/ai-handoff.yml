@@ -215,7 +215,7 @@ jobs:
           )
           PY
 
-          REPORT_DELIMITER=$(dd if=/dev/urandom bs=15 count=1 2>/dev/null | base64)
+          REPORT_DELIMITER=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 20)
           {
             echo "report_path=tmp/ai-handoff/report.md"
             echo "report_body<<$REPORT_DELIMITER"
