@@ -284,8 +284,8 @@ export default function ChatBox({
                         <div ref={bottomRef} />
                     </div>
 
-                    <div className="p-4 bg-gray-900 border-t border-white/5">
-                        <div className="flex gap-2 bg-gray-950 p-1.5 rounded-[20px] border border-white/5 focus-within:border-indigo-500/50 transition-colors">
+                    <div className="p-4 border-t" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+                        <div className="flex gap-2 p-1.5 rounded-[20px] border transition-colors" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border)' }}>
                             <input
                                 type="text"
                                 value={currentMessage}
@@ -293,12 +293,18 @@ export default function ChatBox({
                                 onKeyDown={(e) => e.key === 'Enter' && !e.nativeEvent.isComposing && sendMessage()}
                                 placeholder={chatStatus === 'closed' && userType === 'audience' ? t('chat.closed_placeholder') : t('chat.placeholder')}
                                 disabled={(chatStatus === 'closed' && userType === 'audience') || !isConnected}
-                                className="flex-1 bg-transparent px-3 py-2 text-white text-base outline-none placeholder:text-gray-700 italic font-medium"
+                                className="flex-1 bg-transparent px-3 py-2 text-base outline-none italic font-medium"
+                                style={{ color: 'var(--color-text-primary)' }}
                             />
                             <button
                                 onClick={sendMessage}
                                 disabled={!currentMessage.trim() || (chatStatus === 'closed' && userType === 'audience') || !isConnected}
-                                className="bg-indigo-600 hover:bg-indigo-500 text-white p-2.5 rounded-2xl transition disabled:opacity-30 shadow-lg shadow-indigo-600/20"
+                                className="p-2.5 rounded-2xl transition shadow-lg"
+                                style={{ 
+                                    backgroundColor: 'var(--color-primary)', 
+                                    color: 'var(--color-primary-foreground)',
+                                    opacity: !currentMessage.trim() || (chatStatus === 'closed' && userType === 'audience') || !isConnected ? 0.3 : 1
+                                }}
                             >
                                 <Send className="w-4 h-4" />
                             </button>
