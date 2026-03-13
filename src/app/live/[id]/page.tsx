@@ -265,7 +265,7 @@ export default function AudienceLivePage() {
                                     <span className="text-[10px] font-black bg-white/5 px-2.5 py-1 rounded-full text-gray-500 uppercase tracking-widest italic">{performance.songs?.length || 0} {t('live.tracks')}</span>
                                 </div>
                             </div>
-                            <div className={`space-y-3 ${isChatOpen ? 'max-h-[300px] overflow-y-auto custom-scrollbar pr-1' : ''}`}>
+                            <div className={`space-y-3 ${chatStatus === 'open' ? 'max-h-[300px] overflow-y-auto custom-scrollbar pr-1' : ''}`}>
                                 {performance.songs?.length > 0 ? (
                                     performance.songs.map((s: any, i: number) => {
                                         const isLive = s.status !== 'completed' && i === performance.songs.findIndex((x: any) => x.status !== 'completed')
@@ -287,7 +287,7 @@ export default function AudienceLivePage() {
                             </div>
                         </section>
 
-                        {isChatOpen ? (
+                        {chatStatus === 'open' ? (
                             <section className="bg-gray-900 rounded-[32px] border border-white/5 flex flex-col flex-1 min-h-[450px] overflow-hidden shadow-2xl relative mb-20 animate-in slide-in-from-bottom-6 duration-700">
                                 <div className="p-4 bg-gray-950/60 backdrop-blur-md border-b border-white/5 flex justify-between items-center sticky top-0 z-10">
                                     <h2 className="font-black text-sm flex items-center gap-3 italic uppercase"><MessageCircle className="w-5 h-5 text-indigo-500" />{t('chat.title')}</h2>
