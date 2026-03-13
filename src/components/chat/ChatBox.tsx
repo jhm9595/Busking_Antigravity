@@ -175,13 +175,14 @@ export default function ChatBox({
     }
 
     return (
-        <div className={`flex flex-col bg-gray-900 border border-gray-800 rounded-xl overflow-hidden ${className}`}>
-            <div className="bg-gray-800 p-3 border-b border-gray-700 flex justify-between items-center shrink-0">
-                <h3 className="text-white font-bold text-sm">{t('chat.title')}</h3>
+        <div className={`flex flex-col border rounded-xl overflow-hidden ${className}`} style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+            <div className="p-3 border-b flex justify-between items-center shrink-0" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border)' }}>
+                <h3 className="font-bold text-sm" style={{ color: 'var(--color-text-primary)' }}>{t('chat.title')}</h3>
                 {userType === 'audience' && isJoined && (
                     <button
                         onClick={() => { setIsJoined(false); joinedRoomRef.current = null }}
-                        className="text-xs text-red-400 bg-red-900/20 hover:bg-red-900/40 px-3 py-1 rounded-full transition-colors font-black uppercase italic"
+                        className="text-xs px-3 py-1 rounded-full transition-colors font-black uppercase italic"
+                        style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', color: 'var(--color-error)' }}
                     >
                         {t('chat.leave')}
                     </button>
@@ -189,39 +190,40 @@ export default function ChatBox({
             </div>
 
             {!isJoined ? (
-                <div className="flex-1 flex flex-col items-center justify-center p-8 bg-gray-800/30 min-h-[350px] text-center">
-                    <div className="w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6 border border-indigo-500/20">
-                        <MessageCircle className="w-8 h-8 text-indigo-500" />
+                <div className="flex-1 flex flex-col items-center justify-center p-8 min-h-[350px] text-center" style={{ backgroundColor: 'var(--color-surface)' }}>
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mb-6 border" style={{ backgroundColor: 'var(--color-surface-overlay)', borderColor: 'var(--color-primary)', opacity: 0.1 }}>
+                        <MessageCircle className="w-8 h-8" style={{ color: 'var(--color-primary)' }} />
                     </div>
-                    <h4 className="text-white font-black italic mb-2 tracking-tight uppercase">{t('chat.join_title')}</h4>
-                    <p className="text-xs text-slate-500 mb-8 max-w-[200px] font-bold leading-relaxed uppercase italic">{t('chat.join_desc')}</p>
+                    <h4 className="font-black italic mb-2 tracking-tight uppercase" style={{ color: 'var(--color-text-primary)' }}>{t('chat.join_title')}</h4>
+                    <p className="text-xs mb-8 max-w-[200px] font-bold leading-relaxed uppercase italic" style={{ color: 'var(--color-text-muted)' }}>{t('chat.join_desc')}</p>
                     <button
                         onClick={handleJoinClick}
-                        className="bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 px-10 rounded-2xl shadow-xl transition-all hover:scale-[1.02] active:scale-95 text-xs uppercase tracking-widest italic"
+                        className="font-black py-4 px-10 rounded-2xl shadow-xl transition-all hover:scale-[1.02] active:scale-95 text-xs uppercase tracking-widest italic"
+                        style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
                     >
                         {t('chat.join_button')}
                     </button>
                 </div>
             ) : (
                 <>
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[350px] custom-scrollbar bg-gray-950/20">
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[350px] custom-scrollbar" style={{ backgroundColor: 'var(--color-surface)' }}>
                         {messages.map((msg, idx) => {
                             if (msg.type === 'donation') {
                                 return (
                                     <div key={idx} className="flex flex-col items-center my-4 animate-in zoom-in duration-500 w-full">
                                         <div className="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 p-[1px] rounded-2xl shadow-[0_0_20px_rgba(245,158,11,0.2)] w-[95%]">
-                                            <div className="bg-gray-900 rounded-[15px] p-4 flex flex-col items-center relative overflow-hidden">
-                                                <div className="flex items-center gap-2 mb-2 text-amber-400 font-black italic text-[11px] uppercase tracking-[0.2em]">
+                                            <div className="rounded-[15px] p-4 flex flex-col items-center relative overflow-hidden" style={{ backgroundColor: 'var(--color-surface)' }}>
+                                                <div className="flex items-center gap-2 mb-2 font-black italic text-[11px] uppercase tracking-[0.2em]" style={{ color: '#FCD34D' }}>
                                                     <span className="animate-bounce">💖</span> {t('chat.sponsorship_title')} <span className="animate-bounce">💖</span>
                                                 </div>
-                                                <p className="text-white font-black text-center text-[13px] mb-1 leading-tight">
-                                                    <span className="text-amber-400 mr-1.5">{msg.donorName || (msg.message.includes('님') ? msg.message.split('님')[0] : msg.author)}</span>
+                                                <p className="font-black text-center text-[13px] mb-1 leading-tight" style={{ color: 'var(--color-text-primary)' }}>
+                                                    <span style={{ color: '#FCD34D' }} className="mr-1.5">{msg.donorName || (msg.message.includes('님') ? msg.message.split('님')[0] : msg.author)}</span>
                                                     <span className="opacity-60">{t('chat.sponsored_by')}</span> 
-                                                    <span className="text-amber-400 font-mono ml-1.5">{msg.amount?.toLocaleString()}P</span>
+                                                    <span className="font-mono ml-1.5" style={{ color: '#FCD34D' }}>{msg.amount?.toLocaleString()}P</span>
                                                 </p>
                                             </div>
                                         </div>
-                                        <span className="text-[8px] text-gray-700 mt-1.5 font-black uppercase">{formatTime(msg.timestamp)}</span>
+                                        <span className="text-[8px] mt-1.5 font-black uppercase" style={{ color: 'var(--color-text-muted)' }}>{formatTime(msg.timestamp)}</span>
                                     </div>
                                 )
                             }
@@ -229,12 +231,12 @@ export default function ChatBox({
                             if (msg.type === 'system' && msg.isRequest && msg.requestData) {
                                 return (
                                     <div key={idx} className="flex flex-col items-center my-2 w-full">
-                                        <div className="bg-indigo-900/20 border border-indigo-500/20 rounded-2xl p-4 w-[90%] text-center">
-                                            <div className="text-indigo-400 text-[11px] font-black uppercase tracking-widest mb-2 italic">{t('chat.song_request_title')}</div>
-                                            <p className="text-white font-black text-sm mb-1 italic uppercase truncate">{msg.requestData.title}</p>
-                                            <p className="text-indigo-300/60 text-xs font-bold italic mb-3">{t('chat.song_request_by').replace('{username}', msg.requestData.username)}</p>
+                                        <div className="border rounded-2xl p-4 w-[90%] text-center" style={{ backgroundColor: 'var(--color-surface-overlay)', borderColor: 'var(--color-primary)', opacity: 0.2 }}>
+                                            <div className="text-[11px] font-black uppercase tracking-widest mb-2 italic" style={{ color: 'var(--color-primary)' }}>{t('chat.song_request_title')}</div>
+                                            <p className="font-black text-sm mb-1 italic uppercase truncate" style={{ color: 'var(--color-text-primary)' }}>{msg.requestData.title}</p>
+                                            <p className="text-xs font-bold italic mb-3" style={{ color: 'var(--color-text-muted)' }}>{t('chat.song_request_by').replace('{username}', msg.requestData.username)}</p>
                                             {userType === 'singer' && onAcceptRequest && (
-                                                <button onClick={() => onAcceptRequest(msg.requestData!.title)} className="bg-indigo-600 text-white text-xs font-black px-4 py-2 rounded-xl uppercase italic shadow-lg">{t('chat.accept_button')}</button>
+                                                <button onClick={() => onAcceptRequest(msg.requestData!.title)} className="text-xs font-black px-4 py-2 rounded-xl uppercase italic shadow-lg" style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}>{t('chat.accept_button')}</button>
                                             )}
                                         </div>
                                     </div>
@@ -248,7 +250,7 @@ export default function ChatBox({
                             if (isSystem) {
                                 return (
                                     <div key={idx} className="flex justify-center my-2">
-                                        <span className="bg-white/5 border border-white/5 text-gray-500 text-[11px] font-black px-3 py-1 rounded-full uppercase italic">
+                                        <span className="border text-[11px] font-black px-3 py-1 rounded-full uppercase italic" style={{ backgroundColor: 'var(--color-surface-overlay)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
                                             {msg.message}
                                         </span>
                                     </div>
@@ -258,24 +260,28 @@ export default function ChatBox({
                             return (
                                 <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'} w-full gap-3`}>
                                     {!isMe && msg.avatarConfig && (
-                                        <div className="shrink-0 mt-1">
-                                            <PixelAvatar config={msg.avatarConfig} size={32} className="bg-gray-800 rounded-xl border border-white/10" />
+                                        <div className="shrink-0 mt-1 rounded-xl border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+                                            <PixelAvatar config={msg.avatarConfig} size={32} />
                                         </div>
                                     )}
                                     <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[75%]`}>
-                                        {!isMe && <span className="text-[11px] font-black text-gray-500 mb-1 uppercase tracking-wider italic">{msg.author} {isSinger && '👑'}</span>}
+                                        {!isMe && <span className="text-[11px] font-black mb-1 uppercase tracking-wider italic" style={{ color: 'var(--color-text-muted)' }}>{msg.author} {isSinger && '👑'}</span>}
                                         <div className={`rounded-2xl px-4 py-2.5 text-sm font-medium break-words shadow-sm ${
-                                            isMe ? 'bg-indigo-600 text-white rounded-tr-none' : 
-                                            isSinger ? 'bg-amber-500/10 border border-amber-500/20 text-amber-100 rounded-tl-none' : 
-                                            'bg-gray-800 text-gray-200 rounded-tl-none'
-                                        }`}>
+                                            isMe ? 'rounded-tr-none' : 
+                                            isSinger ? 'rounded-tl-none' : 
+                                            'rounded-tl-none'
+                                        }`} style={{ 
+                                            backgroundColor: isMe ? 'var(--color-primary)' : isSinger ? 'rgba(245, 158, 11, 0.1)' : 'var(--color-surface-elevated)', 
+                                            color: isMe ? 'var(--color-primary-foreground)' : isSinger ? 'var(--color-text-primary)' : 'var(--color-text-primary)',
+                                            borderColor: isSinger ? 'rgba(245, 158, 11, 0.2)' : 'var(--color-border)'
+                                        }}>
                                             <p className="leading-relaxed">{msg.message}</p>
                                         </div>
-                                        <span className="text-[8px] text-gray-700 mt-1 font-bold uppercase">{formatTime(msg.timestamp)}</span>
+                                        <span className="text-[8px] mt-1 font-bold uppercase" style={{ color: 'var(--color-text-muted)' }}>{formatTime(msg.timestamp)}</span>
                                     </div>
                                     {isMe && msg.avatarConfig && (
-                                        <div className="shrink-0 mt-1">
-                                            <PixelAvatar config={msg.avatarConfig} size={32} className="bg-gray-800 rounded-xl border border-indigo-500/30" />
+                                        <div className="shrink-0 mt-1 rounded-xl border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-primary)' }}>
+                                            <PixelAvatar config={msg.avatarConfig} size={32} />
                                         </div>
                                     )}
                                 </div>
