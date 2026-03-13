@@ -74,15 +74,15 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="flex min-h-screen w-full flex-col items-center justify-center bg-gray-900 bg-[url('/bg-pattern.svg')] bg-cover text-white">
+        <div className="flex min-h-screen w-full flex-col items-center justify-center bg-cover text-white" style={{ backgroundColor: 'var(--color-surface)', backgroundImage: 'url(/bg-pattern.svg)' }}>
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
-            <div className="z-10 w-full max-w-md space-y-8 rounded-2xl border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur-md">
+            <div className="z-10 w-full max-w-md space-y-8 rounded-2xl border p-8 shadow-2xl backdrop-blur-md" style={{ backgroundColor: 'var(--color-surface-overlay)', borderColor: 'var(--color-border)' }}>
                 <div className="text-center">
                     <h1 className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-5xl font-extrabold text-transparent">
                         miniMic
                     </h1>
-                    <p className="mt-2 text-gray-300">Join the street performance revolution</p>
+                    <p className="mt-2" style={{ color: 'var(--color-text-secondary)' }}>Join the street performance revolution</p>
                 </div>
 
                 <div className="flex justify-center space-x-4">
@@ -111,22 +111,32 @@ export default function LoginPage() {
 
                 <form onSubmit={handleLogin} className="space-y-4">
                     <div>
-                        <label className="mb-1 block text-sm font-medium text-gray-300">Email</label>
+                        <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>Email</label>
                         <input
                             type="email"
                             required
-                            className="w-full rounded-lg border border-white/20 bg-black/30 p-3 text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                            className="w-full rounded-lg border p-3 focus:outline-none focus:ring-1"
+                            style={{ 
+                                backgroundColor: 'var(--color-surface)', 
+                                borderColor: 'var(--color-border)', 
+                                color: 'var(--color-text-primary)'
+                            }}
                             placeholder="you@example.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
                     <div>
-                        <label className="mb-1 block text-sm font-medium text-gray-300">Password</label>
+                        <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>Password</label>
                         <input
                             type="password"
                             required
-                            className="w-full rounded-lg border border-white/20 bg-black/30 p-3 text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                            className="w-full rounded-lg border p-3 focus:outline-none focus:ring-1"
+                            style={{ 
+                                backgroundColor: 'var(--color-surface)', 
+                                borderColor: 'var(--color-border)', 
+                                color: 'var(--color-text-primary)'
+                            }}
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -137,7 +147,8 @@ export default function LoginPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 rounded-lg bg-indigo-600 py-3 font-semibold text-white transition hover:bg-indigo-500 disabled:opacity-50"
+                            className="flex-1 rounded-lg py-3 font-semibold transition disabled:opacity-50"
+                            style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
                         >
                             {loading ? 'Processing...' : 'Log In'}
                         </button>
@@ -145,7 +156,8 @@ export default function LoginPage() {
                             type="button"
                             onClick={handleSignUp}
                             disabled={loading}
-                            className="flex-1 rounded-lg border border-white/20 bg-white/5 py-3 font-semibold text-white transition hover:bg-white/10 disabled:opacity-50"
+                            className="flex-1 rounded-lg border py-3 font-semibold transition disabled:opacity-50"
+                            style={{ backgroundColor: 'var(--color-surface-overlay)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                         >
                             Sign Up
                         </button>
@@ -154,10 +166,10 @@ export default function LoginPage() {
 
                 <div className="relative">
                     <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-white/10"></div>
+                        <div className="w-full border-t" style={{ borderColor: 'var(--color-border)' }}></div>
                     </div>
                     <div className="relative flex justify-center text-sm">
-                        <span className="bg-[#1a1a2e] px-2 text-gray-400">Or continue with</span>
+                        <span className="px-2" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-muted)' }}>Or continue with</span>
                     </div>
                 </div>
 
@@ -180,9 +192,15 @@ function RoleButton({ current, target, setRole, icon, label }: any) {
             className={clsx(
                 "flex flex-col items-center justify-center rounded-xl p-3 transition-all duration-200 w-24",
                 isSelected
-                    ? "bg-purple-600 text-white shadow-lg scale-105 ring-2 ring-purple-400"
-                    : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
+                    ? "shadow-lg scale-105"
+                    : ""
             )}
+            style={{ 
+                backgroundColor: isSelected ? 'var(--color-primary)' : 'var(--color-surface-overlay)', 
+                color: isSelected ? 'var(--color-primary-foreground)' : 'var(--color-text-muted)',
+                borderColor: isSelected ? 'var(--color-primary)' : 'var(--color-border)',
+                borderWidth: '1px'
+            }}
         >
             {icon}
             <span className="mt-1 text-xs font-medium">{label}</span>
