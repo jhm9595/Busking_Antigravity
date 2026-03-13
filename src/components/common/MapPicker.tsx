@@ -188,10 +188,10 @@ function MapPicker({ onLocationSelect, initialLat, initialLng, readonly }: MapPi
     }
 
     return (
-        <div style={{ position: 'relative', height: '300px', width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
+        <div style={{ position: 'relative', height: '300px', width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
             {/* Search Bar Overlay */}
             {!readonly && (
-                <div className="absolute top-2 left-2 right-2 z-[1000] bg-white/90 backdrop-blur-sm rounded-md shadow-md p-2 transition-all">
+                <div className="absolute top-2 left-2 right-2 z-[1000] backdrop-blur-sm rounded-md shadow-md p-2 transition-all" style={{ backgroundColor: 'var(--color-card)' }}>
                     <div className="flex flex-col sm:flex-row gap-2">
                         <div className="flex gap-2 flex-1">
                             <input
@@ -205,13 +205,15 @@ function MapPicker({ onLocationSelect, initialLat, initialLng, readonly }: MapPi
                                     }
                                 }}
                                 placeholder={t('performance.form.map_search_placeholder')}
-                                className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 min-w-0"
+                                className="flex-1 px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-1 min-w-0"
+                                style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)', backgroundColor: 'var(--color-surface)' }}
                             />
                             <button
                                 type="button"
                                 onClick={() => handleSearch()}
                                 disabled={isSearching}
-                                className="p-1.5 px-3 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 transition-colors flex items-center justify-center shrink-0"
+                                className="p-1.5 px-3 rounded transition-colors flex items-center justify-center shrink-0"
+                                style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
                                 title={t('performance.form.map_search_button')}
                             >
                                 <Search className="w-4 h-4" />
@@ -220,7 +222,8 @@ function MapPicker({ onLocationSelect, initialLat, initialLng, readonly }: MapPi
                         <button
                             type="button"
                             onClick={handleGoToMyLocation}
-                            className="p-1.5 px-3 bg-white text-gray-700 rounded hover:bg-gray-100 transition-colors border border-gray-300 flex items-center justify-center gap-2 sm:w-auto w-full shrink-0"
+                            className="p-1.5 px-3 rounded transition-colors flex items-center justify-center gap-2 sm:w-auto w-full shrink-0"
+                            style={{ backgroundColor: 'var(--color-card)', color: 'var(--color-text-primary)', borderColor: 'var(--color-border)' }}
                             title={t('performance.form.map_my_location') || '내 위치로 이동'}
                         >
                             <LocateFixed className="w-4 h-4" />
@@ -230,12 +233,13 @@ function MapPicker({ onLocationSelect, initialLat, initialLng, readonly }: MapPi
 
                     {/* Search Results */}
                     {searchResults.length > 0 && (
-                        <ul className="mt-2 max-h-40 overflow-y-auto border-t border-gray-100 divide-y divide-gray-100 bg-white rounded-md shadow-inner">
+                        <ul className="mt-2 max-h-40 overflow-y-auto border-t divide-y rounded-md shadow-inner" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-card)' }}>
                             {searchResults.map((result: any, index: number) => (
                                 <li key={index}>
                                     <button
                                         onClick={() => selectResult(result)}
-                                        className="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 hover:text-indigo-700 transition-colors truncate"
+                                        className="w-full text-left px-3 py-2 text-xs transition-colors truncate"
+                                        style={{ color: 'var(--color-text-primary)' }}
                                     >
                                         {result.display_name}
                                     </button>
