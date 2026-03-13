@@ -13,7 +13,8 @@ export async function GET(req: Request) {
         const cookieStore = await cookies()
         const tid = cookieStore.get('kakao_tid')?.value
         const orderIdCookie = cookieStore.get('kakao_order_id')?.value
-        const partnerOrderId = orderIdParam || orderIdCookie
+        // Use the order ID from the ready step (stored in cookie)
+        const partnerOrderId = orderIdCookie || orderIdParam
 
         if (!pg_token || !tid || !userId || !pointsStr || !partnerOrderId) {
             console.error('Missing required parameters for approval:', { pg_token, tid, userId, pointsStr, partnerOrderId })
@@ -22,15 +23,20 @@ export async function GET(req: Request) {
 
         const secretKey = process.env.KAKAO_PAY_SECRET_KEY || process.env.KAKAO_PAY_ADMIN_KEY
         const cid = process.env.KAKAO_PAY_CID || 'TC0ONETIME'
+        const isProduction = process.env.NODE_ENV === 'production'
 
-        // If in mock mode, skip the Kakao Pay server verification
-        if (!secretKey || pg_token === 'mock_token_123' || tid?.startsWith('T_MOCK_')) {
+        // If in mock mode, skip the Kakao Pay server verification (Only in non-production)
+        if (!isProduction && (!secretKey || pg_token === 'mock_token_123' || tid?.startsWith('T_MOCK_'))) {
             console.log('Mock payment approval detected. Processing DB update.')
             const result = await chargePoints(userId, parseInt(pointsStr))
             if (result.success) {
                 return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/explore?payment=success&points=${result.points}`)
             }
             return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/explore?payment=error&error=db_update_failed`)
+        }
+
+        if (!secretKey && isProduction) {
+            return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/explore?payment=error&error=system_misconfigured`)
         }
 
         const body = {
@@ -42,7 +48,7 @@ export async function GET(req: Request) {
         }
 
         // Determine authorization header based on key prefix
-        const authHeader = secretKey.startsWith('DEV_') || secretKey.startsWith('TEST_') || secretKey.startsWith('PROC_')
+        const authHeader = secretKey!.startsWith('DEV_') || secretKey!.startsWith('TEST_') || secretKey!.startsWith('PROC_')
             ? `SECRET_KEY ${secretKey}`
             : `KakaoAK ${secretKey}`
 

@@ -33,6 +33,8 @@ export const zhTW: LocaleTypes = {
         most_popular: '熱門選擇',
         insufficient_points: '積分不足。',
         sponsorship_failed: '贊助失敗。',
+        payment_ready_failed: '支付準備失敗，請重試。',
+        payment_redirect_failed: '跳轉至支付頁面失敗。',
         home_button: '首頁',
         follow: '關注',
         following: '已關注',

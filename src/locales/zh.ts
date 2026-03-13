@@ -33,6 +33,8 @@ export const zh: LocaleTypes = {
         most_popular: '热门选择',
         insufficient_points: '积分不足。',
         sponsorship_failed: '赞助失败。',
+        payment_ready_failed: '支付准备失败，请重试。',
+        payment_redirect_failed: '跳转至支付页面失败。',
         home_button: '首页',
         follow: '关注',
         following: '已关注',

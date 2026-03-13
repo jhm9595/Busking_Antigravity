@@ -33,6 +33,8 @@ export const ko: LocaleTypes = {
         most_popular: '가장 인기있는',
         insufficient_points: '포인트가 부족합니다.',
         sponsorship_failed: '후원에 실패했습니다.',
+        payment_ready_failed: '결제 준비 중 오류가 발생했습니다. 다시 시도해 주세요.',
+        payment_redirect_failed: '결제 페이지로 이동하는 데 실패했습니다.',
         home_button: '홈으로',
         follow: '팔로우',
         following: '팔로잉',

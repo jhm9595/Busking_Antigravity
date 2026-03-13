@@ -48,7 +48,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
             }
         } catch (error) {
             console.error('Payment initiation failed:', error)
-            alert('결제 준비 중 오류가 발생했습니다.')
+            alert(t('common.payment_ready_failed'))
             setIsSubmitting(false)
         }
     }
@@ -74,13 +74,17 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                 const redirectUrl = isMobile ? data.next_redirect_mobile_url : data.next_redirect_pc_url
                 
                 // Redirect user to Kakao Pay payment page
-                window.location.href = redirectUrl
+                if (redirectUrl) {
+                    window.location.href = redirectUrl
+                } else {
+                    throw new Error('No redirect URL provided')
+                }
             } else {
                 throw new Error(data.error || 'Failed to prepare Kakao Pay')
             }
         } catch (error: any) {
             console.error('Kakao Pay Error:', error)
-            alert(error.message || '카카오페이 결제 준비에 실패했습니다.')
+            alert(t('common.payment_ready_failed'))
             setIsSubmitting(false)
         }
     }

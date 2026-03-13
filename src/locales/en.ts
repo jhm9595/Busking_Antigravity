@@ -31,6 +31,8 @@ export const en = {
         most_popular: 'Most Popular',
         insufficient_points: 'Insufficient points.',
         sponsorship_failed: 'Sponsorship failed.',
+        payment_ready_failed: 'Failed to prepare payment. Please try again.',
+        payment_redirect_failed: 'Failed to redirect to payment page.',
         home_button: 'Home',
         follow: 'Follow',
         following: 'Following',

@@ -15,8 +15,9 @@ If this file changed, treat it as the latest priority and routing source.
 ## Current Priority
 
 1. Security hardening (completed)
-2. Discord webhook format (in progress)
-3. Documentation update (in progress)
+2. Discord webhook format (completed)
+3. Documentation update (completed)
+4. Handoff to QA (next)
 
 ## Active Owner
 
@@ -27,7 +28,8 @@ If this file changed, treat it as the latest priority and routing source.
 ### Atlas (Completed)
 
 - ✅ Security hardening: server identity verification, GET read-only, realtime token hardening
-- ✅ PR merged: c7d7ad1
+- ✅ Discord webhook format: Updated to Korean standard format
+- ✅ Documentation update: QA Checklist added and PM Directive synced
 
 ### Codex App
 
@@ -36,6 +38,7 @@ If this file changed, treat it as the latest priority and routing source.
 ### Antigravity
 
 - Test on actual live site (staging/production).
+- Follow the `docs/QA-TEST-CHECKLIST.md`.
 - Do NOT modify code files - only validate and report.
 
 ## Required Handoff Rule
@@ -47,4 +50,4 @@ If this file changed, treat it as the latest priority and routing source.
 
 ## Next Review Point
 
-- `Atlas` reviews again after documentation updates are complete.
+- `Atlas` reviews again after `Antigravity` completes the full QA sweep on the live site.

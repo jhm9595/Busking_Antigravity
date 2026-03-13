@@ -33,6 +33,8 @@ export const ja: LocaleTypes = {
         most_popular: '一番人気',
         insufficient_points: 'ポイントが不足しています。',
         sponsorship_failed: '応援に失敗しました。',
+        payment_ready_failed: '決済の準備に失敗しました。もう一度お試しください。',
+        payment_redirect_failed: '決済ページへの移動に失敗しました。',
         home_button: 'ホーム',
         follow: 'フォロー',
         following: 'フォロー中',

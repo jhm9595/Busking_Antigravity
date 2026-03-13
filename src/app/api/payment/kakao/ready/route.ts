@@ -10,9 +10,16 @@ export async function POST(req: Request) {
         const cid = process.env.KAKAO_PAY_CID || 'TC0ONETIME' 
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
+        // Disable Mock mode in production regardless of key presence
+        const isProduction = process.env.NODE_ENV === 'production'
+
         if (!secretKey) {
+            if (isProduction) {
+                console.error('CRITICAL: KAKAO_PAY_SECRET_KEY missing in production!')
+                return NextResponse.json({ error: 'Payment system unavailable' }, { status: 500 })
+            }
+
             console.warn('KAKAO_PAY_SECRET_KEY missing. Entering MOCK payment mode for testing.')
-            // Mock response for unblocked testing
             const mockOrderId = `mock_${Date.now()}`
             const res = NextResponse.json({ 
                 next_redirect_pc_url: `${appUrl}/api/payment/kakao/approve?userId=${userId}&points=${points}&orderId=${mockOrderId}&pg_token=mock_token_123`,
@@ -26,7 +33,8 @@ export async function POST(req: Request) {
             return res
         }
 
-        const partnerOrderId = `order_${Date.now()}`
+        // Generate a unique order ID to be shared across steps
+        const partnerOrderId = `BK_${Date.now()}_${userId.slice(-4)}`
 
         const body = {
             cid,
