@@ -143,7 +143,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                     )}
 
                                     {pkg.bonus > 0 && (
-                                        <div className={`absolute top-0 left-0 px-3 py-1 rounded-br-2xl bg-gradient-to-r ${pkg.color} text-black font-black text-[8px] uppercase tracking-wider shadow-lg`}>
+                                        <div className={`absolute top-0 left-0 px-3 py-1 rounded-br-2xl bg-gradient-to-r ${pkg.color} text-black font-black text-xs uppercase tracking-wider shadow-lg`}>
                                             +{((pkg.bonus / pkg.points) * 100).toFixed(0)}% {t('common.bonus')}
                                         </div>
                                     )}
@@ -154,14 +154,14 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                                 <pkg.icon className="w-4 h-4" />
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest leading-none mb-1">{pkg.label}</span>
+                                                <span className="text-xs font-black text-gray-500 uppercase tracking-widest leading-none mb-1">{pkg.label}</span>
                                                 <span className="text-xl font-mono font-black text-white leading-none">{(pkg.points + pkg.bonus).toLocaleString()}P</span>
                                             </div>
                                         </div>
 
                                         <div className="mt-auto flex justify-between items-end">
                                             <div className="flex flex-col">
-                                                <span className="text-[9px] text-gray-600 font-bold uppercase tracking-wider line-through decoration-red-500/50">
+                                                <span className="text-xs text-gray-600 font-bold uppercase tracking-wider line-through decoration-red-500/50">
                                                     {pkg.id === 'starter' ? '' : `₩${(pkg.price * 1.2).toLocaleString()}`}
                                                 </span>
                                                 <span className="text-base font-black text-indigo-400">₩{pkg.price.toLocaleString()}</span>
@@ -174,7 +174,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
 
                         {/* 2. Payment Method Selection */}
                         <div className="space-y-4">
-                            <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] italic px-2">
+                            <h3 className="text-xs font-black text-gray-500 uppercase tracking-[0.2em] italic px-2">
                                 {t('common.payment_method')}
                             </h3>
                             <div className="grid grid-cols-2 gap-3">
@@ -221,7 +221,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                 </>
                             )}
                         </button>
-                        <p className="mt-4 text-center text-[10px] text-gray-600 font-bold uppercase tracking-widest italic opacity-50">
+                        <p className="mt-4 text-center text-xs text-gray-600 font-bold uppercase tracking-widest italic opacity-50">
                             Secure Encrypted Payment via {paymentMethod === 'kakao' ? 'Portone' : 'Stripe'}
                         </p>
                         {paymentMethod === 'kakao' && (

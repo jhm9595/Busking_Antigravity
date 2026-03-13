@@ -53,11 +53,11 @@ export function ThemeSwitcher() {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-accent transition-colors"
+        className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-accent transition-colors touch-manipulation"
         aria-label="Toggle theme"
         aria-expanded={isOpen}
       >
-        <Palette className="w-4 h-4" />
+        <Palette className="w-5 h-5" />
       </button>
 
       {isOpen && (

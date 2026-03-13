@@ -96,7 +96,7 @@ export default function ExplorePage() {
                     </Link>
                     <h1 className="text-lg md:text-2xl font-black text-indigo-700 truncate hidden sm:block uppercase italic tracking-tighter">{t('home.explore_title')}</h1>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-2 md:gap-3">
                     <div className="flex bg-gray-100 rounded-lg p-1">
                         <button
                             onClick={() => setViewMode('map')}
