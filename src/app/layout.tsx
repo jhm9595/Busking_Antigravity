@@ -41,6 +41,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import AppHeader from "@/components/common/AppHeader";
 import { LanguageHandler } from "@/components/common/LanguageHandler";
+import AdSenseScript from "@/components/common/AdSenseScript";
 
 export default function RootLayout({
   children,
@@ -60,6 +61,7 @@ export default function RootLayout({
             '--font-geist-mono': systemMono
           } as React.CSSProperties}
         >
+          <AdSenseScript />
           <ThemeProvider
             attribute="data-theme"
             defaultTheme="system"

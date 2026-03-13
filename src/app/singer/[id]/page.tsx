@@ -404,6 +404,8 @@ export default function SingerDetailPage() {
                                 ))
                         )}
                     </div>
+
+                    <GoogleAd slot="singer_profile_performances" className="my-8" />
                 </div>
             </div>
 
