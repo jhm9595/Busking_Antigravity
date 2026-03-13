@@ -183,8 +183,8 @@ export default function SingerDashboard() {
 
     if (!isLoaded || isSyncing) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground">
-                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+            <div className="min-h-screen flex flex-col items-center justify-center bg-[#0f1117] text-white">
+                <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4" />
                 <p className="font-black italic tracking-widest text-xs uppercase animate-pulse">{t('dashboard.loading')}</p>
             </div>
         )
@@ -192,13 +192,13 @@ export default function SingerDashboard() {
 
     if (!isSinger) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center p-6">
-                <div className="max-w-md w-full bg-card border border-border p-10 rounded-[40px] text-center shadow-2xl">
-                    <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-primary/20">
-                        <Users className="w-10 h-10 text-primary" />
+            <div className="min-h-screen bg-[#0f1117] flex items-center justify-center p-6">
+                <div className="max-w-md w-full bg-gray-950 border border-white/5 p-10 rounded-[40px] text-center shadow-2xl">
+                    <div className="w-20 h-20 bg-indigo-600/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-indigo-500/20">
+                        <Users className="w-10 h-10 text-indigo-500" />
                     </div>
-                    <h2 className="text-3xl font-black text-card-foreground italic mb-4">{t('dashboard.not_singer_title')}</h2>
-                    <p className="text-card-foreground/70 mb-10 leading-relaxed font-bold italic">{t('dashboard.not_singer_desc')}</p>
+                    <h2 className="text-3xl font-black text-white italic mb-4">{t('dashboard.not_singer_title')}</h2>
+                    <p className="text-gray-500 mb-10 leading-relaxed font-bold italic">{t('dashboard.not_singer_desc')}</p>
                     <button
                         onClick={async () => {
                             const name = prompt(t('dashboard.onboarding_nickname_placeholder'))
@@ -208,7 +208,7 @@ export default function SingerDashboard() {
                                 else alert(res.error === 'NICKNAME_DUPLICATE' ? t('dashboard.error_nickname_taken') : t('dashboard.error_registration_failed'))
                             }
                         }}
-                        className="w-full bg-primary py-4 rounded-2xl font-black text-primary-foreground shadow-xl shadow-primary/20 hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest text-sm"
+                        className="w-full bg-indigo-600 py-4 rounded-2xl font-black text-white shadow-xl shadow-indigo-600/20 hover:bg-indigo-500 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest text-sm"
                     >
                         {t('dashboard.onboarding_btn')}
                     </button>
@@ -222,24 +222,24 @@ export default function SingerDashboard() {
     const displayId = `@${singerId.slice(0, 8)}`
 
     return (
-        <div className="bg-background min-h-screen text-foreground font-display selection:bg-primary/30 pb-20">
-            <nav className="sticky top-0 z-[40] bg-background/80 backdrop-blur-xl border-b border-border px-6 py-4">
+        <div className="bg-[#0f1117] min-h-screen text-slate-100 font-display selection:bg-indigo-500/30 pb-20">
+            <nav className="sticky top-0 z-[40] bg-gray-950/80 backdrop-blur-xl border-b border-white/5 px-6 py-4">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                     <div className="flex items-center gap-6">
-                        <Link href="/" className="text-2xl font-black bg-gradient-to-r from-foreground to-foreground/50 bg-clip-text text-transparent italic tracking-tighter hover:scale-105 transition-transform">
+                        <Link href="/" className="text-2xl font-black bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent italic tracking-tighter hover:scale-105 transition-transform">
                             ANTIGRAVITY.
                         </Link>
-                        <div className="hidden md:flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20 italic">
+                        <div className="hidden md:flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20 italic">
                             <LayoutDashboard className="w-3 h-3" />
                             {t('dashboard.title')}
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
                         <LanguageSwitcher />
-                        <div className="h-6 w-px bg-border mx-2" />
+                        <div className="h-6 w-px bg-white/5 mx-2" />
                         <button
                             onClick={handleLogout}
-                            className="bg-foreground/5 hover:bg-foreground/10 text-foreground/70 p-2.5 rounded-xl border border-border transition-all hover:scale-105 active:scale-95"
+                            className="bg-white/5 hover:bg-white/10 text-gray-400 p-2.5 rounded-xl border border-white/10 transition-all hover:scale-105 active:scale-95"
                             title={t('dashboard.logout')}
                         >
                             <LogOut className="w-5 h-5" />
@@ -249,26 +249,26 @@ export default function SingerDashboard() {
             </nav>
 
             <main className="max-w-7xl mx-auto px-6 py-10 space-y-12">
-                <header className="flex flex-col md:flex-row justify-between items-end gap-8 relative overflow-hidden p-10 rounded-[40px] bg-card shadow-2xl border border-border group">
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-foreground/5 rounded-full blur-[100px] -mr-48 -mt-48 animate-pulse pointer-events-none" />
+                <header className="flex flex-col md:flex-row justify-between items-end gap-8 relative overflow-hidden p-10 rounded-[40px] bg-gradient-to-br from-indigo-600 to-purple-800 shadow-2xl shadow-indigo-600/20 border border-white/10 group">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] -mr-48 -mt-48 animate-pulse pointer-events-none" />
                     <div className="relative z-10 flex-1">
                         <div className="flex flex-col mb-6">
-                            <div className="flex items-center gap-3 text-foreground/60 font-black italic uppercase tracking-[0.2em] text-[10px] mb-2">
+                            <div className="flex items-center gap-3 text-indigo-100/60 font-black italic uppercase tracking-[0.2em] text-[10px] mb-2">
                                 <Clock className="w-3.5 h-3.5" />
                                 <span>{date}</span>
                             </div>
-                            <div className="text-4xl font-mono font-black text-foreground/90 tracking-tighter leading-none">
+                            <div className="text-4xl font-mono font-black text-white/90 tracking-tighter leading-none">
                                 {time}
                             </div>
                         </div>
-                        <h1 className="text-5xl md:text-6xl font-black text-foreground italic tracking-tighter leading-none mb-4 group-hover:scale-[1.01] transition-transform duration-500">
+                        <h1 className="text-5xl md:text-6xl font-black text-white italic tracking-tighter leading-none mb-4 group-hover:scale-[1.01] transition-transform duration-500">
                             {t('dashboard.welcome').replace('{name}', user?.fullName || user?.username || '')}
                         </h1>
-                        <p className="text-foreground/70 text-lg font-bold max-w-xl italic">{t('dashboard.subtitle')}</p>
+                        <p className="text-indigo-100/70 text-lg font-bold max-w-xl italic">{t('dashboard.subtitle')}</p>
                     </div>
                     <div className="flex gap-4 relative z-10 w-full md:w-auto">
-                        <div className="flex flex-col items-end justify-center px-6 bg-foreground/5 rounded-3xl border border-border backdrop-blur-md">
-                            <span className="text-[10px] font-black text-foreground/50 uppercase tracking-widest mb-1">{t('common.points')}</span>
+                        <div className="flex flex-col items-end justify-center px-6 bg-black/20 rounded-3xl border border-white/10 backdrop-blur-md">
+                            <span className="text-[10px] font-black text-indigo-200/50 uppercase tracking-widest mb-1">{t('common.points')}</span>
                             <div className="flex items-center gap-3">
                                 <span className="text-2xl font-mono font-black text-amber-400">{userPoints.toLocaleString()}P</span>
                                 <button onClick={handleChargeTest} className="text-[9px] bg-amber-500/20 hover:bg-amber-500/40 text-amber-400 px-2 py-1 rounded-lg border border-amber-500/30 transition-all font-black uppercase">
@@ -279,7 +279,7 @@ export default function SingerDashboard() {
                         <button
                             onClick={handleStartMode}
                             disabled={isStarting}
-                            className="flex-1 md:flex-none bg-primary text-primary-foreground px-10 py-5 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 border border-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 md:flex-none bg-white text-black px-10 py-5 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 border border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isStarting ? (
                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -292,23 +292,23 @@ export default function SingerDashboard() {
 
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
                     <div className="xl:col-span-8 space-y-12">
-                        <section className="bg-card rounded-[40px] border border-border p-2 overflow-hidden shadow-2xl">
+                        <section className="bg-gray-900/40 rounded-[40px] border border-white/5 p-2 overflow-hidden shadow-2xl">
                             <PerformanceManagement refreshKey={songsRefreshKey} />
                         </section>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                            <section className="bg-card rounded-[40px] border border-border p-8 shadow-2xl relative overflow-hidden group">
-                                <h3 className="text-xl font-black text-card-foreground italic mb-8 flex items-center gap-3">
-                                    <MessageSquare className="w-6 h-6 text-primary" />
+                            <section className="bg-gray-900/40 rounded-[40px] border border-white/5 p-8 shadow-2xl relative overflow-hidden group">
+                                <h3 className="text-xl font-black text-white italic mb-8 flex items-center gap-3">
+                                    <MessageSquare className="w-6 h-6 text-indigo-500" />
                                     {t('booking.title')}
                                 </h3>
                                 <div className="dark">
                                     <BookingRequestsList userId={singerId} />
                                 </div>
                             </section>
-                            <section className="bg-card rounded-[40px] border border-border p-8 shadow-2xl">
-                                <h3 className="text-xl font-black text-card-foreground italic mb-8 flex items-center gap-3">
-                                    <Users className="w-6 h-6 text-primary" />
+                            <section className="bg-gray-900/40 rounded-[40px] border border-white/5 p-8 shadow-2xl">
+                                <h3 className="text-xl font-black text-white italic mb-8 flex items-center gap-3">
+                                    <Users className="w-6 h-6 text-indigo-500" />
                                     {t('common.fans')}
                                 </h3>
                                 <FollowersList singerId={singerId} />
@@ -332,7 +332,7 @@ export default function SingerDashboard() {
                                     }
                                 })
                             }}
-                            className="w-full py-4 text-xs font-black text-foreground/60 hover:text-red-500 transition-all uppercase tracking-widest border border-dashed border-border rounded-3xl"
+                            className="w-full py-4 text-xs font-black text-gray-600 hover:text-red-500 transition-all uppercase tracking-widest border border-dashed border-white/5 rounded-3xl"
                         >
                             {t('dashboard.withdraw_btn')}
                         </button>
@@ -340,7 +340,7 @@ export default function SingerDashboard() {
 
                     <div className="xl:col-span-4 space-y-10">
                         <div className="sticky top-28 space-y-10">
-                            <section className="bg-card rounded-[40px] border border-border p-2 backdrop-blur-md shadow-2xl">
+                            <section className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-[40px] border border-white/5 p-2 backdrop-blur-md shadow-2xl">
                                 <SingerQRCard
                                     singerId={singerId}
                                     displayId={displayId}
@@ -358,7 +358,7 @@ export default function SingerDashboard() {
                                 />
                             </section>
 
-                            <section className="bg-card rounded-[40px] border border-border p-2 shadow-2xl overflow-hidden">
+                            <section className="bg-gray-900/40 rounded-[40px] border border-white/5 p-2 shadow-2xl overflow-hidden">
                                 <SongManagement onSongsUpdated={triggerSongsRefresh} />
                             </section>
                         </div>
