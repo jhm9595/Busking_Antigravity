@@ -25,6 +25,7 @@ import ChatBox from '@/components/chat/ChatBox'
 import ConfirmationModal from '@/components/common/ConfirmationModal'
 import io from 'socket.io-client'
 import Link from 'next/link'
+import GoogleAd from '@/components/common/GoogleAd'
 import { Group as PanelGroup, Panel, Separator as PanelResizeHandle } from 'react-resizable-panels'
 import { getEffectiveStatus } from '@/utils/performance'
 
@@ -709,6 +710,7 @@ function LivePerformanceContent() {
                                     ))}
                                 </div>
                             </div>
+                            <GoogleAd slot="singer_live_left_bottom" className="mt-auto opacity-20 scale-90" />
                         </Panel>
 
                         <PanelResizeHandle className="w-px bg-white/5 hover:bg-indigo-600/50 transition-colors z-20" />

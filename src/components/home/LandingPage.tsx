@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher'
+import GoogleAd from '@/components/common/GoogleAd'
 
 interface LandingPageProps {
     userId: string | null
@@ -52,6 +53,8 @@ export default function LandingPage({ userId, isSinger }: LandingPageProps) {
                         {t('home.explore_button')}
                     </Link>
                 </div>
+
+                <GoogleAd slot="home_hero_bottom" className="mt-20 opacity-50" />
             </div>
         </main>
     )

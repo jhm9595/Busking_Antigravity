@@ -8,6 +8,7 @@ import { getEffectiveStatus, formatLocalDate } from '@/utils/performance'
 import { useClerk, useUser } from '@clerk/nextjs'
 import { useLanguage } from '@/contexts/LanguageContext'
 import Link from 'next/link'
+import GoogleAd from '@/components/common/GoogleAd'
 
 // Dynamically import Map to avoid SSR issues with Leaflet
 const BuskingMap = dynamic(() => import('@/components/audience/BuskingMap'), {
@@ -170,6 +171,8 @@ export default function ExplorePage() {
                                 })
                             )}
                         </div>
+
+                        <GoogleAd slot="explore_grid_bottom" className="mt-12" />
                     </div>
                 )}
             </main>

@@ -51,90 +51,90 @@ body {
   backdrop-filter: blur(var(--glass-blur, 0px));
 }
 
-[data-theme="neo-brutalism"] {
-  --background: #f4f4f0;
-  --foreground: #111111;
-  --color-primary: #ff3366;
+[data-theme="retro-pixel"] {
+  --background: #0a0a0a;
+  --foreground: #00ff00;
+  --color-primary: #ff00ff;
   --button-radius: 0px;
-  --box-shadow: 4px 4px 0px #111111;
-  --card-border: 3px solid #111111;
-  --button-border: 3px solid #111111;
+  --box-shadow: 4px 4px 0px #ff00ff;
+  --card-border: 2px solid #00ff00;
+  --button-border: 2px solid #ff00ff;
   --glass-blur: 0px;
 }
 
-[data-theme="bento-grids"] {
-  --background: #f3f4f6;
-  --foreground: #1f2937;
-  --color-primary: #3b82f6;
-  --button-radius: 16px;
-  --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --card-border: 1px solid #e5e7eb;
+[data-theme="warm-poster"] {
+  --background: #fdf6e3;
+  --foreground: #586e75;
+  --color-primary: #cb4b16;
+  --button-radius: 4px;
+  --box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+  --card-border: 1px solid #eee8d5;
+  --button-border: 1px solid #cb4b16;
+  --glass-blur: 0px;
+}
+
+[data-theme="midnight-busking"] {
+  --background: #020617;
+  --foreground: #f8fafc;
+  --color-primary: #818cf8;
+  --button-radius: 12px;
+  --box-shadow: 0 0 20px rgba(129, 140, 248, 0.2);
+  --card-border: 1px solid rgba(129, 140, 248, 0.2);
+  --button-border: 1px solid rgba(129, 140, 248, 0.3);
+  --glass-blur: 8px;
+}
+
+[data-theme="sunrise-acoustic"] {
+  --background: #fff7ed;
+  --foreground: #431407;
+  --color-primary: #f97316;
+  --button-radius: 20px;
+  --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --card-border: 1px solid #ffedd5;
   --button-border: 1px solid transparent;
   --glass-blur: 0px;
 }
 
-[data-theme="glassmorphism"] {
-  --background: #0f172a;
-  --foreground: #f8fafc;
-  --color-primary: rgba(255, 255, 255, 0.8);
-  --button-radius: 24px;
-  --box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  --card-border: 1px solid rgba(255, 255, 255, 0.18);
-  --button-border: 1px solid rgba(255, 255, 255, 0.18);
-  --glass-blur: 12px;
-}
-
-[data-theme="spatial-ui"] {
+[data-theme="monochrome-stage"] {
   --background: #000000;
   --foreground: #ffffff;
-  --color-primary: #007aff;
-  --button-radius: 100px;
-  --box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
-  --card-border: 1px solid rgba(255,255,255,0.1);
-  --button-border: 1px solid rgba(255,255,255,0.15);
-  --glass-blur: 20px;
-}
-
-[data-theme="kinetic-typography"] {
-  --background: #ffffff;
-  --foreground: #000000;
-  --color-primary: #ff4500;
+  --color-primary: #ffffff;
   --button-radius: 0px;
   --box-shadow: none;
-  --card-border: 1px solid #000000;
-  --button-border: 1px solid #000000;
+  --card-border: 1px solid #ffffff;
+  --button-border: 1px solid #ffffff;
   --glass-blur: 0px;
 }
 
-[data-theme="new-naturalism"] {
-  --background: #e8e5df;
-  --foreground: #3d3831;
-  --color-primary: #6b705c;
-  --button-radius: 30px;
-  --box-shadow: 2px 4px 12px rgba(107, 112, 92, 0.15);
-  --card-border: 1px solid #d4d1cb;
-  --button-border: 1px solid transparent;
-  --glass-blur: 4px;
-}
-
-[data-theme="minimalist-maximalism"] {
-  --background: #ff5500;
-  --foreground: #ffffff;
-  --color-primary: #00ff00;
-  --button-radius: 0px;
-  --box-shadow: 16px 16px 0px #000000;
-  --card-border: 4px solid #000000;
-  --button-border: 4px solid #000000;
+[data-theme="festival-pop"] {
+  --background: #fef08a;
+  --foreground: #1e1b4b;
+  --color-primary: #ec4899;
+  --button-radius: 16px;
+  --box-shadow: 6px 6px 0px #1e1b4b;
+  --card-border: 3px solid #1e1b4b;
+  --button-border: 3px solid #1e1b4b;
   --glass-blur: 0px;
 }
 
-[data-theme="claymorphism"] {
-  --background: #e0e5ec;
-  --foreground: #4a5568;
-  --color-primary: #ff7b9c;
-  --button-radius: 24px;
-  --box-shadow: 8px 8px 16px #a3b1c6, -8px -8px 16px #ffffff, inset 2px 2px 4px rgba(255,255,255,0.5), inset -2px -2px 4px rgba(0,0,0,0.1);
-  --card-border: none;
-  --button-border: none;
+[data-theme="urban-signage"] {
+  --background: #e2e8f0;
+  --foreground: #0f172a;
+  --color-primary: #eab308;
+  --button-radius: 2px;
+  --box-shadow: 2px 2px 0px rgba(0,0,0,0.8);
+  --card-border: 2px solid #0f172a;
+  --button-border: 2px solid #0f172a;
+  --glass-blur: 0px;
+}
+
+[data-theme="minimal-studio"] {
+  --background: #fafafa;
+  --foreground: #171717;
+  --color-primary: #171717;
+  --button-radius: 8px;
+  --box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --card-border: 1px solid #e5e5e5;
+  --button-border: 1px solid #e5e5e5;
   --glass-blur: 0px;
 }

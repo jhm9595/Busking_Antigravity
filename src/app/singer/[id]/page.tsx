@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
+import GoogleAd from '@/components/common/GoogleAd'
 import { Share2, Heart, Music, Mail, ExternalLink, User, MapPin, Calendar, MessageCircle, Play, Home, Clock } from 'lucide-react'
 import { FaFacebook, FaYoutube, FaInstagram, FaSoundcloud, FaTiktok } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
@@ -256,6 +257,8 @@ export default function SingerDetailPage() {
                         </p>
                     </div>
                 )}
+
+                <GoogleAd slot="singer_profile_mid" className="opacity-30 scale-90" />
 
                 {/* 3. PRIMARY ACTION BUTTONS */}
                 <div className="flex gap-3 sticky top-4 z-30 pointer-events-auto">

@@ -18,7 +18,8 @@ If this file changed, treat it as the latest priority and routing source.
 2. Discord webhook format (completed)
 3. Documentation update (completed)
 4. Mobile UX & Kakao Pay Config (completed)
-5. Handoff to QA (next)
+5. 8-Theme System & Ad Placements (completed)
+6. Handoff to QA (next)
 
 ## Active Owner
 
@@ -33,17 +34,21 @@ If this file changed, treat it as the latest priority and routing source.
 - ✅ Documentation update: QA Checklist added and PM Directive synced
 - ✅ Mobile UX: Fixed Theme Switcher touch, increased font sizes (9px -> 12px), fixed modal double-scroll.
 - ✅ Kakao Pay: Refined error messaging and ensured secret injection mapping in deployment.
+- ✅ 8-Theme System: Implemented Retro Pixel Neon, Warm Street Poster, and more.
+- ✅ Ad Placements: Defined non-disruptive slots across all major routes.
 
-### Codex App
+### Codex App (Completed by Atlas)
 
-- Waiting for design tasks.
+- ✅ Redesigned singer-profile live state ("Live Now" module).
+- ✅ Integrated home navigation into headers.
+- ✅ Placed song-request button in setlist header.
 
 ### Antigravity
 
 - Test on actual live site (staging/production).
 - Follow the `docs/QA-TEST-CHECKLIST.md`.
-- Verify mobile interactions: theme switcher, point charge modal height, and readability.
-- Verify Kakao Pay flow on the live production site.
+- Verify the 8 new themes for visual consistency.
+- Verify ad placements are non-disruptive.
 - Do NOT modify code files - only validate and report.
 
 ## Required Handoff Rule

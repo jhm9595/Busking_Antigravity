@@ -10,6 +10,7 @@ import SongRequestModal from '@/components/audience/SongRequestModal'
 import PointChargeModal from '@/components/common/PointChargeModal'
 import { Music, Clock, MessageCircle, X, Check, Archive, Calendar, MapPin, Share2, Home, MessageSquareOff, Heart } from 'lucide-react'
 import Link from 'next/link'
+import GoogleAd from '@/components/common/GoogleAd'
 import { useUser } from '@clerk/nextjs'
 
 export default function AudienceLivePage() {
@@ -286,6 +287,8 @@ export default function AudienceLivePage() {
                                 )}
                             </div>
                         </section>
+
+                        <GoogleAd slot="audience_live_mid" className="opacity-30 scale-90" />
 
                         {chatStatus === 'open' ? (
                             <section className="bg-gray-900 rounded-[32px] border border-white/5 flex flex-col flex-1 min-h-[450px] overflow-hidden shadow-2xl relative mb-20 animate-in slide-in-from-bottom-6 duration-700">

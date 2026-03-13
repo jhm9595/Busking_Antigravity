@@ -8,14 +8,14 @@ const themes = [
   { name: "System", value: "system" },
   { name: "Light", value: "light" },
   { name: "Dark", value: "dark" },
-  { name: "Neo-Brutalism", value: "neo-brutalism" },
-  { name: "Bento Grids", value: "bento-grids" },
-  { name: "Glassmorphism", value: "glassmorphism" },
-  { name: "Spatial UI", value: "spatial-ui" },
-  { name: "Kinetic Typography", value: "kinetic-typography" },
-  { name: "New Naturalism", value: "new-naturalism" },
-  { name: "Minimalist Maximalism", value: "minimalist-maximalism" },
-  { name: "Claymorphism", value: "claymorphism" },
+  { name: "Retro Pixel Neon", value: "retro-pixel" },
+  { name: "Warm Street Poster", value: "warm-poster" },
+  { name: "Midnight Busking", value: "midnight-busking" },
+  { name: "Sunrise Acoustic", value: "sunrise-acoustic" },
+  { name: "Monochrome Stage", value: "monochrome-stage" },
+  { name: "Festival Pop", value: "festival-pop" },
+  { name: "Urban Signage", value: "urban-signage" },
+  { name: "Minimal Studio", value: "minimal-studio" },
 ];
 
 export function ThemeSwitcher() {

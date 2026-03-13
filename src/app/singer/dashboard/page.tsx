@@ -16,6 +16,7 @@ import ConfirmationModal from '@/components/common/ConfirmationModal'
 import FollowersList from '@/components/singer/FollowersList'
 import ClockWidget from '@/components/common/ClockWidget'
 import PointChargeModal from '@/components/common/PointChargeModal'
+import GoogleAd from '@/components/common/GoogleAd'
 
 export default function SingerDashboard() {
     const { t, language } = useLanguage()
@@ -295,6 +296,8 @@ export default function SingerDashboard() {
                         <section className="bg-gray-900/40 rounded-[40px] border border-white/5 p-2 overflow-hidden shadow-2xl">
                             <PerformanceManagement refreshKey={songsRefreshKey} />
                         </section>
+
+                        <GoogleAd slot="singer_dashboard_mid" className="opacity-40" />
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <section className="bg-gray-900/40 rounded-[40px] border border-white/5 p-8 shadow-2xl relative overflow-hidden group">
