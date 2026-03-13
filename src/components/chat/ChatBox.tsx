@@ -38,13 +38,14 @@ interface ChatBoxProps {
     onChatStatusChange?: (status: 'open' | 'closed') => void
     onViewingCountChange?: (count: number) => void
     onSongStatusUpdate?: () => void
+    onMessagesChange?: (messages: Message[]) => void
     socket?: Socket | null
 }
 
 export default function ChatBox({ 
     performanceId, username, userType, controlToken, chatCapacity, avatarConfig, 
     onAcceptRequest, onRejectRequest, onChatStatusChange, 
-    onViewingCountChange, onSongStatusUpdate, socket: externalSocket, className = '' 
+    onViewingCountChange, onSongStatusUpdate, onMessagesChange, socket: externalSocket, className = '' 
 }: ChatBoxProps) {
     const { t } = useLanguage()
     const [messages, setMessages] = useState<Message[]>([])
@@ -97,11 +98,16 @@ export default function ChatBox({
             onChatStatusChange?.(data.status)
         }
         const handleReceiveMessage = (data: Message) => {
-            setMessages(list => [...list, data])
+            setMessages(list => {
+                const newList = [...list, data]
+                onMessagesChange?.(newList)
+                return newList
+            })
             setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
         }
         const handleLoadHistory = (history: Message[]) => {
             setMessages(history)
+            onMessagesChange?.(history)
             setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
         }
         const handleViewingCount = (data: { count: number }) => onViewingCountChange?.(data.count)

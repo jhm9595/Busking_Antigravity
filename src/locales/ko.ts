@@ -292,6 +292,10 @@ export const ko: LocaleTypes = {
         label_venue: '장소',
         badge_now: 'LIVE',
         performing_now: '현재 공연 중',
+        end_performance: '공연 종료',
+        end_performance_desc: '공연이 종료되었습니다. 채팅 기록을 다운로드하시겠습니까?',
+        download_chat: '채팅 기록 다운로드',
+        skip: '건너뛰기',
     },
     avatar: {
         title: '라이브 참여하기',

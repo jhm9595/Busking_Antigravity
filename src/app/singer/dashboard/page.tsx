@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useUser, useClerk } from '@clerk/nextjs'
-import { Music, Clock, MessageSquare, Users, LogOut, LayoutDashboard, Share2, Shield, Calendar } from 'lucide-react'
+import { Music, Clock, MessageSquare, Users, Share2, Shield, Calendar } from 'lucide-react'
 import SongManagement from '@/components/singer/SongManagement'
 import PerformanceManagement from '@/components/singer/PerformanceManagement'
 import BookingRequestsList from '@/components/singer/BookingRequestsList'
@@ -228,26 +228,6 @@ export default function SingerDashboard() {
 
     return (
         <div className="bg-background min-h-screen text-foreground font-display selection:bg-indigo-500/30 pb-20">
-            <nav className="sticky top-16 z-[40] bg-background/80 backdrop-blur-xl border-b border-border px-6 py-4">
-                <div className="max-w-7xl mx-auto flex justify-between items-center">
-                    <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-indigo-500 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20 italic">
-                            <LayoutDashboard className="w-3 h-3" />
-                            {t('dashboard.title')}
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={handleLogout}
-                            className="bg-foreground/5 hover:bg-foreground/10 text-foreground/70 p-2.5 rounded-xl border border-border transition-all hover:scale-105 active:scale-95"
-                            title={t('dashboard.logout')}
-                        >
-                            <LogOut className="w-5 h-5" />
-                        </button>
-                    </div>
-                </div>
-            </nav>
-
             <main className="max-w-7xl mx-auto px-6 py-10 space-y-12">
                 <header className="flex flex-col md:flex-row justify-between items-end gap-8 relative overflow-hidden p-10 rounded-[40px] bg-gradient-to-br from-indigo-600 to-purple-800 shadow-2xl shadow-indigo-600/20 border border-border group">
                     <div className="absolute top-0 right-0 w-96 h-96 bg-foreground/10 rounded-full blur-[100px] -mr-48 -mt-48 animate-pulse pointer-events-none" />
@@ -299,19 +279,11 @@ export default function SingerDashboard() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <section className="bg-card rounded-[40px] border border-border p-8 shadow-2xl relative overflow-hidden group">
-                                <h3 className="text-xl font-black text-foreground italic mb-8 flex items-center gap-3 pr-2">
-                                    <MessageSquare className="w-6 h-6 text-indigo-500" />
-                                    {t('booking.title')}
-                                </h3>
                                 <div className="dark">
                                     <BookingRequestsList userId={singerId} />
                                 </div>
                             </section>
                             <section className="bg-card rounded-[40px] border border-border p-8 shadow-2xl">
-                                <h3 className="text-xl font-black text-foreground italic mb-8 flex items-center gap-3 pr-2">
-                                    <Users className="w-6 h-6 text-indigo-500" />
-                                    {t('common.fans')}
-                                </h3>
                                 <FollowersList singerId={singerId} />
                             </section>
                         </div>
@@ -324,6 +296,7 @@ export default function SingerDashboard() {
                                     singerId={singerId}
                                     displayId={displayId}
                                     nickname={singerData?.stageName}
+                                    avatarUrl={singerData?.profile?.avatarUrl}
                                     qrValue={qrValue}
                                     socialLinks={singerData?.socialLinks ? JSON.parse(singerData.socialLinks) : {}}
                                     bio={singerData?.bio}

@@ -292,6 +292,10 @@ export const ja: LocaleTypes = {
         label_venue: '場所',
         badge_now: 'ライブ中',
         performing_now: '現在公演中',
+        end_performance: 'ライブ終了',
+        end_performance_desc: 'ライブが終了しました。チャット履歴をダウンロードしますか？',
+        download_chat: 'チャット履歴をダウンロード',
+        skip: 'スキップ',
     },
     avatar: {
         title: 'ライブに参加',

@@ -292,6 +292,10 @@ export const zh: LocaleTypes = {
         label_venue: '地点',
         badge_now: '直播中',
         performing_now: '当前演出中',
+        end_performance: '结束演出',
+        end_performance_desc: '演出已结束。是否下载聊天记录？',
+        download_chat: '下载聊天记录',
+        skip: '跳过',
     },
     avatar: {
         title: '参与直播',

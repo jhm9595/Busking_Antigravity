@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { getBookingRequests } from '@/services/singer'
-import { Calendar, Mail, CheckCircle, XCircle, Clock, MapPin } from 'lucide-react'
+import { Calendar, Mail, CheckCircle, XCircle, Clock, MapPin, MessageSquare } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function BookingRequestsList({ userId }: { userId: string }) {
@@ -29,17 +29,22 @@ export default function BookingRequestsList({ userId }: { userId: string }) {
     if (isLoading) return <div className="p-4 text-center text-gray-500 italic uppercase font-black text-[10px] tracking-widest animate-pulse">{t('booking.loading')}</div>
 
     return (
-        <div className="bg-gray-900/40 rounded-[32px] border border-white/5 overflow-hidden shadow-2xl">
-            <div className="bg-gray-950/60 px-6 py-4 border-b border-white/5 flex justify-end items-center">
+        <div className="w-full">
+            <div className="flex justify-between items-center mb-8">
+                <h3 className="text-xl font-black text-white italic flex items-center gap-3 pr-2">
+                    <MessageSquare className="w-6 h-6 text-indigo-500" />
+                    {t('booking.title')}
+                </h3>
                 <button 
                     onClick={fetchRequests} 
-                    className="text-[10px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest transition-colors"
+                    className="text-[10px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest transition-colors bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 rounded-full border border-indigo-500/20"
                 >
                     {t('booking.refresh')}
                 </button>
             </div>
 
-            <div className="divide-y divide-white/5 max-h-[400px] overflow-y-auto custom-scrollbar">
+            <div className="bg-gray-900/40 rounded-[32px] border border-white/5 overflow-hidden shadow-2xl">
+                <div className="divide-y divide-white/5 max-h-[400px] overflow-y-auto custom-scrollbar">
                 {requests.length === 0 ? (
                     <div className="p-12 text-center text-gray-600 flex flex-col items-center gap-3">
                         <Mail className="w-10 h-10 mb-2 opacity-10" />
@@ -114,6 +119,7 @@ export default function BookingRequestsList({ userId }: { userId: string }) {
                     ))
                 )}
             </div>
+        </div>
         </div>
     )
 }

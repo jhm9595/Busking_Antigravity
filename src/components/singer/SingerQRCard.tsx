@@ -12,6 +12,7 @@ interface SingerQRCardProps {
     singerId: string
     displayId: string
     nickname?: string
+    avatarUrl?: string
     qrValue: string
     socialLinks?: {
         instagram?: string
@@ -40,7 +41,7 @@ const getDisplayHandle = (input: string | undefined) => {
     return handle.startsWith('@') ? handle : '@' + handle
 }
 
-export default function SingerQRCard({ singerId, displayId, nickname, qrValue, socialLinks = {}, bio = '', hairColor, topColor, bottomColor, onUpdate }: SingerQRCardProps) {
+export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl, qrValue, socialLinks = {}, bio = '', hairColor, topColor, bottomColor, onUpdate }: SingerQRCardProps) {
     const { t } = useLanguage()
     const [isQRModalOpen, setIsQRModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -160,8 +161,12 @@ export default function SingerQRCard({ singerId, displayId, nickname, qrValue, s
             {/* Profile Card */}
             <div className="bg-white rounded-xl shadow-md p-6 flex flex-col items-center justify-center text-center space-y-4 border border-gray-100">
                 <div className="relative">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-1 overflow-hidden">
-                        <User className="w-8 h-8 text-gray-400" />
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-1 overflow-hidden border-2 border-white shadow-sm">
+                        {avatarUrl ? (
+                            <img src={avatarUrl} alt={nickname || displayId} className="w-full h-full object-cover" />
+                        ) : (
+                            <User className="w-8 h-8 text-gray-400" />
+                        )}
                     </div>
                     {/* Edit Button */}
                     <button

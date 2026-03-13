@@ -3,6 +3,8 @@
 
 import React, { useEffect, useState } from 'react'
 import { Users, User } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
+import Link from 'next/link'
 
 interface Follower {
     id: string
@@ -15,6 +17,7 @@ interface FollowersListProps {
 }
 
 export default function FollowersList({ singerId }: FollowersListProps) {
+    const { t } = useLanguage()
     const [followers, setFollowers] = useState<Follower[]>([])
     const [anonymousCount, setAnonymousCount] = useState(0)
     const [loading, setLoading] = useState(true)
@@ -44,8 +47,11 @@ export default function FollowersList({ singerId }: FollowersListProps) {
 
     return (
         <div className="w-full">
-            <div className="flex items-center justify-between mb-6">
-                <span className="text-sm font-bold text-foreground/70 uppercase tracking-widest">Total Fans</span>
+            <div className="flex items-center justify-between mb-8">
+                <h3 className="text-xl font-black text-foreground italic flex items-center gap-3 pr-2">
+                    <Users className="w-6 h-6 text-indigo-500" />
+                    {t('common.fans')}
+                </h3>
                 <span className="bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 text-xs px-3 py-1 rounded-full font-black">{total}</span>
             </div>
 
@@ -56,7 +62,7 @@ export default function FollowersList({ singerId }: FollowersListProps) {
                     {followers.length > 0 && (
                         <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-4">
                             {followers.map(f => (
-                                <div key={f.id} className="flex flex-col items-center group">
+                                <Link href={`/fans/${f.id}`} key={f.id} className="flex flex-col items-center group">
                                     <div className="w-12 h-12 rounded-full bg-foreground/5 overflow-hidden mb-2 border border-border group-hover:border-indigo-500 transition-colors">
                                         {f.avatarUrl ? (
                                             <img src={f.avatarUrl} alt={f.nickname || 'Fan'} className="w-full h-full object-cover" />
@@ -67,7 +73,7 @@ export default function FollowersList({ singerId }: FollowersListProps) {
                                         )}
                                     </div>
                                     <span className="text-[10px] text-foreground/70 font-bold truncate w-full text-center group-hover:text-indigo-500 transition-colors">{f.nickname || 'Fan'}</span>
-                                </div>
+                                </Link>
                             ))}
                         </div>
                     )}

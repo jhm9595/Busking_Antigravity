@@ -33,34 +33,36 @@ export default function LanguageSwitcher() {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-1.5 md:gap-2 px-2 py-1 md:px-3 md:py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors text-sm font-medium border border-gray-200"
+                className="p-3 md:p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-background/90 backdrop-blur-md border border-border shadow-lg hover:bg-accent transition-all active:scale-95 touch-manipulation text-foreground"
                 title="Switch Language"
             >
-                <span className="text-base leading-none">{currentLang.flag}</span>
-                <span className="hidden md:inline">{currentLang.label}</span>
-                <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <Globe className="w-5 h-5 md:w-4 md:h-4 text-primary" />
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-100 overflow-hidden z-50">
-                    <ul className="py-1">
+                <div className="absolute right-0 mt-3 w-48 bg-background border border-border rounded-2xl shadow-2xl overflow-hidden z-50">
+                    <div className="py-2 max-h-[70vh] overflow-y-auto custom-scrollbar">
                         {languages.map((lang) => (
-                            <li key={lang.code}>
-                                <button
-                                    onClick={() => {
-                                        setLanguage(lang.code)
-                                        setIsOpen(false)
-                                    }}
-                                    className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-3
-                                        ${language === lang.code ? 'text-indigo-600 font-semibold bg-indigo-50' : 'text-gray-700'}
-                                    `}
-                                >
-                                    <span className="text-base">{lang.flag}</span>
+                            <button
+                                key={lang.code}
+                                onClick={() => {
+                                    setLanguage(lang.code)
+                                    setIsOpen(false)
+                                }}
+                                className={`w-full flex items-center justify-between px-5 py-3.5 md:px-4 md:py-2.5 text-base md:text-sm transition-colors ${
+                                    language === lang.code 
+                                        ? "bg-primary/10 text-primary font-bold" 
+                                        : "text-foreground hover:bg-accent"
+                                }`}
+                            >
+                                <span className="flex items-center gap-3">
+                                    <span className="text-lg">{lang.flag}</span>
                                     <span>{lang.label}</span>
-                                </button>
-                            </li>
+                                </span>
+                                {language === lang.code && <ChevronDown className="w-5 h-5 md:w-4 md:h-4 rotate-180" />}
+                            </button>
                         ))}
-                    </ul>
+                    </div>
                 </div>
             )}
         </div>

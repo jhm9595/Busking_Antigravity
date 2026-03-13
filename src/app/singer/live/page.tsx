@@ -28,6 +28,7 @@ import Link from 'next/link'
 import GoogleAd from '@/components/common/GoogleAd'
 import { Group as PanelGroup, Panel, Separator as PanelResizeHandle } from 'react-resizable-panels'
 import { getEffectiveStatus } from '@/utils/performance'
+import { downloadChatAsText, ChatMessage } from '@/utils/chatDownload'
 
 function LivePerformanceContent() {
     const { t } = useLanguage()
@@ -65,6 +66,14 @@ function LivePerformanceContent() {
     const [isEnablingChat, setIsEnablingChat] = useState(false)
     const [ownerControlToken, setOwnerControlToken] = useState<string | null>(null)
     const ownerControlTokenRef = useRef<string | null>(null)
+    const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
+    const chatMessagesRef = useRef<ChatMessage[]>([])
+    const [showEndModal, setShowEndModal] = useState(false)
+
+    const handleMessagesChange = useCallback((messages: ChatMessage[]) => {
+        setChatMessages(messages)
+        chatMessagesRef.current = messages
+    }, [])
 
     const updateOwnerControlToken = useCallback((nextToken: string | null) => {
         ownerControlTokenRef.current = nextToken
@@ -186,7 +195,11 @@ function LivePerformanceContent() {
             setRequests(reqData)
 
             if (perfData.status === 'completed' || perfData.status === 'canceled') {
-                router.push('/singer/dashboard')
+                if (perfData.status === 'completed' && perfData.chatEnabled) {
+                    setShowEndModal(true)
+                } else {
+                    router.push('/singer/dashboard')
+                }
                 return
             }
             if (perfData.singerId) {
@@ -337,7 +350,11 @@ function LivePerformanceContent() {
             onConfirm: async () => {
                 await emitOwnerControlEvent('performance_ended', { performanceId })
                 await updatePerformanceStatus(performanceId!, 'completed')
-                router.push('/singer/dashboard')
+                if (chatStatus === 'open') {
+                    setShowEndModal(true)
+                } else {
+                    router.push('/singer/dashboard')
+                }
             }
         })
     }
@@ -628,7 +645,7 @@ function LivePerformanceContent() {
                                         </button>
                                     </div>
                                 )}
-                                <ChatBox performanceId={performanceId!} username="Singer" userType="singer" controlToken={ownerControlToken} socket={socket} className="flex-1 !rounded-none !border-0" onViewingCountChange={setViewingCount} onChatStatusChange={setChatStatus} onAcceptRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleAcceptRequest(r.id) }} onRejectRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleRejectRequest(r.id) }} />
+                                <ChatBox performanceId={performanceId!} username="Singer" userType="singer" controlToken={ownerControlToken} socket={socket} className="flex-1 !rounded-none !border-0" onViewingCountChange={setViewingCount} onChatStatusChange={setChatStatus} onMessagesChange={handleMessagesChange} onAcceptRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleAcceptRequest(r.id) }} onRejectRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleRejectRequest(r.id) }} />
                             </div>
                         )}
                     </div>
@@ -824,6 +841,7 @@ function LivePerformanceContent() {
                                 className="flex-1 !rounded-none !border-0"
                                 onViewingCountChange={setViewingCount}
                                 onChatStatusChange={setChatStatus}
+                                onMessagesChange={handleMessagesChange}
                                 onAcceptRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleAcceptRequest(r.id) }}
                                 onRejectRequest={(t) => { const r = requests.find(x => x.title === t && x.status === 'pending'); if (r) handleRejectRequest(r.id) }}
                             />
@@ -881,6 +899,37 @@ function LivePerformanceContent() {
             )}
 
             <ConfirmationModal isOpen={confirmModal.isOpen} title={confirmModal.title} message={confirmModal.message} onConfirm={confirmModal.onConfirm} onCancel={() => setConfirmModal(p => ({ ...p, isOpen: false }))} />
+
+            {showEndModal && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+                    <div className="bg-gray-900 w-full max-w-md rounded-2xl border border-gray-800 shadow-2xl flex flex-col overflow-hidden">
+                        <div className="p-6 text-center">
+                            <div className="w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-indigo-500/20">
+                                <MessageSquare className="w-8 h-8 text-indigo-500" />
+                            </div>
+                            <h3 className="text-xl font-black text-white mb-2">{t('live.end_performance')}</h3>
+                            <p className="text-gray-400 text-sm mb-6">{t('live.end_performance_desc')}</p>
+                            <div className="flex flex-col gap-3">
+                                <button
+                                    onClick={() => {
+                                        downloadChatAsText(chatMessagesRef.current, performance.title)
+                                        router.push('/singer/dashboard')
+                                    }}
+                                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-indigo-600/20"
+                                >
+                                    {t('live.download_chat')}
+                                </button>
+                                <button
+                                    onClick={() => router.push('/singer/dashboard')}
+                                    className="w-full bg-white/5 hover:bg-white/10 text-gray-300 py-3 rounded-xl font-bold transition-all"
+                                >
+                                    {t('live.skip')}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

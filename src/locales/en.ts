@@ -290,6 +290,10 @@ export const en = {
         label_venue: 'Venue',
         badge_now: 'NOW',
         performing_now: 'Performing Now',
+        end_performance: 'End Performance',
+        end_performance_desc: 'The performance has ended. Would you like to download the chat history?',
+        download_chat: 'Download Chat History',
+        skip: 'Skip',
     },
     avatar: {
         title: 'Join the Live',

@@ -292,6 +292,10 @@ export const zhTW: LocaleTypes = {
         label_venue: '地點',
         badge_now: '直播中',
         performing_now: '當前演出中',
+        end_performance: '結束演出',
+        end_performance_desc: '演出已結束。是否下載聊天記錄？',
+        download_chat: '下載聊天記錄',
+        skip: '跳過',
     },
     avatar: {
         title: '參與直播',

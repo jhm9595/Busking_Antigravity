@@ -6,9 +6,10 @@ import ChatBox from '@/components/chat/ChatBox'
 import io, { Socket } from 'socket.io-client'
 import { getPerformanceById, getSinger, createBookingRequest, getUserPoints, chargePoints, sponsorSinger } from '@/services/singer'
 import { getEffectiveStatus, formatLocalTime } from '@/utils/performance'
+import { downloadChatAsText, ChatMessage } from '@/utils/chatDownload'
 import SongRequestModal from '@/components/audience/SongRequestModal'
 import PointChargeModal from '@/components/common/PointChargeModal'
-import { Music, Clock, MessageCircle, X, Check, Archive, Calendar, MapPin, Share2, Home, MessageSquareOff, Heart, Tv } from 'lucide-react'
+import { Music, Clock, MessageCircle, X, Check, Archive, Calendar, MapPin, Share2, Home, MessageSquareOff, MessageSquare, Heart, Tv } from 'lucide-react'
 import Link from 'next/link'
 import GoogleAd from '@/components/common/GoogleAd'
 import { useUser } from '@clerk/nextjs'
@@ -31,10 +32,19 @@ export default function AudienceLivePage() {
     const [isFollowed, setIsFollowed] = useState(false)
     const [userPoints, setUserPoints] = useState(0)
     const [chatStatus, setChatStatus] = useState<'open' | 'closed'>('closed')
+    const chatStatusRef = React.useRef<'open' | 'closed'>('closed')
     const [isSponsoring, setIsSponsoring] = useState(false)
+    const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
+    const chatMessagesRef = React.useRef<ChatMessage[]>([])
+    const [showEndModal, setShowEndModal] = useState(false)
     
     const { user, isLoaded } = useUser()
     const { t } = useLanguage()
+
+    const handleMessagesChange = useCallback((messages: ChatMessage[]) => {
+        setChatMessages(messages)
+        chatMessagesRef.current = messages
+    }, [])
 
     const refreshData = useCallback(async () => {
         if (!id) return
@@ -44,12 +54,17 @@ export default function AudienceLivePage() {
                 // Check if performance is already ended
                 if (p.status === 'completed' || p.status === 'canceled') {
                     setPerformance({ ...p })
-                    setShowRedirectionModal(true)
+                    if (p.status === 'completed' && p.chatEnabled) {
+                        setShowEndModal(true)
+                    } else {
+                        setShowRedirectionModal(true)
+                    }
                     return
                 }
 
                 setPerformance({ ...p })
                 setChatStatus(p.chatEnabled ? 'open' : 'closed')
+                chatStatusRef.current = p.chatEnabled ? 'open' : 'closed'
                 
                 if (p.singerId) {
                     const s = await getSinger(p.singerId)
@@ -111,12 +126,19 @@ export default function AudienceLivePage() {
 
         socket.on('performance_ended', () => {
             refreshData()
+            const wasOpen = chatStatusRef.current === 'open'
             setChatStatus('closed') // Explicitly close chat on end
-            setShowRedirectionModal(true)
+            chatStatusRef.current = 'closed'
+            if (wasOpen) {
+                setShowEndModal(true)
+            } else {
+                setShowRedirectionModal(true)
+            }
         })
         
         socket.on('chat_status', (data: { status: 'open' | 'closed' }) => {
             setChatStatus(data.status)
+            chatStatusRef.current = data.status
             // Synchronize performance state for layout purposes
             setPerformance((prev: any) => prev ? { ...prev, chatEnabled: data.status === 'open' } : prev)
         })
@@ -124,6 +146,7 @@ export default function AudienceLivePage() {
         socket.on('chat_status_toggled', (data: { enabled: boolean }) => {
             const newStatus = data.enabled ? 'open' : 'closed'
             setChatStatus(newStatus)
+            chatStatusRef.current = newStatus
             setPerformance((prev: any) => prev ? { ...prev, chatEnabled: data.enabled } : prev)
         })
 
@@ -350,6 +373,7 @@ export default function AudienceLivePage() {
                                     socket={activeSocket || undefined}
                                     className="flex-1 !rounded-none !border-0"
                                     onViewingCountChange={setViewingCount}
+                                    onMessagesChange={handleMessagesChange}
                                 />
                             </section>
                         ) : (
@@ -372,6 +396,41 @@ export default function AudienceLivePage() {
                         <button onClick={handleWatchAdSponsor} disabled={isSponsoring} className="flex-1 bg-emerald-500 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl hover:bg-emerald-400 hover:scale-[1.02] active:scale-95 transition-all border border-emerald-400/50 italic flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                             {isSponsoring ? '...' : <><Tv className="w-4 h-4 fill-current" /> {t('live.sponsor_ad_btn') || '광고보고 후원'}</>}
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {showEndModal && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+                    <div className="bg-gray-900 w-full max-w-md rounded-2xl border border-gray-800 shadow-2xl flex flex-col overflow-hidden">
+                        <div className="p-6 text-center">
+                            <div className="w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-indigo-500/20">
+                                <MessageSquare className="w-8 h-8 text-indigo-500" />
+                            </div>
+                            <h3 className="text-xl font-black text-white mb-2">{t('live.end_performance')}</h3>
+                            <p className="text-gray-400 text-sm mb-6">{t('live.end_performance_desc')}</p>
+                            <div className="flex flex-col gap-3">
+                                <button
+                                    onClick={() => {
+                                        downloadChatAsText(chatMessagesRef.current, performance.title)
+                                        setShowEndModal(false)
+                                        setShowRedirectionModal(true)
+                                    }}
+                                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-indigo-600/20"
+                                >
+                                    {t('live.download_chat')}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowEndModal(false)
+                                        setShowRedirectionModal(true)
+                                    }}
+                                    className="w-full bg-white/5 hover:bg-white/10 text-gray-300 py-3 rounded-xl font-bold transition-all"
+                                >
+                                    {t('live.skip')}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
