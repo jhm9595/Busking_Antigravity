@@ -1,0 +1,124 @@
+.container {
+    position: relative;
+}
+
+.trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    background-color: var(--background);
+    border: 1px solid var(--color-border);
+    color: var(--foreground);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.trigger:hover {
+    background-color: var(--color-accent);
+}
+
+.trigger:active {
+    transform: scale(0.95);
+}
+
+.icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--color-primary);
+}
+
+@media (min-width: 768px) {
+    .trigger {
+        padding: 0.5rem;
+    }
+    
+    .icon {
+        width: 1rem;
+        height: 1rem;
+    }
+}
+
+.dropdown {
+    position: absolute;
+    right: 0;
+    margin-top: 0.75rem;
+    width: 12rem;
+    background-color: var(--color-card, var(--background));
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    z-index: 50;
+    animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.list {
+    padding: 0.5rem;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    background: none;
+    border: none;
+    border-radius: 0.5rem;
+    color: var(--foreground);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: left;
+}
+
+.item:hover {
+    background-color: var(--color-accent);
+}
+
+.item.active {
+    background-color: rgba(137, 90, 246, 0.1);
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.itemContent {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.flag {
+    font-size: 1.125rem;
+    line-height: 1;
+}
+
+.checkmark {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--color-primary);
+}
+
+@media (min-width: 768px) {
+    .item {
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+    }
+}

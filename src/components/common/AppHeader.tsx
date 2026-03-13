@@ -6,6 +6,7 @@ import { ThemeSwitcher } from '@/components/ThemeSwitcher'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher'
 import { LogOut } from 'lucide-react'
 import { useUser, useClerk } from '@clerk/nextjs'
+import styles from './AppHeader.module.css'
 
 export default function AppHeader() {
     const pathname = usePathname()
@@ -21,23 +22,23 @@ export default function AppHeader() {
     }
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md transition-colors duration-300">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Link href="/" className="text-xl font-black italic tracking-tighter hover:opacity-80 transition-opacity">
+        <header className={styles.header}>
+            <div className={styles.container}>
+                <div className={styles.logoSection}>
+                    <Link href="/" className={styles.logo}>
                         miniMic
                     </Link>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className={styles.actions}>
                     <LanguageSwitcher />
                     <ThemeSwitcher />
                     {isLoaded && user && isSingerPage && (
                         <button
                             onClick={handleLogout}
-                            className="p-3 md:p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-background/90 backdrop-blur-md border border-border shadow-lg hover:bg-accent transition-all active:scale-95 touch-manipulation text-foreground"
+                            className={styles.iconButton}
                             title="Logout"
                         >
-                            <LogOut className="w-5 h-5 md:w-4 md:h-4 text-primary" />
+                            <LogOut />
                         </button>
                     )}
                 </div>

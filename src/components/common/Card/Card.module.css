@@ -1,0 +1,77 @@
+/* Card Component Styles */
+.card {
+    background-color: var(--color-card, var(--background));
+    color: var(--color-card-foreground, var(--foreground));
+    border-radius: var(--button-radius, 0.5rem);
+    border: 1px solid var(--color-border);
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+/* Variants */
+.default {
+    box-shadow: var(--box-shadow, 0 1px 3px 0 rgb(0 0 0 / 0.1));
+}
+
+.elevated {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.outlined {
+    border-width: 2px;
+    box-shadow: none;
+}
+
+.glass {
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(var(--glass-blur, 0px));
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Padding */
+.padding-none {
+    padding: 0;
+}
+
+.padding-sm {
+    padding: 0.5rem;
+}
+
+.padding-md {
+    padding: 1rem;
+}
+
+.padding-lg {
+    padding: 1.5rem;
+}
+
+/* Interactive States */
+.hoverable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+}
+
+.clickable {
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    font-family: inherit;
+}
+
+/* Card Sections */
+.header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.content {
+    padding: 1.5rem;
+}
+
+.footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}

@@ -3,6 +3,7 @@
 import { useLanguage } from '@/contexts/LanguageContext'
 import { Globe, ChevronDown } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
+import styles from './LanguageSwitcher.module.css'
 
 export default function LanguageSwitcher() {
     const { language, setLanguage } = useLanguage()
@@ -30,18 +31,18 @@ export default function LanguageSwitcher() {
     }, [])
 
     return (
-        <div className="relative" ref={dropdownRef}>
+        <div className={styles.container} ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="p-3 md:p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-background/90 backdrop-blur-md border border-border shadow-lg hover:bg-accent transition-all active:scale-95 touch-manipulation text-foreground"
+                className={styles.trigger}
                 title="Switch Language"
             >
-                <Globe className="w-5 h-5 md:w-4 md:h-4 text-primary" />
+                <Globe className={styles.icon} />
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-3 w-48 bg-background border border-border rounded-2xl shadow-2xl overflow-hidden z-50">
-                    <div className="py-2 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <div className={styles.dropdown}>
+                    <div className={styles.list}>
                         {languages.map((lang) => (
                             <button
                                 key={lang.code}
@@ -49,17 +50,13 @@ export default function LanguageSwitcher() {
                                     setLanguage(lang.code)
                                     setIsOpen(false)
                                 }}
-                                className={`w-full flex items-center justify-between px-5 py-3.5 md:px-4 md:py-2.5 text-base md:text-sm transition-colors ${
-                                    language === lang.code 
-                                        ? "bg-primary/10 text-primary font-bold" 
-                                        : "text-foreground hover:bg-accent"
-                                }`}
+                                className={`${styles.item} ${language === lang.code ? styles.active : ''}`}
                             >
-                                <span className="flex items-center gap-3">
-                                    <span className="text-lg">{lang.flag}</span>
+                                <span className={styles.itemContent}>
+                                    <span className={styles.flag}>{lang.flag}</span>
                                     <span>{lang.label}</span>
                                 </span>
-                                {language === lang.code && <ChevronDown className="w-5 h-5 md:w-4 md:h-4 rotate-180" />}
+                                {language === lang.code && <ChevronDown className={styles.checkmark} />}
                             </button>
                         ))}
                     </div>

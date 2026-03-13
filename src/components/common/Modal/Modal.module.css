@@ -1,0 +1,114 @@
+/* Modal Component Styles */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 100;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal {
+    background-color: var(--color-card, var(--background));
+    color: var(--color-card-foreground, var(--foreground));
+    border: 1px solid var(--color-border);
+    border-radius: var(--button-radius, 1rem);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Sizes */
+.sm {
+    width: 100%;
+    max-width: 24rem;
+}
+
+.md {
+    width: 100%;
+    max-width: 32rem;
+}
+
+.lg {
+    width: 100%;
+    max-width: 48rem;
+}
+
+.full {
+    width: 100%;
+    max-width: 90vw;
+    height: 90vh;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.closeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-muted-foreground);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+    background-color: var(--color-accent);
+    color: var(--color-foreground);
+}
+
+.closeIcon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.content {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
