@@ -48,7 +48,8 @@ export default function RootLayout({
             ) : null}
             <LanguageProvider>
               <LanguageHandler>
-                <div className="fixed bottom-4 right-4 z-50">
+                {/* Global Theme Switcher - Top Right, below safe area */}
+                <div className="fixed top-4 right-4 z-50">
                   <ThemeSwitcher />
                 </div>
                 {children}

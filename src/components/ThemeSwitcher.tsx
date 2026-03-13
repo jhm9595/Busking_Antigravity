@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useTheme } from "next-themes";
-import { Palette } from "lucide-react";
+import { Palette, Check } from "lucide-react";
 
 const themes = [
   { name: "System", value: "system" },
@@ -21,50 +21,68 @@ const themes = [
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Close dropdown when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.theme-dropdown')) {
+        setIsOpen(false);
+      }
+    };
+    
+    if (isOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isOpen]);
+
   if (!mounted) {
-    return <div className="w-10 h-10" />; // Placeholder to avoid layout shift
+    return <div className="w-8 h-8" />;
   }
 
   return (
-    <div className="relative inline-block text-left group z-50">
+    <div className="relative theme-dropdown z-50">
       <button
         type="button"
-        className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-        id="theme-menu-button"
-        aria-expanded="true"
-        aria-haspopup="true"
+        onClick={() => setIsOpen(!isOpen)}
+        className="p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-accent transition-colors"
+        aria-label="Toggle theme"
+        aria-expanded={isOpen}
       >
-        <Palette className="w-5 h-5" />
+        <Palette className="w-4 h-4" />
       </button>
 
-      <div
-        className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-background border border-border shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200"
-        role="menu"
-        aria-orientation="vertical"
-        aria-labelledby="theme-menu-button"
-        tabIndex={-1}
-      >
-        <div className="py-1" role="none">
-          {themes.map((t) => (
-            <button
-              key={t.value}
-              onClick={() => setTheme(t.value)}
-              className={`${
-                theme === t.value ? "bg-primary/10 text-primary font-medium" : "text-foreground hover:bg-foreground/5"
-              } block w-full text-left px-4 py-2 text-sm transition-colors`}
-              role="menuitem"
-              tabIndex={-1}
-            >
-              {t.name}
-            </button>
-          ))}
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="py-1 max-h-[60vh] overflow-y-auto">
+            {themes.map((t) => (
+              <button
+                key={t.value}
+                onClick={() => {
+                  setTheme(t.value);
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${
+                  theme === t.value 
+                    ? "bg-primary/10 text-primary font-medium" 
+                    : "text-foreground hover:bg-accent"
+                }`}
+              >
+                <span>{t.name}</span>
+                {theme === t.value && <Check className="w-4 h-4" />}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
