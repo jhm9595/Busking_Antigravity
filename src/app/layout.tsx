@@ -8,8 +8,33 @@ const systemSans = "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
 const systemMono = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
 
 export const metadata: Metadata = {
-  title: "BuskerKing",
+  title: "miniMic",
   description: "Street performance revolution",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", type: "image/png" }],
+  },
+  openGraph: {
+    title: "miniMic",
+    description: "Street performance revolution",
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: "miniMic brand preview",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "miniMic",
+    description: "Street performance revolution",
+    images: ["/twitter-image.png"],
+  },
 };
 
 import { LanguageProvider } from "@/contexts/LanguageContext";
