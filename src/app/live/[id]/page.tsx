@@ -8,10 +8,11 @@ import { getPerformanceById, getSinger, createBookingRequest, getUserPoints, cha
 import { getEffectiveStatus, formatLocalTime } from '@/utils/performance'
 import SongRequestModal from '@/components/audience/SongRequestModal'
 import PointChargeModal from '@/components/common/PointChargeModal'
-import { Music, Clock, MessageCircle, X, Check, Archive, Calendar, MapPin, Share2, Home, MessageSquareOff, Heart } from 'lucide-react'
+import { Music, Clock, MessageCircle, X, Check, Archive, Calendar, MapPin, Share2, Home, MessageSquareOff, Heart, Tv } from 'lucide-react'
 import Link from 'next/link'
 import GoogleAd from '@/components/common/GoogleAd'
 import { useUser } from '@clerk/nextjs'
+import { showAdModal } from '@/utils/adModal'
 
 export default function AudienceLivePage() {
     const params = useParams()
@@ -163,6 +164,37 @@ export default function AudienceLivePage() {
         } finally {
             setIsSponsoring(false)
         }
+    }
+
+    const handleWatchAdSponsor = async () => {
+        if (!isLoaded || isSponsoring) return
+        if (!user) {
+            router.push(`/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`)
+            return
+        }
+        if (!singer?.id) return
+
+        setIsSponsoring(true)
+        
+        // Show ad and wait for completion
+        const watched = await showAdModal(t)
+        
+        if (watched && singer?.id) {
+            // Sponsor 10 points to singer
+            const res = await sponsorSinger(user.id, singer.id, 10)
+            if (res.success) {
+                if (activeSocket) {
+                    activeSocket.emit('donation_received', {
+                        performanceId: id,
+                        username: user.fullName || user.username || user.id,
+                        amount: 10
+                    })
+                }
+                alert(t('live.ad_sponsor_success') || 'You sponsored 10 points to the singer!')
+                refreshData()
+            }
+        }
+        setIsSponsoring(false)
     }
 
     const handleSongRequest = async (title: string, artist: string) => {
@@ -325,7 +357,12 @@ export default function AudienceLivePage() {
             {!isCompleted && (
                 <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/90 to-transparent flex justify-center z-40 pointer-events-none">
                     <div className="flex gap-2 w-full max-w-lg pointer-events-auto">
-                        <button onClick={() => handleSponsor(500)} disabled={isSponsoring} className="flex-1 bg-amber-500 text-black py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl hover:bg-amber-400 hover:scale-[1.02] active:scale-95 transition-all border border-amber-400/50 italic flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">{isSponsoring ? '...' : <><Heart className="w-4 h-4 fill-current" /> {t('live.sponsor_btn')} (500P)</>}</button>
+                        <button onClick={() => handleSponsor(500)} disabled={isSponsoring} className="flex-1 bg-amber-500 text-black py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl hover:bg-amber-400 hover:scale-[1.02] active:scale-95 transition-all border border-amber-400/50 italic flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                            {isSponsoring ? '...' : <><Heart className="w-4 h-4 fill-current" /> {t('live.sponsor_btn')} (500P)</>}
+                        </button>
+                        <button onClick={handleWatchAdSponsor} disabled={isSponsoring} className="flex-1 bg-emerald-500 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl hover:bg-emerald-400 hover:scale-[1.02] active:scale-95 transition-all border border-emerald-400/50 italic flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                            {isSponsoring ? '...' : <><Tv className="w-4 h-4 fill-current" /> {t('live.sponsor_ad_btn') || '광고보고 후원'}</>}
+                        </button>
                     </div>
                 </div>
             )}

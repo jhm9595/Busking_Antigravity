@@ -1,8 +1,9 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { X, Zap, Star, Trophy, Crown, Check, Coins, CreditCard, MessageCircle, ChevronRight } from 'lucide-react'
+import { X, Zap, Star, Trophy, Crown, Check, Coins, CreditCard, MessageCircle, ChevronRight, Tv } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { chargePoints } from '@/services/singer'
+import { showAdModal } from '@/utils/adModal'
 import Script from 'next/script'
 
 interface PointPackage {
@@ -107,6 +108,24 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
         setIsSubmitting(false)
     }
 
+    const handleWatchAd = async () => {
+        if (isSubmitting) return
+        setIsSubmitting(true)
+        
+        // Show ad modal (simulated)
+        const watched = await showAdModal(t)
+        
+        if (watched) {
+            // Award free points (e.g., 50 points for watching ad)
+            const res = await chargePoints(userId, 50)
+            if (res.success) {
+                alert(t('common.ad_reward') || 'You earned 50 points!')
+                onSuccess(res.points!)
+            }
+        }
+        setIsSubmitting(false)
+    }
+
     if (!isOpen) return null
 
     return (
@@ -207,6 +226,23 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                     <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">{t('common.payment_stripe')}</span>
                                 </button>
                             </div>
+                        </div>
+
+                        {/* 3. Watch Ad Option */}
+                        <div className="space-y-2 md:space-y-3">
+                            <h3 className="text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-[0.2em] italic px-2">
+                                {t('common.free_points')}
+                            </h3>
+                            <button
+                                onClick={handleWatchAd}
+                                disabled={isSubmitting}
+                                className={`w-full flex items-center justify-center gap-2 p-3.5 min-h-[48px] rounded-2xl border-2 transition-all bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/50 ${
+                                    isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
+                            >
+                                <Tv className="w-4 h-4 md:w-5 md:h-5" />
+                                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">{t('common.watch_ad')}</span>
+                            </button>
                         </div>
                     </main>
 

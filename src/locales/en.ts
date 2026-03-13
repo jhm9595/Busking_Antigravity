@@ -44,6 +44,9 @@ export const en = {
         not_found_artist: 'ARTIST NOT FOUND',
         error_fetch_singer: 'Failed to fetch singer',
         error_follow: 'Failed to follow',
+        watch_ad: 'Watch Ad',
+        free_points: 'Free Points',
+        ad_reward: 'You earned 50 points!',
     },
     home: {
         title: 'BuskerKing',
@@ -260,6 +263,8 @@ export const en = {
         enter_live: 'Enter Performance',
         enter_chat: 'Join Chat',
         sponsor_btn: 'Sponsor',
+        sponsor_ad_btn: 'Sponsor via Ad',
+        ad_sponsor_success: 'You sponsored 10 points to the singer!',
         status_live: 'Live Now',
         status_syncing: 'Syncing...',
         info_show: 'View Info & Setlist',

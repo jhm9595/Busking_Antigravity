@@ -46,6 +46,9 @@ export const ko: LocaleTypes = {
         not_found_artist: '아티스트를 찾을 수 없습니다',
         error_fetch_singer: '아티스트 정보를 불러오는데 실패했습니다',
         error_follow: '팔로우 처리에 실패했습니다',
+        watch_ad: '광고 보기',
+        free_points: '무료 포인트',
+        ad_reward: '광고를 시청하여 50포인트를 획득했습니다!',
     },
     home: {
         title: 'BuskerKing',
@@ -262,6 +265,8 @@ export const ko: LocaleTypes = {
         enter_live: '공연 입장',
         enter_chat: '채팅 참여',
         sponsor_btn: '후원하기',
+        sponsor_ad_btn: '광고보고 후원',
+        ad_sponsor_success: '가수에게 10포인트를 후원했습니다!',
         status_live: '라이브 중',
         status_syncing: '동기화 중...',
         info_show: '공연 정보 및 셋리스트 보기',

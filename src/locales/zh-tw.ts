@@ -46,6 +46,9 @@ export const zhTW: LocaleTypes = {
         not_found_artist: '未找到該藝人',
         error_fetch_singer: '獲取藝人資訊失敗',
         error_follow: '關注操作失敗',
+        watch_ad: '觀看廣告',
+        free_points: '免費積分',
+        ad_reward: '觀看廣告獲得50積分！',
     },
     home: {
         title: 'BuskerKing',
@@ -262,6 +265,8 @@ export const zhTW: LocaleTypes = {
         enter_live: '進入直播',
         enter_chat: '參與聊天',
         sponsor_btn: '贊助',
+        sponsor_ad_btn: '看廣告贊助',
+        ad_sponsor_success: '您向藝人贊助了10積分！',
         status_live: '直播中',
         status_syncing: '同步中...',
         info_show: '查看資訊與歌單',
