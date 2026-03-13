@@ -231,10 +231,7 @@ export default function SingerDashboard() {
             <nav className="sticky top-16 z-[40] bg-background/80 backdrop-blur-xl border-b border-border px-6 py-4">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                     <div className="flex items-center gap-6">
-                        <Link href="/" className="text-2xl font-black bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent italic tracking-tighter hover:scale-105 transition-transform">
-                            ANTIGRAVITY.
-                        </Link>
-                        <div className="hidden md:flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-indigo-500 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20 italic">
+                        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-indigo-500 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20 italic">
                             <LayoutDashboard className="w-3 h-3" />
                             {t('dashboard.title')}
                         </div>
@@ -268,12 +265,12 @@ export default function SingerDashboard() {
                             {t('dashboard.welcome').replace('{name}', user?.fullName || user?.username || '')}
                         </h1>
                     </div>
-                    <div className="flex gap-4 relative z-10 w-full md:w-auto">
-                        <div className="flex flex-col items-end justify-center px-6 bg-background/20 rounded-3xl border border-border backdrop-blur-md">
-                            <span className="text-xs font-black text-indigo-200/50 uppercase tracking-widest mb-1">{t('common.points')}</span>
+                    <div className="flex flex-col md:flex-row gap-4 relative z-10 w-full md:w-auto">
+                        <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center px-4 py-3 md:px-6 md:py-0 bg-background/20 rounded-3xl border border-border backdrop-blur-md">
+                            <span className="text-xs font-black text-indigo-200/50 uppercase tracking-widest md:mb-1">{t('common.points')}</span>
                             <div className="flex items-center gap-3">
-                                <span className="text-2xl font-mono font-black text-amber-400">{userPoints.toLocaleString()}P</span>
-                                <button onClick={handleChargeTest} className="text-xs bg-amber-500/20 hover:bg-amber-500/40 text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/30 transition-all font-black uppercase whitespace-nowrap">
+                                <span className="text-xl md:text-2xl font-mono font-black text-amber-400">{userPoints.toLocaleString()}P</span>
+                                <button onClick={() => setShowChargeModal(true)} className="text-xs bg-amber-500/20 hover:bg-amber-500/40 text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/30 transition-all font-black uppercase whitespace-nowrap">
                                     {t('common.charge')}
                                 </button>
                             </div>
@@ -281,7 +278,7 @@ export default function SingerDashboard() {
                         <button
                             onClick={handleStartMode}
                             disabled={isStarting}
-                            className="flex-1 md:flex-none bg-foreground text-background px-10 py-5 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 border border-border disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full md:w-auto bg-foreground text-background px-6 py-4 md:px-10 md:py-5 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 border border-border disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isStarting ? (
                                 <div className="w-5 h-5 border-2 border-foreground/30 border-t-foreground rounded-full animate-spin" />

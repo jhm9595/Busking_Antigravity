@@ -30,11 +30,7 @@ export default function BookingRequestsList({ userId }: { userId: string }) {
 
     return (
         <div className="bg-gray-900/40 rounded-[32px] border border-white/5 overflow-hidden shadow-2xl">
-            <div className="bg-gray-950/60 px-6 py-4 border-b border-white/5 flex justify-between items-center">
-                <h2 className="text-sm font-black text-white flex items-center gap-2 italic uppercase tracking-wider">
-                    <Mail className="w-4 h-4 text-indigo-500" />
-                    {t('booking.title')}
-                </h2>
+            <div className="bg-gray-950/60 px-6 py-4 border-b border-white/5 flex justify-end items-center">
                 <button 
                     onClick={fetchRequests} 
                     className="text-[10px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest transition-colors"

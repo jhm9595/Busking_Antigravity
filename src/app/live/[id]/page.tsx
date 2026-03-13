@@ -263,12 +263,21 @@ export default function AudienceLivePage() {
                     <Link href={`/singer/${singer?.id}`} className="hidden sm:flex px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg italic bg-foreground/5 text-foreground/70 border border-border hover:bg-foreground/10 items-center">
                         {t('live.view_profile')}
                     </Link>
-                    <button
-                        onClick={handleFollow}
-                        className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg italic ${isFollowed ? 'bg-foreground/5 text-foreground/70 border border-border' : 'bg-indigo-600 text-white shadow-indigo-600/30'}`}
-                    >
-                        {isFollowed ? t('common.following') : t('common.follow')}
-                    </button>
+                    {user?.id ? (
+                        <button
+                            onClick={handleFollow}
+                            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg italic ${isFollowed ? 'bg-foreground/5 text-foreground/70 border border-border' : 'bg-indigo-600 text-white shadow-indigo-600/30'}`}
+                        >
+                            {isFollowed ? t('common.following') : t('common.follow')}
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => router.push(`/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`)}
+                            className="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg italic bg-indigo-600 text-white shadow-indigo-600/30"
+                        >
+                            {t('common.follow')}
+                        </button>
+                    )}
                     <button onClick={handleShare} className="p-2.5 rounded-xl bg-foreground/5 border border-border hover:bg-foreground/10 text-foreground/70 transition-all active:scale-95"><Share2 className="w-4 h-4" /></button>
                 </div>
             </header>

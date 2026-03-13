@@ -192,36 +192,39 @@ function MapPicker({ onLocationSelect, initialLat, initialLng, readonly }: MapPi
             {/* Search Bar Overlay */}
             {!readonly && (
                 <div className="absolute top-2 left-2 right-2 z-[1000] bg-white/90 backdrop-blur-sm rounded-md shadow-md p-2 transition-all">
-                    <div className="flex gap-2">
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault()
-                                    handleSearch()
-                                }
-                            }}
-                            placeholder={t('performance.form.map_search_placeholder')}
-                            className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => handleSearch()}
-                            disabled={isSearching}
-                            className="p-1.5 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-                            title={t('performance.form.map_search_button')}
-                        >
-                            <Search className="w-4 h-4" />
-                        </button>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <div className="flex gap-2 flex-1">
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault()
+                                        handleSearch()
+                                    }
+                                }}
+                                placeholder={t('performance.form.map_search_placeholder')}
+                                className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 min-w-0"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => handleSearch()}
+                                disabled={isSearching}
+                                className="p-1.5 px-3 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 transition-colors flex items-center justify-center shrink-0"
+                                title={t('performance.form.map_search_button')}
+                            >
+                                <Search className="w-4 h-4" />
+                            </button>
+                        </div>
                         <button
                             type="button"
                             onClick={handleGoToMyLocation}
-                            className="p-1.5 bg-white text-gray-700 rounded hover:bg-gray-100 transition-colors border border-gray-300"
+                            className="p-1.5 px-3 bg-white text-gray-700 rounded hover:bg-gray-100 transition-colors border border-gray-300 flex items-center justify-center gap-2 sm:w-auto w-full shrink-0"
                             title={t('performance.form.map_my_location') || '내 위치로 이동'}
                         >
                             <LocateFixed className="w-4 h-4" />
+                            <span className="text-sm sm:hidden">{t('performance.form.map_my_location') || '내 위치로 이동'}</span>
                         </button>
                     </div>
 
