@@ -69,7 +69,7 @@ Note: Clerk userId-based URLs (e.g., /singer/user_38M...) still work. Only displ
 | "광고 보기" free-point option visible in modal | ✅ | ✅ | N/A |
 | Header nav / home button placement | ✅ | ✅ | ✅ |
 
-**NEW PC FINDING:** On PC, the homepage hero section shows "ANTIGRAVITY." in the brand logo (not "BuskerKing"), and the Navbar shows the user's Clerk username ("minimic") instead of a profile icon — possible Clerk session leak to the brand name area. Needs investigation.
+**NEW PC FINDING:** On PC, the homepage hero section shows "ANTIGRAVITY." in the brand logo (not "miniMic"), and the Navbar shows the user's Clerk username ("minimic") instead of a profile icon — possible Clerk session leak to the brand name area. Needs investigation.
 
 ---
 

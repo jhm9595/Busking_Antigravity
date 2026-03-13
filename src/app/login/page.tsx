@@ -80,7 +80,7 @@ export default function LoginPage() {
             <div className="z-10 w-full max-w-md space-y-8 rounded-2xl border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur-md">
                 <div className="text-center">
                     <h1 className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-5xl font-extrabold text-transparent">
-                        BuskerKing
+                        miniMic
                     </h1>
                     <p className="mt-2 text-gray-300">Join the street performance revolution</p>
                 </div>

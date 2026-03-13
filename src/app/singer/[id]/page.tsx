@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import GoogleAd from '@/components/common/GoogleAd'
-import { Share2, Heart, Music, Mail, ExternalLink, User, MapPin, Calendar, MessageCircle, Play, Home, Clock } from 'lucide-react'
+import { Share2, Heart, Music, Mail, ExternalLink, User, MapPin, Calendar, MessageCircle, Play, Clock } from 'lucide-react'
 import { FaFacebook, FaYoutube, FaInstagram, FaSoundcloud, FaTiktok } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -181,12 +181,6 @@ export default function SingerDetailPage() {
                             <Music key={i} className="w-16 h-16 text-foreground" />
                         ))}
                     </div>
-                </div>
-
-                <div className="absolute top-4 left-4 z-20">
-                    <Link href="/" className="p-2.5 rounded-xl bg-card border border-border text-foreground hover:bg-muted transition-all active:scale-95 shadow-lg backdrop-blur-md" title={t('common.home_button')}>
-                        <Home className="w-5 h-5" />
-                    </Link>
                 </div>
 
                 <div className="absolute bottom-0 left-0 w-full p-6 z-10 flex flex-col items-center text-center">
@@ -404,6 +398,8 @@ export default function SingerDetailPage() {
                                 ))
                         )}
                     </div>
+
+                    <GoogleAd slot="singer_profile_performances" className="my-8" />
                 </div>
             </div>
 
