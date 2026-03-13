@@ -13,7 +13,7 @@ import GoogleAd from '@/components/common/GoogleAd'
 // Dynamically import Map to avoid SSR issues with Leaflet
 const BuskingMap = dynamic(() => import('@/components/audience/BuskingMap'), {
     ssr: false,
-    loading: () => <div className="h-full w-full bg-gray-100 flex items-center justify-center italic text-sm text-gray-400">Loading...</div>
+    loading: () => <div className="h-full w-full flex items-center justify-center italic text-sm" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-muted)' }}>Loading...</div>
 })
 
 interface Performance {
