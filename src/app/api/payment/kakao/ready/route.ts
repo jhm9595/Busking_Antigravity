@@ -39,10 +39,10 @@ export async function POST(req: Request) {
         const body = {
             cid,
             partner_order_id: partnerOrderId,
-            partner_user_id: userId,
-            item_name: `${packageName} (${points}P)`,
+            partner_user_id: userId.slice(0, 100), // Kakao limitation: max 100 chars
+            item_name: `${packageName} (${points}P)`.slice(0, 100),
             quantity: 1,
-            total_amount: amount,
+            total_amount: Math.floor(Number(amount)),
             tax_free_amount: 0,
             approval_url: `${appUrl}/api/payment/kakao/approve?userId=${userId}&points=${points}&orderId=${partnerOrderId}`,
             cancel_url: `${appUrl}/explore?payment=cancel`,
@@ -51,11 +51,17 @@ export async function POST(req: Request) {
 
         // Determine authorization header based on key prefix
         // Admin Key usually starts with nothing or specific prefix, Payment Secret Key starts with DEV_/TEST_/PROC_
-        const authHeader = secretKey.startsWith('DEV_') || secretKey.startsWith('TEST_') || secretKey.startsWith('PROC_')
+        const authHeader = secretKey.startsWith('DEV_') || secretKey.startsWith('TEST_') || secretKey.startsWith('PROC_') || secretKey.length > 32
             ? `SECRET_KEY ${secretKey}`
-            : `KakaoAK ${secretKey}` // Default to Admin Key format
+            : `KakaoAK ${secretKey}` 
 
-        console.log('Kakao Pay Request Info:', { cid, partnerOrderId: body.partner_order_id, authHeaderPrefix: authHeader.split(' ')[0] })
+        console.log('Sending Kakao Pay Ready Request:', { 
+            url: 'https://open-api.kakaopay.com/online/v1/payment/ready',
+            cid: body.cid,
+            partner_order_id: body.partner_order_id,
+            total_amount: body.total_amount,
+            auth_type: authHeader.split(' ')[0]
+        })
 
         const response = await fetch('https://open-api.kakaopay.com/online/v1/payment/ready', {
             method: 'POST',

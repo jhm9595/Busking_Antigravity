@@ -272,7 +272,7 @@ export default function SingerDashboard() {
                             <span className="text-xs font-black text-indigo-200/50 uppercase tracking-widest mb-1">{t('common.points')}</span>
                             <div className="flex items-center gap-3">
                                 <span className="text-2xl font-mono font-black text-amber-400">{userPoints.toLocaleString()}P</span>
-                                <button onClick={handleChargeTest} className="text-[11px] bg-amber-500/20 hover:bg-amber-500/40 text-amber-400 px-2 py-1 rounded-lg border border-amber-500/30 transition-all font-black uppercase">
+                                <button onClick={handleChargeTest} className="text-xs bg-amber-500/20 hover:bg-amber-500/40 text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/30 transition-all font-black uppercase whitespace-nowrap">
                                     {t('common.charge')}
                                 </button>
                             </div>
