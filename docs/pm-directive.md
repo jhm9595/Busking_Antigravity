@@ -17,11 +17,12 @@ If this file changed, treat it as the latest priority and routing source.
 1. Security hardening (completed)
 2. Discord webhook format (completed)
 3. Documentation update (completed)
-4. Handoff to QA (next)
+4. Mobile UX & Kakao Pay Config (completed)
+5. Handoff to QA (next)
 
 ## Active Owner
 
-- `Atlas`
+- `Antigravity`
 
 ## Current Assignments
 
@@ -30,6 +31,8 @@ If this file changed, treat it as the latest priority and routing source.
 - ✅ Security hardening: server identity verification, GET read-only, realtime token hardening
 - ✅ Discord webhook format: Updated to Korean standard format
 - ✅ Documentation update: QA Checklist added and PM Directive synced
+- ✅ Mobile UX: Fixed Theme Switcher touch, increased font sizes (9px -> 12px), fixed modal double-scroll.
+- ✅ Kakao Pay: Refined error messaging and ensured secret injection mapping in deployment.
 
 ### Codex App
 
@@ -39,6 +42,8 @@ If this file changed, treat it as the latest priority and routing source.
 
 - Test on actual live site (staging/production).
 - Follow the `docs/QA-TEST-CHECKLIST.md`.
+- Verify mobile interactions: theme switcher, point charge modal height, and readability.
+- Verify Kakao Pay flow on the live production site.
 - Do NOT modify code files - only validate and report.
 
 ## Required Handoff Rule
