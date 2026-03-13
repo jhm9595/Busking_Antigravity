@@ -37,45 +37,59 @@ export default function SongRequestModal({ isOpen, onClose, onSubmit }: SongRequ
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-            <div className="w-full max-w-sm bg-gray-900 border border-gray-800 rounded-xl shadow-2xl overflow-hidden transform transition-all scale-100">
-                <div className="px-4 py-3 border-b border-gray-800 flex justify-between items-center bg-gray-800/50">
-                    <div className="flex items-center space-x-2 text-indigo-400">
+            <div className="w-full max-w-sm bg-card border border-border rounded-xl shadow-2xl overflow-hidden transform transition-all scale-100">
+                <div className="px-4 py-3 border-b border-border flex justify-between items-center" style={{ backgroundColor: 'var(--color-surface-elevated)' }}>
+                    <div className="flex items-center space-x-2" style={{ color: 'var(--color-primary)' }}>
                         <Music className="w-5 h-5" />
-                        <h3 className="font-bold text-white">{t('song_request.title')}</h3>
+                        <h3 className="font-bold" style={{ color: 'var(--color-text-primary)' }}>{t('song_request.title')}</h3>
                     </div>
-                    <button onClick={onClose} className="text-gray-400 hover:text-white transition">
+                    <button onClick={onClose} className="transition" style={{ color: 'var(--color-text-muted)' }}>
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-4 space-y-4">
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">{t('song_request.song_title')} <span className="text-red-500">*</span></label>
+                        <label className="block text-xs font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('song_request.song_title')} <span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder={t('song_request.song_placeholder')}
-                            className="w-full bg-black border border-gray-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-indigo-600 outline-none transition"
+                            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none transition"
+                            style={{ 
+                                backgroundColor: 'var(--color-surface)', 
+                                borderColor: 'var(--color-border)',
+                                color: 'var(--color-text-primary)'
+                            }}
                             autoFocus
                         />
                     </div>
 
                     <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">{t('song_request.artist_label')}</label>
+                        <label className="block text-xs font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('song_request.artist_label')}</label>
                         <input
                             type="text"
                             value={artist}
                             onChange={(e) => setArtist(e.target.value)}
                             placeholder={t('song_request.artist_placeholder')}
-                            className="w-full bg-black border border-gray-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-indigo-600 outline-none transition"
+                            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none transition"
+                            style={{ 
+                                backgroundColor: 'var(--color-surface)', 
+                                borderColor: 'var(--color-border)',
+                                color: 'var(--color-text-primary)'
+                            }}
                         />
                     </div>
 
                     <button
                         type="submit"
                         disabled={!title.trim() || isSubmitting}
-                        className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-indigo-500/20 transition-all flex justify-center items-center"
+                        className="w-full hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed font-bold py-3 rounded-lg shadow-lg transition-all flex justify-center items-center"
+                        style={{ 
+                            backgroundColor: 'var(--color-primary)', 
+                            color: 'var(--color-primary-foreground)'
+                        }}
                     >
                         {isSubmitting ? (
                             <span className="animate-pulse">{t('song_request.sending')}</span>
