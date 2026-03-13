@@ -58,7 +58,7 @@ Ad placements are displaying internal Slot ID metadata to public users.
 ---
 
 ### 🟡 MEDIUM: PC Header Branding
-The PC layout header shows personal user metadata ("minimic") in the logo and user menu areas instead of the correct "BuskerKing" branding.
+The PC layout header shows personal user metadata ("minimic") in the logo and user menu areas instead of the correct "miniMic" branding.
 
 ---
 
