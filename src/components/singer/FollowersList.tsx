@@ -41,46 +41,46 @@ export default function FollowersList({ singerId }: FollowersListProps) {
         fetchFollowers()
     }, [singerId])
 
-    if (loading) return <div className="text-gray-500 text-sm">Loading fans...</div>
+    if (loading) return <div className="text-muted-foreground text-sm">Loading fans...</div>
 
     const total = followers.length + anonymousCount
 
     return (
         <div className="w-full">
-            <div className="flex items-center justify-between mb-8">
-                <h3 className="text-xl font-black text-foreground italic flex items-center gap-3 pr-2">
-                    <Users className="w-6 h-6 text-indigo-500" />
+            <div className="flex items-center gap-2 mb-4">
+                <h3 className="text-lg font-black text-foreground italic flex items-center gap-2">
+                    <Users className="w-5 h-5 text-primary" />
                     {t('common.fans')}
                 </h3>
-                <span className="bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 text-xs px-3 py-1 rounded-full font-black">{total}</span>
+                <span className="bg-primary/10 text-primary border border-primary/20 text-[10px] px-1.5 py-0.5 rounded font-black">{total}</span>
             </div>
 
             {total === 0 ? (
-                <p className="text-foreground/50 text-sm italic font-bold text-center py-8">No followers yet. Keep busking!</p>
+                <p className="text-muted-foreground text-sm italic font-bold text-center py-8">No followers yet. Keep busking!</p>
             ) : (
                 <div className="space-y-6">
                     {followers.length > 0 && (
                         <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-4">
                             {followers.map(f => (
                                 <Link href={`/fans/${f.id}`} key={f.id} className="flex flex-col items-center group">
-                                    <div className="w-12 h-12 rounded-full bg-foreground/5 overflow-hidden mb-2 border border-border group-hover:border-indigo-500 transition-colors">
+                                    <div className="w-12 h-12 rounded-full bg-muted/50 overflow-hidden mb-2 border border-border group-hover:border-indigo-500 transition-colors">
                                         {f.avatarUrl ? (
                                             <img src={f.avatarUrl} alt={f.nickname || 'Fan'} className="w-full h-full object-cover" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-foreground/30">
+                                            <div className="w-full h-full flex items-center justify-center text-muted-foreground/50">
                                                 <User className="w-6 h-6" />
                                             </div>
                                         )}
                                     </div>
-                                    <span className="text-[10px] text-foreground/70 font-bold truncate w-full text-center group-hover:text-indigo-500 transition-colors">{f.nickname || 'Fan'}</span>
+                                    <span className="text-[10px] text-muted-foreground font-bold truncate w-full text-center group-hover:text-indigo-500 transition-colors">{f.nickname || 'Fan'}</span>
                                 </Link>
                             ))}
                         </div>
                     )}
 
                     {anonymousCount > 0 && (
-                        <div className="flex items-center text-sm text-foreground/60 bg-foreground/5 p-4 rounded-2xl border border-dashed border-border">
-                            <div className="w-10 h-10 rounded-full bg-foreground/10 flex items-center justify-center mr-4 text-foreground/50 font-black text-xs ring-4 ring-background">
+                        <div className="flex items-center text-sm text-muted-foreground bg-muted/50 p-4 rounded-2xl border border-dashed border-border">
+                            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center mr-4 text-muted-foreground font-black text-xs ring-4 ring-background">
                                 +{anonymousCount}
                             </div>
                             <span className="font-bold italic">Anonymous Fans (Guests)</span>

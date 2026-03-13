@@ -27,8 +27,8 @@ export default function SongManagement({ onSongsUpdated }: SongManagementProps) 
     }
 
     return (
-        <div className="p-6 bg-white rounded-xl shadow-md space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">{t('song.title')}</h2>
+        <div className="p-6 bg-card rounded-xl shadow-md space-y-6 border border-border">
+            <h2 className="text-2xl font-bold text-foreground">{t('song.title')}</h2>
 
             <SongInputForm
                 singerId={user?.id || ''}

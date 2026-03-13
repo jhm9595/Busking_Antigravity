@@ -3,7 +3,6 @@
 import React, { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { addSong } from '@/services/singer'
-import styles from '@/styles/singer/SongInputForm.module.css'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 interface SongInputFormProps {
@@ -40,37 +39,37 @@ export default function SongInputForm({ singerId, onSuccess }: SongInputFormProp
     }
 
     return (
-        <form onSubmit={handleSubmit} className={styles.form}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6 bg-card p-6 rounded-2xl border border-border shadow-sm">
             {/* Top Row: Title & Artist */}
-            <div className={styles.mainRow}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <input
                     required
                     placeholder={`${t('song.input.title')} *`}
-                    className={styles.input}
+                    className="w-full px-4 py-3 bg-background border border-input rounded-xl text-foreground focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                     value={newSong.title}
                     onChange={(e) => setNewSong({ ...newSong, title: e.target.value })}
                 />
                 <input
                     required
                     placeholder={`${t('song.input.artist')} *`}
-                    className={styles.input}
+                    className="w-full px-4 py-3 bg-background border border-input rounded-xl text-foreground focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                     value={newSong.artist}
                     onChange={(e) => setNewSong({ ...newSong, artist: e.target.value })}
                 />
             </div>
 
             {/* Bottom Row: URL & Button */}
-            <div className={styles.bottomRow}>
+            <div className="flex gap-3 items-center">
                 <input
                     placeholder={t('song.input.url')}
-                    className={`${styles.input} ${styles.urlInput}`}
+                    className="flex-1 px-4 py-3 bg-background border border-input rounded-xl text-foreground focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                     value={newSong.youtube_url}
                     onChange={(e) => setNewSong({ ...newSong, youtube_url: e.target.value })}
                 />
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className={styles.button}
+                    className="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     title={t('song.input.add')}
                 >
                     <Plus className="w-5 h-5" />

@@ -159,87 +159,77 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
     return (
         <>
             {/* Profile Card */}
-            <div className="bg-white rounded-xl shadow-md p-6 flex flex-col items-center justify-center text-center space-y-4 border border-gray-100">
-                <div className="relative">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-1 overflow-hidden border-2 border-white shadow-sm">
-                        {avatarUrl ? (
-                            <img src={avatarUrl} alt={nickname || displayId} className="w-full h-full object-cover" />
-                        ) : (
-                            <User className="w-8 h-8 text-gray-400" />
-                        )}
-                    </div>
-                    {/* Edit Button */}
-                    <button
-                        onClick={() => {
-                            setFormData({
-                                stageName: nickname || displayId || '',
-                                instagram: socialLinks.instagram || '',
-                                facebook: socialLinks.facebook || '',
-                                youtube: socialLinks.youtube || '',
-                                tiktok: socialLinks.tiktok || '',
-                                soundcloud: socialLinks.soundcloud || '',
-                                twitter: socialLinks.twitter || '',
-                                bio: bio || '',
-                                hairColor: hairColor || 'Black',
-                                topColor: topColor || 'Black',
-                                bottomColor: bottomColor || 'Black'
-                            })
-                            setIsEditModalOpen(true)
-                        }}
-                        className="absolute -bottom-1 -right-1 bg-white border border-gray-200 p-1.5 rounded-full shadow hover:bg-gray-50 text-gray-500"
-                        title={t('dashboard.profile.edit')}
-                    >
-                        <Edit className="w-3.5 h-3.5" />
-                    </button>
+            <div className="bg-card rounded-xl shadow-md p-6 flex flex-col items-center justify-center text-center space-y-4 border border-border relative">
+                {/* Edit Button */}
+                <button
+                    onClick={() => {
+                        setFormData({
+                            stageName: nickname || displayId || '',
+                            instagram: socialLinks.instagram || '',
+                            facebook: socialLinks.facebook || '',
+                            youtube: socialLinks.youtube || '',
+                            tiktok: socialLinks.tiktok || '',
+                            soundcloud: socialLinks.soundcloud || '',
+                            twitter: socialLinks.twitter || '',
+                            bio: bio || '',
+                            hairColor: hairColor || 'Black',
+                            topColor: topColor || 'Black',
+                            bottomColor: bottomColor || 'Black'
+                        })
+                        setIsEditModalOpen(true)
+                    }}
+                    className="absolute top-4 right-4 bg-muted/50 border border-border p-1.5 rounded-full shadow-sm hover:bg-muted text-muted-foreground transition-colors"
+                    title={t('dashboard.profile.edit')}
+                >
+                    <Edit className="w-4 h-4" />
+                </button>
 
-                </div>
-
-                <h2 className="text-xl font-bold text-gray-900">{t('dashboard.qr.title')}</h2>
-                <p className="text-gray-500 font-medium">{displayId}</p>
-                {bio && <p className="text-gray-400 text-sm italic max-w-xs line-clamp-2">{bio}</p>}
+                <h2 className="text-xl font-bold text-foreground">{t('dashboard.qr.title')}</h2>
+                <p className="text-muted-foreground font-medium">{displayId}</p>
+                {bio && <p className="text-muted-foreground/70 text-sm italic max-w-xs line-clamp-2">{bio}</p>}
 
                 {/* Social Icons Row */}
                 <div className="grid grid-cols-3 gap-2 w-full px-2">
                     {socialLinks.instagram && (
-                        <button onClick={() => openSocial(socialLinks.instagram, 'instagram')} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded-lg transition-colors text-left group">
+                        <button onClick={() => openSocial(socialLinks.instagram, 'instagram')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group">
                             <FaInstagram className="w-5 h-5 text-pink-600 group-hover:scale-110 transition-transform" />
-                            <span className="text-sm text-gray-700 font-medium truncate">{getDisplayHandle(socialLinks.instagram)}</span>
+                            <span className="text-sm text-foreground font-medium truncate">{getDisplayHandle(socialLinks.instagram)}</span>
                         </button>
                     )}
                     {socialLinks.youtube && (
-                        <button onClick={() => openSocial(socialLinks.youtube, 'youtube')} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded-lg transition-colors text-left group">
+                        <button onClick={() => openSocial(socialLinks.youtube, 'youtube')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group">
                             <FaYoutube className="w-5 h-5 text-red-600 group-hover:scale-110 transition-transform" />
-                            <span className="text-sm text-gray-700 font-medium truncate">{getDisplayHandle(socialLinks.youtube)}</span>
+                            <span className="text-sm text-foreground font-medium truncate">{getDisplayHandle(socialLinks.youtube)}</span>
                         </button>
                     )}
                     {socialLinks.tiktok && (
-                        <button onClick={() => openSocial(socialLinks.tiktok, 'tiktok')} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded-lg transition-colors text-left group">
-                            <FaTiktok className="w-5 h-5 text-black group-hover:scale-110 transition-transform" />
-                            <span className="text-sm text-gray-700 font-medium truncate">{getDisplayHandle(socialLinks.tiktok)}</span>
+                        <button onClick={() => openSocial(socialLinks.tiktok, 'tiktok')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group">
+                            <FaTiktok className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
+                            <span className="text-sm text-foreground font-medium truncate">{getDisplayHandle(socialLinks.tiktok)}</span>
                         </button>
                     )}
                     {socialLinks.soundcloud && (
-                        <button onClick={() => openSocial(socialLinks.soundcloud, 'soundcloud')} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded-lg transition-colors text-left group">
+                        <button onClick={() => openSocial(socialLinks.soundcloud, 'soundcloud')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group">
                             <FaSoundcloud className="w-5 h-5 text-orange-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-sm text-gray-700 font-medium truncate">{getDisplayHandle(socialLinks.soundcloud)}</span>
+                            <span className="text-sm text-foreground font-medium truncate">{getDisplayHandle(socialLinks.soundcloud)}</span>
                         </button>
                     )}
                     {socialLinks.twitter && (
-                        <button onClick={() => openSocial(socialLinks.twitter, 'twitter')} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded-lg transition-colors text-left group">
-                            <FaXTwitter className="w-5 h-5 text-black group-hover:scale-110 transition-transform" />
-                            <span className="text-sm text-gray-700 font-medium truncate">{getDisplayHandle(socialLinks.twitter)}</span>
+                        <button onClick={() => openSocial(socialLinks.twitter, 'twitter')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group">
+                            <FaXTwitter className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
+                            <span className="text-sm text-foreground font-medium truncate">{getDisplayHandle(socialLinks.twitter)}</span>
                         </button>
                     )}
                     {socialLinks.facebook && (
-                        <button onClick={() => openSocial(socialLinks.facebook, 'facebook')} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded-lg transition-colors text-left group">
+                        <button onClick={() => openSocial(socialLinks.facebook, 'facebook')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group">
                             <FaFacebook className="w-5 h-5 text-blue-600 group-hover:scale-110 transition-transform" />
-                            <span className="text-sm text-gray-700 font-medium truncate">{getDisplayHandle(socialLinks.facebook)}</span>
+                            <span className="text-sm text-foreground font-medium truncate">{getDisplayHandle(socialLinks.facebook)}</span>
                         </button>
                     )}
                 </div>
 
                 <div className="relative cursor-pointer group" onClick={() => setIsQRModalOpen(true)}>
-                    <div className="p-2 bg-white rounded-lg border-2 border-dashed border-gray-100 shadow-sm group-hover:border-indigo-300 transition-colors">
+                    <div className="p-2 bg-white rounded-lg border-2 border-dashed border-border shadow-sm group-hover:border-indigo-300 transition-colors">
                         <QRCodeSVG
                             value={qrValue}
                             size={120}
@@ -253,7 +243,7 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
 
                 <button
                     onClick={() => setIsQRModalOpen(true)}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors shadow-sm font-medium"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors shadow-sm font-medium"
                 >
                     <QrCode className="w-4 h-4" />
                     <span>{t('dashboard.qr.button')}</span>
@@ -268,18 +258,18 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
                         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
                         onClick={() => setIsQRModalOpen(false)}
                     />
-                    <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full transform transition-all scale-100 flex flex-col items-center z-10 animate-in fade-in zoom-in duration-200">
+                    <div className="relative bg-card rounded-2xl shadow-2xl p-8 max-w-sm w-full transform transition-all scale-100 flex flex-col items-center z-10 animate-in fade-in zoom-in duration-200">
                         <button
                             onClick={() => setIsQRModalOpen(false)}
-                            className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
+                            className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors"
                         >
                             <X className="w-5 h-5" />
                         </button>
 
-                        <h3 className="text-2xl font-bold text-gray-900 mb-6">{t('dashboard.qr.title')}</h3>
+                        <h3 className="text-2xl font-bold text-foreground mb-6">{t('dashboard.qr.title')}</h3>
 
                         <div
-                            className="p-4 bg-white rounded-xl border-2 border-dashed border-gray-200 shadow-inner mb-6 cursor-zoom-in group"
+                            className="p-4 bg-white rounded-xl border-2 border-dashed border-border shadow-inner mb-6 cursor-zoom-in group"
                             onClick={() => setIsFullFullscreen(true)}
                         >
                             {singerId ? (
@@ -291,7 +281,7 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
                                     includeMargin={true}
                                 />
                             ) : (
-                                <div className="w-[220px] h-[220px] flex items-center justify-center bg-gray-50 text-gray-400 rounded-lg">
+                                <div className="w-[220px] h-[220px] flex items-center justify-center bg-muted text-muted-foreground rounded-lg">
                                     {t('common.loading')}
                                 </div>
                             )}
@@ -300,21 +290,21 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
                         <div className="flex gap-2 w-full mb-4">
                             <button
                                 onClick={handleSaveImage}
-                                className="flex-1 flex items-center justify-center gap-2 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
+                                className="flex-1 flex items-center justify-center gap-2 py-2 bg-muted hover:bg-muted/80 text-foreground rounded-lg font-medium transition-colors"
                             >
                                 <Download className="w-4 h-4" />
                                 {t('dashboard.qr.save_image')}
                             </button>
                             <button
                                 onClick={handleCopyUrl}
-                                className="flex-1 flex items-center justify-center gap-2 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg font-medium transition-colors"
+                                className="flex-1 flex items-center justify-center gap-2 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-lg font-medium transition-colors"
                             >
                                 <Copy className="w-4 h-4" />
                                 {isCopied ? t('dashboard.qr.copied') : t('dashboard.qr.copy_url')}
                             </button>
                         </div>
 
-                        <p className="text-gray-600 font-medium text-center mb-2">{displayId}</p>
+                        <p className="text-muted-foreground font-medium text-center mb-2">{displayId}</p>
                     </div>
                 </div>
             )}
@@ -327,45 +317,45 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
                         onClick={() => setIsEditModalOpen(false)}
                     />
                     {/* WIDENED MODAL MAX WIDTH HERE from max-w-sm to max-w-lg */}
-                    <div className="relative bg-white rounded-2xl shadow-2xl p-6 max-w-lg w-full z-10 animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
+                    <div className="relative bg-card rounded-2xl shadow-2xl p-6 max-w-lg w-full z-10 animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-bold text-gray-900">{t('dashboard.profile.edit')}</h3>
-                            <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                            <h3 className="text-xl font-bold text-foreground">{t('dashboard.profile.edit')}</h3>
+                            <button onClick={() => setIsEditModalOpen(false)} className="text-muted-foreground hover:text-foreground">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-foreground mb-1">
                                     {t('dashboard.profile.stage_name')}
                                 </label>
                                 <input
                                     type="text"
                                     value={formData.stageName}
                                     onChange={e => setFormData({ ...formData, stageName: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-foreground"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <label className="block text-sm font-medium text-foreground mb-1">
                                     {t('common.bio_label')}
                                 </label>
                                 <textarea
                                     value={formData.bio}
                                     onChange={e => setFormData({ ...formData, bio: e.target.value })}
                                     placeholder={t('common.bio_placeholder')}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[80px]"
+                                    className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[80px] text-foreground"
                                 />
                             </div>
 
 
 
 
-                            <div className="border-t border-gray-100 pt-2">
+                            <div className="border-t border-border pt-2">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                    <label className="block text-sm font-medium text-foreground mb-1 flex items-center gap-2">
                                         <FaInstagram className="w-4 h-4 text-pink-600" /> {t('dashboard.profile.instagram')}
                                     </label>
                                     <input
@@ -373,11 +363,11 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
                                         value={formData.instagram}
                                         onChange={e => setFormData({ ...formData, instagram: e.target.value })}
                                         placeholder={t('dashboard.profile.placeholder_id')}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-foreground"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                    <label className="block text-sm font-medium text-foreground mb-1 flex items-center gap-2">
                                         <FaYoutube className="w-4 h-4 text-red-600" /> {t('dashboard.profile.youtube')}
                                     </label>
                                     <input
@@ -385,23 +375,23 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
                                         value={formData.youtube}
                                         onChange={e => setFormData({ ...formData, youtube: e.target.value })}
                                         placeholder={t('dashboard.profile.placeholder_id')}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-foreground"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                                        <FaTiktok className="w-4 h-4 text-black" /> {t('dashboard.profile.tiktok')}
+                                    <label className="block text-sm font-medium text-foreground mb-1 flex items-center gap-2">
+                                        <FaTiktok className="w-4 h-4 text-foreground" /> {t('dashboard.profile.tiktok')}
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.tiktok}
                                         onChange={e => setFormData({ ...formData, tiktok: e.target.value })}
                                         placeholder={t('dashboard.profile.placeholder_id')}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-foreground"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                    <label className="block text-sm font-medium text-foreground mb-1 flex items-center gap-2">
                                         <FaSoundcloud className="w-4 h-4 text-orange-500" /> {t('dashboard.profile.soundcloud')}
                                     </label>
                                     <input
@@ -409,23 +399,23 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
                                         value={formData.soundcloud}
                                         onChange={e => setFormData({ ...formData, soundcloud: e.target.value })}
                                         placeholder={t('dashboard.profile.placeholder_id')}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-foreground"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                                        <FaXTwitter className="w-4 h-4 text-black" /> {t('dashboard.profile.twitter')}
+                                    <label className="block text-sm font-medium text-foreground mb-1 flex items-center gap-2">
+                                        <FaXTwitter className="w-4 h-4 text-foreground" /> {t('dashboard.profile.twitter')}
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.twitter}
                                         onChange={e => setFormData({ ...formData, twitter: e.target.value })}
                                         placeholder={t('dashboard.profile.placeholder_id')}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-foreground"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                    <label className="block text-sm font-medium text-foreground mb-1 flex items-center gap-2">
                                         <FaFacebook className="w-4 h-4 text-blue-600" /> {t('dashboard.profile.facebook')}
                                     </label>
                                     <input
@@ -433,7 +423,7 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
                                         value={formData.facebook}
                                         onChange={e => setFormData({ ...formData, facebook: e.target.value })}
                                         placeholder={t('dashboard.profile.placeholder_id')}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-foreground"
                                     />
                                 </div>
                             </div>
@@ -456,31 +446,33 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
             {/* Full Fullscreen QR Overlay */}
             {isFullFullscreen && (
                 <div
-                    className="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center animate-in fade-in duration-200"
+                    className="fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center animate-in fade-in duration-200"
                     onClick={() => setIsFullFullscreen(false)}
                 >
                     <button
-                        className="absolute top-5 right-5 p-2.5 text-gray-400 hover:text-gray-700 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors z-10"
+                        className="absolute top-5 right-5 p-2.5 text-muted-foreground hover:text-foreground rounded-full bg-muted hover:bg-muted/80 transition-colors z-10"
                         onClick={(e) => { e.stopPropagation(); setIsFullFullscreen(false) }}
                     >
                         <X className="w-6 h-6" />
                     </button>
 
                     <div className="flex flex-col items-center justify-center w-full h-full p-6">
-                        <QRCodeSVG
-                            value={qrValue}
-                            size={Math.min(
-                                typeof window !== 'undefined' ? window.innerWidth - 48 : 400,
-                                typeof window !== 'undefined' ? window.innerHeight - 140 : 400,
-                                600
-                            )}
-                            level="H"
-                            includeMargin={true}
-                            style={{ width: '100%', height: 'auto', maxWidth: 600 }}
-                        />
+                        <div className="bg-white p-4 rounded-xl">
+                            <QRCodeSVG
+                                value={qrValue}
+                                size={Math.min(
+                                    typeof window !== 'undefined' ? window.innerWidth - 48 : 400,
+                                    typeof window !== 'undefined' ? window.innerHeight - 140 : 400,
+                                    600
+                                )}
+                                level="H"
+                                includeMargin={true}
+                                style={{ width: '100%', height: 'auto', maxWidth: 600 }}
+                            />
+                        </div>
                         <div className="mt-6 text-center">
-                            <h2 className="text-2xl font-bold text-gray-900">{nickname || displayId}</h2>
-                            <p className="text-gray-400 mt-1 text-sm animate-pulse">{t('dashboard.qr.scan')}</p>
+                            <h2 className="text-2xl font-bold text-foreground">{nickname || displayId}</h2>
+                            <p className="text-muted-foreground mt-1 text-sm animate-pulse">{t('dashboard.qr.scan')}</p>
                         </div>
                     </div>
                 </div>

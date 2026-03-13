@@ -17,7 +17,7 @@ export default function SongList({ songs, loading, onDeleteSong }: SongListProps
         return (
             <div className="space-y-2 animate-pulse">
                 {[1, 2, 3].map(i => (
-                    <div key={i} className="h-16 bg-gray-100 rounded-lg"></div>
+                    <div key={i} className="h-16 bg-muted rounded-lg"></div>
                 ))}
             </div>
         )
@@ -25,9 +25,9 @@ export default function SongList({ songs, loading, onDeleteSong }: SongListProps
 
     if (songs.length === 0) {
         return (
-            <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                <p className="text-gray-500">{t('song.empty_list')}</p>
-                <p className="text-sm text-gray-400 mt-1">{t('song.empty_hint')}</p>
+            <div className="text-center py-8 bg-muted/50 rounded-lg border border-dashed border-border">
+                <p className="text-muted-foreground">{t('song.empty_list')}</p>
+                <p className="text-sm text-muted-foreground/70 mt-1">{t('song.empty_hint')}</p>
             </div>
         )
     }

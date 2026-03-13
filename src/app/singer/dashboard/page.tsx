@@ -229,15 +229,15 @@ export default function SingerDashboard() {
     return (
         <div className="bg-background min-h-screen text-foreground font-display selection:bg-indigo-500/30 pb-20">
             <main className="max-w-7xl mx-auto px-6 py-10 space-y-12">
-                <header className="flex flex-col md:flex-row justify-between items-end gap-8 relative overflow-hidden p-10 rounded-[40px] bg-gradient-to-br from-indigo-600 to-purple-800 shadow-2xl shadow-indigo-600/20 border border-border group">
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-foreground/10 rounded-full blur-[100px] -mr-48 -mt-48 animate-pulse pointer-events-none" />
+                <header className="flex flex-col md:flex-row justify-between items-end gap-8 relative overflow-hidden p-10 rounded-[40px] bg-card shadow-2xl border border-border group">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -mr-48 -mt-48 animate-pulse pointer-events-none" />
                     <div className="relative z-10 flex-1">
                         <div className="flex flex-col mb-6">
-                            <div className="flex items-center gap-3 text-indigo-100/60 font-black italic uppercase tracking-[0.2em] text-xs mb-2">
+                            <div className="flex items-center gap-3 text-muted-foreground font-black italic uppercase tracking-[0.2em] text-xs mb-2">
                                 <Clock className="w-3.5 h-3.5" />
                                 <span>{date}</span>
                             </div>
-                            <div className="text-4xl font-mono font-black text-foreground/90 tracking-tighter leading-none">
+                            <div className="text-4xl font-mono font-black text-foreground tracking-tighter leading-none">
                                 {time}
                             </div>
                         </div>
@@ -246,11 +246,11 @@ export default function SingerDashboard() {
                         </h1>
                     </div>
                     <div className="flex flex-col md:flex-row gap-4 relative z-10 w-full md:w-auto">
-                        <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center px-4 py-3 md:px-6 md:py-0 bg-background/20 rounded-3xl border border-border backdrop-blur-md">
-                            <span className="text-xs font-black text-indigo-200/50 uppercase tracking-widest md:mb-1">{t('common.points')}</span>
+                        <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center px-4 py-3 md:px-6 md:py-0 bg-muted/50 rounded-3xl border border-border backdrop-blur-md">
+                            <span className="text-xs font-black text-muted-foreground uppercase tracking-widest md:mb-1">{t('common.points')}</span>
                             <div className="flex items-center gap-3">
-                                <span className="text-xl md:text-2xl font-mono font-black text-amber-400">{userPoints.toLocaleString()}P</span>
-                                <button onClick={() => setShowChargeModal(true)} className="text-xs bg-amber-500/20 hover:bg-amber-500/40 text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/30 transition-all font-black uppercase whitespace-nowrap">
+                                <span className="text-xl md:text-2xl font-mono font-black text-amber-500">{userPoints.toLocaleString()}P</span>
+                                <button onClick={() => setShowChargeModal(true)} className="text-xs bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 px-3 py-1.5 rounded-lg border border-amber-500/20 transition-all font-black uppercase whitespace-nowrap">
                                     {t('common.charge')}
                                 </button>
                             </div>
@@ -258,10 +258,10 @@ export default function SingerDashboard() {
                         <button
                             onClick={handleStartMode}
                             disabled={isStarting}
-                            className="w-full md:w-auto bg-foreground text-background px-6 py-4 md:px-10 md:py-5 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 border border-border disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full md:w-auto bg-primary text-primary-foreground px-6 py-4 md:px-10 md:py-5 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 border border-border disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isStarting ? (
-                                <div className="w-5 h-5 border-2 border-foreground/30 border-t-foreground rounded-full animate-spin" />
+                                <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                             ) : (
                                 <><Music className="w-5 h-5" /> {t('dashboard.start_mode')}</>
                             )}
