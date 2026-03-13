@@ -13,7 +13,7 @@ import { updatePerformanceStatus } from '@/services/singer'
 // Dynamic MapPicker (Readonly)
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
     loading: () => {
-        return <div className="h-[200px] w-full bg-gray-100 flex items-center justify-center text-gray-400">Loading...</div>
+        return <div className="h-[200px] w-full flex items-center justify-center" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-muted)' }}>Loading...</div>
     },
     ssr: false
 })
@@ -61,11 +61,11 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                         {perf.title}
                         <span className={styles.badgeMap}>{t('performance.details.map_badge')}</span>
                         {statusKey === 'live' && (
-                            <span className="ml-2 px-1.5 py-0.5 text-xs font-bold text-white bg-red-500 rounded animate-pulse">{t('common.live_badge')}</span>
+                            <span className="ml-2 px-1.5 py-0.5 text-xs font-bold rounded animate-pulse" style={{ backgroundColor: 'var(--color-error)', color: 'var(--color-text-inverse)' }}>{t('common.live_badge')}</span>
                         )}
                     </h3>
                     <div className={styles.metaInfo}>
-                        <div className="flex items-center text-gray-500 text-sm mb-1">
+                        <div className="flex items-center text-sm mb-1" style={{ color: 'var(--color-text-muted)' }}>
                             <Clock className="w-4 h-4 mr-1.5 opacity-70" />
                             <span>
                                 {new Date(perf.startTime).toLocaleDateString()} <span className="mx-1">•</span>
@@ -79,7 +79,7 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                             </span>
                         </div>
                         {perf.locationText && (
-                            <div className="flex items-center text-gray-500 text-sm">
+                            <div className="flex items-center text-sm" style={{ color: 'var(--color-text-muted)' }}>
                                 <MapPin className="w-4 h-4 mr-1.5 opacity-70" />
                                 <span className="truncate max-w-[250px]">{perf.locationText}</span>
                             </div>
@@ -123,7 +123,8 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                                                 })
                                             }
                                         }}
-                                        className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition"
+                                        className="px-2 py-1 text-xs rounded transition"
+                                        style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)' }}
                                     >
                                         {t('performance.action.cancel') || 'Cancel'}
                                     </button>
@@ -140,7 +141,8 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                                             })
                                         }
                                     }}
-                                    className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200 transition font-bold"
+                                    className="px-2 py-1 text-xs rounded transition font-bold"
+                                    style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--color-error)' }}
                                 >
                                     {t('performance.action.force_end') || 'End Performance'}
                                 </button>
@@ -148,7 +150,8 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                             {statusKey === 'scheduled' && onDelete && (
                                 <button
                                     onClick={(e) => { e.stopPropagation(); onDelete(); }}
-                                    className="p-1 text-gray-400 hover:text-red-500 transition"
+                                    className="p-1 transition"
+                                    style={{ color: 'var(--color-text-muted)' }}
                                     title={t('performance.list.delete')}
                                 >
                                     <Trash2 className="w-4 h-4" />
