@@ -51,7 +51,7 @@ export const zh: LocaleTypes = {
         ad_reward: '观看广告获得50积分！',
     },
     home: {
-        title: 'BuskerKing',
+        title: 'miniMic',
         subtitle: '连接街头艺人与粉丝的顶级平台。\n演出、互动、成就梦想。',
         dashboard_button: '控制面板',
         get_started: '立即开始',

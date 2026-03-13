@@ -51,7 +51,7 @@ export const ja: LocaleTypes = {
         ad_reward: '広告を視聴して50ポイントを獲得しました！',
     },
     home: {
-        title: 'BuskerKing',
+        title: 'miniMic',
         subtitle: 'ストリートミュージシャンとファンをつなぐ最高のプラットフォーム。\n演奏し、交流し、あなたの魅力を広めましょう。',
         dashboard_button: 'ダッシュボード',
         get_started: '今すぐ始める',

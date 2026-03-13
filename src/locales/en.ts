@@ -49,7 +49,7 @@ export const en = {
         ad_reward: 'You earned 50 points!',
     },
     home: {
-        title: 'BuskerKing',
+        title: 'miniMic',
         subtitle: 'The best way to connect street performers and fans.\nPerform, interact, and get discovered.',
         dashboard_button: 'My Dashboard',
         get_started: 'Get Started',

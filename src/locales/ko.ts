@@ -51,7 +51,7 @@ export const ko: LocaleTypes = {
         ad_reward: '광고를 시청하여 50포인트를 획득했습니다!',
     },
     home: {
-        title: 'BuskerKing',
+        title: 'miniMic',
         subtitle: '거리 공연자와 팬을 잇는 최고의 플랫폼.\n공연하고, 소통하고, 당신을 알리세요.',
         dashboard_button: '내 대시보드',
         get_started: '지금 시작하기',
