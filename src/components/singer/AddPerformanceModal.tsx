@@ -18,11 +18,11 @@ export default function AddPerformanceModal({ singerId, allSongs, onClose, onSuc
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-white dark:bg-gray-900 w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('performance.form.register')}</h2>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
-                        <X className="w-5 h-5 text-gray-500" />
+            <div className="w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--color-card)' }}>
+                <div className="px-6 py-4 border-b flex justify-between items-center" style={{ borderColor: 'var(--color-border)' }}>
+                    <h2 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{t('performance.form.register')}</h2>
+                    <button onClick={onClose} className="p-2 rounded-full transition-colors" style={{ color: 'var(--color-text-muted)' }}>
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
 

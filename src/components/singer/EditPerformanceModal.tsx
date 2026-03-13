@@ -9,7 +9,7 @@ import { updatePerformance } from '@/services/singer'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
-    loading: () => <div className="h-[300px] w-full bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">Loading Map...</div>,
+    loading: () => <div className="h-[300px] w-full animate-pulse flex items-center justify-center" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-muted)' }}>Loading Map...</div>,
     ssr: false
 })
 
@@ -100,12 +100,13 @@ export default function EditPerformanceModal({ performance, onClose, onSuccess }
 
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
-                <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
-                    <h3 className="text-xl font-bold">{t('performance.action.edit') || 'Edit Performance'}</h3>
+            <div className="rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative" style={{ backgroundColor: 'var(--color-card)' }}>
+                <div className="sticky top-0 border-b px-6 py-4 flex justify-between items-center z-10" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
+                    <h3 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{t('performance.action.edit') || 'Edit Performance'}</h3>
                     <button
                         onClick={onClose}
-                        className="p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 rounded-full transition-colors"
+                        className="p-2 rounded-full transition-colors"
+                        style={{ color: 'var(--color-text-muted)' }}
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -146,7 +147,8 @@ export default function EditPerformanceModal({ performance, onClose, onSuccess }
                                 <button
                                     type="button"
                                     onClick={() => setShowMap(!showMap)}
-                                    className="p-3 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg flex-shrink-0 transition-colors"
+                                    className="p-3 rounded-lg flex-shrink-0 transition-colors"
+                                    style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)' }}
                                     title={showMap ? t('performance.form.map_hide') : t('performance.form.map_show')}
                                 >
                                     <MapPin className="w-5 h-5" />
@@ -157,7 +159,7 @@ export default function EditPerformanceModal({ performance, onClose, onSuccess }
                         {/* Map Section */}
                         {showMap && (
                             <div className="col-span-1 md:col-span-2 mb-4 -mx-1 border rounded-lg overflow-hidden">
-                                <div className="p-2 bg-gray-50 text-sm text-gray-600 border-b">
+                                <div className="p-2 text-sm border-b" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)', borderColor: 'var(--color-border)' }}>
                                     {t('performance.form.map_help')}
                                 </div>
                                 <MapPicker onLocationSelect={handleLocationSelect} initialLat={editPerf.lat || undefined} initialLng={editPerf.lng || undefined} />
