@@ -227,30 +227,30 @@ export default function SingerDashboard() {
     const displayId = `@${singerId.slice(0, 8)}`
 
     return (
-        <div className="bg-background min-h-screen text-foreground font-display selection:bg-indigo-500/30 pb-20">
-            <main className="max-w-7xl mx-auto px-6 py-10 space-y-12">
-                <header className="flex flex-col md:flex-row justify-between items-end gap-8 relative overflow-hidden p-10 rounded-[40px] bg-card shadow-2xl border border-border group">
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -mr-48 -mt-48 animate-pulse pointer-events-none" />
-                    <div className="relative z-10 flex-1">
-                        <div className="flex flex-col mb-6">
-                            <div className="flex items-center gap-3 text-muted-foreground font-black italic uppercase tracking-[0.2em] text-xs mb-2">
-                                <Clock className="w-3.5 h-3.5" />
+        <div className="bg-background min-h-screen text-foreground font-display selection:bg-primary/20 pb-20">
+            <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-10 space-y-8 md:space-y-12">
+                <header className="flex flex-col md:flex-row justify-between items-end gap-6 md:gap-8 relative overflow-hidden p-6 md:p-10 rounded-[24px] md:rounded-[40px] bg-card shadow-lg border border-border group">
+                    <div className="absolute top-0 right-0 w-48 md:w-96 h-48 md:h-96 bg-primary/10 rounded-full blur-[60px] md:blur-[100px] -mr-24 md:-mr-48 -mt-24 md:-mt-48 pointer-events-none" />
+                    <div className="relative z-10 flex-1 w-full">
+                        <div className="flex flex-col mb-4 md:mb-6">
+                            <div className="flex items-center gap-2 md:gap-3 text-muted-foreground font-black italic uppercase tracking-[0.2em] text-[10px] md:text-xs mb-1 md:mb-2">
+                                <Clock className="w-3 md:w-3.5 h-3 md:h-3.5" />
                                 <span>{date}</span>
                             </div>
-                            <div className="text-4xl font-mono font-black text-foreground tracking-tighter leading-none">
+                            <div className="text-3xl md:text-4xl font-mono font-black text-foreground tracking-tighter leading-none">
                                 {time}
                             </div>
                         </div>
-                        <h1 className="text-5xl md:text-6xl font-black text-foreground italic tracking-tighter leading-none mb-4 group-hover:scale-[1.01] transition-transform duration-500 pr-2">
+                        <h1 className="text-4xl md:text-6xl font-black text-foreground italic tracking-tighter leading-none mb-2 md:mb-4 group-hover:scale-[1.01] transition-transform duration-500 pr-2">
                             {t('dashboard.welcome').replace('{name}', user?.fullName || user?.username || '')}
                         </h1>
                     </div>
-                    <div className="flex flex-col md:flex-row gap-4 relative z-10 w-full md:w-auto">
-                        <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center px-4 py-3 md:px-6 md:py-0 bg-muted/50 rounded-3xl border border-border backdrop-blur-md">
-                            <span className="text-xs font-black text-muted-foreground uppercase tracking-widest md:mb-1">{t('common.points')}</span>
-                            <div className="flex items-center gap-3">
-                                <span className="text-xl md:text-2xl font-mono font-black text-amber-500">{userPoints.toLocaleString()}P</span>
-                                <button onClick={() => setShowChargeModal(true)} className="text-xs bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 px-3 py-1.5 rounded-lg border border-amber-500/20 transition-all font-black uppercase whitespace-nowrap">
+                    <div className="flex flex-col md:flex-row gap-3 md:gap-4 relative z-10 w-full md:w-auto">
+                        <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center px-4 py-2 md:px-6 md:py-0 bg-muted/50 rounded-2xl md:rounded-3xl border border-border">
+                            <span className="text-[10px] md:text-xs font-black text-muted-foreground uppercase tracking-widest md:mb-1">{t('common.points')}</span>
+                            <div className="flex items-center gap-2 md:gap-3">
+                                <span className="text-lg md:text-2xl font-mono font-black text-amber-500">{userPoints.toLocaleString()}P</span>
+                                <button onClick={() => setShowChargeModal(true)} className="text-[10px] bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 px-2 md:px-3 py-1 md:py-1.5 rounded-lg border border-amber-500/20 transition-all font-black uppercase whitespace-nowrap">
                                     {t('common.charge')}
                                 </button>
                             </div>
@@ -258,32 +258,30 @@ export default function SingerDashboard() {
                         <button
                             onClick={handleStartMode}
                             disabled={isStarting}
-                            className="w-full md:w-auto bg-primary text-primary-foreground px-6 py-4 md:px-10 md:py-5 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 border border-border disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full md:w-auto bg-primary text-primary-foreground px-4 md:px-10 py-3 md:py-5 rounded-2xl md:rounded-3xl font-black text-xs md:text-sm uppercase tracking-widest shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 md:gap-3 border border-border disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isStarting ? (
-                                <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                                <div className="w-4 md:w-5 h-4 md:h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                             ) : (
-                                <><Music className="w-5 h-5" /> {t('dashboard.start_mode')}</>
+                                <><Music className="w-4 md:w-5 h-4 md:h-5" /> {t('dashboard.start_mode')}</>
                             )}
                         </button>
                     </div>
                 </header>
 
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
-                    <div className="xl:col-span-8 space-y-12">
-                        <section className="bg-card rounded-[40px] border border-border p-2 overflow-hidden shadow-2xl">
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 xl:gap-10">
+                    <div className="xl:col-span-8 space-y-8 xl:space-y-12">
+                        <section className="bg-card rounded-2xl xl:rounded-[40px] border border-border p-2 overflow-hidden">
                             <PerformanceManagement refreshKey={songsRefreshKey} />
                         </section>
 
                         <GoogleAd slot="singer_dashboard_mid" className="opacity-40" />
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                            <section className="bg-card rounded-[40px] border border-border p-8 shadow-2xl relative overflow-hidden group">
-                                <div className="dark">
-                                    <BookingRequestsList userId={singerId} />
-                                </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 xl:gap-10">
+                            <section className="bg-card rounded-2xl xl:rounded-[40px] border border-border p-4 md:p-6 xl:p-8 relative overflow-hidden group">
+                                <BookingRequestsList userId={singerId} />
                             </section>
-                            <section className="bg-card rounded-[40px] border border-border p-8 shadow-2xl">
+                            <section className="bg-card rounded-2xl xl:rounded-[40px] border border-border p-4 md:p-6 xl:p-8">
                                 <FollowersList singerId={singerId} />
                             </section>
                         </div>
@@ -310,7 +308,7 @@ export default function SingerDashboard() {
                                 />
                             </section>
 
-                            <section className="bg-card rounded-[40px] border border-border p-2 shadow-2xl overflow-hidden">
+                            <section className="bg-card rounded-2xl xl:rounded-[40px] border border-border p-2 overflow-hidden">
                                 <SongManagement onSongsUpdated={triggerSongsRefresh} />
                             </section>
                         </div>
