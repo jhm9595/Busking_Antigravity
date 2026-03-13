@@ -19,7 +19,8 @@ If this file changed, treat it as the latest priority and routing source.
 3. Documentation update (completed)
 4. Mobile UX & Kakao Pay Config (completed)
 5. 8-Theme System & Ad Placements (completed)
-6. Handoff to QA (next)
+6. Fix urgent QA blockers (completed)
+7. Handoff to QA (next)
 
 ## Active Owner
 
@@ -33,9 +34,11 @@ If this file changed, treat it as the latest priority and routing source.
 - ✅ Discord webhook format: Updated to Korean standard format
 - ✅ Documentation update: QA Checklist added and PM Directive synced
 - ✅ Mobile UX: Fixed Theme Switcher touch, increased font sizes (9px -> 12px), fixed modal double-scroll.
-- ✅ Kakao Pay: Refined error messaging and ensured secret injection mapping in deployment.
-- ✅ 8-Theme System: Implemented Retro Pixel Neon, Warm Street Poster, and more.
-- ✅ Ad Placements: Defined non-disruptive slots across all major routes.
+- ✅ Kakao Pay: Fixed 400 error by supporting both Legacy and Open API key formats and endpoints.
+- ✅ 8-Theme System: Simplified to 4 robust themes; fixed "Warm Sunset" (Warm Street Poster) button contrast.
+- ✅ Ad Placements: Removed raw "Slot ID" debug text from UI.
+- ✅ Artist Profile: Fixed 404 error for slug-based routes (e.g., /singer/형민부개).
+- ✅ Explore i18n: Applied Korean translations to Explore filter strings and map markers.
 
 ### Codex App (Completed by Atlas)
 

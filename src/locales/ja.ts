@@ -51,7 +51,7 @@ export const ja: LocaleTypes = {
         ad_reward: '広告を視聴して50ポイントを獲得しました！',
     },
     home: {
-        title: 'BuskerKing',
+        title: 'miniMic',
         subtitle: 'ストリートミュージシャンとファンをつなぐ最高のプラットフォーム。\n演奏し、交流し、あなたの魅力を広めましょう。',
         dashboard_button: 'ダッシュボード',
         get_started: '今すぐ始める',
@@ -414,9 +414,24 @@ export const ja: LocaleTypes = {
         new_request: 'リクエスト通知'
     },
     singer: {
-        withdrawal_link: '退会手続き (Withdraw)',
-        withdrawal_confirm: '本当に退会しますか？すべてのデータが削除されます。',
-        withdrawal_success: '退会手続きが完了しました。',
-        withdrawal_failed: '退会手続きに失敗しました。'
+        withdrawal_link: '退会 (Withdraw)',
+        withdrawal_confirm: '本当に退会しますか？すべてのデータが永久に削除されます。',
+        withdrawal_success: '退会処理が完了しました。',
+        withdrawal_failed: '退会処理に失敗しました。'
+    },
+    explore: {
+        filter_title: '公演フィルター',
+        filter_all: 'すべて',
+        filter_live: 'ライブ',
+        filter_scheduled: '公演予定',
+        filter_followed: 'フォロー中のみ',
+        filter_radius: '距離半径',
+        filter_radius_all: 'すべて',
+        found_count: '{count}件見つかりました',
+        locate_me: '現在地を探す',
+        view_artist: '歌手を見る',
+        live_now: 'ライブ中',
+        you_are_here: '現在地',
+        enable_location_help: '位置情報を有効にするには {icon} アイコンをクリックしてください',
     }
-}
+    }

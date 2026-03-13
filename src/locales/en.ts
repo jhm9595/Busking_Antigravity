@@ -49,7 +49,7 @@ export const en = {
         ad_reward: 'You earned 50 points!',
     },
     home: {
-        title: 'BuskerKing',
+        title: 'miniMic',
         subtitle: 'The best way to connect street performers and fans.\nPerform, interact, and get discovered.',
         dashboard_button: 'My Dashboard',
         get_started: 'Get Started',
@@ -416,6 +416,21 @@ export const en = {
         withdrawal_confirm: 'Are you sure you want to withdraw? All your data will be permanently deleted.',
         withdrawal_success: 'Account successfully withdrawn.',
         withdrawal_failed: 'Failed to withdraw account.'
+    },
+    explore: {
+        filter_title: 'Explore Filter',
+        filter_all: 'All',
+        filter_live: 'Live',
+        filter_scheduled: 'Scheduled',
+        filter_followed: 'Followed Only',
+        filter_radius: 'Distance Radius',
+        filter_radius_all: 'All',
+        found_count: '{count} found',
+        locate_me: 'Find Me',
+        view_artist: 'View Artist',
+        live_now: 'Live Now',
+        you_are_here: 'You are Here',
+        enable_location_help: 'Click {icon} to enable filtering',
     }
 }
 

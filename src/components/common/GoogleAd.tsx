@@ -27,7 +27,6 @@ export default function GoogleAd({ slot, format = 'auto', responsive = true, cla
                     <h4 className="text-sm font-black text-white/40 uppercase italic tracking-widest mb-2">Google Ad Placement</h4>
                     <p className="text-[11px] text-white/20 font-bold max-w-[280px] leading-relaxed uppercase italic">
                         This area is reserved for non-disruptive sponsor content. 
-                        Slot ID: {slot}
                     </p>
                 </div>
                 

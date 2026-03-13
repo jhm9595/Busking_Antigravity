@@ -6,6 +6,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-le
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { Music, Calendar, Navigation, MapPin, Filter } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 // Custom Icons Configuration
 // Custom Icons Configuration using DivIcon for standard HTML/Tailwind styling
@@ -67,6 +68,7 @@ const MapController = ({ center, zoom }: { center: [number, number] | null, zoom
 
 export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
     const router = useRouter()
+    const { t } = useLanguage()
     const [isMounted, setIsMounted] = useState(false)
     const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
     const [mapCenter, setMapCenter] = useState<[number, number]>([37.5665, 126.9780]) // Default: Seoul
@@ -160,7 +162,7 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                 {userLocation && (
                     <>
                         <Marker position={userLocation} icon={userIcon}>
-                            <Popup>You are Here</Popup>
+                            <Popup>{t('explore.you_are_here')}</Popup>
                         </Marker>
                         {radius > 0 && (
                             <Circle
@@ -184,7 +186,7 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                                 {perf.status === 'live' && (
                                     <div className="mb-2">
                                         <span className="bg-red-600 text-white text-xs uppercase font-bold px-2 py-1 rounded-full animate-pulse shadow-sm">
-                                            Live Now
+                                            {t('explore.live_now')}
                                         </span>
                                     </div>
                                 )}
@@ -197,7 +199,7 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                                     onClick={() => router.push(`/singer/${perf.singerId}`)}
                                     className="bg-indigo-600 text-white text-xs px-3 py-1.5 rounded hover:bg-indigo-700 w-full flex items-center justify-center transition"
                                 >
-                                    View Artist <Music className="w-3 h-3 ml-1" />
+                                    {t('explore.view_artist')} <Music className="w-3 h-3 ml-1" />
                                 </button>
                             </div>
                         </Popup>
@@ -210,7 +212,7 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                 <button
                     onClick={handleLocateMe}
                     className="bg-white p-2 rounded-full shadow-md hover:bg-gray-50 text-gray-700 transition"
-                    title="Find Me"
+                    title={t('explore.locate_me')}
                 >
                     <Navigation className="w-6 h-6" />
                 </button>
@@ -221,10 +223,10 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                 <div className="flex items-center justify-between mb-3">
                     <h4 className="font-bold text-gray-800 flex items-center gap-2">
                         <Filter className="w-4 h-4 text-indigo-600" />
-                        Explore Filter
+                        {t('explore.filter_title')}
                     </h4>
                     <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                        {filteredPerformances.length} found
+                        {t('explore.found_count').replace('{count}', filteredPerformances.length.toString())}
                     </span>
                 </div>
 
@@ -237,7 +239,7 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                                 onClick={() => setFilterMode(mode)}
                                 className={`flex-1 py-1 text-xs font-bold rounded-md transition capitalize ${filterMode === mode ? 'bg-white shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
                             >
-                                {mode}
+                                {t(`explore.filter_${mode}`)}
                             </button>
                         ))}
                     </div>
@@ -245,7 +247,7 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                     {/* Followed Only Toggle (Only if logged in) */}
                     {isLoggedIn && (
                         <div className="flex items-center justify-between bg-gray-50 p-2 rounded-lg border border-gray-100">
-                            <span className="text-xs font-bold text-gray-700">Followed Only</span>
+                            <span className="text-xs font-bold text-gray-700">{t('explore.filter_followed')}</span>
                             <button
                                 onClick={() => setShowFollowedOnly(!showFollowedOnly)}
                                 className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 ${showFollowedOnly ? 'bg-indigo-600' : 'bg-gray-200'}`}
@@ -262,8 +264,8 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                     {userLocation ? (
                         <div>
                             <div className="flex justify-between text-xs text-gray-600 mb-1">
-                                <span>Distance Radius</span>
-                                <span className="font-bold">{radius === 0 ? 'All' : `${radius} km`}</span>
+                                <span>{t('explore.filter_radius')}</span>
+                                <span className="font-bold">{radius === 0 ? t('explore.filter_radius_all') : `${radius} km`}</span>
                             </div>
                             <input
                                 type="range"
@@ -275,13 +277,15 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                             />
                             <div className="flex justify-between text-xs text-gray-400 mt-1">
-                                <span>All</span>
+                                <span>{t('explore.filter_radius_all')}</span>
                                 <span>50km</span>
                             </div>
                         </div>
                     ) : (
                         <div className="text-xs text-gray-400 text-center py-1 bg-gray-50 rounded border border-dashed border-gray-200">
-                            Click <MapPin className="w-3 h-3 inline mx-1" /> to enable filtering
+                            {t('explore.enable_location_help').split('{icon}')[0]}
+                            <MapPin className="w-3 h-3 inline mx-1" />
+                            {t('explore.enable_location_help').split('{icon}')[1]}
                         </div>
                     )}
                 </div>

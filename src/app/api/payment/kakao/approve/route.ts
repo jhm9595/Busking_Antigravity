@@ -47,12 +47,19 @@ export async function GET(req: Request) {
             pg_token,
         }
 
-        // Determine authorization header based on key prefix
-        const authHeader = secretKey!.startsWith('DEV_') || secretKey!.startsWith('TEST_') || secretKey!.startsWith('PROC_')
+        // Determine authorization header and URL based on key prefix
+        // Consistent with the ready step (New Open API v1 vs Legacy API v1)
+        const isSecretKeyFormat = secretKey!.startsWith('DEV_') || secretKey!.startsWith('TEST_') || secretKey!.startsWith('PROC_') || secretKey!.length > 32
+        
+        const apiUrl = isSecretKeyFormat
+            ? 'https://open-api.kakaopay.com/online/v1/payment/approve'
+            : 'https://kapi.kakao.com/v1/payment/approve'
+            
+        const authHeader = isSecretKeyFormat
             ? `SECRET_KEY ${secretKey}`
             : `KakaoAK ${secretKey}`
 
-        const response = await fetch('https://open-api.kakaopay.com/online/v1/payment/approve', {
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 Authorization: authHeader,

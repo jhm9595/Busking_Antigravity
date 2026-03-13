@@ -51,7 +51,7 @@ export const zh: LocaleTypes = {
         ad_reward: '观看广告获得50积分！',
     },
     home: {
-        title: 'BuskerKing',
+        title: 'miniMic',
         subtitle: '连接街头艺人与粉丝的顶级平台。\n演出、互动、成就梦想。',
         dashboard_button: '控制面板',
         get_started: '立即开始',
@@ -414,9 +414,24 @@ export const zh: LocaleTypes = {
         new_request: '点歌通知'
     },
     singer: {
-        withdrawal_link: '注销账号 (Withdraw)',
-        withdrawal_confirm: '确定要注销吗？您的所有数据将被永久删除。',
-        withdrawal_success: '账号已成功注销。',
+        withdrawal_link: '注销账户 (Withdraw)',
+        withdrawal_confirm: '确定要注销吗？所有数据将被永久删除。',
+        withdrawal_success: '注销成功。',
         withdrawal_failed: '注销失败。'
+    },
+    explore: {
+        filter_title: '演出筛选',
+        filter_all: '全部',
+        filter_live: '直播中',
+        filter_scheduled: '待演出',
+        filter_followed: '仅关注',
+        filter_radius: '距离范围',
+        filter_radius_all: '全部',
+        found_count: '找到 {count} 个',
+        locate_me: '定位我的位置',
+        view_artist: '查看歌手',
+        live_now: '直播中',
+        you_are_here: '您在这里',
+        enable_location_help: '点击 {icon} 图标以启用筛选',
     }
-}
+    }

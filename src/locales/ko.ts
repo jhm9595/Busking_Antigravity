@@ -51,7 +51,7 @@ export const ko: LocaleTypes = {
         ad_reward: '광고를 시청하여 50포인트를 획득했습니다!',
     },
     home: {
-        title: 'BuskerKing',
+        title: 'miniMic',
         subtitle: '거리 공연자와 팬을 잇는 최고의 플랫폼.\n공연하고, 소통하고, 당신을 알리세요.',
         dashboard_button: '내 대시보드',
         get_started: '지금 시작하기',
@@ -418,5 +418,20 @@ export const ko: LocaleTypes = {
         withdrawal_confirm: '정말 탈퇴하시겠습니까? 모든 데이터가 영구 삭제됩니다.',
         withdrawal_success: '탈퇴 처리가 완료되었습니다.',
         withdrawal_failed: '탈퇴 처리에 실패했습니다.'
+    },
+    explore: {
+        filter_title: '공연 필터',
+        filter_all: '전체',
+        filter_live: '라이브',
+        filter_scheduled: '공연 예정',
+        filter_followed: '팔로잉만',
+        filter_radius: '거리 반경',
+        filter_radius_all: '전체',
+        found_count: '{count}개 찾음',
+        locate_me: '내 위치 찾기',
+        view_artist: '가수 보기',
+        live_now: '라이브 중',
+        you_are_here: '현재 위치',
+        enable_location_help: '내 위치를 활성화하려면 {icon} 아이콘을 클릭하세요',
     }
 }

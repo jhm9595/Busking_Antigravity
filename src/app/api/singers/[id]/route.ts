@@ -8,9 +8,18 @@ export async function GET(
 ) {
     try {
         const { id } = await params
-        const singer = await prisma.singer.findUnique({
-            where: { id },
+        
+        // Try finding by ID first, then by stageName or nickname (slug)
+        const singer = await prisma.singer.findFirst({
+            where: {
+                OR: [
+                    { id: id },
+                    { stageName: { equals: id, mode: 'insensitive' } },
+                    { profile: { nickname: { equals: id, mode: 'insensitive' } } }
+                ]
+            },
             include: {
+                profile: true,
                 performances: true,
                 songs: {
                     where: { isRepertoire: true }
