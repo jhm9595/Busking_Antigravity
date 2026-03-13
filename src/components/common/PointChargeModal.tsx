@@ -139,9 +139,9 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                 <Coins className="w-5 h-5 md:w-8 md:h-8 text-amber-400" />
                                 {t('common.charge')}
                             </h2>
-                            <p className="text-gray-500 text-[10px] md:text-sm font-bold italic">{t('common.charge_desc')}</p>
+                            <p className="text-[10px] md:text-sm font-bold italic" style={{ color: 'var(--color-text-muted)' }}>{t('common.charge_desc')}</p>
                         </div>
-                        <button onClick={onClose} className="p-2 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 text-gray-400 transition-all active:scale-90">
+                        <button onClick={onClose} className="p-2 rounded-xl border transition-all active:scale-90" style={{ backgroundColor: 'var(--color-surface-overlay)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
                             <X className="w-5 h-5" />
                         </button>
                     </header>
@@ -155,14 +155,18 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                     onClick={() => setSelectedPackage(pkg.id)}
                                     className={`relative group p-3 md:p-5 rounded-2xl md:rounded-[32px] border-2 transition-all duration-500 text-left overflow-hidden ${
                                         selectedPackage === pkg.id 
-                                        ? 'bg-white/5 border-indigo-500 shadow-2xl shadow-indigo-500/20 scale-[1.02]' 
-                                        : 'bg-gray-900/40 border-white/5 hover:border-white/20'
+                                        ? 'border-primary shadow-2xl scale-[1.02]' 
+                                        : 'border-border hover:border-text-muted'
                                     }`}
+                                    style={{ 
+                                        backgroundColor: selectedPackage === pkg.id ? 'var(--color-surface-overlay)' : 'var(--color-surface)',
+                                        borderColor: selectedPackage === pkg.id ? 'var(--color-primary)' : 'var(--color-border)'
+                                    }}
                                 >
                                     {selectedPackage === pkg.id && (
                                         <div className="absolute top-2 right-2 md:top-4 md:right-4">
-                                            <div className="bg-indigo-500 rounded-full p-0.5 md:p-1 shadow-lg shadow-indigo-500/50">
-                                                <Check className="w-2 h-2 md:w-3 md:h-3 text-white" />
+                                            <div className="rounded-full p-0.5 md:p-1 shadow-lg" style={{ backgroundColor: 'var(--color-primary)' }}>
+                                                <Check className="w-2 h-2 md:w-3 md:h-3" style={{ color: 'var(--color-primary-foreground)' }} />
                                             </div>
                                         </div>
                                     )}
@@ -179,17 +183,17 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                                 <pkg.icon className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest leading-none mb-0.5 md:mb-1">{pkg.label}</span>
-                                                <span className="text-sm md:text-xl font-mono font-black text-white leading-none">{(pkg.points + pkg.bonus).toLocaleString()}P</span>
+                                                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest leading-none mb-0.5 md:mb-1" style={{ color: 'var(--color-text-muted)' }}>{pkg.label}</span>
+                                                <span className="text-sm md:text-xl font-mono font-black leading-none" style={{ color: 'var(--color-text-inverse)' }}>{(pkg.points + pkg.bonus).toLocaleString()}P</span>
                                             </div>
                                         </div>
 
                                         <div className="mt-auto flex justify-between items-end">
                                             <div className="flex flex-col">
-                                                <span className="text-[8px] md:text-xs text-gray-600 font-bold uppercase tracking-wider line-through decoration-red-500/50">
+                                                <span className="text-[8px] md:text-xs font-bold uppercase tracking-wider line-through" style={{ color: 'var(--color-text-muted)' }}>
                                                     {pkg.id === 'starter' ? '' : `₩${(pkg.price * 1.2).toLocaleString()}`}
                                                 </span>
-                                                <span className="text-xs md:text-base font-black text-indigo-400">₩{pkg.price.toLocaleString()}</span>
+                                                <span className="text-xs md:text-base font-black" style={{ color: 'var(--color-primary)' }}>₩{pkg.price.toLocaleString()}</span>
                                             </div>
                                         </div>
                                     </div>
