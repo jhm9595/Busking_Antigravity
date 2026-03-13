@@ -62,18 +62,22 @@ export default function AvatarCreator({ onComplete }: AvatarCreatorProps) {
     const CategoryTab = ({ id, icon: Icon, label }: any) => (
         <button
             onClick={() => setActiveTab(id)}
-            className={`flex-1 flex flex-col items-center py-3 gap-1 transition-all ${activeTab === id ? 'text-indigo-400 bg-indigo-500/5' : 'text-gray-500 hover:text-gray-400'}`}
+            className="flex-1 flex flex-col items-center py-3 gap-1 transition-all"
+            style={{ 
+                color: activeTab === id ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                backgroundColor: activeTab === id ? 'var(--color-surface-overlay)' : 'transparent'
+            }}
         >
             <Icon className={`w-5 h-5 ${activeTab === id ? 'animate-pulse' : ''}`} />
-            <span className="text-[10px] font-black uppercase tracking-widest leading-none">{label}</span>
-            {activeTab === id && <div className="w-1 h-1 bg-indigo-500 rounded-full mt-1" />}
+            <span className="text-[10px] font-black uppercase tracking-widest leading-none" style={{ color: 'var(--color-text-muted)' }}>{label}</span>
+            {activeTab === id && <div className="w-1 h-1 rounded-full mt-1" style={{ backgroundColor: 'var(--color-primary)' }} />}
         </button>
     )
 
     const OptionGrid = ({ label, items, value, onChange, isColor = false }: any) => (
         <div className="space-y-2">
             <div className="flex justify-between items-center">
-                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest italic">{label}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest italic" style={{ color: 'var(--color-text-muted)' }}>{label}</span>
             </div>
             <div className="flex flex-wrap gap-2">
                 {items.map((item: any, idx: number) => (
@@ -82,12 +86,16 @@ export default function AvatarCreator({ onComplete }: AvatarCreatorProps) {
                         onClick={() => onChange(isColor ? item : idx)}
                         className={`transition-all duration-300 relative ${isColor
                             ? 'w-7 h-7 rounded-full border-2 hover:scale-110 shadow-sm'
-                            : 'px-3 py-1.5 bg-gray-800 rounded-xl text-[10px] font-black border border-white/5 hover:bg-gray-700 uppercase italic'
+                            : 'px-3 py-1.5 rounded-xl text-[10px] font-black border uppercase italic'
                             } ${isColor
                                 ? (value === item ? 'border-white scale-110 shadow-md shadow-white/20' : 'border-transparent')
-                                : (value === idx ? 'bg-indigo-600 text-white border-indigo-400 shadow-lg shadow-indigo-600/20' : '')
+                                : (value === idx ? 'shadow-lg' : '')
                             }`}
-                        style={isColor ? { backgroundColor: item } : {}}
+                        style={isColor ? { backgroundColor: item } : { 
+                            backgroundColor: value === idx ? 'var(--color-primary)' : 'var(--color-surface)',
+                            borderColor: value === idx ? 'var(--color-primary)' : 'var(--color-border)',
+                            color: value === idx ? 'var(--color-primary-foreground)' : 'var(--color-text-muted)'
+                        }}
                     >
                         {!isColor && (idx === 0 ? t('avatar.options.none') : t('avatar.options.style_label').replace('{n}', idx.toString()))}
                         {isColor && value === item && <Check className="w-3 h-3 text-white absolute inset-0 m-auto drop-shadow-md" />}
@@ -98,12 +106,13 @@ export default function AvatarCreator({ onComplete }: AvatarCreatorProps) {
     )
 
     return (
-        <div className="w-full max-w-sm bg-gray-950 rounded-[40px] border border-white/5 shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-500">
+        <div className="w-full max-w-sm rounded-[40px] border shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-500" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
             {/* 1. PREVIEW CARD */}
             <div className="p-6 bg-gradient-to-br from-indigo-600/20 via-purple-600/10 to-transparent relative">
                 <button
                     onClick={randomize}
-                    className="absolute top-6 right-6 p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 text-indigo-400 transition-all active:rotate-180 duration-500"
+                    className="absolute top-6 right-6 p-3 rounded-2xl border transition-all active:rotate-180 duration-500"
+                    style={{ backgroundColor: 'var(--color-surface-overlay)', borderColor: 'var(--color-border)', color: 'var(--color-primary)' }}
                     title={t('avatar.random')}
                 >
                     <Shuffle className="w-5 h-5" />
@@ -112,21 +121,29 @@ export default function AvatarCreator({ onComplete }: AvatarCreatorProps) {
                 <div className="flex flex-col items-center justify-center">
                     <div className="relative group">
                         <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-3xl group-hover:bg-indigo-500/40 transition-all duration-700" />
-                        <div className="relative bg-gray-900/80 p-5 rounded-[40px] border border-white/10 shadow-2xl backdrop-blur-sm">
+                        <div className="relative p-5 rounded-[40px] border shadow-2xl backdrop-blur-sm" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
                             <PixelAvatar config={config} size={100} className="drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
                         </div>
                     </div>
                     <div className="mt-5 flex flex-col items-center gap-2 w-full">
-                        <div className="flex gap-1 p-1 bg-white/5 rounded-2xl border border-white/5 w-full max-w-[240px]">
+                        <div className="flex gap-1 p-1 rounded-2xl border w-full max-w-[240px]" style={{ backgroundColor: 'var(--color-surface-overlay)', borderColor: 'var(--color-border)' }}>
                             <button
                                 onClick={() => setUserType('named')}
-                                className={`flex-1 py-2 rounded-xl text-[9px] font-black uppercase transition-all ${userType === 'named' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}
+                                className="flex-1 py-2 rounded-xl text-[9px] font-black uppercase transition-all"
+                                style={{ 
+                                    backgroundColor: userType === 'named' ? 'var(--color-primary)' : 'transparent',
+                                    color: userType === 'named' ? 'var(--color-primary-foreground)' : 'var(--color-text-muted)'
+                                }}
                             >
                                 {t('avatar.use_nickname')}
                             </button>
                             <button
                                 onClick={() => setUserType('anon')}
-                                className={`flex-1 py-2 rounded-xl text-[9px] font-black uppercase transition-all ${userType === 'anon' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}
+                                className="flex-1 py-2 rounded-xl text-[9px] font-black uppercase transition-all"
+                                style={{ 
+                                    backgroundColor: userType === 'anon' ? 'var(--color-primary)' : 'transparent',
+                                    color: userType === 'anon' ? 'var(--color-primary-foreground)' : 'var(--color-text-muted)'
+                                }}
                             >
                                 {t('avatar.anonymous')}
                             </button>
@@ -138,7 +155,11 @@ export default function AvatarCreator({ onComplete }: AvatarCreatorProps) {
                                 placeholder={t('avatar.nickname_placeholder')}
                                 value={nickname}
                                 onChange={(e) => setNickname(e.target.value)}
-                                className="mt-1 w-48 bg-transparent border-b border-indigo-500/30 focus:border-indigo-500 text-center text-white text-base font-black outline-none py-1 transition-all placeholder:text-gray-800 italic"
+                                className="mt-1 w-48 bg-transparent border-b text-center text-base font-black outline-none py-1 transition-all italic"
+                                style={{ 
+                                    borderColor: 'var(--color-primary)', 
+                                    color: 'var(--color-text-primary)'
+                                }}
                             />
                         )}
                     </div>
@@ -146,14 +167,14 @@ export default function AvatarCreator({ onComplete }: AvatarCreatorProps) {
             </div>
 
             {/* 2. CATEGORY TABS */}
-            <div className="flex px-4 bg-gray-950/80 border-y border-white/5">
+            <div className="flex px-4 border-y" style={{ backgroundColor: 'var(--color-surface-overlay)', borderColor: 'var(--color-border)' }}>
                 <CategoryTab id="face" icon={Smile} label="Style" />
                 <CategoryTab id="clothes" icon={Shirt} label="Outfit" />
                 <CategoryTab id="colors" icon={Palette} label="Palette" />
             </div>
 
             {/* 3. SETTINGS SHEET */}
-            <div className="p-6 h-60 overflow-y-auto custom-scrollbar bg-gray-950/40">
+            <div className="p-6 h-60 overflow-y-auto custom-scrollbar" style={{ backgroundColor: 'var(--color-surface)' }}>
                 <div className="animate-in slide-in-from-right-4 duration-300 space-y-6">
                     {activeTab === 'face' && (
                         <>
@@ -181,10 +202,11 @@ export default function AvatarCreator({ onComplete }: AvatarCreatorProps) {
             </div>
 
             {/* 4. FOOTER ACTION */}
-            <div className="p-6 bg-gray-950">
+            <div className="p-6" style={{ backgroundColor: 'var(--color-surface)' }}>
                 <button
                     onClick={handleComplete}
-                    className="w-full bg-white text-black py-4 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 group"
+                    className="w-full py-4 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 group"
+                    style={{ backgroundColor: 'var(--color-text-inverse)', color: 'var(--color-text-primary)' }}
                 >
                     {t('avatar.enter_button')}
                     <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
