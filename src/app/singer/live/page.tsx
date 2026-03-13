@@ -450,7 +450,7 @@ function LivePerformanceContent() {
                     </button>
                     <div className="min-w-0">
                         <h1 className="text-lg md:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 truncate tracking-tight uppercase italic">{performance.title}</h1>
-                        <div className="flex items-center gap-2 text-[10px] md:text-xs">
+                        <div className="flex items-center gap-2 text-xs md:text-xs">
                             <span className={`inline-flex items-center px-2 py-0.5 rounded-full border ${realtimeStatus === 'connected' ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
                                 <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${realtimeStatus === 'connected' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-red-500 animate-pulse'}`}></span>
                                 {realtimeStatus === 'connected' ? t('common.realtime_ok') : t('common.realtime_err')}
@@ -476,11 +476,11 @@ function LivePerformanceContent() {
                             </button>
                         )}
                     <div className="hidden md:flex flex-col items-end justify-center px-4 border-r border-white/5">
-                        <div className="text-[9px] uppercase font-black text-gray-500 tracking-[0.2em] mb-0.5">{t('live.header.viewing')}</div>
+                        <div className="text-[11px] uppercase font-black text-gray-500 tracking-[0.2em] mb-0.5">{t('live.header.viewing')}</div>
                         <div className="text-xl font-mono font-black text-indigo-400 leading-none">{viewingCount}</div>
                     </div>
                     <div className="hidden md:flex flex-col items-end justify-center px-4 border-r border-white/5">
-                        <div className="text-[9px] uppercase font-black text-gray-500 tracking-[0.2em] mb-0.5">{t('live.header.time_left')}</div>
+                        <div className="text-[11px] uppercase font-black text-gray-500 tracking-[0.2em] mb-0.5">{t('live.header.time_left')}</div>
                         <div className="text-xl font-mono font-black text-emerald-400 leading-none">{formatTime(elapsedTime)}</div>
                     </div>
                     <button
@@ -566,7 +566,7 @@ function LivePerformanceContent() {
                                             <div className="flex justify-between items-center gap-4">
                                                 <div className="flex-1 min-w-0">
                                                     <p className="font-black text-sm text-white truncate leading-tight mb-0.5">{s.title}</p>
-                                                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{s.artist}</p>
+                                                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{s.artist}</p>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <button onClick={() => handleToggleSongStatus(s.id, s.status)} className={`p-2 rounded-xl border transition-all duration-300 ${s.status === 'completed' ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : 'bg-white/5 border-white/10 text-gray-500'}`}>
@@ -599,7 +599,7 @@ function LivePerformanceContent() {
                                 <div className="space-y-4">
                                     {pendingRequests.map((r: any) => (
                                         <div key={r.id} className="relative group overflow-hidden bg-white/5 p-5 rounded-2xl border border-white/5 hover:border-indigo-500/30 transition-all">
-                                            <div className="absolute top-0 right-0 p-3"><span className="text-[9px] font-black text-gray-600 font-mono tracking-tighter bg-white/5 px-2 py-0.5 rounded">#{r.id.slice(-4).toUpperCase()}</span></div>
+                                            <div className="absolute top-0 right-0 p-3"><span className="text-[11px] font-black text-gray-600 font-mono tracking-tighter bg-white/5 px-2 py-0.5 rounded">#{r.id.slice(-4).toUpperCase()}</span></div>
                                             <div className="mb-4"><p className="font-black text-base text-white leading-tight mb-1">{r.title}</p><p className="text-[11px] text-gray-500 font-bold uppercase tracking-widest">{r.artist}</p></div>
                                             <div className="flex items-center gap-3 mb-5 p-2 rounded-xl bg-gray-950/40">
                                                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center"><UserIcon className="w-3.5 h-3.5 text-indigo-400" /></div>
@@ -674,7 +674,7 @@ function LivePerformanceContent() {
                                             <div className="flex justify-between items-center gap-4">
                                                 <div className="flex-1 min-w-0">
                                                     <p className="font-black text-sm text-white truncate leading-tight mb-0.5">{s.title}</p>
-                                                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{s.artist}</p>
+                                                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{s.artist}</p>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <button
@@ -742,7 +742,7 @@ function LivePerformanceContent() {
                                     {pendingRequests.map((r: any) => (
                                         <div key={r.id} className="relative group overflow-hidden bg-white/5 p-5 rounded-2xl border border-white/5 hover:border-indigo-500/30 transition-all duration-300">
                                             <div className="absolute top-0 right-0 p-3">
-                                                <span className="text-[9px] font-black text-gray-600 font-mono tracking-tighter bg-white/5 px-2 py-0.5 rounded">#{r.id.slice(-4).toUpperCase()}</span>
+                                                <span className="text-[11px] font-black text-gray-600 font-mono tracking-tighter bg-white/5 px-2 py-0.5 rounded">#{r.id.slice(-4).toUpperCase()}</span>
                                             </div>
 
                                             <div className="mb-4">
@@ -833,11 +833,11 @@ function LivePerformanceContent() {
             {/* Bottom Bar Mobile Stats */}
             <div className="md:hidden p-4 border-t border-gray-800 bg-gray-900 grid grid-cols-2 gap-4 shrink-0">
                 <div className="flex flex-col items-center justify-center p-3 bg-gray-800/50 rounded-xl border border-gray-800">
-                    <div className="flex items-center text-gray-500 text-[9px] uppercase font-bold tracking-widest mb-1"><Clock className="w-3 h-3 mr-1" /> {t('live.stats.remaining')}</div>
+                    <div className="flex items-center text-gray-500 text-[11px] uppercase font-bold tracking-widest mb-1"><Clock className="w-3 h-3 mr-1" /> {t('live.stats.remaining')}</div>
                     <p className="text-xl font-mono font-bold text-green-400">{formatTime(elapsedTime)}</p>
                 </div>
                 <div className="flex flex-col items-center justify-center p-3 bg-gray-800/50 rounded-xl border border-gray-800">
-                    <div className="flex items-center text-gray-500 text-[9px] uppercase font-bold tracking-widest mb-1"><UserIcon className="w-3 h-3 mr-1 text-indigo-400" /> {t('live.header.viewing')}</div>
+                    <div className="flex items-center text-gray-500 text-[11px] uppercase font-bold tracking-widest mb-1"><UserIcon className="w-3 h-3 mr-1 text-indigo-400" /> {t('live.header.viewing')}</div>
                     <p className="text-xl font-mono font-bold text-white">{viewingCount}</p>
                 </div>
             </div>
@@ -852,7 +852,7 @@ function LivePerformanceContent() {
                         </div>
                         <div className="p-4 overflow-y-auto custom-scrollbar">
                             <div className="bg-gray-800/40 rounded-xl p-4 mb-6 border border-gray-800">
-                                <h4 className="text-[10px] text-indigo-400 font-bold mb-3 uppercase tracking-widest">{t('live.modal.manual_entry')}</h4>
+                                <h4 className="text-xs text-indigo-400 font-bold mb-3 uppercase tracking-widest">{t('live.modal.manual_entry')}</h4>
                                 <div className="space-y-2">
                                     <input type="text" placeholder={t('live.modal.song_title')} value={manualSongTitle} onChange={e => setManualSongTitle(e.target.value)} className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
                                     <input type="text" placeholder={t('live.modal.artist_optional')} value={manualSongArtist} onChange={e => setManualSongArtist(e.target.value)} className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
@@ -868,7 +868,7 @@ function LivePerformanceContent() {
                             <div className="space-y-2">
                                 {allSongs.filter(s => !performance.songs.some((ps: any) => ps.id === s.id) && (s.title.toLowerCase().includes(searchQuery.toLowerCase()) || (s.artist || '').toLowerCase().includes(searchQuery.toLowerCase()))).map(s => (
                                     <button key={s.id} onClick={() => handleAddSong(s.id)} disabled={addingSongId === s.id} className="w-full bg-gray-800/50 hover:bg-gray-800 p-3 rounded-xl flex justify-between items-center border border-gray-800 transition disabled:opacity-50">
-                                        <div className="text-left"><p className="font-bold text-white text-sm">{s.title}</p><p className="text-[10px] text-gray-500">{s.artist}</p></div>
+                                        <div className="text-left"><p className="font-bold text-white text-sm">{s.title}</p><p className="text-xs text-gray-500">{s.artist}</p></div>
                                         {addingSongId === s.id ? <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /> : <Plus className="w-4 h-4 text-indigo-500" />}
                                     </button>
                                 ))}
@@ -889,7 +889,7 @@ function DeleteSongButton({ songId, onRemove }: { songId: string, onRemove: (id:
     useEffect(() => { if (!confirming) return; const t = setTimeout(() => setConfirming(false), 2000); return () => clearTimeout(t) }, [confirming])
     const handleClick = async () => { if (!confirming) { setConfirming(true); return }; setRemoving(true); await onRemove(songId); setRemoving(false); setConfirming(false) }
     return (
-        <button onClick={handleClick} className={`p-1.5 rounded-lg transition text-[10px] font-bold flex items-center gap-1 ${confirming ? 'bg-red-600 text-white animate-pulse' : 'bg-gray-800 text-gray-500 hover:text-red-400 border border-gray-700'}`}>
+        <button onClick={handleClick} className={`p-1.5 rounded-lg transition text-xs font-bold flex items-center gap-1 ${confirming ? 'bg-red-600 text-white animate-pulse' : 'bg-gray-800 text-gray-500 hover:text-red-400 border border-gray-700'}`}>
             <Trash2 className="w-4 h-4" />
             {confirming && <span>?</span>}
         </button>

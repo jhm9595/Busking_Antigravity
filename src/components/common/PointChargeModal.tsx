@@ -150,7 +150,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
 
                                     <div className="flex flex-col h-full pt-2">
                                         <div className="flex items-center gap-3 mb-3">
-                                            <div className={`p-2.5 rounded-xl bg-gradient-to-br ${pkg.color} text-black shadow-lg`}>
+                                            <div className={`p-2 rounded-xl bg-gradient-to-br ${pkg.color} text-black shadow-lg`}>
                                                 <pkg.icon className="w-4 h-4" />
                                             </div>
                                             <div className="flex flex-col">
@@ -173,14 +173,14 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                         </div>
 
                         {/* 2. Payment Method Selection */}
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                             <h3 className="text-xs font-black text-gray-500 uppercase tracking-[0.2em] italic px-2">
                                 {t('common.payment_method')}
                             </h3>
                             <div className="grid grid-cols-2 gap-3">
                                 <button
                                     onClick={() => setPaymentMethod('kakao')}
-                                    className={`flex items-center justify-center gap-3 p-4 rounded-3xl border-2 transition-all ${
+                                    className={`flex items-center justify-center gap-2 p-3.5 rounded-2xl border-2 transition-all ${
                                         paymentMethod === 'kakao'
                                         ? 'bg-[#FEE500] border-yellow-400 text-black shadow-xl shadow-yellow-400/10 scale-[1.02]'
                                         : 'bg-white/5 border-white/5 text-gray-400 hover:border-white/10'
@@ -191,7 +191,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                 </button>
                                 <button
                                     onClick={() => setPaymentMethod('stripe')}
-                                    className={`flex items-center justify-center gap-3 p-4 rounded-3xl border-2 transition-all ${
+                                    className={`flex items-center justify-center gap-2 p-3.5 rounded-2xl border-2 transition-all ${
                                         paymentMethod === 'stripe'
                                         ? 'bg-[#635BFF] border-indigo-400 text-white shadow-xl shadow-indigo-600/20 scale-[1.02]'
                                         : 'bg-white/5 border-white/5 text-gray-400 hover:border-white/10'
@@ -204,11 +204,11 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                         </div>
                     </main>
 
-                    <footer className="p-6 md:p-8 bg-gray-950/80 border-t border-white/5 relative z-10 shrink-0">
+                    <footer className="p-5 md:p-8 bg-gray-950/80 border-t border-white/5 relative z-10 shrink-0">
                         <button
                             onClick={handleCharge}
                             disabled={isSubmitting}
-                            className={`w-full py-5 rounded-[24px] font-black text-sm uppercase tracking-[0.2em] shadow-2xl transition-all flex items-center justify-center gap-3 group ${
+                            className={`w-full py-4 rounded-[20px] font-black text-sm uppercase tracking-[0.2em] shadow-2xl transition-all flex items-center justify-center gap-3 group ${
                                 isSubmitting ? 'bg-gray-800 text-gray-500' : 'bg-white text-black hover:scale-[1.02] active:scale-95'
                             }`}
                         >
@@ -221,14 +221,9 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                 </>
                             )}
                         </button>
-                        <p className="mt-4 text-center text-xs text-gray-600 font-bold uppercase tracking-widest italic opacity-50">
-                            Secure Encrypted Payment via {paymentMethod === 'kakao' ? 'Portone' : 'Stripe'}
+                        <p className="mt-3 text-center text-xs text-gray-600 font-bold uppercase tracking-widest italic opacity-50">
+                            Secure Encrypted Payment via {paymentMethod === 'kakao' ? 'Kakao Pay' : 'Stripe'}
                         </p>
-                        {paymentMethod === 'kakao' && (
-                            <p className="mt-2 text-center text-[8px] text-indigo-500/50 font-medium">
-                                * Tip: Ensure Kakao Pay is enabled in your Portone console for this Merchant ID.
-                            </p>
-                        )}
                         </footer>                </div>
             </div>
     )

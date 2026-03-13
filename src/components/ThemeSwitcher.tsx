@@ -29,7 +29,7 @@ export function ThemeSwitcher() {
 
   // Close dropdown when clicking outside
   React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleOutsideAction = (event: MouseEvent | TouchEvent) => {
       const target = event.target as HTMLElement;
       if (!target.closest('.theme-dropdown')) {
         setIsOpen(false);
@@ -37,32 +37,37 @@ export function ThemeSwitcher() {
     };
     
     if (isOpen) {
-      document.addEventListener('click', handleClickOutside);
+      document.addEventListener('click', handleOutsideAction);
+      document.addEventListener('touchstart', handleOutsideAction);
     }
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('click', handleOutsideAction);
+      document.removeEventListener('touchstart', handleOutsideAction);
     };
   }, [isOpen]);
 
   if (!mounted) {
-    return <div className="w-8 h-8" />;
+    return <div className="w-10 h-10" />;
   }
 
   return (
     <div className="relative theme-dropdown z-50">
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-accent transition-colors touch-manipulation"
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
+        className="p-3 md:p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-background/90 backdrop-blur-md border border-border shadow-lg hover:bg-accent transition-all active:scale-95 touch-manipulation"
         aria-label="Toggle theme"
         aria-expanded={isOpen}
       >
-        <Palette className="w-5 h-5" />
+        <Palette className="w-5 h-5 md:w-4 md:h-4 text-primary" />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-          <div className="py-1 max-h-[60vh] overflow-y-auto">
+        <div className="absolute right-0 mt-3 w-56 md:w-48 bg-background border border-border rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="py-2 max-h-[70vh] overflow-y-auto custom-scrollbar">
             {themes.map((t) => (
               <button
                 key={t.value}
@@ -70,14 +75,14 @@ export function ThemeSwitcher() {
                   setTheme(t.value);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${
+                className={`w-full flex items-center justify-between px-5 py-3.5 md:px-4 md:py-2.5 text-base md:text-sm transition-colors ${
                   theme === t.value 
-                    ? "bg-primary/10 text-primary font-medium" 
+                    ? "bg-primary/10 text-primary font-bold" 
                     : "text-foreground hover:bg-accent"
                 }`}
               >
                 <span>{t.name}</span>
-                {theme === t.value && <Check className="w-4 h-4" />}
+                {theme === t.value && <Check className="w-5 h-5 md:w-4 md:h-4" />}
               </button>
             ))}
           </div>

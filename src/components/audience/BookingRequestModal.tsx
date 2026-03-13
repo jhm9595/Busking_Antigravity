@@ -89,7 +89,7 @@ export default function BookingRequestModal({ isOpen, onClose, onSubmit, singerN
                                     placeholder={t('booking.modal.contact_placeholder')}
                                     className="w-full bg-black/50 border border-gray-700 rounded-lg p-3 text-white focus:border-indigo-500 outline-none transition"
                                 />
-                                <p className="text-[10px] text-gray-500 mt-1">{t('booking.modal.contact_help')}</p>
+                                <p className="text-xs text-gray-500 mt-1">{t('booking.modal.contact_help')}</p>
                             </div>
                         </div>
                     </div>
@@ -174,7 +174,7 @@ export default function BookingRequestModal({ isOpen, onClose, onSubmit, singerN
                     >
                         {isSubmitting ? t('booking.modal.submitting') : t('booking.modal.submit')}
                     </button>
-                    <p className="text-center text-[10px] text-gray-600 mt-2">
+                    <p className="text-center text-xs text-gray-600 mt-2">
                         {t('booking.modal.privacy_note')}
                     </p>
                 </div>

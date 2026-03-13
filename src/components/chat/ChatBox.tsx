@@ -175,7 +175,7 @@ export default function ChatBox({
                 {userType === 'audience' && isJoined && (
                     <button
                         onClick={() => { setIsJoined(false); joinedRoomRef.current = null }}
-                        className="text-[10px] text-red-400 bg-red-900/20 hover:bg-red-900/40 px-3 py-1 rounded-full transition-colors font-black uppercase italic"
+                        className="text-xs text-red-400 bg-red-900/20 hover:bg-red-900/40 px-3 py-1 rounded-full transition-colors font-black uppercase italic"
                     >
                         {t('chat.leave')}
                     </button>
@@ -188,7 +188,7 @@ export default function ChatBox({
                         <MessageCircle className="w-8 h-8 text-indigo-500" />
                     </div>
                     <h4 className="text-white font-black italic mb-2 tracking-tight uppercase">{t('chat.join_title')}</h4>
-                    <p className="text-[10px] text-slate-500 mb-8 max-w-[200px] font-bold leading-relaxed uppercase italic">{t('chat.join_desc')}</p>
+                    <p className="text-xs text-slate-500 mb-8 max-w-[200px] font-bold leading-relaxed uppercase italic">{t('chat.join_desc')}</p>
                     <button
                         onClick={handleJoinClick}
                         className="bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 px-10 rounded-2xl shadow-xl transition-all hover:scale-[1.02] active:scale-95 text-xs uppercase tracking-widest italic"
@@ -205,7 +205,7 @@ export default function ChatBox({
                                     <div key={idx} className="flex flex-col items-center my-4 animate-in zoom-in duration-500 w-full">
                                         <div className="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 p-[1px] rounded-2xl shadow-[0_0_20px_rgba(245,158,11,0.2)] w-[95%]">
                                             <div className="bg-gray-900 rounded-[15px] p-4 flex flex-col items-center relative overflow-hidden">
-                                                <div className="flex items-center gap-2 mb-2 text-amber-400 font-black italic text-[9px] uppercase tracking-[0.2em]">
+                                                <div className="flex items-center gap-2 mb-2 text-amber-400 font-black italic text-[11px] uppercase tracking-[0.2em]">
                                                     <span className="animate-bounce">💖</span> {t('chat.sponsorship_title')} <span className="animate-bounce">💖</span>
                                                 </div>
                                                 <p className="text-white font-black text-center text-[13px] mb-1 leading-tight">
@@ -224,11 +224,11 @@ export default function ChatBox({
                                 return (
                                     <div key={idx} className="flex flex-col items-center my-2 w-full">
                                         <div className="bg-indigo-900/20 border border-indigo-500/20 rounded-2xl p-4 w-[90%] text-center">
-                                            <div className="text-indigo-400 text-[9px] font-black uppercase tracking-widest mb-2 italic">{t('chat.song_request_title')}</div>
+                                            <div className="text-indigo-400 text-[11px] font-black uppercase tracking-widest mb-2 italic">{t('chat.song_request_title')}</div>
                                             <p className="text-white font-black text-sm mb-1 italic uppercase truncate">{msg.requestData.title}</p>
-                                            <p className="text-indigo-300/60 text-[10px] font-bold italic mb-3">{t('chat.song_request_by').replace('{username}', msg.requestData.username)}</p>
+                                            <p className="text-indigo-300/60 text-xs font-bold italic mb-3">{t('chat.song_request_by').replace('{username}', msg.requestData.username)}</p>
                                             {userType === 'singer' && onAcceptRequest && (
-                                                <button onClick={() => onAcceptRequest(msg.requestData!.title)} className="bg-indigo-600 text-white text-[10px] font-black px-4 py-2 rounded-xl uppercase italic shadow-lg">{t('chat.accept_button')}</button>
+                                                <button onClick={() => onAcceptRequest(msg.requestData!.title)} className="bg-indigo-600 text-white text-xs font-black px-4 py-2 rounded-xl uppercase italic shadow-lg">{t('chat.accept_button')}</button>
                                             )}
                                         </div>
                                     </div>
@@ -242,7 +242,7 @@ export default function ChatBox({
                             if (isSystem) {
                                 return (
                                     <div key={idx} className="flex justify-center my-2">
-                                        <span className="bg-white/5 border border-white/5 text-gray-500 text-[9px] font-black px-3 py-1 rounded-full uppercase italic">
+                                        <span className="bg-white/5 border border-white/5 text-gray-500 text-[11px] font-black px-3 py-1 rounded-full uppercase italic">
                                             {msg.message}
                                         </span>
                                     </div>
@@ -257,7 +257,7 @@ export default function ChatBox({
                                         </div>
                                     )}
                                     <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[75%]`}>
-                                        {!isMe && <span className="text-[9px] font-black text-gray-500 mb-1 uppercase tracking-wider italic">{msg.author} {isSinger && '👑'}</span>}
+                                        {!isMe && <span className="text-[11px] font-black text-gray-500 mb-1 uppercase tracking-wider italic">{msg.author} {isSinger && '👑'}</span>}
                                         <div className={`rounded-2xl px-4 py-2.5 text-sm font-medium break-words shadow-sm ${
                                             isMe ? 'bg-indigo-600 text-white rounded-tr-none' : 
                                             isSinger ? 'bg-amber-500/10 border border-amber-500/20 text-amber-100 rounded-tl-none' : 

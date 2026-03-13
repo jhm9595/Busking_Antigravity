@@ -89,39 +89,39 @@ export default function ExplorePage() {
 
     return (
         <div className="h-screen flex flex-col bg-white text-black overflow-hidden">
-            <header className="flex justify-between items-center p-3 md:p-4 border-b bg-white z-10 shadow-sm shrink-0">
-                <div className="flex items-center gap-3">
-                    <Link href="/" className="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all active:scale-95 shadow-sm" title={t('common.home_button')}>
+            <header className="flex justify-between items-center p-4 border-b bg-white z-10 shadow-sm shrink-0">
+                <div className="flex items-center gap-4">
+                    <Link href="/" className="p-2.5 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all active:scale-95 shadow-sm" title={t('common.home_button')}>
                         <Home className="w-5 h-5" />
                     </Link>
                     <h1 className="text-lg md:text-2xl font-black text-indigo-700 truncate hidden sm:block uppercase italic tracking-tighter">{t('home.explore_title')}</h1>
                 </div>
-                <div className="flex items-center gap-2 md:gap-3">
-                    <div className="flex bg-gray-100 rounded-lg p-1">
+                <div className="flex items-center gap-3">
+                    <div className="flex bg-gray-100 rounded-xl p-1">
                         <button
                             onClick={() => setViewMode('map')}
-                            className={`p-1.5 md:p-2 rounded-md flex items-center text-xs md:text-sm font-bold transition-all ${viewMode === 'map' ? 'bg-white shadow text-indigo-600' : 'text-gray-500'}`}
+                            className={`p-2 rounded-lg flex items-center text-xs md:text-sm font-bold transition-all ${viewMode === 'map' ? 'bg-white shadow text-indigo-600' : 'text-gray-500'}`}
                         >
                             <MapIcon className="w-4 h-4 md:w-5 md:h-5 md:mr-1" /> <span className="hidden md:inline">{t('home.view_map')}</span>
                         </button>
                         <button
                             onClick={() => setViewMode('grid')}
-                            className={`p-1.5 md:p-2 rounded-md flex items-center text-xs md:text-sm font-bold transition-all ${viewMode === 'grid' ? 'bg-white shadow text-indigo-600' : 'text-gray-500'}`}
+                            className={`p-2 rounded-lg flex items-center text-xs md:text-sm font-bold transition-all ${viewMode === 'grid' ? 'bg-white shadow text-indigo-600' : 'text-gray-500'}`}
                         >
                             <List className="w-4 h-4 md:w-5 md:h-5 md:mr-1" /> <span className="hidden md:inline">{t('home.view_list')}</span>
                         </button>
                     </div>
                     <button
                         onClick={fetchFollowing}
-                        className="px-2 py-1.5 md:px-4 md:py-2 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-xl text-xs md:text-sm font-black transition-all hover:bg-indigo-100 shadow-sm uppercase italic"
+                        className="px-3 py-2 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-xl text-xs md:text-sm font-black transition-all hover:bg-indigo-100 shadow-sm uppercase italic"
                     >
                         {t('home.following_btn')}
                     </button>
                     <button
                         onClick={handleLogout}
-                        className="p-1.5 md:px-3 md:py-2 border border-gray-300 rounded-xl hover:bg-gray-50 flex items-center text-gray-600 transition-all active:scale-95"
+                        className="p-2 md:px-3 md:py-2 border border-gray-300 rounded-xl hover:bg-gray-50 flex items-center text-gray-600 transition-all active:scale-95 shadow-sm"
                     >
-                        <LogOut className="w-4 h-4" />
+                        <LogOut className="w-4 h-4 md:w-5 md:h-5" />
                     </button>
                 </div>
             </header>
@@ -145,15 +145,15 @@ export default function ExplorePage() {
                                     return (
                                         <div key={perf.id} className={`group border rounded-[24px] p-5 hover:shadow-2xl transition-all bg-white block cursor-pointer relative overflow-hidden ${perf.isFollowed ? 'border-indigo-200 shadow-lg shadow-indigo-500/5' : 'border-gray-100 shadow-sm'}`} onClick={() => router.push(`/singer/${perf.singerId}`)}>
                                             {perf.isFollowed && (
-                                                <div className="absolute top-0 right-0 bg-indigo-600 text-white px-3 py-1 rounded-bl-xl text-[9px] font-black uppercase tracking-widest italic shadow-lg">
+                                                <div className="absolute top-0 right-0 bg-indigo-600 text-white px-3 py-1 rounded-bl-xl text-[11px] font-black uppercase tracking-widest italic shadow-lg">
                                                     {t('common.following')}
                                                 </div>
                                             )}
                                             <div className="flex justify-between items-start mb-4">
-                                                <span className={`text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-wider ${isLive ? 'bg-red-600 text-white animate-pulse shadow-lg shadow-red-600/30' : 'bg-indigo-100 text-indigo-700'}`}>
+                                                <span className={`text-[11px] px-3 py-1 rounded-full font-black uppercase tracking-wider ${isLive ? 'bg-red-600 text-white animate-pulse shadow-lg shadow-red-600/30' : 'bg-indigo-100 text-indigo-700'}`}>
                                                     {isLive ? t('live.status_live') : t('home.status_scheduled')}
                                                 </span>
-                                                <span className="text-[10px] font-bold text-gray-400 font-mono">
+                                                <span className="text-[11px] font-bold text-gray-400 font-mono">
                                                     {formatLocalDate(perf.startTime)}
                                                 </span>
                                             </div>
@@ -162,7 +162,7 @@ export default function ExplorePage() {
                                                 <span className="w-1 h-1 bg-gray-300 rounded-full" />
                                                 {perf.locationText}
                                             </p>
-                                            <button className="w-full py-3.5 bg-gray-950 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:bg-indigo-600 hover:scale-[1.02] active:scale-95 shadow-xl italic">
+                                            <button className="w-full py-3.5 bg-gray-950 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all hover:bg-indigo-600 hover:scale-[1.02] active:scale-95 shadow-xl italic">
                                                 {t('home.view_details')}
                                             </button>
                                         </div>

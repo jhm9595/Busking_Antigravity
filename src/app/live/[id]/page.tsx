@@ -218,7 +218,7 @@ export default function AudienceLivePage() {
                         </div>
                         <div className="flex flex-col">
                             <span className="font-black text-sm text-white group-hover:text-indigo-400 transition-colors leading-tight uppercase italic">{singer?.stageName || t('common.singer_fallback')}</span>
-                            <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest italic">{realtimeStatus === 'connected' ? t('live.status_live') : t('live.status_syncing')}</span>
+                            <span className="text-[11px] text-gray-500 font-bold uppercase tracking-widest italic">{realtimeStatus === 'connected' ? t('live.status_live') : t('live.status_syncing')}</span>
                         </div>
                     </Link>
                 </div>
@@ -229,7 +229,7 @@ export default function AudienceLivePage() {
                     </div>
                     <button
                         onClick={handleFollow}
-                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg italic ${isFollowed ? 'bg-white/5 text-gray-400 border border-white/10' : 'bg-indigo-600 text-white shadow-indigo-600/30'}`}
+                        className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg italic ${isFollowed ? 'bg-white/5 text-gray-400 border border-white/10' : 'bg-indigo-600 text-white shadow-indigo-600/30'}`}
                     >
                         {isFollowed ? t('common.following') : t('common.follow')}
                     </button>
@@ -239,7 +239,7 @@ export default function AudienceLivePage() {
 
             <div className="sm:hidden bg-gray-950/40 px-4 py-1.5 border-b border-white/5 flex justify-between items-center shrink-0">
                 <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black text-amber-400/70 uppercase tracking-widest">{t('common.points')}:</span>
+                    <span className="text-xs font-black text-amber-400/70 uppercase tracking-widest">{t('common.points')}:</span>
                     <span className="text-xs font-mono font-black text-amber-400">{userPoints.toLocaleString()}P</span>
                 </div>
                 <button onClick={() => setShowChargeModal(true)} className="text-[8px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20 font-black uppercase">{t('common.charge')} (TEST)</button>
@@ -261,8 +261,8 @@ export default function AudienceLivePage() {
                             <div className="flex items-center justify-between mb-5">
                                 <h2 className="text-md font-black flex items-center gap-3 italic uppercase tracking-wider"><Music className="w-5 h-5 text-indigo-500" />{t('performance.details.setlist_title')}</h2>
                                 <div className="flex items-center gap-2">
-                                    <button onClick={() => setShowRequestModal(true)} className="bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 px-3 py-1.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border border-indigo-500/30 italic flex items-center gap-2 shadow-lg"><Music className="w-3 h-3" /> {t('song_request.title')}</button>
-                                    <span className="text-[10px] font-black bg-white/5 px-2.5 py-1 rounded-full text-gray-500 uppercase tracking-widest italic">{performance.songs?.length || 0} {t('live.tracks')}</span>
+                                    <button onClick={() => setShowRequestModal(true)} className="bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all border border-indigo-500/30 italic flex items-center gap-2 shadow-lg"><Music className="w-3 h-3" /> {t('song_request.title')}</button>
+                                    <span className="text-xs font-black bg-white/5 px-2.5 py-1 rounded-full text-gray-500 uppercase tracking-widest italic">{performance.songs?.length || 0} {t('live.tracks')}</span>
                                 </div>
                             </div>
                             <div className={`space-y-3 ${chatStatus === 'open' ? 'max-h-[300px] overflow-y-auto custom-scrollbar pr-1' : ''}`}>
@@ -274,7 +274,7 @@ export default function AudienceLivePage() {
                                                 <div className="flex justify-between items-center">
                                                     <div className="min-w-0">
                                                         <p className="font-black text-base flex items-center gap-3 truncate text-white uppercase italic tracking-tight group-hover:text-indigo-400 transition-colors">{s.title}{s.status === 'completed' && <Check className="w-4 h-4 text-emerald-500" />}</p>
-                                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mt-0.5">{s.artist}</p>
+                                                        <p className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mt-0.5">{s.artist}</p>
                                                     </div>
                                                     {isLive && <span className="text-[8px] bg-red-600 text-white px-2.5 py-1 rounded-full font-black animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter">{t('live.badge_now')}</span>}
                                                 </div>
@@ -293,7 +293,7 @@ export default function AudienceLivePage() {
                                     <h2 className="font-black text-sm flex items-center gap-3 italic uppercase"><MessageCircle className="w-5 h-5 text-indigo-500" />{t('chat.title')}</h2>
                                     <div className="flex items-center gap-2 bg-indigo-500/10 px-3 py-1.5 rounded-full border border-indigo-500/20">
                                         <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
-                                        <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest italic">{viewingCount} {t('live.watching')}</span>
+                                        <span className="text-xs font-black text-indigo-400 uppercase tracking-widest italic">{viewingCount} {t('live.watching')}</span>
                                     </div>
                                 </div>
                                 <ChatBox
@@ -331,7 +331,7 @@ export default function AudienceLivePage() {
                     <p className="text-gray-500 mb-14 max-w-[280px] leading-relaxed">{t('live.ended_desc')}</p>
                     <div className="bg-white/5 border border-white/10 px-12 py-8 rounded-[40px] mb-14 relative shadow-2xl">
                         <span className="text-6xl font-mono font-black text-transparent bg-clip-text bg-gradient-to-b from-indigo-400 to-indigo-600">{redirectCountdown}</span>
-                        <p className="text-[10px] font-black text-gray-600 uppercase tracking-[0.2em] mt-3">{t('live.redirecting')}</p>
+                        <p className="text-xs font-black text-gray-600 uppercase tracking-[0.2em] mt-3">{t('live.redirecting')}</p>
                     </div>
                     <div className="flex flex-col gap-4 w-full max-w-[280px]">
                         <button onClick={() => setShowRedirectionModal(false)} className="bg-white/5 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border border-white/5">{t('live.stay_here')}</button>

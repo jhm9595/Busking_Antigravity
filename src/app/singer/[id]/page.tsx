@@ -205,7 +205,7 @@ export default function SingerDetailPage() {
                             )}
                         </div>
                         {singer.performances.some((p: any) => getEffectiveStatus(p) === 'live') && (
-                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter italic">
+                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-red-600 text-white text-xs font-black px-3 py-1 rounded-full animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter italic">
                                 {t('live.status_live')}
                             </div>
                         )}
@@ -248,7 +248,7 @@ export default function SingerDetailPage() {
                 {singer.bio && (
                     <div className="bg-white/5 rounded-3xl p-5 border border-white/5 shadow-2xl relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-600/5 rounded-full blur-3xl -mr-12 -mt-12 group-hover:bg-indigo-600/10 transition-all" />
-                        <div className="flex items-center gap-2 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-3 italic">
+                        <div className="flex items-center gap-2 text-xs font-black text-gray-500 uppercase tracking-[0.2em] mb-3 italic">
                             <User className="w-3 h-3" /> {t('common.about_artist')}
                         </div>
                         <p className="text-sm text-gray-300 leading-relaxed italic font-medium whitespace-pre-line relative z-10">
@@ -309,7 +309,7 @@ export default function SingerDetailPage() {
                                         <div className="relative z-20">
                                             <div className="flex justify-between items-start mb-8">
                                                 <div className="min-w-0">
-                                                    <div className="text-[10px] font-black text-rose-500 uppercase tracking-[0.3em] mb-2 italic flex items-center gap-2">
+                                                    <div className="text-xs font-black text-rose-500 uppercase tracking-[0.3em] mb-2 italic flex items-center gap-2">
                                                         <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
                                                         {t('live.performing_now')}
                                                     </div>
@@ -353,7 +353,7 @@ export default function SingerDetailPage() {
                     </h2>
                     <div className="space-y-4">
                         {singer.performances.filter((p: any) => getEffectiveStatus(p) === 'planned').length === 0 ? (
-                            <div className="p-10 bg-white/5 rounded-3xl border border-dashed border-white/5 text-center text-gray-600 text-[10px] font-black uppercase italic tracking-widest">
+                            <div className="p-10 bg-white/5 rounded-3xl border border-dashed border-white/5 text-center text-gray-600 text-xs font-black uppercase italic tracking-widest">
                                 {t('performance.list.empty_upcoming')}
                             </div>
                         ) : (
@@ -363,7 +363,7 @@ export default function SingerDetailPage() {
                                     <div key={perf.id} className="bg-white/5 border border-white/5 rounded-3xl overflow-hidden group hover:border-indigo-500/20 transition-all shadow-xl">
                                         <div className="p-5 relative">
                                             <div className="flex flex-col gap-1 mb-5">
-                                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-500/10 w-fit px-2.5 py-1 rounded-full mb-1 italic">
+                                                <span className="text-xs font-black text-indigo-400 uppercase tracking-widest bg-indigo-500/10 w-fit px-2.5 py-1 rounded-full mb-1 italic">
                                                     {formatLocalDate(perf.startTime)}
                                                 </span>
                                                 <h3 className="font-black text-lg text-white italic tracking-tight uppercase">{perf.title}</h3>
@@ -376,7 +376,7 @@ export default function SingerDetailPage() {
                                                 {perf.locationLat && perf.locationLng && (
                                                     <button
                                                         onClick={() => setExpandedPerfId(expandedPerfId === perf.id ? null : perf.id)}
-                                                        className="flex-1 bg-white/5 hover:bg-white/10 text-white font-black py-3.5 rounded-xl text-[10px] uppercase tracking-widest transition-all border border-white/5 italic"
+                                                        className="flex-1 bg-white/5 hover:bg-white/10 text-white font-black py-3.5 rounded-xl text-xs uppercase tracking-widest transition-all border border-white/5 italic"
                                                     >
                                                         {expandedPerfId === perf.id ? t('performance.form.map_hide') : t('performance.form.map_show')}
                                                     </button>
@@ -384,7 +384,7 @@ export default function SingerDetailPage() {
                                                 {perf.chatEnabled && (
                                                     <Link
                                                         href={`/live/${perf.id}`}
-                                                        className="flex-1 bg-indigo-600/90 hover:bg-indigo-600 text-white font-black py-3.5 rounded-xl text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 text-center border border-indigo-400/30 italic"
+                                                        className="flex-1 bg-indigo-600/90 hover:bg-indigo-600 text-white font-black py-3.5 rounded-xl text-xs uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 text-center border border-indigo-400/30 italic"
                                                     >
                                                         {t('live.enter_chat')}
                                                     </Link>

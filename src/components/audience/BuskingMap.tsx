@@ -183,7 +183,7 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                             <div className="min-w-[160px] p-2 text-center">
                                 {perf.status === 'live' && (
                                     <div className="mb-2">
-                                        <span className="bg-red-600 text-white text-[10px] uppercase font-bold px-2 py-1 rounded-full animate-pulse shadow-sm">
+                                        <span className="bg-red-600 text-white text-xs uppercase font-bold px-2 py-1 rounded-full animate-pulse shadow-sm">
                                             Live Now
                                         </span>
                                     </div>
@@ -274,7 +274,7 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                                 onChange={(e) => setRadius(Number(e.target.value))}
                                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                             />
-                            <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+                            <div className="flex justify-between text-xs text-gray-400 mt-1">
                                 <span>All</span>
                                 <span>50km</span>
                             </div>

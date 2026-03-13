@@ -229,7 +229,7 @@ export default function SingerDashboard() {
                         <Link href="/" className="text-2xl font-black bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent italic tracking-tighter hover:scale-105 transition-transform">
                             ANTIGRAVITY.
                         </Link>
-                        <div className="hidden md:flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20 italic">
+                        <div className="hidden md:flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-indigo-500 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20 italic">
                             <LayoutDashboard className="w-3 h-3" />
                             {t('dashboard.title')}
                         </div>
@@ -253,7 +253,7 @@ export default function SingerDashboard() {
                     <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] -mr-48 -mt-48 animate-pulse pointer-events-none" />
                     <div className="relative z-10 flex-1">
                         <div className="flex flex-col mb-6">
-                            <div className="flex items-center gap-3 text-indigo-100/60 font-black italic uppercase tracking-[0.2em] text-[10px] mb-2">
+                            <div className="flex items-center gap-3 text-indigo-100/60 font-black italic uppercase tracking-[0.2em] text-xs mb-2">
                                 <Clock className="w-3.5 h-3.5" />
                                 <span>{date}</span>
                             </div>
@@ -268,10 +268,10 @@ export default function SingerDashboard() {
                     </div>
                     <div className="flex gap-4 relative z-10 w-full md:w-auto">
                         <div className="flex flex-col items-end justify-center px-6 bg-black/20 rounded-3xl border border-white/10 backdrop-blur-md">
-                            <span className="text-[10px] font-black text-indigo-200/50 uppercase tracking-widest mb-1">{t('common.points')}</span>
+                            <span className="text-xs font-black text-indigo-200/50 uppercase tracking-widest mb-1">{t('common.points')}</span>
                             <div className="flex items-center gap-3">
                                 <span className="text-2xl font-mono font-black text-amber-400">{userPoints.toLocaleString()}P</span>
-                                <button onClick={handleChargeTest} className="text-[9px] bg-amber-500/20 hover:bg-amber-500/40 text-amber-400 px-2 py-1 rounded-lg border border-amber-500/30 transition-all font-black uppercase">
+                                <button onClick={handleChargeTest} className="text-[11px] bg-amber-500/20 hover:bg-amber-500/40 text-amber-400 px-2 py-1 rounded-lg border border-amber-500/30 transition-all font-black uppercase">
                                     {t('common.charge')}
                                 </button>
                             </div>
