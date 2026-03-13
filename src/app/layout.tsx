@@ -8,7 +8,7 @@ const systemSans = "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
 const systemMono = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
 
 export const metadata: Metadata = {
-  title: "miniMic",
+  title: "minimic",
   description: "Street performance revolution",
   icons: {
     icon: [
@@ -18,20 +18,20 @@ export const metadata: Metadata = {
     apple: [{ url: "/apple-icon.png", type: "image/png" }],
   },
   openGraph: {
-    title: "miniMic",
+    title: "minimic",
     description: "Street performance revolution",
     images: [
       {
         url: "/opengraph-image.png",
         width: 1200,
         height: 630,
-        alt: "miniMic brand preview",
+        alt: "minimic brand preview",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "miniMic",
+    title: "minimic",
     description: "Street performance revolution",
     images: ["/twitter-image.png"],
   },
