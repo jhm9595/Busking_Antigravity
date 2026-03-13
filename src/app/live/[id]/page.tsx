@@ -264,16 +264,16 @@ export default function AudienceLivePage() {
             <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border px-4 py-3 flex items-center justify-between shadow-2xl shrink-0">
                 <div className="flex items-center gap-2 md:gap-3 min-w-0">
                     <Link href="/explore" className="p-2.5 rounded-xl bg-foreground/5 border border-border hover:bg-foreground/10 text-foreground transition-all active:scale-95 shadow-lg shrink-0">
-                        <Home className="w-5 h-5 text-indigo-400" />
+                        <Home className="w-5 h-5 text-primary" />
                     </Link>
                     <Link href={`/singer/${singer?.id}`} className="flex items-center gap-2 md:gap-3 group min-w-0">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px] shadow-lg shadow-indigo-600/20 group-hover:scale-105 transition-transform">
-                            <div className="w-full h-full rounded-full bg-card flex items-center justify-center font-black overflow-hidden border border-border text-xs text-indigo-400 uppercase italic">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary/60 p-[1px] shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
+                            <div className="w-full h-full rounded-full bg-card flex items-center justify-center font-black overflow-hidden border border-border text-xs text-primary uppercase italic">
                                 {singer?.profile?.avatarUrl ? <img src={singer.profile.avatarUrl} className="w-full h-full object-cover" /> : (singer?.stageName?.[0] || t('common.singer_fallback')[0])}
                             </div>
                         </div>
                         <div className="flex flex-col">
-                            <span className="font-black text-sm text-foreground group-hover:text-indigo-400 transition-colors leading-tight uppercase italic">{singer?.stageName || t('common.singer_fallback')}</span>
+                            <span className="font-black text-sm text-foreground group-hover:text-primary transition-colors leading-tight uppercase italic">{singer?.stageName || t('common.singer_fallback')}</span>
                             <span className="text-[11px] text-foreground/50 font-bold uppercase tracking-widest italic">{realtimeStatus === 'connected' ? t('live.status_live') : t('live.status_syncing')}</span>
                         </div>
                     </Link>
@@ -289,14 +289,14 @@ export default function AudienceLivePage() {
                     {user?.id ? (
                         <button
                             onClick={handleFollow}
-                            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg italic ${isFollowed ? 'bg-foreground/5 text-foreground/70 border border-border' : 'bg-indigo-600 text-white shadow-indigo-600/30'}`}
+                            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg italic ${isFollowed ? 'bg-foreground/5 text-foreground/70 border border-border' : 'bg-primary text-primary-foreground shadow-primary/30'}`}
                         >
                             {isFollowed ? t('common.following') : t('common.follow')}
                         </button>
                     ) : (
                         <button
                             onClick={() => router.push(`/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`)}
-                            className="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg italic bg-indigo-600 text-white shadow-indigo-600/30"
+                            className="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg italic bg-primary text-primary-foreground shadow-primary/30"
                         >
                             {t('common.follow')}
                         </button>
@@ -327,9 +327,9 @@ export default function AudienceLivePage() {
                     <div className="flex-1 flex flex-col space-y-4">
                         <section className="bg-card/50 rounded-[32px] p-6 border border-border shadow-xl">
                             <div className="flex items-center justify-between mb-5">
-                                <h2 className="text-md font-black flex items-center gap-3 italic uppercase tracking-wider"><Music className="w-5 h-5 text-indigo-500" />{t('performance.details.setlist_title')}</h2>
+                                <h2 className="text-md font-black flex items-center gap-3 italic uppercase tracking-wider"><Music className="w-5 h-5 text-primary" />{t('performance.details.setlist_title')}</h2>
                                 <div className="flex items-center gap-2">
-                                    <button onClick={() => setShowRequestModal(true)} className="bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all border border-indigo-500/30 italic flex items-center gap-2 shadow-lg"><Music className="w-3 h-3" /> {t('song_request.title')}</button>
+                                    <button onClick={() => setShowRequestModal(true)} className="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all border border-primary/30 italic flex items-center gap-2 shadow-lg"><Music className="w-3 h-3" /> {t('song_request.title')}</button>
                                     <span className="text-xs font-black bg-foreground/5 px-2.5 py-1 rounded-full text-foreground/50 uppercase tracking-widest italic">{performance.songs?.length || 0} {t('live.tracks')}</span>
                                 </div>
                             </div>
@@ -360,10 +360,10 @@ export default function AudienceLivePage() {
                         {chatStatus === 'open' ? (
                             <section className="bg-card rounded-[32px] border border-border flex flex-col flex-1 min-h-[450px] overflow-hidden shadow-2xl relative mb-20 animate-in slide-in-from-bottom-6 duration-700">
                                 <div className="p-4 bg-background/60 backdrop-blur-md border-b border-border flex justify-between items-center sticky top-0 z-10">
-                                    <h2 className="font-black text-sm flex items-center gap-3 italic uppercase"><MessageCircle className="w-5 h-5 text-indigo-500" />{t('chat.title')}</h2>
-                                    <div className="flex items-center gap-2 bg-indigo-500/10 px-3 py-1.5 rounded-full border border-indigo-500/20">
+                                    <h2 className="font-black text-sm flex items-center gap-3 italic uppercase"><MessageCircle className="w-5 h-5 text-primary" />{t('chat.title')}</h2>
+                                    <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
                                         <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
-                                        <span className="text-xs font-black text-indigo-400 uppercase tracking-widest italic">{viewingCount} {t('live.watching')}</span>
+                                        <span className="text-xs font-black text-primary uppercase tracking-widest italic">{viewingCount} {t('live.watching')}</span>
                                     </div>
                                 </div>
                                 <ChatBox
@@ -402,13 +402,13 @@ export default function AudienceLivePage() {
 
             {showEndModal && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-                    <div className="bg-gray-900 w-full max-w-md rounded-2xl border border-gray-800 shadow-2xl flex flex-col overflow-hidden">
+                    <div className="bg-card w-full max-w-md rounded-2xl border border-border shadow-2xl flex flex-col overflow-hidden">
                         <div className="p-6 text-center">
-                            <div className="w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-indigo-500/20">
-                                <MessageSquare className="w-8 h-8 text-indigo-500" />
+                            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-primary/20">
+                                <MessageSquare className="w-8 h-8 text-primary" />
                             </div>
-                            <h3 className="text-xl font-black text-white mb-2">{t('live.end_performance')}</h3>
-                            <p className="text-gray-400 text-sm mb-6">{t('live.end_performance_desc')}</p>
+                            <h3 className="text-xl font-black text-foreground mb-2">{t('live.end_performance')}</h3>
+                            <p className="text-muted text-sm mb-6">{t('live.end_performance_desc')}</p>
                             <div className="flex flex-col gap-3">
                                 <button
                                     onClick={() => {
@@ -416,7 +416,7 @@ export default function AudienceLivePage() {
                                         setShowEndModal(false)
                                         setShowRedirectionModal(true)
                                     }}
-                                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-indigo-600/20"
+                                    className="w-full bg-primary hover:bg-primary/80 text-primary-foreground py-3 rounded-xl font-bold transition-all shadow-lg shadow-primary/20"
                                 >
                                     {t('live.download_chat')}
                                 </button>
@@ -425,7 +425,7 @@ export default function AudienceLivePage() {
                                         setShowEndModal(false)
                                         setShowRedirectionModal(true)
                                     }}
-                                    className="w-full bg-white/5 hover:bg-white/10 text-gray-300 py-3 rounded-xl font-bold transition-all"
+                                    className="w-full bg-foreground/5 hover:bg-foreground/10 text-foreground/70 py-3 rounded-xl font-bold transition-all"
                                 >
                                     {t('live.skip')}
                                 </button>
@@ -437,16 +437,16 @@ export default function AudienceLivePage() {
 
             {showRedirectionModal && (
                 <div className="fixed inset-0 z-[100] bg-background/98 backdrop-blur-3xl flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-1000 italic">
-                    <div className="w-24 h-24 bg-indigo-600/10 rounded-full flex items-center justify-center mb-8 border border-indigo-500/20 shadow-[0_0_60px_rgba(79,70,229,0.2)]"><Archive className="w-10 h-10 text-indigo-500" /></div>
+                    <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-8 border border-primary/20 shadow-[0_0_60px_rgba(79,70,229,0.2)]"><Archive className="w-10 h-10 text-primary" /></div>
                     <h2 className="text-3xl font-black mb-4 text-foreground uppercase tracking-tighter">{t('live.ended_title')}</h2>
                     <p className="text-foreground/50 mb-14 max-w-[280px] leading-relaxed">{t('live.ended_desc')}</p>
                     <div className="bg-foreground/5 border border-border px-12 py-8 rounded-[40px] mb-14 relative shadow-2xl">
-                        <span className="text-6xl font-mono font-black text-transparent bg-clip-text bg-gradient-to-b from-indigo-400 to-indigo-600">{redirectCountdown}</span>
+                        <span className="text-6xl font-mono font-black text-transparent bg-clip-text bg-gradient-to-b from-primary to-primary/60">{redirectCountdown}</span>
                         <p className="text-xs font-black text-foreground/60 uppercase tracking-[0.2em] mt-3">{t('live.redirecting')}</p>
                     </div>
                     <div className="flex flex-col gap-4 w-full max-w-[280px]">
                         <button onClick={() => setShowRedirectionModal(false)} className="bg-foreground/5 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-foreground/10 transition-all border border-border">{t('live.stay_here')}</button>
-                        <Link href={`/singer/${singer?.id}`} className="bg-indigo-600 py-5 rounded-2xl font-black text-xs uppercase tracking-widest text-center shadow-xl shadow-indigo-600/30 hover:bg-indigo-500 transition-all border border-indigo-400/30 text-white">{t('live.view_singer_profile')}</Link>
+                        <Link href={`/singer/${singer?.id}`} className="bg-primary py-5 rounded-2xl font-black text-xs uppercase tracking-widest text-center shadow-xl shadow-primary/30 hover:bg-primary/80 transition-all border border-primary/30 text-primary-foreground">{t('live.view_singer_profile')}</Link>
                     </div>
                 </div>
             )}

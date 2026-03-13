@@ -189,7 +189,7 @@ export default function SingerDashboard() {
     if (!isLoaded || isSyncing) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground">
-                <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4" />
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
                 <p className="font-black italic tracking-widest text-xs uppercase animate-pulse">{t('dashboard.loading')}</p>
             </div>
         )
@@ -199,8 +199,8 @@ export default function SingerDashboard() {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center p-6">
                 <div className="max-w-md w-full bg-card border border-border p-10 rounded-[40px] text-center shadow-2xl">
-                    <div className="w-20 h-20 bg-indigo-600/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-indigo-500/20">
-                        <Users className="w-10 h-10 text-indigo-500" />
+                    <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-primary/20">
+                        <Users className="w-10 h-10 text-primary" />
                     </div>
                     <h2 className="text-3xl font-black text-foreground italic mb-4">{t('dashboard.not_singer_title')}</h2>
                     <p className="text-foreground/70 mb-10 leading-relaxed font-bold italic">{t('dashboard.not_singer_desc')}</p>
@@ -213,7 +213,7 @@ export default function SingerDashboard() {
                                 else alert(res.error === 'NICKNAME_DUPLICATE' ? t('dashboard.error_nickname_taken') : t('dashboard.error_registration_failed'))
                             }
                         }}
-                        className="w-full bg-indigo-600 py-4 rounded-2xl font-black text-foreground shadow-xl shadow-indigo-600/20 hover:bg-indigo-500 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest text-sm"
+                        className="w-full bg-primary py-4 rounded-2xl font-black text-primary-foreground shadow-xl shadow-primary/20 hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest text-sm"
                     >
                         {t('dashboard.onboarding_btn')}
                     </button>
@@ -289,7 +289,7 @@ export default function SingerDashboard() {
 
                     <div className="xl:col-span-4 space-y-10">
                         <div className="sticky top-28 space-y-10">
-                            <section className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-[40px] border border-border p-2 backdrop-blur-md shadow-2xl">
+                            <section className="bg-primary/5 rounded-[40px] border border-border p-2 backdrop-blur-md shadow-2xl">
                                 <SingerQRCard
                                     singerId={singerId}
                                     displayId={displayId}

@@ -453,21 +453,21 @@ function LivePerformanceContent() {
     const pendingRequests = requests.filter(r => r.status === 'pending')
 
     return (
-        <div className="bg-[#0f1117] text-slate-100 h-[100dvh] flex flex-col w-full md:max-w-[100vw] mx-auto font-display overflow-hidden selection:bg-indigo-500/30">
-            <header className="px-4 py-3 bg-gray-950/80 backdrop-blur-xl border-b border-white/5 flex justify-between items-center shrink-0 z-20">
+        <div className="bg-background text-foreground h-[100dvh] flex flex-col w-full md:max-w-[100vw] mx-auto font-display overflow-hidden selection:bg-primary/30">
+            <header className="px-4 py-3 bg-card/80 backdrop-blur-xl border-b border-border flex justify-between items-center shrink-0 z-20">
                 <div className="flex items-center gap-2 md:gap-4 min-w-0">
-                    <Link href="/" className="p-2 hover:bg-white/10 rounded-xl transition-all hover:scale-105 active:scale-95 bg-white/5 border border-white/10 text-indigo-400 shrink-0" title={t('common.home_button')}>
+                    <Link href="/" className="p-2 hover:bg-primary/10 rounded-xl transition-all hover:scale-105 active:scale-95 bg-muted/50 border border-border text-primary shrink-0" title={t('common.home_button')}>
                         <Home className="w-5 h-5" />
                     </Link>
                     <button
                         onClick={() => router.push('/singer/dashboard')}
-                        className="p-2 hover:bg-white/10 rounded-xl transition-all hover:scale-105 active:scale-95 bg-white/5 border border-white/10 shrink-0"
+                        className="p-2 hover:bg-primary/10 rounded-xl transition-all hover:scale-105 active:scale-95 bg-muted/50 border border-border shrink-0"
                         title={t('home.dashboard_button')}
                     >
-                        <LayoutDashboard className="w-5 h-5 text-indigo-400" />
+                        <LayoutDashboard className="w-5 h-5 text-primary" />
                     </button>
                     <div className="min-w-0">
-                        <h1 className="text-lg md:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 truncate tracking-tight uppercase italic">{performance.title}</h1>
+                        <h1 className="text-lg md:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-foreground to-foreground/60 truncate tracking-tight uppercase italic">{performance.title}</h1>
                         <div className="flex items-center gap-2 text-xs md:text-xs">
                             <span className={`inline-flex items-center px-2 py-0.5 rounded-full border ${realtimeStatus === 'connected' ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
                                 <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${realtimeStatus === 'connected' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-red-500 animate-pulse'}`}></span>
@@ -477,8 +477,8 @@ function LivePerformanceContent() {
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <div className="hidden lg:flex flex-col items-end justify-center px-4 border-r border-white/5 bg-black/20 rounded-xl mr-2">
-                        <div className="flex items-center gap-1.5 text-amber-400">
+                    <div className="hidden lg:flex flex-col items-end justify-center px-4 border-r border-border bg-muted/50 rounded-xl mr-2">
+                        <div className="flex items-center gap-1.5 text-amber-500">
                             <Coins className="w-3.5 h-3.5" />
                             <span className="text-sm font-mono font-black">{userPoints.toLocaleString()}P</span>
                         </div>
@@ -493,13 +493,13 @@ function LivePerformanceContent() {
                                 {t('chat.open_with_points')}
                             </button>
                         )}
-                    <div className="hidden md:flex flex-col items-end justify-center px-4 border-r border-white/5">
-                        <div className="text-[11px] uppercase font-black text-gray-500 tracking-[0.2em] mb-0.5">{t('live.header.viewing')}</div>
-                        <div className="text-xl font-mono font-black text-indigo-400 leading-none">{viewingCount}</div>
+                    <div className="hidden md:flex flex-col items-end justify-center px-4 border-r border-border">
+                        <div className="text-[11px] uppercase font-black text-muted-foreground tracking-[0.2em] mb-0.5">{t('live.header.viewing')}</div>
+                        <div className="text-xl font-mono font-black text-primary leading-none">{viewingCount}</div>
                     </div>
-                    <div className="hidden md:flex flex-col items-end justify-center px-4 border-r border-white/5">
-                        <div className="text-[11px] uppercase font-black text-gray-500 tracking-[0.2em] mb-0.5">{t('live.header.time_left')}</div>
-                        <div className="text-xl font-mono font-black text-emerald-400 leading-none">{formatTime(elapsedTime)}</div>
+                    <div className="hidden md:flex flex-col items-end justify-center px-4 border-r border-border">
+                        <div className="text-[11px] uppercase font-black text-muted-foreground tracking-[0.2em] mb-0.5">{t('live.header.time_left')}</div>
+                        <div className="text-xl font-mono font-black text-emerald-500 leading-none">{formatTime(elapsedTime)}</div>
                     </div>
                     <button
                         onClick={handleEndPerformance}
@@ -512,16 +512,16 @@ function LivePerformanceContent() {
             </header>
 
             {/* Mobile Tab Selectors */}
-            <div className="flex md:hidden bg-gray-950/40 border-b border-white/5 shrink-0 p-1 gap-1">
+            <div className="flex md:hidden bg-card/40 border-b border-border shrink-0 p-1 gap-1">
                 <button
                     onClick={() => setActiveTab('setlist')}
-                    className={`flex-1 py-3 text-xs font-black transition-all rounded-lg ${activeTab === 'setlist' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-gray-500 hover:text-gray-300'}`}
+                    className={`flex-1 py-3 text-xs font-black transition-all rounded-lg ${activeTab === 'setlist' ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
                 >
                     {t('live.tabs.setlist')}
                 </button>
                 <button
                     onClick={() => setActiveTab('requests')}
-                    className={`flex-1 py-3 text-xs font-black transition-all rounded-lg relative ${activeTab === 'requests' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-gray-500 hover:text-gray-300'}`}
+                    className={`flex-1 py-3 text-xs font-black transition-all rounded-lg relative ${activeTab === 'requests' ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
                 >
                     {t('live.tabs.requests')}
                     {pendingRequests.length > 0 && (
@@ -530,14 +530,15 @@ function LivePerformanceContent() {
                         </span>
                     )}
                 </button>
-                {performance?.chatEnabled ? (
+                {performance?.chatEnabled && (
                     <button
                         onClick={() => setActiveTab('chat')}
-                        className={`flex-1 py-3 text-xs font-black transition-all rounded-lg ${activeTab === 'chat' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-gray-500 hover:text-gray-300'}`}
+                        className={`flex-1 py-3 text-xs font-black transition-all rounded-lg ${activeTab === 'chat' ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
                     >
                         {t('live.tabs.chat')}
                     </button>
-                ) : (
+                )}
+                {!performance?.chatEnabled && (
                     <button
                         onClick={() => handleOpenChat(true)}
                         disabled={isEnablingChat}
@@ -554,27 +555,27 @@ function LivePerformanceContent() {
                     /* MOBILE VIEW: Single tab content taking 100% width */
                     <div className="h-full overflow-hidden">
                         {activeTab === 'setlist' && (
-                            <div className="h-full flex flex-col p-4 space-y-5 overflow-y-auto custom-scrollbar bg-gray-950/20">
+                            <div className="h-full flex flex-col p-4 space-y-5 overflow-y-auto custom-scrollbar bg-card/10">
                                 <div className="flex items-center justify-between">
-                                    <h2 className="text-xl font-black flex items-center gap-3">
-                                        <List className="w-6 h-6 text-indigo-500" />
+                                    <h2 className="text-xl font-black flex items-center gap-3 text-foreground">
+                                        <List className="w-6 h-6 text-primary" />
                                         <span>{t('live.setlist.title')}</span>
-                                        <span className="text-xs bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/20 font-bold ml-1">{performance.songs.length}</span>
+                                        <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20 font-bold ml-1">{performance.songs.length}</span>
                                     </h2>
                                     <div className="flex gap-2">
                                         <button
                                             onClick={() => setIsReordering(!isReordering)}
-                                            className={`p-2 rounded-xl border transition-all ${isReordering ? 'bg-indigo-600 border-indigo-500 shadow-lg shadow-indigo-600/30' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
+                                            className={`p-2 rounded-xl border transition-all ${isReordering ? 'bg-primary border-primary shadow-lg shadow-primary/30 text-primary-foreground' : 'bg-muted/50 border-border hover:bg-muted'}`}
                                             title={t('live.setlist.reorder_hint')}
                                         >
                                             <GripVertical className="w-4 h-4" />
                                         </button>
                                         <button
                                             onClick={() => setShowAddModal(true)}
-                                            className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all border border-indigo-400/30"
+                                            className="p-2 bg-primary rounded-xl shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all border border-primary/30"
                                             title={t('live.setlist.add_button')}
                                         >
-                                            <Plus className="w-4 h-4 text-white" />
+                                            <Plus className="w-4 h-4 text-primary-foreground" />
                                         </button>
                                     </div>
                                 </div>
@@ -636,11 +637,11 @@ function LivePerformanceContent() {
                         {activeTab === 'chat' && (
                             <div className="h-full flex flex-col bg-black relative">
                                 {chatStatus === 'closed' && (
-                                    <div className="absolute inset-0 z-[15] bg-gray-950/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
-                                        <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6 border border-indigo-500/20"><MessageSquare className="w-10 h-10 text-indigo-500" /></div>
-                                        <h3 className="text-2xl font-black mb-2 text-white italic tracking-tight">{t('chat.closed_title')}</h3>
-                                        <p className="text-gray-500 text-sm mb-8 leading-relaxed max-w-[240px] italic">{t('live.chat_ready_desc')}</p>
-                                        <button disabled={!canOpenChat || isEnablingChat} onClick={() => handleOpenChat(false)} className={`px-8 py-4 rounded-2xl font-bold text-white text-sm transition-all w-full max-w-[200px] ${canOpenChat ? 'bg-gradient-to-br from-indigo-500 to-indigo-700' : 'bg-white/5 text-gray-600 cursor-not-allowed'}`}>
+                                    <div className="absolute inset-0 z-[15] bg-card/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+                                        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6 border border-primary/20"><MessageSquare className="w-10 h-10 text-primary" /></div>
+                                        <h3 className="text-2xl font-black mb-2 text-foreground italic tracking-tight">{t('chat.closed_title')}</h3>
+                                        <p className="text-muted-foreground text-sm mb-8 leading-relaxed max-w-[240px] italic">{t('live.chat_ready_desc')}</p>
+                                        <button disabled={!canOpenChat || isEnablingChat} onClick={() => handleOpenChat(false)} className={`px-8 py-4 rounded-2xl font-bold text-primary-foreground text-sm transition-all w-full max-w-[200px] ${canOpenChat ? 'bg-primary' : 'bg-muted text-muted-foreground cursor-not-allowed'}`}>
                                             {canOpenChat ? t('chat.open_button') : t('chat.not_ready')}
                                         </button>
                                     </div>
@@ -656,29 +657,29 @@ function LivePerformanceContent() {
                         <Panel
                             defaultSize={33}
                             minSize={20}
-                            className="flex flex-col border-r border-white/5 bg-gray-950/20 relative z-10"
+                            className="flex flex-col border-r border-border bg-card/10 relative z-10"
                         >
                             <div className="flex-1 flex flex-col p-4 md:p-6 space-y-5 overflow-y-auto custom-scrollbar">
                                 <div className="flex items-center justify-between">
                                     <h2 className="text-xl font-black flex items-center gap-3">
-                                        <List className="w-6 h-6 text-indigo-500" />
+                                        <List className="w-6 h-6 text-primary" />
                                         <span>{t('live.setlist.title')}</span>
-                                        <span className="text-xs bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/20 font-bold ml-1">{performance.songs.length}</span>
+                                        <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20 font-bold ml-1">{performance.songs.length}</span>
                                     </h2>
                                     <div className="flex gap-2">
                                         <button
                                             onClick={() => setIsReordering(!isReordering)}
-                                            className={`p-2 rounded-xl border transition-all ${isReordering ? 'bg-indigo-600 border-indigo-500 shadow-lg shadow-indigo-600/30' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
+                                            className={`p-2 rounded-xl border transition-all ${isReordering ? 'bg-primary border-primary shadow-lg shadow-primary/30 text-primary-foreground' : 'bg-muted/50 border-border hover:bg-muted'}`}
                                             title={t('live.setlist.reorder_hint')}
                                         >
                                             <GripVertical className="w-4 h-4" />
                                         </button>
                                         <button
                                             onClick={() => setShowAddModal(true)}
-                                            className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all border border-indigo-400/30"
+                                            className="p-2 bg-primary rounded-xl shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all border border-primary/30"
                                             title={t('live.setlist.add_button')}
                                         >
-                                            <Plus className="w-4 h-4 text-white" />
+                                            <Plus className="w-4 h-4 text-primary-foreground" />
                                         </button>
                                     </div>
                                 </div>
@@ -902,26 +903,26 @@ function LivePerformanceContent() {
 
             {showEndModal && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-                    <div className="bg-gray-900 w-full max-w-md rounded-2xl border border-gray-800 shadow-2xl flex flex-col overflow-hidden">
-                        <div className="p-6 text-center">
-                            <div className="w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-indigo-500/20">
-                                <MessageSquare className="w-8 h-8 text-indigo-500" />
+                    <div className="bg-card w-full max-w-md rounded-[40px] border border-border shadow-2xl flex flex-col overflow-hidden">
+                        <div className="p-10 text-center">
+                            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-primary/20">
+                                <MessageSquare className="w-10 h-10 text-primary" />
                             </div>
-                            <h3 className="text-xl font-black text-white mb-2">{t('live.end_performance')}</h3>
-                            <p className="text-gray-400 text-sm mb-6">{t('live.end_performance_desc')}</p>
-                            <div className="flex flex-col gap-3">
+                            <h3 className="text-3xl font-black text-foreground mb-3 italic">{t('live.end_performance')}</h3>
+                            <p className="text-muted-foreground text-sm mb-10 leading-relaxed font-bold italic">{t('live.end_performance_desc')}</p>
+                            <div className="flex flex-col gap-4">
                                 <button
                                     onClick={() => {
                                         downloadChatAsText(chatMessagesRef.current, performance.title)
                                         router.push('/singer/dashboard')
                                     }}
-                                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-indigo-600/20"
+                                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 rounded-2xl font-black tracking-widest uppercase transition-all shadow-xl shadow-primary/20"
                                 >
                                     {t('live.download_chat')}
                                 </button>
                                 <button
                                     onClick={() => router.push('/singer/dashboard')}
-                                    className="w-full bg-white/5 hover:bg-white/10 text-gray-300 py-3 rounded-xl font-bold transition-all"
+                                    className="w-full bg-muted/50 hover:bg-muted text-muted-foreground py-4 rounded-2xl font-black tracking-widest uppercase transition-all"
                                 >
                                     {t('live.skip')}
                                 </button>

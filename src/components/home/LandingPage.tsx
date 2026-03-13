@@ -18,7 +18,7 @@ export default function LandingPage({ userId, isSinger }: LandingPageProps) {
 
 
             <div className="z-10 text-center max-w-2xl">
-                <h1 className="text-6xl font-extrabold tracking-tight mb-6 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">
+                <h1 className="text-6xl font-extrabold tracking-tight mb-6 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
                     {t('home.title')}
                 </h1>
                 <p className="text-xl text-foreground/70 mb-10 whitespace-pre-line">

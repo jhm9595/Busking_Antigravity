@@ -19,7 +19,7 @@ const createCustomIcon = (type: 'live' | 'scheduled') => {
                  <span class="relative inline-flex rounded-full h-4 w-4 bg-red-600 border-2 border-white shadow-lg"></span>
                </div>`
             : `<div class="relative flex items-center justify-center w-8 h-8">
-                 <span class="relative inline-flex rounded-full h-4 w-4 bg-indigo-600 border-2 border-white shadow-lg"></span>
+                 <span class="relative inline-flex rounded-full h-4 w-4 bg-primary border-2 border-white shadow-lg"></span>
                </div>`,
         iconSize: [32, 32],
         iconAnchor: [16, 16], // Center the icon
@@ -168,7 +168,7 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                             <Circle
                                 center={userLocation}
                                 radius={radius * 1000}
-                                pathOptions={{ color: 'blue', fillColor: 'blue', fillOpacity: 0.1 }}
+                                pathOptions={{ color: 'var(--color-primary)', fillColor: 'var(--color-primary)', fillOpacity: 0.1 }}
                             />
                         )}
                     </>
@@ -197,7 +197,7 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                                 </p>
                                 <button
                                     onClick={() => router.push(`/singer/${perf.singerId}`)}
-                                    className="bg-indigo-600 text-white text-xs px-3 py-1.5 rounded hover:bg-indigo-700 w-full flex items-center justify-center transition"
+                                    className="bg-primary text-primary-foreground text-xs px-3 py-1.5 rounded hover:opacity-90 w-full flex items-center justify-center transition"
                                 >
                                     {t('explore.view_artist')} <Music className="w-3 h-3 ml-1" />
                                 </button>
@@ -219,25 +219,25 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
             </div>
 
             {/* Filter Panel */}
-            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-[1000] bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-lg w-[90%] max-w-md border border-gray-200">
+            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-[1000] bg-card/90 backdrop-blur-sm p-4 rounded-2xl shadow-lg w-[90%] max-w-md border border-border">
                 <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-bold text-gray-800 flex items-center gap-2">
-                        <Filter className="w-4 h-4 text-indigo-600" />
+                    <h4 className="font-bold text-foreground flex items-center gap-2">
+                        <Filter className="w-4 h-4 text-primary" />
                         {t('explore.filter_title')}
                     </h4>
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    <span className="text-xs text-muted-foreground bg-accent px-2 py-1 rounded-full">
                         {t('explore.found_count').replace('{count}', filteredPerformances.length.toString())}
                     </span>
                 </div>
 
                 <div className="space-y-3">
                     {/* Status Toggle */}
-                    <div className="flex bg-gray-100 p-1 rounded-lg">
+                    <div className="flex bg-accent p-1 rounded-lg">
                         {(['all', 'live', 'scheduled'] as const).map((mode) => (
                             <button
                                 key={mode}
                                 onClick={() => setFilterMode(mode)}
-                                className={`flex-1 py-1 text-xs font-bold rounded-md transition capitalize ${filterMode === mode ? 'bg-white shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                className={`flex-1 py-1 text-xs font-bold rounded-md transition capitalize ${filterMode === mode ? 'bg-card shadow text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                             >
                                 {t(`explore.filter_${mode}`)}
                             </button>
@@ -246,11 +246,11 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
 
                     {/* Followed Only Toggle (Only if logged in) */}
                     {isLoggedIn && (
-                        <div className="flex items-center justify-between bg-gray-50 p-2 rounded-lg border border-gray-100">
-                            <span className="text-xs font-bold text-gray-700">{t('explore.filter_followed')}</span>
+                        <div className="flex items-center justify-between bg-accent/50 p-2 rounded-lg border border-border">
+                            <span className="text-xs font-bold text-foreground">{t('explore.filter_followed')}</span>
                             <button
                                 onClick={() => setShowFollowedOnly(!showFollowedOnly)}
-                                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 ${showFollowedOnly ? 'bg-indigo-600' : 'bg-gray-200'}`}
+                                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${showFollowedOnly ? 'bg-primary' : 'bg-muted/30'}`}
                             >
                                 <span
                                     aria-hidden="true"
@@ -263,7 +263,7 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                     {/* Radius Slider (Only if location is set) */}
                     {userLocation ? (
                         <div>
-                            <div className="flex justify-between text-xs text-gray-600 mb-1">
+                            <div className="flex justify-between text-xs text-muted-foreground mb-1">
                                 <span>{t('explore.filter_radius')}</span>
                                 <span className="font-bold">{radius === 0 ? t('explore.filter_radius_all') : `${radius} km`}</span>
                             </div>
@@ -274,9 +274,9 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                                 step="5"
                                 value={radius}
                                 onChange={(e) => setRadius(Number(e.target.value))}
-                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                className="w-full h-2 bg-accent rounded-lg appearance-none cursor-pointer accent-primary"
                             />
-                            <div className="flex justify-between text-xs text-gray-400 mt-1">
+                            <div className="flex justify-between text-xs text-muted-foreground/50 mt-1">
                                 <span>{t('explore.filter_radius_all')}</span>
                                 <span>50km</span>
                             </div>
