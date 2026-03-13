@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { useLanguage } from '@/contexts/LanguageContext'
-import LanguageSwitcher from '@/components/common/LanguageSwitcher'
 import GoogleAd from '@/components/common/GoogleAd'
 
 interface LandingPageProps {
@@ -15,9 +14,6 @@ export default function LandingPage({ userId, isSinger }: LandingPageProps) {
 
     return (
         <main className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground p-6 relative overflow-hidden">
-            <div className="absolute top-6 right-6 z-20">
-                <LanguageSwitcher />
-            </div>
             <div className="absolute inset-0 z-0 bg-gradient-to-br from-primary/20 via-background to-primary/20 opacity-50" />
 
 

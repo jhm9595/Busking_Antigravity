@@ -9,7 +9,6 @@ import SongManagement from '@/components/singer/SongManagement'
 import PerformanceManagement from '@/components/singer/PerformanceManagement'
 import BookingRequestsList from '@/components/singer/BookingRequestsList'
 import SingerQRCard from '@/components/singer/SingerQRCard'
-import LanguageSwitcher from '@/components/common/LanguageSwitcher'
 import { syncUserProfile, getSinger, registerSinger, updateSingerProfile, getPerformances, updatePerformanceStatus, withdrawUser, updateNickname, getUserPoints, chargePoints } from '@/services/singer'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ConfirmationModal from '@/components/common/ConfirmationModal'
@@ -138,16 +137,21 @@ export default function SingerDashboard() {
         setIsStarting(true)
         try {
             const perfs = await getPerformances(user.id)
+            const now = new Date()
 
-        // 1. Check for active LIVE performance first
-        const activeLive = perfs.find((p: any) => p.status === 'live')
+        // 1. Check for active LIVE performance first (with time validation)
+        const activeLive = perfs.find((p: any) => {
+            if (p.status !== 'live') return false
+            // Double-check: ensure still within time window
+            const end = new Date(p.endTime!)
+            return now <= end
+        })
         if (activeLive) {
             router.push(`/singer/live?performanceId=${activeLive.id}`)
             return
         }
 
-        // 2. If no live, check scheduled
-        const now = new Date()
+        // 2. If no active live, check scheduled (can start within 10 min)
         const tenMinutesFromNow = new Date(now.getTime() + 10 * 60 * 1000)
         const candidates = perfs.filter((p: any) => {
             if (p.status !== 'scheduled') return false
@@ -224,7 +228,7 @@ export default function SingerDashboard() {
 
     return (
         <div className="bg-background min-h-screen text-foreground font-display selection:bg-indigo-500/30 pb-20">
-            <nav className="sticky top-0 z-[40] bg-background/80 backdrop-blur-xl border-b border-border px-6 py-4">
+            <nav className="sticky top-16 z-[40] bg-background/80 backdrop-blur-xl border-b border-border px-6 py-4">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                     <div className="flex items-center gap-6">
                         <Link href="/" className="text-2xl font-black bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent italic tracking-tighter hover:scale-105 transition-transform">
@@ -236,8 +240,6 @@ export default function SingerDashboard() {
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
-                        <LanguageSwitcher />
-                        <div className="h-6 w-px bg-border mx-2" />
                         <button
                             onClick={handleLogout}
                             className="bg-foreground/5 hover:bg-foreground/10 text-foreground/70 p-2.5 rounded-xl border border-border transition-all hover:scale-105 active:scale-95"
@@ -262,10 +264,9 @@ export default function SingerDashboard() {
                                 {time}
                             </div>
                         </div>
-                        <h1 className="text-5xl md:text-6xl font-black text-foreground italic tracking-tighter leading-none mb-4 group-hover:scale-[1.01] transition-transform duration-500">
+                        <h1 className="text-5xl md:text-6xl font-black text-foreground italic tracking-tighter leading-none mb-4 group-hover:scale-[1.01] transition-transform duration-500 pr-2">
                             {t('dashboard.welcome').replace('{name}', user?.fullName || user?.username || '')}
                         </h1>
-                        <p className="text-indigo-100/70 text-lg font-bold max-w-xl italic">{t('dashboard.subtitle')}</p>
                     </div>
                     <div className="flex gap-4 relative z-10 w-full md:w-auto">
                         <div className="flex flex-col items-end justify-center px-6 bg-background/20 rounded-3xl border border-border backdrop-blur-md">
@@ -301,7 +302,7 @@ export default function SingerDashboard() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <section className="bg-card rounded-[40px] border border-border p-8 shadow-2xl relative overflow-hidden group">
-                                <h3 className="text-xl font-black text-foreground italic mb-8 flex items-center gap-3">
+                                <h3 className="text-xl font-black text-foreground italic mb-8 flex items-center gap-3 pr-2">
                                     <MessageSquare className="w-6 h-6 text-indigo-500" />
                                     {t('booking.title')}
                                 </h3>
@@ -310,35 +311,13 @@ export default function SingerDashboard() {
                                 </div>
                             </section>
                             <section className="bg-card rounded-[40px] border border-border p-8 shadow-2xl">
-                                <h3 className="text-xl font-black text-foreground italic mb-8 flex items-center gap-3">
+                                <h3 className="text-xl font-black text-foreground italic mb-8 flex items-center gap-3 pr-2">
                                     <Users className="w-6 h-6 text-indigo-500" />
                                     {t('common.fans')}
                                 </h3>
                                 <FollowersList singerId={singerId} />
                             </section>
                         </div>
-
-                        <button
-                            onClick={() => {
-                                setConfirmModal({
-                                    isOpen: true,
-                                    title: t('dashboard.withdraw_title'),
-                                    message: t('dashboard.withdraw_message'),
-                                    onConfirm: async () => {
-                                        const res = await withdrawUser(user!.id)
-                                        if (res.success) {
-                                            await signOut()
-                                            router.push('/')
-                                        } else {
-                                            alert(t('dashboard.error_withdrawal_failed'))
-                                        }
-                                    }
-                                })
-                            }}
-                            className="w-full py-4 text-xs font-black text-foreground/70 hover:text-red-500 transition-all uppercase tracking-widest border border-dashed border-border rounded-3xl"
-                        >
-                            {t('dashboard.withdraw_btn')}
-                        </button>
                     </div>
 
                     <div className="xl:col-span-4 space-y-10">
@@ -366,6 +345,30 @@ export default function SingerDashboard() {
                             </section>
                         </div>
                     </div>
+                </div>
+
+                <div className="pt-10 border-t border-border/50">
+                    <button
+                        onClick={() => {
+                            setConfirmModal({
+                                isOpen: true,
+                                title: t('dashboard.withdraw_title'),
+                                message: t('dashboard.withdraw_message'),
+                                onConfirm: async () => {
+                                    const res = await withdrawUser(user!.id)
+                                    if (res.success) {
+                                        await signOut()
+                                        router.push('/')
+                                    } else {
+                                        alert(t('dashboard.error_withdrawal_failed'))
+                                    }
+                                }
+                            })
+                        }}
+                        className="w-full py-4 text-xs font-black text-foreground/70 hover:text-red-500 transition-all uppercase tracking-widest border border-dashed border-border rounded-3xl"
+                    >
+                        {t('dashboard.withdraw_btn')}
+                    </button>
                 </div>
             </main>
 

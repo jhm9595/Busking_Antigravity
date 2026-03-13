@@ -80,7 +80,13 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                     throw new Error('No redirect URL provided')
                 }
             } else {
-                throw new Error(data.error || 'Failed to prepare Kakao Pay')
+                // Show more detailed error for debugging
+                const errorMsg = data.error || 'Failed to prepare Kakao Pay'
+                const details = data.details ? `\nDetails: ${JSON.stringify(data.details)}` : ''
+                const code = data.code ? `\nCode: ${data.code}` : ''
+                console.error('Kakao Pay Error Details:', data)
+                alert(`${errorMsg}${details}${code}`)
+                throw new Error(errorMsg)
             }
         } catch (error: any) {
             console.error('Kakao Pay Error:', error)
@@ -180,7 +186,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                             <div className="grid grid-cols-2 gap-2 md:gap-3">
                                 <button
                                     onClick={() => setPaymentMethod('kakao')}
-                                    className={`flex items-center justify-center gap-2 p-2.5 md:p-3.5 rounded-xl md:rounded-2xl border-2 transition-all ${
+                                    className={`flex items-center justify-center gap-2 p-3.5 min-h-[48px] rounded-2xl border-2 transition-all ${
                                         paymentMethod === 'kakao'
                                         ? 'bg-[#FEE500] border-yellow-400 text-black shadow-xl shadow-yellow-400/10 scale-[1.02]'
                                         : 'bg-white/5 border-white/5 text-gray-400 hover:border-white/10'
@@ -191,7 +197,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                 </button>
                                 <button
                                     onClick={() => setPaymentMethod('stripe')}
-                                    className={`flex items-center justify-center gap-2 p-2.5 md:p-3.5 rounded-xl md:rounded-2xl border-2 transition-all ${
+                                    className={`flex items-center justify-center gap-2 p-3.5 min-h-[48px] rounded-2xl border-2 transition-all ${
                                         paymentMethod === 'stripe'
                                         ? 'bg-[#635BFF] border-indigo-400 text-white shadow-xl shadow-indigo-600/20 scale-[1.02]'
                                         : 'bg-white/5 border-white/5 text-gray-400 hover:border-white/10'

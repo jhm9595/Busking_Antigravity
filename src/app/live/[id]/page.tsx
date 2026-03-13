@@ -207,11 +207,11 @@ export default function AudienceLivePage() {
     return (
         <div className="bg-background text-foreground h-[100dvh] flex flex-col w-full md:max-w-xl mx-auto font-display overflow-hidden selection:bg-indigo-500/30">
             <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border px-4 py-3 flex items-center justify-between shadow-2xl shrink-0">
-                <div className="flex items-center gap-3">
-                    <Link href="/explore" className="p-2.5 rounded-xl bg-foreground/5 border border-border hover:bg-foreground/10 text-foreground transition-all active:scale-95 shadow-lg">
+                <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                    <Link href="/explore" className="p-2.5 rounded-xl bg-foreground/5 border border-border hover:bg-foreground/10 text-foreground transition-all active:scale-95 shadow-lg shrink-0">
                         <Home className="w-5 h-5 text-indigo-400" />
                     </Link>
-                    <Link href={`/singer/${singer?.id}`} className="flex items-center gap-3 group">
+                    <Link href={`/singer/${singer?.id}`} className="flex items-center gap-2 md:gap-3 group min-w-0">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px] shadow-lg shadow-indigo-600/20 group-hover:scale-105 transition-transform">
                             <div className="w-full h-full rounded-full bg-card flex items-center justify-center font-black overflow-hidden border border-border text-xs text-indigo-400 uppercase italic">
                                 {singer?.profile?.avatarUrl ? <img src={singer.profile.avatarUrl} className="w-full h-full object-cover" /> : (singer?.stageName?.[0] || t('common.singer_fallback')[0])}
@@ -228,6 +228,9 @@ export default function AudienceLivePage() {
                         <span className="text-[8px] font-black text-amber-400/50 uppercase tracking-widest leading-none mb-1">{t('common.points')}</span>
                         <span className="text-xs font-mono font-black text-amber-400 leading-none">{userPoints.toLocaleString()}P</span>
                     </div>
+                    <Link href={`/singer/${singer?.id}`} className="hidden sm:flex px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg italic bg-foreground/5 text-foreground/70 border border-border hover:bg-foreground/10 items-center">
+                        {t('live.view_profile')}
+                    </Link>
                     <button
                         onClick={handleFollow}
                         className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg italic ${isFollowed ? 'bg-foreground/5 text-foreground/70 border border-border' : 'bg-indigo-600 text-white shadow-indigo-600/30'}`}

@@ -438,13 +438,13 @@ function LivePerformanceContent() {
     return (
         <div className="bg-[#0f1117] text-slate-100 h-[100dvh] flex flex-col w-full md:max-w-[100vw] mx-auto font-display overflow-hidden selection:bg-indigo-500/30">
             <header className="px-4 py-3 bg-gray-950/80 backdrop-blur-xl border-b border-white/5 flex justify-between items-center shrink-0 z-20">
-                <div className="flex items-center gap-4 min-w-0">
-                    <Link href="/" className="p-2 hover:bg-white/10 rounded-xl transition-all hover:scale-105 active:scale-95 bg-white/5 border border-white/10 text-indigo-400" title={t('common.home_button')}>
+                <div className="flex items-center gap-2 md:gap-4 min-w-0">
+                    <Link href="/" className="p-2 hover:bg-white/10 rounded-xl transition-all hover:scale-105 active:scale-95 bg-white/5 border border-white/10 text-indigo-400 shrink-0" title={t('common.home_button')}>
                         <Home className="w-5 h-5" />
                     </Link>
                     <button
                         onClick={() => router.push('/singer/dashboard')}
-                        className="p-2 hover:bg-white/10 rounded-xl transition-all hover:scale-105 active:scale-95 bg-white/5 border border-white/10"
+                        className="p-2 hover:bg-white/10 rounded-xl transition-all hover:scale-105 active:scale-95 bg-white/5 border border-white/10 shrink-0"
                         title={t('home.dashboard_button')}
                     >
                         <LayoutDashboard className="w-5 h-5 text-indigo-400" />

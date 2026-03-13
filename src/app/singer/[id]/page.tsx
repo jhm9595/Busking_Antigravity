@@ -8,7 +8,6 @@ import GoogleAd from '@/components/common/GoogleAd'
 import { Share2, Heart, Music, Mail, ExternalLink, User, MapPin, Calendar, MessageCircle, Play, Home, Clock } from 'lucide-react'
 import { FaFacebook, FaYoutube, FaInstagram, FaSoundcloud, FaTiktok } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
-import LanguageSwitcher from '@/components/common/LanguageSwitcher'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useUser } from '@clerk/nextjs'
 import BookingRequestModal from '@/components/audience/BookingRequestModal'
@@ -190,10 +189,6 @@ export default function SingerDetailPage() {
                     </Link>
                 </div>
 
-                <div className="absolute top-4 right-4 z-20">
-                    <LanguageSwitcher />
-                </div>
-
                 <div className="absolute bottom-0 left-0 w-full p-6 z-10 flex flex-col items-center text-center">
                     <div className="relative mb-4">
                         <div className="w-28 h-28 rounded-full border-4 border-background bg-muted overflow-hidden shadow-2xl shadow-primary/20">
@@ -261,7 +256,7 @@ export default function SingerDetailPage() {
                 <GoogleAd slot="singer_profile_mid" className="opacity-30 scale-90" />
 
                 {/* 3. PRIMARY ACTION BUTTONS */}
-                <div className="flex gap-3 sticky top-4 z-30 pointer-events-auto">
+                <div className="flex gap-3 sticky top-20 z-30 pointer-events-auto">
                     {isLoaded && user ? (
                         <button
                             onClick={handleFollow}

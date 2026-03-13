@@ -39,7 +39,7 @@ export const metadata: Metadata = {
 
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import AppHeader from "@/components/common/AppHeader";
 import { LanguageHandler } from "@/components/common/LanguageHandler";
 
 export default function RootLayout({
@@ -73,10 +73,7 @@ export default function RootLayout({
             ) : null}
             <LanguageProvider>
               <LanguageHandler>
-                {/* Global Theme Switcher - Top Right, below safe area */}
-                <div className="fixed top-4 right-4 z-50">
-                  <ThemeSwitcher />
-                </div>
+                <AppHeader />
                 {children}
               </LanguageHandler>
             </LanguageProvider>

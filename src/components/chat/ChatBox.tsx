@@ -287,7 +287,7 @@ export default function ChatBox({
                                 onKeyDown={(e) => e.key === 'Enter' && !e.nativeEvent.isComposing && sendMessage()}
                                 placeholder={chatStatus === 'closed' && userType === 'audience' ? t('chat.closed_placeholder') : t('chat.placeholder')}
                                 disabled={(chatStatus === 'closed' && userType === 'audience') || !isConnected}
-                                className="flex-1 bg-transparent px-3 py-2 text-white text-sm outline-none placeholder:text-gray-700 italic font-medium"
+                                className="flex-1 bg-transparent px-3 py-2 text-white text-base outline-none placeholder:text-gray-700 italic font-medium"
                             />
                             <button
                                 onClick={sendMessage}

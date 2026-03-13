@@ -138,7 +138,7 @@ export default function AvatarCreator({ onComplete }: AvatarCreatorProps) {
                                 placeholder={t('avatar.nickname_placeholder')}
                                 value={nickname}
                                 onChange={(e) => setNickname(e.target.value)}
-                                className="mt-1 w-48 bg-transparent border-b border-indigo-500/30 focus:border-indigo-500 text-center text-white text-sm font-black outline-none py-1 transition-all placeholder:text-gray-800 italic"
+                                className="mt-1 w-48 bg-transparent border-b border-indigo-500/30 focus:border-indigo-500 text-center text-white text-base font-black outline-none py-1 transition-all placeholder:text-gray-800 italic"
                             />
                         )}
                     </div>
