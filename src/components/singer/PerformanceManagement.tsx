@@ -33,14 +33,14 @@ export default function PerformanceManagement({ refreshKey }: PerformanceManagem
     }
 
     return (
-        <div className="p-4 sm:p-8 bg-white dark:bg-gray-950 rounded-2xl shadow-xl dark:shadow-indigo-900/10 space-y-8 max-w-full overflow-hidden border border-gray-100 dark:border-gray-800">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 dark:border-gray-800 pb-6">
+        <div className="p-4 sm:p-8 bg-card rounded-2xl shadow-xl space-y-8 max-w-full overflow-hidden border border-border">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border pb-6">
                 <div>
-                    <h2 className="text-3xl font-black text-gray-900 dark:text-white flex items-center gap-3 italic tracking-tighter">
+                    <h2 className="text-3xl font-black text-foreground flex items-center gap-3 italic tracking-tighter">
                         <Calendar className="w-8 h-8 text-indigo-600" />
                         {t('performance.title')}
                     </h2>
-                    <p className="text-gray-500 text-sm mt-1 font-bold italic">{t('performance.list.add_hint')}</p>
+                    <p className="text-muted-foreground text-sm mt-1 font-bold italic">{t('performance.list.add_hint')}</p>
                 </div>
 
                 <button

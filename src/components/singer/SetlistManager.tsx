@@ -85,7 +85,7 @@ export default function SetlistManager({ performanceId, singerId, currentSongs, 
                     songs.map((song, index) => (
                         <div key={`${song.id}-${index}`} className={styles.item}>
                             <div className={styles.itemInfo}>
-                                <span className="text-gray-500 mr-2 font-mono text-xs">{index + 1}</span>
+                                <span className="text-[var(--color-text-muted)] mr-2 font-mono text-xs">{index + 1}</span>
                                 <span className={styles.songTitle}>{song.title}</span>
                                 <span className={styles.songArtist}>{song.artist}</span>
                             </div>
@@ -124,7 +124,7 @@ export default function SetlistManager({ performanceId, singerId, currentSongs, 
                         onChange={(e) => setSelectedSongId(e.target.value)}
                         style={{ color: selectedSongId ? '#000' : '#4f46e5' }} // Highlight placeholder text in indigo to show interactivity
                     >
-                        <option value="" className="text-gray-500">{t('song.select_placeholder')}</option>
+                        <option value="" className="text-[var(--color-text-muted)]">{t('song.select_placeholder')}</option>
                         {availableSongs.map(song => (
                             <option key={song.id} value={song.id} className="text-black">
                                 {song.title} - {song.artist}

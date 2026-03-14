@@ -10,13 +10,25 @@ export async function POST(req: Request) {
         const cid = process.env.KAKAO_PAY_CID || 'TC0ONETIME' 
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-        // Disable Mock mode in production regardless of key presence
-        const isProduction = process.env.NODE_ENV === 'production'
+        // Check environment - detailed debugging
+        const isProd = process.env.NODE_ENV === 'production'
+        console.log('[KakaoPay] Environment check:', {
+            hasSecretKey: !!secretKey,
+            hasCID: !!process.env.KAKAO_PAY_CID,
+            cidValue: cid,
+            isProduction: isProd,
+            nodeEnv: process.env.NODE_ENV
+        })
 
+        // Allow mock mode in development/staging, but NOT in production
         if (!secretKey) {
-            if (isProduction) {
+            if (isProd) {
                 console.error('CRITICAL: KAKAO_PAY_SECRET_KEY missing in production!')
-                return NextResponse.json({ error: 'Payment system unavailable' }, { status: 500 })
+                return NextResponse.json({ 
+                    error: 'Payment system configuration error',
+                    message: 'KAKAO_PAY_SECRET_KEY is not configured. Please set it in Vercel environment variables.',
+                    hint: 'Go to Vercel Dashboard > Settings > Environment Variables'
+                }, { status: 500 })
             }
 
             console.warn('KAKAO_PAY_SECRET_KEY missing. Entering MOCK payment mode for testing.')
@@ -24,7 +36,8 @@ export async function POST(req: Request) {
             const res = NextResponse.json({ 
                 next_redirect_pc_url: `${appUrl}/api/payment/kakao/approve?userId=${userId}&points=${points}&orderId=${mockOrderId}&pg_token=mock_token_123`,
                 next_redirect_mobile_url: `${appUrl}/api/payment/kakao/approve?userId=${userId}&points=${points}&orderId=${mockOrderId}&pg_token=mock_token_123`,
-                tid: `T_MOCK_${Date.now()}`
+                tid: `T_MOCK_${Date.now()}`,
+                _mock: true
             })
             
             res.cookies.set('kakao_tid', `T_MOCK_${Date.now()}`, { httpOnly: true, maxAge: 600 })
@@ -106,14 +119,40 @@ export async function POST(req: Request) {
             return res
         } else {
             console.error('Kakao Pay Ready Error:', JSON.stringify(data))
+            
+            // Provide more helpful error messages based on common issues
+            let errorMessage = data.msg || 'Kakao Pay preparation failed'
+            let hint = ''
+            
+            if (data.code === -801) {
+                hint = 'CID may be invalid. For testing, use TC0ONETIME'
+            } else if (data.code === -802) {
+                hint = 'Invalid payment method or approval URL'
+            } else if (data.code === -803) {
+                hint = 'Payment request limit exceeded or invalid parameters'
+            } else if (response.status === 401) {
+                hint = 'Invalid secret key. Check KAKAO_PAY_SECRET_KEY in Vercel'
+            } else if (response.status === 403) {
+                hint = 'Secret key does not have permission. Generate a new key in Kakao Pay developer center'
+            }
+            
             return NextResponse.json({ 
-                error: data.msg || 'Kakao Pay preparation failed', 
-                details: data, // Forward Kakao error details for debugging
-                code: data.code
+                error: errorMessage, 
+                details: data,
+                code: data.code,
+                hint: hint,
+                debug: {
+                    cid,
+                    apiUrl: isSecretKeyFormat ? 'open-api.kakaopay.com' : 'kapi.kakao.com',
+                    authType: authHeader.split(' ')[0]
+                }
             }, { status: 400 })
         }
     } catch (error) {
         console.error('Payment Ready Server Error:', error)
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+        return NextResponse.json({ 
+            error: 'Internal server error',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        }, { status: 500 })
     }
 }

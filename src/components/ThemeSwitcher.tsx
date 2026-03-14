@@ -10,6 +10,10 @@ const themes = [
   { name: "Dark Mode", value: "dark" },
   { name: "Warm Sunset", value: "warm-sunset" },
   { name: "Minimal Light", value: "minimal-light" },
+  { name: "Glassmorphism", value: "glassmorphism" },
+  { name: "New Naturalism", value: "new-naturalism" },
+  { name: "Claymorphism", value: "claymorphism" },
+  { name: "Midnight Busking", value: "midnight-busking" },
 ];
 
 export function ThemeSwitcher() {

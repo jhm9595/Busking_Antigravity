@@ -189,6 +189,134 @@
   --glass-blur: 0px;
 }
 
+/* Theme 5: Glassmorphism */
+[data-theme="glassmorphism"] {
+  --background: #1e1b4b;
+  --background-rgb: 30, 27, 75;
+  --foreground: #f8fafc;
+  --color-primary: #818cf8;
+  --color-primary-foreground: #1e1b4b;
+  --color-secondary: #312e81;
+  --color-card: rgba(255, 255, 255, 0.1);
+  --color-card-foreground: #f8fafc;
+  --color-border: rgba(255, 255, 255, 0.2);
+  --color-accent: #3730a3;
+  --color-muted: #6366f1;
+  --color-muted-foreground: #c7d2fe;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  /* Surface colors for glassmorphism */
+  --color-surface: rgba(255, 255, 255, 0.05);
+  --color-surface-elevated: rgba(255, 255, 255, 0.15);
+  --color-surface-overlay: rgba(255, 255, 255, 0.1);
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #c7d2fe;
+  --color-text-muted: #818cf8;
+  --color-text-inverse: #1e1b4b;
+  --color-white: #1e1b4b;
+  --color-black: #f8fafc;
+  --button-radius: 16px;
+  --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --glass-blur: 16px;
+}
+
+/* Theme 6: New Naturalism */
+[data-theme="new-naturalism"] {
+  --background: #fef7f0;
+  --background-rgb: 254, 247, 240;
+  --foreground: #44403c;
+  --color-primary: #84cc16;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f5f5f4;
+  --color-card: #ffffff;
+  --color-card-foreground: #44403c;
+  --color-border: #d6d3d1;
+  --color-accent: #ecfccb;
+  --color-muted: #a8a29e;
+  --color-muted-foreground: #78716c;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  /* Surface colors for new-naturalism */
+  --color-surface: #fafaf9;
+  --color-surface-elevated: #ffffff;
+  --color-surface-overlay: rgba(68, 64, 60, 0.05);
+  --color-text-primary: #44403c;
+  --color-text-secondary: #78716c;
+  --color-text-muted: #a8a29e;
+  --color-text-inverse: #ffffff;
+  --color-white: #ffffff;
+  --color-black: #44403c;
+  --button-radius: 24px;
+  --box-shadow: 0 2px 8px rgba(68, 64, 60, 0.08);
+  --glass-blur: 0px;
+}
+
+/* Theme 7: Claymorphism */
+[data-theme="claymorphism"] {
+  --background: #f0f4f8;
+  --background-rgb: 240, 244, 248;
+  --foreground: #1e293b;
+  --color-primary: #6366f1;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #e2e8f0;
+  --color-card: #ffffff;
+  --color-card-foreground: #1e293b;
+  --color-border: #cbd5e1;
+  --color-accent: #e0e7ff;
+  --color-muted: #94a3b8;
+  --color-muted-foreground: #64748b;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  /* Surface colors for claymorphism */
+  --color-surface: #ffffff;
+  --color-surface-elevated: #f8fafc;
+  --color-surface-overlay: rgba(99, 102, 241, 0.08);
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
+  --color-text-inverse: #ffffff;
+  --color-white: #ffffff;
+  --color-black: #1e293b;
+  --button-radius: 20px;
+  --box-shadow: 8px 8px 16px #d1d5db, -8px -8px 16px #ffffff;
+  --glass-blur: 0px;
+}
+
+/* Theme 8: Midnight Busking */
+[data-theme="midnight-busking"] {
+  --background: #0f172a;
+  --background-rgb: 15, 23, 42;
+  --foreground: #e2e8f0;
+  --color-primary: #f472b6;
+  --color-primary-foreground: #0f172a;
+  --color-secondary: #1e293b;
+  --color-card: #1e293b;
+  --color-card-foreground: #e2e8f0;
+  --color-border: #334155;
+  --color-accent: #312e81;
+  --color-muted: #64748b;
+  --color-muted-foreground: #94a3b8;
+  --color-success: #22d3ee;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  /* Surface colors for midnight-busking */
+  --color-surface: #1e293b;
+  --color-surface-elevated: #334155;
+  --color-surface-overlay: rgba(244, 114, 182, 0.1);
+  --color-text-primary: #e2e8f0;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+  --color-text-inverse: #0f172a;
+  --color-white: #0f172a;
+  --color-black: #e2e8f0;
+  --button-radius: 8px;
+  --box-shadow: 0 0 20px rgba(244, 114, 182, 0.3);
+  --glass-blur: 4px;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

@@ -140,7 +140,7 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
     })
 
     if (!isMounted) {
-        return <div className="w-full h-full bg-gray-100 flex items-center justify-center">Loading Map...</div>
+        return <div className="w-full h-full bg-[var(--color-surface)] flex items-center justify-center">Loading Map...</div>
     }
 
     return (
@@ -190,8 +190,8 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                                         </span>
                                     </div>
                                 )}
-                                <h3 className="font-bold text-base mb-1 text-gray-900 leading-snug">{perf.title}</h3>
-                                <p className="text-xs text-gray-500 mb-3 flex items-center justify-center">
+                                <h3 className="font-bold text-base mb-1 text-[var(--color-text-primary)] leading-snug">{perf.title}</h3>
+                                <p className="text-xs text-[var(--color-text-muted)] mb-3 flex items-center justify-center">
                                     <Calendar className="w-3 h-3 mr-1" />
                                     {new Date(perf.startTime).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                 </p>
@@ -211,7 +211,7 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
             <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2">
                 <button
                     onClick={handleLocateMe}
-                    className="bg-white p-2 rounded-full shadow-md hover:bg-gray-50 text-gray-700 transition"
+                    className="bg-white p-2 rounded-full shadow-md hover:bg-[var(--color-surface)] text-[var(--color-text-secondary)] transition"
                     title={t('explore.locate_me')}
                 >
                     <Navigation className="w-6 h-6" />
@@ -282,7 +282,7 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                             </div>
                         </div>
                     ) : (
-                        <div className="text-xs text-gray-400 text-center py-1 bg-gray-50 rounded border border-dashed border-gray-200">
+                        <div className="text-xs text-gray-400 text-center py-1 bg-[var(--color-surface)] rounded border border-dashed border-[var(--color-border)]">
                             {t('explore.enable_location_help').split('{icon}')[0]}
                             <MapPin className="w-3 h-3 inline mx-1" />
                             {t('explore.enable_location_help').split('{icon}')[1]}

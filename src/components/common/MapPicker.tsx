@@ -247,7 +247,7 @@ function MapPicker({ onLocationSelect, initialLat, initialLng, readonly }: MapPi
                             ))}
                         </ul>
                     )}
-                    {isSearching && <p className="text-xs text-gray-500 mt-2 px-1 animate-pulse">{t('performance.form.map_searching')}</p>}
+                    {isSearching && <p className="text-xs text-[var(--color-text-muted)] mt-2 px-1 animate-pulse">{t('performance.form.map_searching')}</p>}
                     {!isSearching && hasSearched && searchResults.length === 0 && (
                         <p className="text-xs text-red-500 mt-2 px-1">{t('performance.form.map_no_results')}</p>
                     )}

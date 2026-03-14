@@ -11,7 +11,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 
 // Dynamic MapPicker
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
-    loading: () => <div className="h-[300px] w-full bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">Loading Map...</div>,
+    loading: () => <div className="h-[300px] w-full bg-[var(--color-surface)] animate-pulse flex items-center justify-center text-[var(--color-text-muted)]">Loading Map...</div>,
     ssr: false
 })
 
@@ -220,7 +220,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 flex flex-col gap-1.5">
                         <div className="flex justify-between items-center px-1">
-                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('performance.form.start_time')}</span>
+                            <span className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest">{t('performance.form.start_time')}</span>
                         </div>
                         <DateTimePicker
                             label=""
@@ -231,7 +231,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                     </div>
                     <div className="flex-1 flex flex-col gap-1.5">
                         <div className="flex justify-between items-center px-1">
-                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('performance.form.end_time')}</span>
+                            <span className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest">{t('performance.form.end_time')}</span>
                             <span className="text-[10px] font-black text-indigo-500 italic uppercase">{t('performance.form.time_hint')}</span>
                         </div>
                         <DateTimePicker
@@ -253,7 +253,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                     <span className={styles.checkboxText}>
                         {t('performance.form.enable_streaming')} <span className="text-red-500 text-xs font-bold ml-1">{t('performance.form.streaming_beta')}</span>
                     </span>
-                    <p className="text-xs text-gray-500 mt-1 ml-6">* {t('performance.form.streaming_help')}</p>
+                    <p className="text-xs text-[var(--color-text-muted)] mt-1 ml-6">* {t('performance.form.streaming_help')}</p>
                 </label>
 
                 <label className={styles.checkboxLabel}>

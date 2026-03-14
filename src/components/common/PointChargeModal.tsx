@@ -70,6 +70,11 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
             const data = await res.json()
             
             if (res.ok && (data.next_redirect_pc_url || data.next_redirect_mobile_url)) {
+                // Check if in mock mode
+                if (data._mock) {
+                    console.log('Running in MOCK payment mode')
+                }
+                
                 // Determine if mobile or PC
                 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
                 const redirectUrl = isMobile ? data.next_redirect_mobile_url : data.next_redirect_pc_url
@@ -83,15 +88,18 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
             } else {
                 // Show more detailed error for debugging
                 const errorMsg = data.error || 'Failed to prepare Kakao Pay'
-                const details = data.details ? `\nDetails: ${JSON.stringify(data.details)}` : ''
-                const code = data.code ? `\nCode: ${data.code}` : ''
+                const hint = data.hint ? `\n\nHint: ${data.hint}` : ''
+                const debug = data.debug ? `\n\nDebug: ${JSON.stringify(data.debug, null, 2)}` : ''
                 console.error('Kakao Pay Error Details:', data)
-                alert(`${errorMsg}${details}${code}`)
+                
+                // Show detailed error to user
+                alert(`${errorMsg}${hint}${debug}`)
                 throw new Error(errorMsg)
             }
         } catch (error: any) {
             console.error('Kakao Pay Error:', error)
-            alert(t('common.payment_ready_failed'))
+            // Don't show generic error, show the actual error message
+            alert(error.message || t('common.payment_ready_failed'))
             setIsSubmitting(false)
         }
     }
@@ -203,7 +211,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
 
                         {/* 2. Payment Method Selection */}
                         <div className="space-y-2 md:space-y-3">
-                            <h3 className="text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-[0.2em] italic px-2">
+                            <h3 className="text-[10px] md:text-xs font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] italic px-2">
                                 {t('common.payment_method')}
                             </h3>
                             <div className="grid grid-cols-2 gap-2 md:gap-3">
@@ -212,7 +220,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                     className={`flex items-center justify-center gap-2 p-3.5 min-h-[48px] rounded-2xl border-2 transition-all ${
                                         paymentMethod === 'kakao'
                                         ? 'bg-[#FEE500] border-yellow-400 text-black shadow-xl shadow-yellow-400/10 scale-[1.02]'
-                                        : 'bg-white/5 border-white/5 text-gray-400 hover:border-white/10'
+                                        : 'bg-white/5 border-white/5 text-[var(--color-text-muted)] hover:border-white/10'
                                     }`}
                                 >
                                     <MessageCircle className="w-4 h-4 md:w-5 md:h-5 fill-current" />
@@ -223,7 +231,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                     className={`flex items-center justify-center gap-2 p-3.5 min-h-[48px] rounded-2xl border-2 transition-all ${
                                         paymentMethod === 'stripe'
                                         ? 'bg-[#635BFF] border-indigo-400 text-white shadow-xl shadow-indigo-600/20 scale-[1.02]'
-                                        : 'bg-white/5 border-white/5 text-gray-400 hover:border-white/10'
+                                        : 'bg-white/5 border-white/5 text-[var(--color-text-muted)] hover:border-white/10'
                                     }`}
                                 >
                                     <CreditCard className="w-4 h-4 md:w-5 md:h-5" />
@@ -234,7 +242,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
 
                         {/* 3. Watch Ad Option */}
                         <div className="space-y-2 md:space-y-3">
-                            <h3 className="text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-[0.2em] italic px-2">
+                            <h3 className="text-[10px] md:text-xs font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] italic px-2">
                                 {t('common.free_points')}
                             </h3>
                             <button
@@ -250,12 +258,12 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                         </div>
                     </main>
 
-                    <footer className="p-4 md:p-8 bg-gray-950/80 border-t border-white/5 relative z-10 shrink-0">
+                    <footer className="p-4 md:p-8 bg-[var(--color-surface-elevated)]/80 border-t border-white/5 relative z-10 shrink-0">
                         <button
                             onClick={handleCharge}
                             disabled={isSubmitting}
                             className={`w-full py-3 md:py-4 rounded-xl md:rounded-[20px] font-black text-xs md:text-sm uppercase tracking-[0.2em] shadow-2xl transition-all flex items-center justify-center gap-3 group ${
-                                isSubmitting ? 'bg-gray-800 text-gray-500' : 'bg-white text-black hover:scale-[1.02] active:scale-95'
+                                isSubmitting ? 'bg-[var(--color-surface)] text-[var(--color-text-muted)]' : 'bg-white text-black hover:scale-[1.02] active:scale-95'
                             }`}
                         >
                             {isSubmitting ? (
@@ -267,7 +275,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                 </>
                             )}
                         </button>
-                        <p className="mt-2 md:mt-3 text-center text-[9px] md:text-xs text-gray-600 font-bold uppercase tracking-widest italic opacity-50">
+                        <p className="mt-2 md:mt-3 text-center text-[9px] md:text-xs text-[var(--color-text-secondary)] font-bold uppercase tracking-widest italic opacity-50">
                             Secure Encrypted Payment via {paymentMethod === 'kakao' ? 'Kakao Pay' : 'Stripe'}
                         </p>
                         </footer>                </div>

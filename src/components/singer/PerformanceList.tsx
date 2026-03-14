@@ -75,7 +75,7 @@ export default function PerformanceList({ performances, loading, allSongs, onRef
         return (
             <div className="space-y-4 animate-pulse">
                 {[1, 2].map(i => (
-                    <div key={i} className="h-24 bg-gray-100 dark:bg-gray-800 rounded-xl"></div>
+                    <div key={i} className="h-24 bg-[var(--color-surface)] dark:bg-[var(--color-surface-elevated)] rounded-xl"></div>
                 ))}
             </div>
         )
@@ -123,11 +123,11 @@ export default function PerformanceList({ performances, loading, allSongs, onRef
                     displayList.map((perf) => {
                         if (deletingIds.includes(perf.id)) {
                             return (
-                                <div key={perf.id} className="bg-gray-800 text-white p-4 rounded-lg flex justify-between items-center animate-pulse">
+                                <div key={perf.id} className="bg-[var(--color-surface-elevated)] text-white p-4 rounded-lg flex justify-between items-center animate-pulse">
                                     <span>Deleted <strong>{perf.title}</strong></span>
                                     <button
                                         onClick={() => handleUndo(perf.id)}
-                                        className="bg-gray-600 hover:bg-gray-500 text-white px-3 py-1 rounded text-sm flex items-center"
+                                        className="bg-[var(--color-surface)] hover:bg-gray-500 text-white px-3 py-1 rounded text-sm flex items-center"
                                     >
                                         <RotateCcw className="w-4 h-4 mr-1" /> {t('common.undo')}
                                     </button>

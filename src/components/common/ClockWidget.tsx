@@ -14,7 +14,7 @@ export default function ClockWidget() {
     return (
         <div className="hidden sm:block text-right mr-4">
             <p className="text-sm font-bold text-indigo-600">{currentTime.toLocaleTimeString()}</p>
-            <p className="text-xs text-gray-400">{currentTime.toLocaleDateString()}</p>
+            <p className="text-xs text-[var(--color-text-muted)]">{currentTime.toLocaleDateString()}</p>
         </div>
     )
 }

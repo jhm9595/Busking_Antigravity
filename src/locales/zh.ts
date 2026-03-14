@@ -419,6 +419,26 @@ export const zh: LocaleTypes = {
         withdrawal_success: '注销成功。',
         withdrawal_failed: '注销失败。'
     },
+    dashboard: {
+        welcome: '欢迎，{name}！',
+        not_singer_title: '成为歌手',
+        not_singer_desc: '开始您的街头表演之旅，与全球粉丝建立联系！',
+        onboarding_btn: '开始',
+        onboarding_nickname_placeholder: '输入您的艺名',
+        error_nickname_taken: '此艺名已被使用。',
+        error_registration_failed: '注册失败，请重试。',
+        start_mode: '开始直播',
+        withdraw_title: '注销账户',
+        withdraw_message: '确定吗？此操作无法撤销。',
+        error_withdrawal_failed: '注销失败，请重试。',
+        withdraw_btn: '注销账户',
+        alerts: {
+            resume_title: '继续直播演出？',
+            resume_message: '您有一个进行中的直播演出。是否继续？',
+            resume_btn: '继续',
+            ignore_btn: '跳过'
+        }
+    },
     explore: {
         filter_title: '演出筛选',
         filter_all: '全部',
@@ -433,5 +453,17 @@ export const zh: LocaleTypes = {
         live_now: '直播中',
         you_are_here: '您在这里',
         enable_location_help: '点击 {icon} 图标以启用筛选',
-    }
-    }
+    },
+
+    live: {
+        end_performance: '演出已结束',
+        end_performance_desc: '感谢您的观看！可以下载聊天记录或探索更多内容。',
+        download_chat: '下载聊天',
+        skip: '跳过',
+        ended_title: '演出结束',
+        ended_desc: '感谢您观看本次演出！期待下次再见！',
+        redirecting: '跳转倒计时',
+        stay_here: '留在这里',
+        view_singer_profile: '查看歌手主页',
+    },
+}

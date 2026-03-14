@@ -189,7 +189,7 @@ export default function EditPerformanceModal({ performance, onClose, onSuccess }
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-6 py-2.5 rounded-lg font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+                            className="px-6 py-2.5 rounded-lg font-semibold text-[var(--color-text-secondary)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-elevated)] transition-colors"
                         >
                             {t('common.cancel')}
                         </button>

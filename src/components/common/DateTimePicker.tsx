@@ -11,7 +11,7 @@ interface DateTimePickerProps {
 export default function DateTimePicker({ label, value, onChange, required = false, className = '' }: DateTimePickerProps) {
     return (
         <div className={`space-y-1 ${className}`}>
-            <label className="text-sm font-semibold text-gray-700 block">
+            <label className="text-sm font-semibold text-[var(--color-text-secondary)] block">
                 {label} {required && <span className="text-red-500">*</span>}
             </label>
             <input
