@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { resolvePerformanceLifecycleStatus } from '@/lib/performance-lifecycle'
 
 export async function GET(
     request: Request,
@@ -8,18 +7,9 @@ export async function GET(
 ) {
     try {
         const { id } = await params
-        
-        // Try finding by ID first, then by stageName or nickname (slug)
-        const singer = await prisma.singer.findFirst({
-            where: {
-                OR: [
-                    { id: id },
-                    { stageName: { equals: id, mode: 'insensitive' } },
-                    { profile: { nickname: { equals: id, mode: 'insensitive' } } }
-                ]
-            },
+        const singer = await prisma.singer.findUnique({
+            where: { id },
             include: {
-                profile: true,
                 performances: true,
                 songs: {
                     where: { isRepertoire: true }
@@ -34,9 +24,36 @@ export async function GET(
             )
         }
 
-        const updatedPerformances = singer.performances.map((p) => ({
-            ...p,
-            status: resolvePerformanceLifecycleStatus(p)
+        // Auto-update performance status: Close stale live/scheduled sessions
+        const now = new Date()
+        const updatedPerformances = await Promise.all(singer.performances.map(async (p) => {
+            const start = new Date(p.startTime)
+            // Use endTime if present, otherwise assume 3 hours max duration from start
+            const end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
+
+            // Auto-update status: complete if time passed, or set live if start time reached
+            if (end < now && (p.status === 'live' || p.status === 'scheduled')) {
+                try {
+                    await prisma.performance.update({
+                        where: { id: p.id },
+                        data: { status: 'completed' }
+                    })
+                } catch (e) {
+                    console.error('Auto-close error:', e)
+                }
+                return { ...p, status: 'completed' }
+            } else if (start <= now && p.status === 'scheduled') {
+                try {
+                    await prisma.performance.update({
+                        where: { id: p.id },
+                        data: { status: 'live' }
+                    })
+                } catch (e) {
+                    console.error('Auto-live error:', e)
+                }
+                return { ...p, status: 'live' }
+            }
+            return p
         }))
 
         // Sort by startTime ASC (Earliest first)
