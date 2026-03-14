@@ -116,6 +116,8 @@ export default function AudienceLivePage() {
         socket.on('connect', () => {
             setRealtimeStatus('connected')
             socket.emit('join_room', { performanceId: id, username: 'SyncOnly', userType: 'audience', syncOnly: true })
+            // Refresh data when socket connects to get latest chat status
+            refreshData()
         })
         socket.on('disconnect', () => setRealtimeStatus('error'))
         socket.on('connect_error', () => setRealtimeStatus('error'))
@@ -152,6 +154,14 @@ export default function AudienceLivePage() {
 
         return () => { socket.disconnect() }
     }, [id, refreshData])
+
+    // Periodic refresh to ensure chat status is always up to date
+    useEffect(() => {
+        const interval = setInterval(() => {
+            refreshData()
+        }, 5000) // Refresh every 5 seconds
+        return () => clearInterval(interval)
+    }, [refreshData])
 
     useEffect(() => {
         if (!showRedirectionModal) return
