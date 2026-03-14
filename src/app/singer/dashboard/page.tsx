@@ -136,7 +136,20 @@ export default function SingerDashboard() {
         if (!user?.id || isStarting) return
         setIsStarting(true)
         try {
-            const perfs = await getPerformances(user.id)
+            let perfs
+            try {
+                perfs = await getPerformances(user.id)
+            } catch (err) {
+                console.error('Failed to get performances:', err)
+                alert('공연 정보를 가져오는데 실패했습니다.')
+                return
+            }
+            
+            if (!perfs || perfs.length === 0) {
+                alert('예정된 공연이 없습니다. 먼저 공연을 예약해주세요.')
+                return
+            }
+            
             const now = new Date()
 
         // 1. Check for active LIVE performance first (with time validation)
@@ -178,9 +191,14 @@ export default function SingerDashboard() {
         })
 
         // Auto-start the closest one
-        const best = candidates[0]
-        await updatePerformanceStatus(best.id, 'live')
-        router.push(`/singer/live?performanceId=${best.id}`)
+        try {
+            const best = candidates[0]
+            await updatePerformanceStatus(best.id, 'live')
+            router.push(`/singer/live?performanceId=${best.id}`)
+        } catch (err) {
+            console.error('Failed to start performance:', err)
+            alert('공연 시작에 실패했습니다. 다시 시도해주세요.')
+        }
         } finally {
             setIsStarting(false)
         }
