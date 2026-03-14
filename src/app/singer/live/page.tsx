@@ -50,6 +50,7 @@ function LivePerformanceContent() {
     const [manualSongTitle, setManualSongTitle] = useState('')
     const [manualSongArtist, setManualSongArtist] = useState('')
     const [chatStatus, setChatStatus] = useState<'open' | 'closed'>('closed')
+    const [initialChatStatusSet, setInitialChatStatusSet] = useState(false)
     const socketRef = useRef<any>(null)
     const [isAlertSent, setIsAlertSent] = useState(false)
     const [canOpenChat, setCanOpenChat] = useState(false)
@@ -97,8 +98,23 @@ function LivePerformanceContent() {
     }, [performanceId, updateOwnerControlToken])
 
     const emitOwnerControlEvent = useCallback(async (eventName: string, payload: Record<string, any> = {}) => {
-        if (!socketRef.current) {
-            return false
+        if (!socketRef.current?.connected) {
+            console.warn('Socket not connected, attempting to reconnect...')
+            // Try to get token first while socket reconnects
+            let token = ownerControlTokenRef.current
+            if (!token) {
+                token = await requestOwnerControlToken()
+            }
+            if (!token) {
+                console.error('Failed to get control token')
+                return false
+            }
+            // Wait a bit for socket to potentially connect
+            await new Promise(r => setTimeout(r, 500))
+            if (!socketRef.current?.connected) {
+                console.error('Socket still not connected after retry')
+                return false
+            }
         }
 
         const resolvedPerformanceId = payload.performanceId || performanceId || performance?.id
@@ -112,6 +128,7 @@ function LivePerformanceContent() {
         }
 
         if (!token) {
+            console.error('No owner control token available')
             return false
         }
 
@@ -151,15 +168,20 @@ function LivePerformanceContent() {
             }
 
             if (success) {
+                // First refresh data to sync DB state
+                await refreshData()
+                
+                // Then emit socket event
                 const wasEmitted = await emitOwnerControlEvent('open_chat', { performanceId: performance.id })
                 if (!wasEmitted) {
-                    alert('Failed to authorize chat open.')
+                    // Even if socket emit fails, chat is opened in DB
+                    // Just show a warning, don't block
+                    console.warn('Chat opened in DB but socket notification failed')
                 }
                 if (usePoints) {
                     const newPoints = await getUserPoints(performance.singerId)
                     setUserPoints(newPoints)
                 }
-                await refreshData()
             } else {
                 alert('Failed to open chat.')
             }
@@ -194,6 +216,12 @@ function LivePerformanceContent() {
             setPerformance(perfData)
             setRequests(reqData)
 
+            // Sync chat status from database (fallback if socket doesn't update)
+            if (!initialChatStatusSet) {
+                setChatStatus(perfData.chatEnabled ? 'open' : 'closed')
+                setInitialChatStatusSet(true)
+            }
+
             if (perfData.status === 'completed' || perfData.status === 'canceled') {
                 if (perfData.status === 'completed' && perfData.chatEnabled) {
                     setShowEndModal(true)
@@ -222,6 +250,13 @@ function LivePerformanceContent() {
             setIsRefreshingRequests(false)
         }
     }, [performanceId])
+
+    // Sync chat status when performance data changes
+    useEffect(() => {
+        if (performance?.chatEnabled !== undefined) {
+            setChatStatus(performance.chatEnabled ? 'open' : 'closed')
+        }
+    }, [performance?.chatEnabled])
 
     useEffect(() => {
         if (!performanceId) {
