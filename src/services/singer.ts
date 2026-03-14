@@ -419,10 +419,12 @@ export async function createRealtimeOwnerControlToken(performanceId: string) {
         })
 
         if (!performance) {
+            console.error('[Token] Performance not found:', performanceId)
             return { success: false, statusCode: 404, error: 'PERFORMANCE_NOT_FOUND' }
         }
 
         const access = await requireOwnerWrite(performance.singerId)
+        console.log('[Token] Access check:', access)
         if (!access.allowed || !access.actorUserId) {
             return deniedWriteResult(access.statusCode)
         }
@@ -436,7 +438,9 @@ export async function createRealtimeOwnerControlToken(performanceId: string) {
             ttlSeconds: 5 * 60
         })
 
+        console.log('[Token] Generated token:', token ? 'present' : 'MISSING')
         if (!token) {
+            console.error('[Token] REALTIME_CONTROL_TOKEN_SECRET is missing in environment!')
             return { success: false, statusCode: 500, error: 'REALTIME_TOKEN_SECRET_MISSING' }
         }
 

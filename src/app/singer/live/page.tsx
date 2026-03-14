@@ -82,17 +82,20 @@ function LivePerformanceContent() {
     }, [])
 
     const requestOwnerControlToken = useCallback(async () => {
+        console.log('[Token] requestOwnerControlToken called, performanceId:', performanceId)
         if (!performanceId) {
             updateOwnerControlToken(null)
             return null
         }
 
         const result = await createRealtimeOwnerControlToken(performanceId)
+        console.log('[Token] createRealtimeOwnerControlToken result:', result)
         if (result && result.success && result.token) {
             updateOwnerControlToken(result.token)
             return result.token
         }
 
+        console.error('[Token] Failed to get token:', result)
         updateOwnerControlToken(null)
         return null
     }, [performanceId, updateOwnerControlToken])
