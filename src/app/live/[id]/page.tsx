@@ -54,12 +54,17 @@ export default function AudienceLivePage() {
                 // Check if performance is already ended
                 if (p.status === 'completed' || p.status === 'canceled') {
                     setPerformance({ ...p })
-                    // Don't auto-redirect - let user choose to go to profile
-                    // Show end modal if chat was enabled
+                    
+                    // Show appropriate modal based on chat status
                     if (p.status === 'completed' && p.chatEnabled) {
+                        // Chat was enabled - show end modal with download option
                         setShowEndModal(true)
+                        setShowRedirectionModal(false)
+                    } else {
+                        // Chat was not enabled - show redirect modal
+                        setShowEndModal(false)
+                        setShowRedirectionModal(true)
                     }
-                    setShowRedirectionModal(false)
                     return
                 }
 
