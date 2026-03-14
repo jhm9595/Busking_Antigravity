@@ -171,11 +171,38 @@ function LivePerformanceContent() {
                 // First refresh data to sync DB state
                 await refreshData()
                 
-                // Then emit socket event
-                const wasEmitted = await emitOwnerControlEvent('open_chat', { performanceId: performance.id })
+                // Ensure socket is connected and joined before sending open_chat
+                const emitChatOpen = async (): Promise<boolean> => {
+                    // Wait for socket to be ready
+                    let attempts = 0
+                    while (!socketRef.current?.connected && attempts < 10) {
+                        await new Promise(r => setTimeout(r, 300))
+                        attempts++
+                    }
+                    
+                    if (!socketRef.current?.connected) {
+                        console.error('Socket not connected')
+                        return false
+                    }
+
+                    // Re-join room to ensure we're in it
+                    const token = ownerControlTokenRef.current || await requestOwnerControlToken()
+                    socketRef.current.emit('join_room', {
+                        performanceId: performance.id,
+                        username: 'Singer',
+                        controlToken: token || undefined
+                    })
+                    
+                    // Small delay to ensure join is processed
+                    await new Promise(r => setTimeout(r, 200))
+                    
+                    // Then open the chat
+                    const wasEmitted = await emitOwnerControlEvent('open_chat', { performanceId: performance.id })
+                    return wasEmitted
+                }
+                
+                const wasEmitted = await emitChatOpen()
                 if (!wasEmitted) {
-                    // Even if socket emit fails, chat is opened in DB
-                    // Just show a warning, don't block
                     console.warn('Chat opened in DB but socket notification failed')
                 }
                 if (usePoints) {
