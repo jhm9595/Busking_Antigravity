@@ -139,6 +139,7 @@ export default function AudienceLivePage() {
         })
         
         socket.on('chat_status', (data: { status: 'open' | 'closed' }) => {
+            console.log('[Chat] Received chat_status event:', data)
             setChatStatus(data.status)
             chatStatusRef.current = data.status
             // Synchronize performance state for layout purposes
@@ -146,6 +147,7 @@ export default function AudienceLivePage() {
         })
 
         socket.on('chat_status_toggled', (data: { enabled: boolean }) => {
+            console.log('[Chat] Received chat_status_toggled event:', data)
             const newStatus = data.enabled ? 'open' : 'closed'
             setChatStatus(newStatus)
             chatStatusRef.current = newStatus

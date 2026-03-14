@@ -98,27 +98,30 @@ function LivePerformanceContent() {
     }, [performanceId, updateOwnerControlToken])
 
     const emitOwnerControlEvent = useCallback(async (eventName: string, payload: Record<string, any> = {}) => {
+        console.log('[Chat] emitOwnerControlEvent called:', eventName, payload)
+        
         if (!socketRef.current?.connected) {
-            console.warn('Socket not connected, attempting to reconnect...')
+            console.warn('[Chat] Socket not connected, attempting to reconnect...')
             // Try to get token first while socket reconnects
             let token = ownerControlTokenRef.current
             if (!token) {
                 token = await requestOwnerControlToken()
             }
             if (!token) {
-                console.error('Failed to get control token')
+                console.error('[Chat] Failed to get control token')
                 return false
             }
             // Wait a bit for socket to potentially connect
             await new Promise(r => setTimeout(r, 500))
             if (!socketRef.current?.connected) {
-                console.error('Socket still not connected after retry')
+                console.error('[Chat] Socket still not connected after retry')
                 return false
             }
         }
 
         const resolvedPerformanceId = payload.performanceId || performanceId || performance?.id
         if (!resolvedPerformanceId) {
+            console.error('[Chat] No performance ID')
             return false
         }
 
@@ -128,10 +131,11 @@ function LivePerformanceContent() {
         }
 
         if (!token) {
-            console.error('No owner control token available')
+            console.error('[Chat] No owner control token available')
             return false
         }
 
+        console.log('[Chat] Emitting event:', eventName, { performanceId: resolvedPerformanceId, token: token ? 'present' : 'missing' })
         socketRef.current.emit(eventName, {
             ...payload,
             performanceId: resolvedPerformanceId,
@@ -168,11 +172,13 @@ function LivePerformanceContent() {
             }
 
             if (success) {
+                console.log('[Chat] Chat opened in DB, now emitting socket event...')
                 // First refresh data to sync DB state
                 await refreshData()
                 
                 // Ensure socket is connected and joined before sending open_chat
                 const emitChatOpen = async (): Promise<boolean> => {
+                    console.log('[Chat] emitChatOpen called, socket connected:', socketRef.current?.connected)
                     // Wait for socket to be ready
                     let attempts = 0
                     while (!socketRef.current?.connected && attempts < 10) {
@@ -181,12 +187,13 @@ function LivePerformanceContent() {
                     }
                     
                     if (!socketRef.current?.connected) {
-                        console.error('Socket not connected')
+                        console.error('[Chat] Socket not connected')
                         return false
                     }
 
                     // Re-join room to ensure we're in it
                     const token = ownerControlTokenRef.current || await requestOwnerControlToken()
+                    console.log('[Chat] Re-joining room with token:', token ? 'present' : 'missing')
                     socketRef.current.emit('join_room', {
                         performanceId: performance.id,
                         username: 'Singer',
@@ -197,7 +204,10 @@ function LivePerformanceContent() {
                     await new Promise(r => setTimeout(r, 200))
                     
                     // Then open the chat
+                    console.log('[Chat] Calling emitOwnerControlEvent for open_chat')
                     const wasEmitted = await emitOwnerControlEvent('open_chat', { performanceId: performance.id })
+                    console.log('[Chat] emitOwnerControlEvent result:', wasEmitted)
+                    return wasEmitted
                     return wasEmitted
                 }
                 
