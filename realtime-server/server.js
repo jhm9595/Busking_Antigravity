@@ -139,7 +139,8 @@ io.on('connection', (socket) => {
             message: `${username}님이 ${amount} 포인트를 후원하셨습니다! 💖`,
             timestamp: new Date().toISOString(),
             type: 'donation',
-            amount
+            amount,
+            donorName: username
         });
     });
 
