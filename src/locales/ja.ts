@@ -419,26 +419,6 @@ export const ja: LocaleTypes = {
         withdrawal_success: '退会処理が完了しました。',
         withdrawal_failed: '退会処理に失敗しました。'
     },
-    dashboard: {
-        welcome: 'ようこそ、{name}さん！',
-        not_singer_title: '歌手になる',
-        not_singer_desc: 'バスキングの旅に出て、世界中のファンとつながりましょう！',
-        onboarding_btn: '始める',
-        onboarding_nickname_placeholder: 'アーティスト名を入力',
-        error_nickname_taken: 'このアーティスト名はすでに使用されています。',
-        error_registration_failed: '登録に失敗しました。もう一度お試しください。',
-        start_mode: 'ライブ開始',
-        withdraw_title: '退会',
-        withdraw_message: '本当によろしいですか？この操作は取り消せません。',
-        error_withdrawal_failed: '退会に失敗しました。もう一度お試しください。',
-        withdraw_btn: '退会する',
-        alerts: {
-            resume_title: 'ライブ公演を再開しますか？',
-            resume_message: '進行中のライブ公演があります。继续しますか？',
-            resume_btn: '再開',
-            ignore_btn: 'スキップ'
-        }
-    },
     explore: {
         filter_title: '公演フィルター',
         filter_all: 'すべて',
@@ -453,17 +433,5 @@ export const ja: LocaleTypes = {
         live_now: 'ライブ中',
         you_are_here: '現在地',
         enable_location_help: '位置情報を有効にするには {icon} アイコンをクリックしてください',
-    },
-
-    live: {
-        end_performance: '公演が終了しました',
-        end_performance_desc: 'ご視聴ありがとうございます！チャットをダウンロードするか、他のコンテンツをお楽しみください。',
-        download_chat: 'チャットをダウンロード',
-        skip: 'スキップ',
-        ended_title: '公演終了',
-        ended_desc: 'この公演をご視聴いただきありがとうございます！またのご参加をお待ちしています。',
-        redirecting: '秒後に移動',
-        stay_here: 'ここに留まる',
-        view_singer_profile: '歌手プロフィールを見る',
     },
 }

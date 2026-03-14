@@ -417,26 +417,6 @@ export const en = {
         withdrawal_success: 'Account successfully withdrawn.',
         withdrawal_failed: 'Failed to withdraw account.'
     },
-    dashboard: {
-        welcome: 'Welcome, {name}!',
-        not_singer_title: 'Become a Singer',
-        not_singer_desc: 'Start your busking journey and connect with fans worldwide!',
-        onboarding_btn: 'Get Started',
-        onboarding_nickname_placeholder: 'Enter your stage name',
-        error_nickname_taken: 'This stage name is already taken.',
-        error_registration_failed: 'Registration failed. Please try again.',
-        start_mode: 'Start Live',
-        withdraw_title: 'Withdraw Account',
-        withdraw_message: 'Are you sure? This action cannot be undone.',
-        error_withdrawal_failed: 'Withdrawal failed. Please try again.',
-        withdraw_btn: 'Withdraw Account',
-        alerts: {
-            resume_title: 'Resume Live Performance?',
-            resume_message: 'You have an ongoing live performance. Would you like to resume?',
-            resume_btn: 'Resume',
-            ignore_btn: 'Ignore'
-        }
-    },
     explore: {
         filter_title: 'Explore Filter',
         filter_all: 'All',
@@ -451,18 +431,6 @@ export const en = {
         live_now: 'Live Now',
         you_are_here: 'You are Here',
         enable_location_help: 'Click {icon} to enable filtering',
-    },
-
-    live: {
-        end_performance: 'Performance Ended',
-        end_performance_desc: 'Thank you for watching! Download the chat or explore more content.',
-        download_chat: 'Download Chat',
-        skip: 'Skip',
-        ended_title: 'Performance Ended',
-        ended_desc: 'Thank you for watching this performance. We hope to see you again soon!',
-        redirecting: 'Redirecting in',
-        stay_here: 'Stay Here',
-        view_singer_profile: 'View Artist Profile',
     },
 }
 

@@ -419,26 +419,6 @@ export const ko: LocaleTypes = {
         withdrawal_success: '탈퇴 처리가 완료되었습니다.',
         withdrawal_failed: '탈퇴 처리에 실패했습니다.'
     },
-    dashboard: {
-        welcome: '환영합니다, {name}님!',
-        not_singer_title: '가수로 시작하기',
-        not_singer_desc: '버스킹 여정을 시작하고 전 세계 팬과 연결하세요!',
-        onboarding_btn: '시작하기',
-        onboarding_nickname_placeholder: '활동명을 입력하세요',
-        error_nickname_taken: '이미 사용 중인 활동명입니다.',
-        error_registration_failed: '등록에 실패했습니다. 다시 시도해주세요.',
-        start_mode: '라이브 시작',
-        withdraw_title: '회원 탈퇴',
-        withdraw_message: '정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
-        error_withdrawal_failed: '탈퇴에 실패했습니다. 다시 시도해주세요.',
-        withdraw_btn: '회원 탈퇴',
-        alerts: {
-            resume_title: '라이브 공연을 이어서 진행할까요?',
-            resume_message: '진행 중인 라이브 공연이 있습니다. 이어서 진행하시겠습니까?',
-            resume_btn: '이어서 진행',
-            ignore_btn: '건너뛰기'
-        }
-    },
     explore: {
         filter_title: '공연 필터',
         filter_all: '전체',
@@ -453,17 +433,5 @@ export const ko: LocaleTypes = {
         live_now: '라이브 중',
         you_are_here: '현재 위치',
         enable_location_help: '내 위치를 활성화하려면 {icon} 아이콘을 클릭하세요',
-    },
-
-    live: {
-        end_performance: '공연이 종료되었습니다',
-        end_performance_desc: '감상해 주셔서 감사합니다! 채팅을 다운로드하거나 다양한 콘텐츠를 탐색해 보세요.',
-        download_chat: '채팅 다운로드',
-        skip: '건너뛰기',
-        ended_title: '공연 종료',
-        ended_desc: '이 공연을 시청해 주셔서 감사합니다. 또 만나요!',
-        redirecting: '이동까지',
-        stay_here: '여기에 머무르기',
-        view_singer_profile: '가수 프로필 보기',
     },
 }
