@@ -574,20 +574,28 @@ function LivePerformanceContent() {
             </header>
 
             {/* Mobile Tab Selectors */}
-            <div className="flex md:hidden bg-card/40 border-b border-border shrink-0 p-1 gap-1">
+            <div className="flex md:hidden border-b border-border shrink-0 p-1 gap-1" style={{ backgroundColor: 'var(--color-card)' }}>
                 <button
                     onClick={() => setActiveTab('setlist')}
-                    className={`flex-1 py-3 text-xs font-black transition-all rounded-lg ${activeTab === 'setlist' ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
+                    className={`flex-1 py-3 text-xs font-black transition-all rounded-lg ${activeTab === 'setlist' ? '' : ''}`}
+                    style={{ 
+                        backgroundColor: activeTab === 'setlist' ? 'var(--color-primary)' : 'transparent',
+                        color: activeTab === 'setlist' ? 'var(--color-primary-foreground)' : 'var(--color-text-muted)'
+                    }}
                 >
                     {t('live.tabs.setlist')}
                 </button>
                 <button
                     onClick={() => setActiveTab('requests')}
-                    className={`flex-1 py-3 text-xs font-black transition-all rounded-lg relative ${activeTab === 'requests' ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
+                    className={`flex-1 py-3 text-xs font-black transition-all rounded-lg relative ${activeTab === 'requests' ? '' : ''}`}
+                    style={{ 
+                        backgroundColor: activeTab === 'requests' ? 'var(--color-primary)' : 'transparent',
+                        color: activeTab === 'requests' ? 'var(--color-primary-foreground)' : 'var(--color-text-muted)'
+                    }}
                 >
                     {t('live.tabs.requests')}
                     {pendingRequests.length > 0 && (
-                        <span className="absolute top-1 right-2 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-full animate-bounce shadow-lg">
+                        <span className="absolute top-1 right-2 w-4 h-4 text-[8px] flex items-center justify-center rounded-full animate-bounce shadow-lg" style={{ backgroundColor: '#ef4444', color: 'white' }}>
                             {pendingRequests.length}
                         </span>
                     )}
@@ -595,7 +603,11 @@ function LivePerformanceContent() {
                 {performance?.chatEnabled && (
                     <button
                         onClick={() => setActiveTab('chat')}
-                        className={`flex-1 py-3 text-xs font-black transition-all rounded-lg ${activeTab === 'chat' ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
+                        className={`flex-1 py-3 text-xs font-black transition-all rounded-lg ${activeTab === 'chat' ? '' : ''}`}
+                        style={{ 
+                            backgroundColor: activeTab === 'chat' ? 'var(--color-primary)' : 'transparent',
+                            color: activeTab === 'chat' ? 'var(--color-primary-foreground)' : 'var(--color-text-muted)'
+                        }}
                     >
                         {t('live.tabs.chat')}
                     </button>
@@ -604,7 +616,12 @@ function LivePerformanceContent() {
                     <button
                         onClick={() => handleOpenChat(true)}
                         disabled={isEnablingChat}
-                        className="flex-1 py-3 text-xs font-black transition-all rounded-lg text-amber-500 bg-amber-500/10 border border-amber-500/20 flex items-center justify-center gap-2"
+                        className="flex-1 py-3 text-xs font-black transition-all rounded-lg flex items-center justify-center gap-2"
+                        style={{ 
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)', 
+                            color: '#f59e0b',
+                            border: '1px solid rgba(245, 158, 11, 0.2)'
+                        }}
                     >
                         {isEnablingChat ? <RotateCcw className="w-3 h-3 animate-spin" /> : <Coins className="w-3 h-3" />}
                         {t('common.points')}
@@ -643,20 +660,20 @@ function LivePerformanceContent() {
                                 </div>
                                 <div className="space-y-3">
                                     {performance.songs.map((s: any, i: number) => (
-                                        <div key={s.id} className={`group relative bg-white/5 p-4 rounded-2xl border border-white/10 hover:border-indigo-500/40 transition-all duration-300 ${s.status === 'completed' ? 'opacity-40 grayscale-[0.5]' : ''}`}>
+                                        <div key={s.id} className={`group relative bg-[var(--color-surface-elevated)] p-4 rounded-2xl border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-all duration-300 ${s.status === 'completed' ? 'opacity-40 grayscale-[0.5]' : ''}`}>
                                             <div className="flex justify-between items-center gap-4">
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="font-black text-sm text-white truncate leading-tight mb-0.5">{s.title}</p>
-                                                    <p className="text-xs text-[var(--color-text-muted)] font-bold uppercase tracking-wider">{s.artist}</p>
+                                                    <p className="font-black text-sm truncate leading-tight mb-0.5" style={{ color: 'var(--color-text-primary)' }}>{s.title}</p>
+                                                    <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>{s.artist}</p>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <button onClick={() => handleToggleSongStatus(s.id, s.status)} className={`p-2 rounded-xl border transition-all duration-300 ${s.status === 'completed' ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : 'bg-white/5 border-white/10 text-[var(--color-text-muted)]'}`}>
+                                                    <button onClick={() => handleToggleSongStatus(s.id, s.status)} className={`p-2 rounded-xl border transition-all duration-300 ${s.status === 'completed' ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : 'bg-[var(--color-surface-elevated)] border-[var(--color-border)]'}`} style={{ color: 'var(--color-text-secondary)' }}>
                                                         <Check className="w-4 h-4" />
                                                     </button>
                                                     {isReordering && (
                                                         <div className="flex flex-col gap-1">
-                                                            <button disabled={i === 0} onClick={() => handleMoveSong(i, i - 1)} className="p-1 hover:bg-white/10 rounded-md text-[var(--color-text-muted)] disabled:opacity-20"><Plus className="w-3 h-3 rotate-45" /></button>
-                                                            <button disabled={i === performance.songs.length - 1} onClick={() => handleMoveSong(i, i + 1)} className="p-1 hover:bg-white/10 rounded-md text-[var(--color-text-muted)] disabled:opacity-20"><Plus className="w-3 h-3 rotate-180" /></button>
+                                                            <button disabled={i === 0} onClick={() => handleMoveSong(i, i - 1)} className="p-1 hover:bg-[var(--color-surface-elevated)] rounded-md disabled:opacity-20" style={{ color: 'var(--color-text-muted)' }}><Plus className="w-3 h-3 rotate-45" /></button>
+                                                            <button disabled={i === performance.songs.length - 1} onClick={() => handleMoveSong(i, i + 1)} className="p-1 hover:bg-[var(--color-surface-elevated)] rounded-md disabled:opacity-20" style={{ color: 'var(--color-text-muted)' }}><Plus className="w-3 h-3 rotate-180" /></button>
                                                         </div>
                                                     )}
                                                     <DeleteSongButton songId={s.id} onRemove={handleRemoveSong} />
@@ -668,27 +685,27 @@ function LivePerformanceContent() {
                             </div>
                         )}
                         {activeTab === 'requests' && (
-                            <div className="h-full flex flex-col p-4 space-y-5 overflow-y-auto custom-scrollbar bg-[var(--color-surface)]/10">
+                            <div className="h-full flex flex-col p-4 space-y-5 overflow-y-auto custom-scrollbar" style={{ backgroundColor: 'var(--color-surface)' }}>
                                 <div className="flex items-center justify-between">
-                                    <h2 className="text-xl font-black flex items-center gap-3">
-                                        <MessageCircle className="w-6 h-6 text-indigo-500" />
+                                    <h2 className="text-xl font-black flex items-center gap-3" style={{ color: 'var(--color-text-primary)' }}>
+                                        <MessageCircle className="w-6 h-6" style={{ color: 'var(--color-primary)' }} />
                                         <span>{t('live.requests.title')}</span>
-                                        {pendingRequests.length > 0 && <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-bold ml-1 animate-pulse">{pendingRequests.length}</span>}
+                                        {pendingRequests.length > 0 && <span className="text-xs bg-red-500 px-2 py-0.5 rounded-full font-bold ml-1 animate-pulse" style={{ color: 'var(--color-text-inverse)' }}>{pendingRequests.length}</span>}
                                     </h2>
-                                    <button onClick={refreshRequests} disabled={isRefreshingRequests} className={`p-2 hover:bg-white/10 rounded-xl text-[var(--color-text-muted)] transition-all ${isRefreshingRequests ? 'animate-spin' : ''}`}><RotateCcw className="w-4 h-4" /></button>
+                                    <button onClick={refreshRequests} disabled={isRefreshingRequests} className={`p-2 rounded-xl transition-all ${isRefreshingRequests ? 'animate-spin' : ''}`} style={{ backgroundColor: 'var(--color-surface-elevated)', color: 'var(--color-text-muted)' }}><RotateCcw className="w-4 h-4" /></button>
                                 </div>
                                 <div className="space-y-4">
                                     {pendingRequests.map((r: any) => (
-                                        <div key={r.id} className="relative group overflow-hidden bg-white/5 p-5 rounded-2xl border border-white/5 hover:border-indigo-500/30 transition-all">
-                                            <div className="absolute top-0 right-0 p-3"><span className="text-[11px] font-black text-[var(--color-text-secondary)] font-mono tracking-tighter bg-white/5 px-2 py-0.5 rounded">#{r.id.slice(-4).toUpperCase()}</span></div>
-                                            <div className="mb-4"><p className="font-black text-base text-white leading-tight mb-1">{r.title}</p><p className="text-[11px] text-[var(--color-text-muted)] font-bold uppercase tracking-widest">{r.artist}</p></div>
-                                            <div className="flex items-center gap-3 mb-5 p-2 rounded-xl bg-[var(--color-surface-elevated)]/40">
-                                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center"><UserIcon className="w-3.5 h-3.5 text-indigo-400" /></div>
-                                                <span className="text-[11px] text-[var(--color-text-secondary)] font-bold truncate">{r.requesterName}</span>
+                                        <div key={r.id} className="relative group overflow-hidden p-5 rounded-2xl border transition-all" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border)' }}>
+                                            <div className="absolute top-0 right-0 p-3"><span className="text-[11px] font-black font-mono tracking-tighter px-2 py-0.5 rounded" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)' }}>#{r.id.slice(-4).toUpperCase()}</span></div>
+                                            <div className="mb-4"><p className="font-black text-base leading-tight mb-1" style={{ color: 'var(--color-text-primary)' }}>{r.title}</p><p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: 'var(--color-text-muted)' }}>{r.artist}</p></div>
+                                            <div className="flex items-center gap-3 mb-5 p-2 rounded-xl" style={{ backgroundColor: 'var(--color-surface)' }}>
+                                                <div className="w-7 h-7 rounded-full flex items-center justify-center border" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border)' }}><UserIcon className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} /></div>
+                                                <span className="text-[11px] font-bold truncate" style={{ color: 'var(--color-text-secondary)' }}>{r.requesterName}</span>
                                             </div>
                                             <div className="flex gap-2">
-                                                <button onClick={() => handleAcceptRequest(r.id)} className="flex-1 bg-gradient-to-br from-indigo-500 to-indigo-700 py-2.5 rounded-xl text-xs font-black text-white">{t('live.requests.accept')}</button>
-                                                <button onClick={() => handleRejectRequest(r.id)} className="bg-white/5 px-3 rounded-xl border border-white/10 hover:text-red-400 transition-all"><X className="w-4 h-4" /></button>
+                                                <button onClick={() => handleAcceptRequest(r.id)} className="flex-1 py-2.5 rounded-xl text-xs font-black" style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}>{t('live.requests.accept')}</button>
+                                                <button onClick={() => handleRejectRequest(r.id)} className="px-3 rounded-xl border transition-all" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}><X className="w-4 h-4" /></button>
                                             </div>
                                         </div>
                                     ))}
@@ -697,13 +714,13 @@ function LivePerformanceContent() {
                             </div>
                         )}
                         {activeTab === 'chat' && (
-                            <div className="h-full flex flex-col bg-black relative">
+                            <div className="h-full flex flex-col relative" style={{ backgroundColor: 'var(--color-background)' }}>
                                 {chatStatus === 'closed' && (
-                                    <div className="absolute inset-0 z-[15] bg-card/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
-                                        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6 border border-primary/20"><MessageSquare className="w-10 h-10 text-primary" /></div>
-                                        <h3 className="text-2xl font-black mb-2 text-foreground italic tracking-tight">{t('chat.closed_title')}</h3>
-                                        <p className="text-muted-foreground text-sm mb-8 leading-relaxed max-w-[240px] italic">{t('live.chat_ready_desc')}</p>
-                                        <button disabled={!canOpenChat || isEnablingChat} onClick={() => handleOpenChat(false)} className={`px-8 py-4 rounded-2xl font-bold text-primary-foreground text-sm transition-all w-full max-w-[200px] ${canOpenChat ? 'bg-primary' : 'bg-muted text-muted-foreground cursor-not-allowed'}`}>
+                                    <div className="absolute inset-0 z-[15] backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500" style={{ backgroundColor: 'var(--color-card)' }}>
+                                        <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6 border" style={{ backgroundColor: 'var(--color-primary)', opacity: 0.1, borderColor: 'var(--color-primary)' }}><MessageSquare className="w-10 h-10" style={{ color: 'var(--color-primary)' }} /></div>
+                                        <h3 className="text-2xl font-black mb-2 italic tracking-tight" style={{ color: 'var(--color-text-primary)' }}>{t('chat.closed_title')}</h3>
+                                        <p className="text-sm mb-8 leading-relaxed max-w-[240px] italic" style={{ color: 'var(--color-text-muted)' }}>{t('live.chat_ready_desc')}</p>
+                                        <button disabled={!canOpenChat || isEnablingChat} onClick={() => handleOpenChat(false)} className={`px-8 py-4 rounded-2xl font-bold text-sm transition-all w-full max-w-[200px] ${canOpenChat ? '' : 'cursor-not-allowed'}`} style={{ backgroundColor: canOpenChat ? 'var(--color-primary)' : 'var(--color-muted)', color: canOpenChat ? 'var(--color-primary-foreground)' : 'var(--color-text-muted)' }}>
                                             {canOpenChat ? t('chat.open_button') : t('chat.not_ready')}
                                         </button>
                                     </div>
