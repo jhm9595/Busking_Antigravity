@@ -54,11 +54,12 @@ export default function AudienceLivePage() {
                 // Check if performance is already ended
                 if (p.status === 'completed' || p.status === 'canceled') {
                     setPerformance({ ...p })
+                    // Don't auto-redirect - let user choose to go to profile
+                    // Show end modal if chat was enabled
                     if (p.status === 'completed' && p.chatEnabled) {
                         setShowEndModal(true)
-                    } else {
-                        setShowRedirectionModal(true)
                     }
+                    setShowRedirectionModal(false)
                     return
                 }
 
@@ -426,7 +427,6 @@ export default function AudienceLivePage() {
                                     onClick={() => {
                                         downloadChatAsText(chatMessagesRef.current, performance.title)
                                         setShowEndModal(false)
-                                        setShowRedirectionModal(true)
                                     }}
                                     className="w-full bg-primary hover:bg-primary/80 text-primary-foreground py-3 rounded-xl font-bold transition-all shadow-lg shadow-primary/20"
                                 >
@@ -435,7 +435,7 @@ export default function AudienceLivePage() {
                                 <button
                                     onClick={() => {
                                         setShowEndModal(false)
-                                        setShowRedirectionModal(true)
+                                        // User can navigate to profile using the profile button in header
                                     }}
                                     className="w-full bg-foreground/5 hover:bg-foreground/10 text-foreground/70 py-3 rounded-xl font-bold transition-all"
                                 >
