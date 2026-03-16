@@ -255,33 +255,33 @@
 
 /* Theme 7: Claymorphism */
 [data-theme="claymorphism"] {
-  --background: #f0f4f8;
-  --background-rgb: 240, 244, 248;
-  --foreground: #1e293b;
-  --color-primary: #6366f1;
+  --background: #e8e4f0;
+  --background-rgb: 232, 228, 240;
+  --foreground: #4a4458;
+  --color-primary: #a78bfa;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #e2e8f0;
-  --color-card: #ffffff;
-  --color-card-foreground: #1e293b;
-  --color-border: #cbd5e1;
-  --color-accent: #e0e7ff;
-  --color-muted: #94a3b8;
-  --color-muted-foreground: #64748b;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
+  --color-secondary: #ddd6fe;
+  --color-card: #f5f3ff;
+  --color-card-foreground: #4a4458;
+  --color-border: #c4b5fd;
+  --color-accent: #ede9fe;
+  --color-muted: #a78bfa;
+  --color-muted-foreground: #7c3aed;
+  --color-success: #6ee7b7;
+  --color-warning: #fcd34d;
+  --color-error: #fca5a5;
   /* Surface colors for claymorphism */
-  --color-surface: #ffffff;
-  --color-surface-elevated: #f8fafc;
-  --color-surface-overlay: rgba(99, 102, 241, 0.08);
-  --color-text-primary: #1e293b;
-  --color-text-secondary: #475569;
-  --color-text-muted: #94a3b8;
+  --color-surface: #f5f3ff;
+  --color-surface-elevated: #ede9fe;
+  --color-surface-overlay: rgba(167, 139, 250, 0.15);
+  --color-text-primary: #4a4458;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
   --color-text-inverse: #ffffff;
   --color-white: #ffffff;
-  --color-black: #1e293b;
-  --button-radius: 20px;
-  --box-shadow: 8px 8px 16px #d1d5db, -8px -8px 16px #ffffff;
+  --color-black: #4a4458;
+  --button-radius: 28px;
+  --box-shadow: 8px 8px 20px rgba(163, 139, 200, 0.25), -8px -8px 20px rgba(255, 255, 255, 0.8), inset 2px 2px 4px rgba(255, 255, 255, 0.5), inset -2px -2px 4px rgba(163, 139, 200, 0.1);
   --glass-blur: 0px;
 }
 
