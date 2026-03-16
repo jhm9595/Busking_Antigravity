@@ -17,7 +17,7 @@ export default function DateTimePicker({ label, value, onChange, required = fals
             <input
                 type="datetime-local"
                 required={required}
-                className="w-full min-w-0 p-2 border rounded text-black bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                className="w-full min-w-0 p-2 border rounded text-foreground bg-background focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
             />

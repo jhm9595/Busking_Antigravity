@@ -37,7 +37,7 @@ export default function PerformanceManagement({ refreshKey }: PerformanceManagem
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border pb-6">
                 <div>
                     <h2 className="text-3xl font-black text-foreground flex items-center gap-3 italic tracking-tighter">
-                        <Calendar className="w-8 h-8 text-indigo-600" />
+                        <Calendar className="w-8 h-8 text-primary" />
                         {t('performance.title')}
                     </h2>
                     <p className="text-muted-foreground text-sm mt-1 font-bold italic">{t('performance.list.add_hint')}</p>
@@ -45,7 +45,7 @@ export default function PerformanceManagement({ refreshKey }: PerformanceManagem
 
                 <button
                     onClick={() => setShowAddModal(true)}
-                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl shadow-indigo-600/20 transition-all active:scale-95 uppercase tracking-widest text-xs"
+                    className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl shadow-primary/20 transition-all active:scale-95 uppercase tracking-widest text-xs"
                 >
                     <Plus className="w-5 h-5" />
                     {t('performance.form.register')}

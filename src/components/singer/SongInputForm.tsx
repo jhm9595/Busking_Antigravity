@@ -45,14 +45,14 @@ export default function SongInputForm({ singerId, onSuccess }: SongInputFormProp
                 <input
                     required
                     placeholder={`${t('song.input.title')} *`}
-                    className="w-full px-4 py-3 bg-background border border-input rounded-xl text-foreground focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                    className="w-full px-4 py-3 bg-background border border-input rounded-xl text-foreground focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                     value={newSong.title}
                     onChange={(e) => setNewSong({ ...newSong, title: e.target.value })}
                 />
                 <input
                     required
                     placeholder={`${t('song.input.artist')} *`}
-                    className="w-full px-4 py-3 bg-background border border-input rounded-xl text-foreground focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                    className="w-full px-4 py-3 bg-background border border-input rounded-xl text-foreground focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                     value={newSong.artist}
                     onChange={(e) => setNewSong({ ...newSong, artist: e.target.value })}
                 />
@@ -62,14 +62,14 @@ export default function SongInputForm({ singerId, onSuccess }: SongInputFormProp
             <div className="flex gap-2 items-center w-full">
                 <input
                     placeholder={t('song.input.url')}
-                    className="flex-1 min-w-0 px-4 py-3 bg-background border border-input rounded-xl text-foreground focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                    className="flex-1 min-w-0 px-4 py-3 bg-background border border-input rounded-xl text-foreground focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                     value={newSong.youtube_url}
                     onChange={(e) => setNewSong({ ...newSong, youtube_url: e.target.value })}
                 />
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     title={t('song.input.add')}
                 >
                     <Plus className="w-5 h-5" />
