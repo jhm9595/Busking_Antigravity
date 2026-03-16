@@ -63,7 +63,8 @@
 .locationLabelRow {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    gap: 0.5rem;
     /* margin-bottom removed to align with Title field which uses fieldGroup gap */
 }
 
@@ -74,6 +75,8 @@
     background-color: #ecfdf5;
     padding: 0.1rem 0.4rem;
     border-radius: 0.25rem;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .locationInputRow {

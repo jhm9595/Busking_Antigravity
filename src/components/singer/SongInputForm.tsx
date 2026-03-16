@@ -59,10 +59,10 @@ export default function SongInputForm({ singerId, onSuccess }: SongInputFormProp
             </div>
 
             {/* Bottom Row: URL & Button */}
-            <div className="flex gap-3 items-center">
+            <div className="flex gap-2 items-center w-full">
                 <input
                     placeholder={t('song.input.url')}
-                    className="flex-1 px-4 py-3 bg-background border border-input rounded-xl text-foreground focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                    className="flex-1 min-w-0 px-4 py-3 bg-background border border-input rounded-xl text-foreground focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                     value={newSong.youtube_url}
                     onChange={(e) => setNewSong({ ...newSong, youtube_url: e.target.value })}
                 />
