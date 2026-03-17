@@ -99,7 +99,7 @@ export default function EditPerformanceModal({ performance, onClose, onSuccess }
     }
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm p-4 animate-fadeIn" style={{ backgroundColor: 'var(--color-background)', opacity: 0.9 }}>
             <div className="rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative" style={{ backgroundColor: 'var(--color-card)' }}>
                 <div className="sticky top-0 border-b px-6 py-4 flex justify-between items-center z-10" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
                     <h3 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{t('performance.action.edit') || 'Edit Performance'}</h3>
@@ -185,18 +185,20 @@ export default function EditPerformanceModal({ performance, onClose, onSuccess }
                         </div>
                     </div>
 
-                    <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t rounded-b-2xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] md:absolute mt-auto flex justify-end gap-3 z-20">
+                    <div className="fixed bottom-0 left-0 right-0 p-4 border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] md:absolute mt-auto flex justify-end gap-3 z-20" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-6 py-2.5 rounded-lg font-semibold text-[var(--color-text-secondary)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-elevated)] transition-colors"
+                            className="px-6 py-2.5 rounded-lg font-semibold bg-[var(--color-surface)] hover:bg-[var(--color-surface-elevated)] transition-colors"
+                            style={{ color: 'var(--color-text-secondary)' }}
                         >
                             {t('common.cancel')}
                         </button>
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className={`px-8 py-2.5 rounded-lg font-bold text-white transition-all shadow-md ${isSubmitting ? 'bg-indigo-400 cursor-not-allowed' : 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:shadow-lg hover:-translate-y-0.5'}`}
+                            className={`px-8 py-2.5 rounded-lg font-bold transition-all shadow-md ${isSubmitting ? 'cursor-not-allowed' : 'hover:shadow-lg hover:-translate-y-0.5'}`}
+                            style={isSubmitting ? { backgroundColor: 'var(--color-text-muted)', color: 'var(--color-text-inverse)' } : { backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
                         >
                             {isSubmitting ? t('common.loading') : t('common.save')}
                         </button>

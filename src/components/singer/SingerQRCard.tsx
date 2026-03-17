@@ -229,15 +229,15 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
                 </div>
 
                 <div className="relative cursor-pointer group" onClick={() => setIsQRModalOpen(true)}>
-                    <div className="p-2 bg-white rounded-lg border-2 border-dashed border-border shadow-sm group-hover:border-indigo-300 transition-colors">
+                    <div className="p-2 rounded-lg border-2 border-dashed border-border shadow-sm group-hover:border-[var(--color-primary)] transition-colors" style={{ backgroundColor: 'var(--color-card)' }}>
                         <QRCodeSVG
                             value={qrValue}
                             size={120}
                             level="L"
                         />
                     </div>
-                    <div className="absolute inset-0 bg-indigo-600/10 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-lg">
-                        <ExternalLink className="w-6 h-6 text-indigo-600" />
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-lg" style={{ backgroundColor: 'var(--color-primary)', opacity: 0.1 }}>
+                        <ExternalLink className="w-6 h-6" style={{ color: 'var(--color-primary)' }} />
                     </div>
                 </div>
 
@@ -255,21 +255,24 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
             {isQRModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+                        className="absolute inset-0 backdrop-blur-sm transition-opacity"
+                        style={{ backgroundColor: 'var(--color-background)', opacity: 0.9 }}
                         onClick={() => setIsQRModalOpen(false)}
                     />
-                    <div className="relative bg-card rounded-2xl shadow-2xl p-8 max-w-sm w-full transform transition-all scale-100 flex flex-col items-center z-10 animate-in fade-in zoom-in duration-200">
+                    <div className="relative rounded-2xl shadow-2xl p-8 max-w-sm w-full transform transition-all scale-100 flex flex-col items-center z-10 animate-in fade-in zoom-in duration-200" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)', borderWidth: '1px' }}>
                         <button
                             onClick={() => setIsQRModalOpen(false)}
-                            className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors"
+                            className="absolute top-4 right-4 p-2 rounded-full transition-colors"
+                            style={{ color: 'var(--color-text-muted)' }}
                         >
                             <X className="w-5 h-5" />
                         </button>
 
-                        <h3 className="text-2xl font-bold text-foreground mb-6">{t('dashboard.qr.title')}</h3>
+                        <h3 className="text-2xl font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>{t('dashboard.qr.title')}</h3>
 
                         <div
-                            className="p-4 bg-white rounded-xl border-2 border-dashed border-border shadow-inner mb-6 cursor-zoom-in group"
+                            className="p-4 rounded-xl border-2 border-dashed shadow-inner mb-6 cursor-zoom-in group"
+                            style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}
                             onClick={() => setIsFullFullscreen(true)}
                         >
                             {singerId ? (
@@ -281,7 +284,7 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
                                     includeMargin={true}
                                 />
                             ) : (
-                                <div className="w-[220px] h-[220px] flex items-center justify-center bg-muted text-muted-foreground rounded-lg">
+                                <div className="w-[220px] h-[220px] flex items-center justify-center rounded-lg" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-muted)' }}>
                                     {t('common.loading')}
                                 </div>
                             )}
@@ -290,21 +293,23 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
                         <div className="flex gap-2 w-full mb-4">
                             <button
                                 onClick={handleSaveImage}
-                                className="flex-1 flex items-center justify-center gap-2 py-2 bg-muted hover:bg-muted/80 text-foreground rounded-lg font-medium transition-colors"
+                                className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-medium transition-colors"
+                                style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
                             >
                                 <Download className="w-4 h-4" />
                                 {t('dashboard.qr.save_image')}
                             </button>
                             <button
                                 onClick={handleCopyUrl}
-                                className="flex-1 flex items-center justify-center gap-2 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-lg font-medium transition-colors"
+                                className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-medium transition-colors"
+                                style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', opacity: 0.1 }}
                             >
                                 <Copy className="w-4 h-4" />
                                 {isCopied ? t('dashboard.qr.copied') : t('dashboard.qr.copy_url')}
                             </button>
                         </div>
 
-                        <p className="text-muted-foreground font-medium text-center mb-2">{displayId}</p>
+                        <p className="font-medium text-center mb-2" style={{ color: 'var(--color-text-secondary)' }}>{displayId}</p>
                     </div>
                 </div>
             )}
@@ -313,117 +318,127 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
             {isEditModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        className="absolute inset-0 backdrop-blur-sm"
+                        style={{ backgroundColor: 'var(--color-background)', opacity: 0.9 }}
                         onClick={() => setIsEditModalOpen(false)}
                     />
                     {/* WIDENED MODAL MAX WIDTH HERE from max-w-sm to max-w-lg */}
-                    <div className="relative bg-card rounded-2xl shadow-2xl p-6 max-w-lg w-full z-10 animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
+                    <div className="relative rounded-2xl shadow-2xl p-6 max-w-lg w-full z-10 animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)', borderWidth: '1px' }}>
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-bold text-foreground">{t('dashboard.profile.edit')}</h3>
-                            <button onClick={() => setIsEditModalOpen(false)} className="text-muted-foreground hover:text-foreground">
+                            <h3 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{t('dashboard.profile.edit')}</h3>
+                            <button onClick={() => setIsEditModalOpen(false)} style={{ color: 'var(--color-text-muted)' }}>
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-foreground mb-1">
+                                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>
                                     {t('dashboard.profile.stage_name')}
                                 </label>
                                 <input
                                     type="text"
                                     value={formData.stageName}
                                     onChange={e => setFormData({ ...formData, stageName: e.target.value })}
-                                    className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-foreground"
+                                    className="w-full px-3 py-2 rounded-lg focus:ring-2 outline-none transition-all"
+                                    style={{ backgroundColor: 'var(--color-background)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)', borderWidth: '1px', borderStyle: 'solid' }}
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-foreground mb-1">
+                                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>
                                     {t('common.bio_label')}
                                 </label>
                                 <textarea
                                     value={formData.bio}
                                     onChange={e => setFormData({ ...formData, bio: e.target.value })}
                                     placeholder={t('common.bio_placeholder')}
-                                    className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[80px] text-foreground"
+                                    className="w-full px-3 py-2 rounded-lg focus:ring-2 outline-none transition-all min-h-[80px]"
+                                    style={{ backgroundColor: 'var(--color-background)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)', borderWidth: '1px', borderStyle: 'solid' }}
                                 />
                             </div>
 
 
 
+ 
 
-                            <div className="border-t border-border pt-2">
+                            <div className="border-t pt-2" style={{ borderColor: 'var(--color-border)' }}>
                                 <div>
-                                    <label className="block text-sm font-medium text-foreground mb-1 flex items-center gap-2">
-                                        <FaInstagram className="w-4 h-4 text-pink-600" /> {t('dashboard.profile.instagram')}
+                                    <label className="block text-sm font-medium mb-1 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                        <FaInstagram className="w-4 h-4" /> {t('dashboard.profile.instagram')}
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.instagram}
                                         onChange={e => setFormData({ ...formData, instagram: e.target.value })}
                                         placeholder={t('dashboard.profile.placeholder_id')}
-                                        className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-foreground"
+                                        className="w-full px-3 py-2 rounded-lg focus:ring-2 outline-none transition-all"
+                                        style={{ backgroundColor: 'var(--color-background)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)', borderWidth: '1px', borderStyle: 'solid' }}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-foreground mb-1 flex items-center gap-2">
-                                        <FaYoutube className="w-4 h-4 text-red-600" /> {t('dashboard.profile.youtube')}
+                                    <label className="block text-sm font-medium mb-1 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                        <FaYoutube className="w-4 h-4" /> {t('dashboard.profile.youtube')}
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.youtube}
                                         onChange={e => setFormData({ ...formData, youtube: e.target.value })}
                                         placeholder={t('dashboard.profile.placeholder_id')}
-                                        className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-foreground"
+                                        className="w-full px-3 py-2 rounded-lg focus:ring-2 outline-none transition-all"
+                                        style={{ backgroundColor: 'var(--color-background)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)', borderWidth: '1px', borderStyle: 'solid' }}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-foreground mb-1 flex items-center gap-2">
-                                        <FaTiktok className="w-4 h-4 text-foreground" /> {t('dashboard.profile.tiktok')}
+                                    <label className="block text-sm font-medium mb-1 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                        <FaTiktok className="w-4 h-4" /> {t('dashboard.profile.tiktok')}
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.tiktok}
                                         onChange={e => setFormData({ ...formData, tiktok: e.target.value })}
                                         placeholder={t('dashboard.profile.placeholder_id')}
-                                        className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-foreground"
+                                        className="w-full px-3 py-2 rounded-lg focus:ring-2 outline-none transition-all"
+                                        style={{ backgroundColor: 'var(--color-background)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)', borderWidth: '1px', borderStyle: 'solid' }}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-foreground mb-1 flex items-center gap-2">
-                                        <FaSoundcloud className="w-4 h-4 text-orange-500" /> {t('dashboard.profile.soundcloud')}
+                                    <label className="block text-sm font-medium mb-1 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                        <FaSoundcloud className="w-4 h-4" /> {t('dashboard.profile.soundcloud')}
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.soundcloud}
                                         onChange={e => setFormData({ ...formData, soundcloud: e.target.value })}
                                         placeholder={t('dashboard.profile.placeholder_id')}
-                                        className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-foreground"
+                                        className="w-full px-3 py-2 rounded-lg focus:ring-2 outline-none transition-all"
+                                        style={{ backgroundColor: 'var(--color-background)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)', borderWidth: '1px', borderStyle: 'solid' }}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-foreground mb-1 flex items-center gap-2">
-                                        <FaXTwitter className="w-4 h-4 text-foreground" /> {t('dashboard.profile.twitter')}
+                                    <label className="block text-sm font-medium mb-1 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                        <FaXTwitter className="w-4 h-4" /> {t('dashboard.profile.twitter')}
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.twitter}
                                         onChange={e => setFormData({ ...formData, twitter: e.target.value })}
                                         placeholder={t('dashboard.profile.placeholder_id')}
-                                        className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-foreground"
+                                        className="w-full px-3 py-2 rounded-lg focus:ring-2 outline-none transition-all"
+                                        style={{ backgroundColor: 'var(--color-background)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)', borderWidth: '1px', borderStyle: 'solid' }}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-foreground mb-1 flex items-center gap-2">
-                                        <FaFacebook className="w-4 h-4 text-blue-600" /> {t('dashboard.profile.facebook')}
+                                    <label className="block text-sm font-medium mb-1 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                        <FaFacebook className="w-4 h-4" /> {t('dashboard.profile.facebook')}
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.facebook}
                                         onChange={e => setFormData({ ...formData, facebook: e.target.value })}
                                         placeholder={t('dashboard.profile.placeholder_id')}
-                                        className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-foreground"
+                                        className="w-full px-3 py-2 rounded-lg focus:ring-2 outline-none transition-all"
+                                        style={{ backgroundColor: 'var(--color-background)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)', borderWidth: '1px', borderStyle: 'solid' }}
                                     />
                                 </div>
                             </div>
@@ -432,7 +447,8 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
                                 <button
                                     onClick={handleSaveProfile}
                                     disabled={isSaving}
-                                    className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold shadow transition-colors flex justify-center items-center gap-2"
+                                    className="w-full py-2 rounded-lg font-bold shadow transition-colors flex justify-center items-center gap-2"
+                                    style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
                                 >
                                     {isSaving && <LoaderCircle className="w-4 h-4 animate-spin" />}
                                     {t('dashboard.profile.save')}

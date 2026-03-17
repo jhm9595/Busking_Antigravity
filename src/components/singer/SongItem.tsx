@@ -34,7 +34,8 @@ export default function SongItem({ song, onDelete }: SongItemProps) {
                         href={song.youtubeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-500 hover:text-blue-600 hover:bg-blue-500/10 p-1 rounded transition-colors"
+                        className="p-1 rounded transition-colors"
+                        style={{ color: 'var(--color-primary)' }}
                     >
                         <LinkIcon className="w-5 h-5" />
                     </a>
@@ -47,7 +48,8 @@ export default function SongItem({ song, onDelete }: SongItemProps) {
                 </span>
                 <button
                     onClick={handleDeleteClick}
-                    className={`transition-all ${isConfirming ? 'px-2 py-1 rounded bg-red-500/20 text-red-600 dark:text-red-400 font-bold text-xs' : 'p-1 rounded text-muted-foreground hover:text-red-500 hover:bg-red-500/10'}`}
+                    className={`transition-all ${isConfirming ? 'px-2 py-1 rounded font-bold text-xs' : 'p-1 rounded'}`}
+                    style={isConfirming ? { backgroundColor: 'var(--color-error)', color: 'var(--color-error-foreground, #fff)', opacity: 0.2 } : { color: 'var(--color-text-muted)' }}
                 >
                     {isConfirming ? 'Confirm?' : <Trash2 className="w-5 h-5" />}
                 </button>
