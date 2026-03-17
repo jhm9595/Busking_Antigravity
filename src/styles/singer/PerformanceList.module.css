@@ -35,8 +35,8 @@
 }
 
 .liveTab {
-    color: #ef4444;
-    border-bottom-color: #ef4444;
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
 }
 
 .emptyState {

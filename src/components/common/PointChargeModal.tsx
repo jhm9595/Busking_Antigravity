@@ -147,7 +147,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                     
                     <header className="p-5 md:p-8 flex justify-between items-start relative z-10 shrink-0">
                         <div className="flex flex-col">
-                            <h2 className="text-xl md:text-3xl font-black italic tracking-tight flex items-center gap-2 md:gap-3 mb-0.5" style={{ color: 'var(--color-text-inverse)' }}>
+                            <h2 className="text-xl md:text-3xl font-black italic tracking-tight flex items-center gap-2 md:gap-3 mb-0.5" style={{ color: 'var(--color-text-primary)' }}>
                                 <Coins className="w-5 h-5 md:w-8 md:h-8" style={{ color: 'var(--color-primary)' }} />
                                 {t('common.charge')}
                             </h2>
@@ -184,19 +184,19 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                     )}
 
                                     {pkg.bonus > 0 && (
-                                        <div className={`absolute top-0 left-0 px-2 py-0.5 md:px-3 md:py-1 rounded-br-xl md:rounded-br-2xl bg-gradient-to-r ${pkg.color} text-black font-black text-[8px] md:text-xs uppercase tracking-wider shadow-lg`}>
+                                        <div className={`absolute top-0 left-0 px-2 py-0.5 md:px-3 md:py-1 rounded-br-xl md:rounded-br-2xl bg-gradient-to-r ${pkg.color} text-white font-black text-[8px] md:text-xs uppercase tracking-wider shadow-lg`}>
                                             +{((pkg.bonus / pkg.points) * 100).toFixed(0)}% {t('common.bonus')}
                                         </div>
                                     )}
 
                                     <div className="flex flex-col h-full pt-1 md:pt-2">
                                         <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                                            <div className={`p-1.5 md:p-2 rounded-lg md:rounded-xl bg-gradient-to-br ${pkg.color} text-black shadow-lg`}>
+                                            <div className={`p-1.5 md:p-2 rounded-lg md:rounded-xl bg-gradient-to-br ${pkg.color} text-white shadow-lg`}>
                                                 <pkg.icon className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                             </div>
                                             <div className="flex flex-col">
                                                 <span className="text-[10px] md:text-xs font-black uppercase tracking-widest leading-none mb-0.5 md:mb-1" style={{ color: 'var(--color-text-muted)' }}>{pkg.label}</span>
-                                                <span className="text-sm md:text-xl font-mono font-black leading-none" style={{ color: 'var(--color-text-inverse)' }}>{(pkg.points + pkg.bonus).toLocaleString()}P</span>
+                                                <span className="text-sm md:text-xl font-mono font-black leading-none" style={{ color: 'var(--color-text-primary)' }}>{(pkg.points + pkg.bonus).toLocaleString()}P</span>
                                             </div>
                                         </div>
 
@@ -285,7 +285,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                             style={!isSubmitting ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' } : undefined}
                         >
                             {isSubmitting ? (
-                                <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-current/30 border-t-current rounded-full animate-spin" />
                             ) : (
                                 <>
                                     <span>{t('common.charge')}</span>
