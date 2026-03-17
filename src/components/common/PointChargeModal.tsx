@@ -137,7 +137,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-2 md:p-4 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 md:p-4 animate-in fade-in duration-300" style={{ backgroundColor: 'var(--color-background)', opacity: 0.9 }}>
                 <div className="w-full max-w-xl rounded-[32px] md:rounded-[48px] border border-white/10 shadow-2xl overflow-hidden flex flex-col relative max-h-[92vh]" style={{ backgroundColor: 'var(--color-surface)' }}>
                     <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-[var(--color-primary)]/10 to-transparent pointer-events-none" />
                     
@@ -271,7 +271,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                         </div>
                     </main>
 
-                    <footer className="p-4 md:p-8 bg-[var(--color-surface-elevated)]/80 border-t border-white/5 relative z-10 shrink-0">
+                    <footer className="p-4 md:p-8 relative z-10 shrink-0" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border)', borderTopWidth: '1px', borderTopStyle: 'solid' }}>
                         <button
                             onClick={handleCharge}
                             disabled={isSubmitting}
