@@ -29,7 +29,7 @@ model PointTransaction {
   id            String   @id @default(uuid())
   profileId     String   @map("profile_id")
   amount        Int      // Positive for earning/charging, negative for spending
-  type          String   // "CHARGE", "SPONSORSHIP", "CHAT_OPEN", "REWARD"
+  type          String   // "CHARGE", "SPONSORSHIP", "CHAT_OPEN", "REWARD", "AD_REWARD"
   description   String?
   targetSingerId String?  @map("target_singer_id") // For sponsorship tracking
   createdAt     DateTime @default(now()) @map("created_at")

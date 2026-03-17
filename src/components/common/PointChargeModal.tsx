@@ -124,18 +124,58 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
         if (isSubmitting) return
         setIsSubmitting(true)
         
-        // Show ad modal (simulated)
-        const watched = await showAdModal(t)
-        
-        if (watched) {
-            // Award free points (e.g., 50 points for watching ad)
-            const res = await chargePoints(userId, 50)
-            if (res.success) {
-                alert(t('common.ad_reward') || 'You earned 50 points!')
-                onSuccess(res.points!)
+        try {
+            // 1. Check if user can watch ad (cooldown/quota check)
+            const checkRes = await fetch(`/api/ad/check?userId=${userId}`)
+            const checkData = await checkRes.json()
+            
+            if (!checkData.allowed) {
+                // Show cooldown/quota message
+                let message = ''
+                if (checkData.remaining.cooldownMinutes > 0) {
+                    message = `광고를 다시 시청하려면 ${checkData.remaining.cooldownMinutes}분 후에 이용해주세요.`
+                } else if (checkData.remaining.thisHour === 0) {
+                    message = '1시간 내 광고 시청 횟수 제한을 초과했습니다.'
+                } else if (checkData.remaining.today === 0) {
+                    message = '오늘 광고 시청 횟수 제한을 초과했습니다.'
+                } else {
+                    message = '광고 시청이 불가능합니다.'
+                }
+                alert(message)
+                setIsSubmitting(false)
+                return
             }
+
+            // 2. Show ad modal (simulated for now - will be replaced with real AdSense/AdMob)
+            const watched = await showAdModal(t)
+            
+            if (watched) {
+                // 3. Record ad completion and award points via backend
+                const completeRes = await fetch('/api/ad/complete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        userId, 
+                        adProvider: 'mock', // Will be replaced with 'admob' or 'adsense' after approval
+                        status: 'completed'
+                    })
+                })
+                
+                const result = await completeRes.json()
+                
+                if (result.success) {
+                    alert(result.message || `+${result.rewardPoints}포인트가 지급되었습니다!`)
+                    onSuccess(result.points)
+                } else {
+                    alert(result.message || '포인트 지급에 실패했습니다.')
+                }
+            }
+        } catch (error) {
+            console.error('Ad watch error:', error)
+            alert('광고 시청 중 오류가 발생했습니다.')
+        } finally {
+            setIsSubmitting(false)
         }
-        setIsSubmitting(false)
     }
 
     if (!isOpen) return null
