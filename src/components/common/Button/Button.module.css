@@ -83,7 +83,7 @@
 
 .danger {
     background-color: var(--color-error);
-    color: #fff;
+    color: var(--color-error-foreground, #fff);
     border-color: var(--color-error);
 }
 
