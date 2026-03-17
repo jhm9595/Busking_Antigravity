@@ -253,16 +253,16 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
 
             {/* QR Modal */}
             {isQRModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div
-                        className="absolute inset-0 backdrop-blur-sm transition-opacity"
-                        style={{ backgroundColor: 'var(--color-background)', opacity: 0.9 }}
+                        className="absolute inset-0 backdrop-blur-md"
+                        style={{ backgroundColor: 'var(--color-background)' }}
                         onClick={() => setIsQRModalOpen(false)}
                     />
                     <div className="relative rounded-2xl shadow-2xl p-8 max-w-sm w-full transform transition-all scale-100 flex flex-col items-center z-10 animate-in fade-in zoom-in duration-200" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)', borderWidth: '1px' }}>
                         <button
                             onClick={() => setIsQRModalOpen(false)}
-                            className="absolute top-4 right-4 p-2 rounded-full transition-colors"
+                            className="absolute top-4 right-4 p-2 rounded-full transition-colors hover:bg-[var(--color-surface)]"
                             style={{ color: 'var(--color-text-muted)' }}
                         >
                             <X className="w-5 h-5" />
@@ -316,17 +316,21 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
 
             {/* Edit Profile Modal */}
             {isEditModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div
-                        className="absolute inset-0 backdrop-blur-sm"
-                        style={{ backgroundColor: 'var(--color-background)', opacity: 0.9 }}
+                        className="absolute inset-0 backdrop-blur-md"
+                        style={{ backgroundColor: 'var(--color-background)' }}
                         onClick={() => setIsEditModalOpen(false)}
                     />
                     {/* WIDENED MODAL MAX WIDTH HERE from max-w-sm to max-w-lg */}
                     <div className="relative rounded-2xl shadow-2xl p-6 max-w-lg w-full z-10 animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)', borderWidth: '1px' }}>
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{t('dashboard.profile.edit')}</h3>
-                            <button onClick={() => setIsEditModalOpen(false)} style={{ color: 'var(--color-text-muted)' }}>
+                            <button 
+                                onClick={() => setIsEditModalOpen(false)} 
+                                className="p-2 rounded-full transition-colors hover:bg-[var(--color-surface)]"
+                                style={{ color: 'var(--color-text-muted)', backgroundColor: 'transparent' }}
+                            >
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
