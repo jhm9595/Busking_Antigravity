@@ -34,6 +34,11 @@
     border-bottom-color: var(--color-primary);
 }
 
+.liveTab {
+    color: #ef4444;
+    border-bottom-color: #ef4444;
+}
+
 .emptyState {
     text-align: center;
     padding: 2.5rem;

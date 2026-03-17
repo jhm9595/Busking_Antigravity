@@ -86,7 +86,7 @@ export default function PerformanceList({ performances, loading, allSongs, onRef
             {/* Tabs */}
             <div className={styles.tabs}>
                 <button
-                    className={`${styles.tab} ${activeTab === 'live' ? 'text-red-500 border-red-500 font-bold' : ''}`}
+                    className={`${styles.tab} ${activeTab === 'live' ? styles.liveTab : ''}`}
                     onClick={() => onTabChange('live')}
                 >
                     {t('performance.status.live')} ({live.length})

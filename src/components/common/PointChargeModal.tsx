@@ -56,6 +56,9 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
 
     const handleKakaoPay = async (pkg: PointPackage) => {
         try {
+            // Capture current page URL for redirect after payment
+            const returnUrl = window.location.href
+            
             const res = await fetch('/api/payment/kakao/ready', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -63,7 +66,8 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                     userId,
                     points: pkg.points + pkg.bonus,
                     amount: pkg.price,
-                    packageName: pkg.label
+                    packageName: pkg.label,
+                    returnUrl
                 })
             })
 

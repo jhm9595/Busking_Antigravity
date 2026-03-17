@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
     try {
-        const { userId, points, amount, packageName } = await req.json()
+        const { userId, points, amount, packageName, returnUrl } = await req.json()
         
         // Kakao Pay Secret Key and CID from environment variables (Open API version)
         // Variable names updated to match new Kakao Pay Developer center terminology
@@ -42,6 +42,9 @@ export async function POST(req: Request) {
             
             res.cookies.set('kakao_tid', `T_MOCK_${Date.now()}`, { httpOnly: true, maxAge: 600 })
             res.cookies.set('kakao_order_id', mockOrderId, { httpOnly: true, maxAge: 600 })
+            if (returnUrl) {
+                res.cookies.set('kakao_return_url', returnUrl, { httpOnly: true, maxAge: 600 })
+            }
             
             return res
         }
@@ -115,6 +118,14 @@ export async function POST(req: Request) {
                 secure: process.env.NODE_ENV === 'production',
                 maxAge: 600
             })
+            // Store return URL for redirect after payment
+            if (returnUrl) {
+                res.cookies.set('kakao_return_url', returnUrl, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 600
+                })
+            }
             
             return res
         } else {
