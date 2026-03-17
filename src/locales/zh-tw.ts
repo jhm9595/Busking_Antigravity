@@ -173,6 +173,8 @@ export const zhTW: LocaleTypes = {
         onboarding_btn: '創建藝人檔案',
         onboarding_nickname_placeholder: '請輸入藝名 (例如：miniBig)',
         onboarding_skip: '先以觀眾身份探索',
+        not_singer_title: '註冊成為藝人',
+        not_singer_desc: '註冊成為藝人，管理演出並與粉絲互動！',
         error_nickname_taken: '該名字已被佔用。',
         error_registration_failed: '註冊失敗。',
         error_withdrawal_failed: '註銷失敗。',

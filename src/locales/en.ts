@@ -171,6 +171,8 @@ export const en = {
         onboarding_btn: 'Create Artist Profile',
         onboarding_nickname_placeholder: 'Enter stage name (e.g. miniBig)',
         onboarding_skip: 'Explore as Audience',
+        not_singer_title: 'Become a Singer',
+        not_singer_desc: 'Register as a singer to start managing your performances and connect with fans!',
         error_nickname_taken: 'This name is already taken.',
         error_registration_failed: 'Registration failed.',
         error_withdrawal_failed: 'Withdrawal failed.',

@@ -173,6 +173,8 @@ export const ja: LocaleTypes = {
         onboarding_btn: 'プロフィールを作成',
         onboarding_nickname_placeholder: '活動名を入力 (例: miniBig)',
         onboarding_skip: '観客として楽しむ',
+        not_singer_title: 'アーティストとして登録',
+        not_singer_desc: 'アーティストとして登録してライブを管理し、ファンと交流しましょう！',
         error_nickname_taken: 'この名前は既に使用されています。',
         error_registration_failed: '登録に失敗しました。',
         error_withdrawal_failed: '退会処理に失敗しました。',

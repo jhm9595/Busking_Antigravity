@@ -173,6 +173,8 @@ export const zh: LocaleTypes = {
         onboarding_btn: '创建艺人档案',
         onboarding_nickname_placeholder: '请输入艺名 (例如：miniBig)',
         onboarding_skip: '先以观众身份探索',
+        not_singer_title: '注册成为艺人',
+        not_singer_desc: '注册成为艺人，管理演出并与粉丝互动！',
         error_nickname_taken: '该名字已被占用。',
         error_registration_failed: '注册失败。',
         error_withdrawal_failed: '注销失败。',

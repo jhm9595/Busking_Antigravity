@@ -173,6 +173,8 @@ export const ko: LocaleTypes = {
         onboarding_btn: '아티스트 프로필 만들기',
         onboarding_nickname_placeholder: '활동명 입력 (예: miniBig)',
         onboarding_skip: '관객으로 탐색하기',
+        not_singer_title: '가수로 등록하기',
+        not_singer_desc: '가수로 등록하여 공연을 관리하고 팬들과 소통해보세요!',
         error_nickname_taken: '이미 사용 중인 이름입니다.',
         error_registration_failed: '등록에 실패했습니다.',
         error_withdrawal_failed: '탈퇴 처리에 실패했습니다.',
