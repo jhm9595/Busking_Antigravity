@@ -64,8 +64,8 @@ export async function POST(req: Request) {
 
         // Determine authorization header and URL based on key prefix
         // New Open API (v1) requires SECRET_KEY prefix and JSON
-        // Legacy API (v1) requires KakaoAK prefix and URL-encoded (but often accepts JSON too)
-        const isSecretKeyFormat = secretKey.startsWith('DEV_') || secretKey.startsWith('TEST_') || secretKey.startsWith('PROC_') || secretKey.length > 32
+        // DEV = development, PRD = production (no underscore)
+        const isSecretKeyFormat = secretKey.startsWith('DEV') || secretKey.startsWith('PRD') || secretKey.length > 32
         
         const apiUrl = isSecretKeyFormat
             ? 'https://open-api.kakaopay.com/online/v1/payment/ready'

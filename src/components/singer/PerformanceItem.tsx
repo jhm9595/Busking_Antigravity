@@ -109,7 +109,8 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                                             e.stopPropagation()
                                             setIsEditing(true)
                                         }}
-                                        className="px-2 py-1 text-xs bg-indigo-50 text-indigo-600 rounded hover:bg-indigo-100 transition"
+                                        className="px-2 py-1 text-xs rounded transition"
+                                        style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground, #fff)' }}
                                     >
                                         {t('performance.action.edit') || 'Edit'}
                                     </button>
@@ -184,7 +185,8 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                             {!isPast && (
                                 <button
                                     onClick={() => setIsSetlistEditing(!isSetlistEditing)}
-                                    className="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded hover:bg-indigo-100 transition-colors font-medium border border-indigo-200"
+                                    className="text-xs px-2 py-1 rounded transition-colors font-medium"
+                                    style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground, #fff)', border: '1px solid var(--color-primary)' }}
                                 >
                                     {isSetlistEditing ? t('performance.details.finish_editing') : t('performance.details.manage_setlist')}
                                 </button>

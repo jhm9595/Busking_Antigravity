@@ -138,13 +138,13 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-2 md:p-4 animate-in fade-in duration-300">
-                <div className="bg-[#0f1117] w-full max-w-xl rounded-[32px] md:rounded-[48px] border border-white/10 shadow-2xl overflow-hidden flex flex-col relative max-h-[92vh]">
-                    <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-indigo-600/10 to-transparent pointer-events-none" />
+                <div className="w-full max-w-xl rounded-[32px] md:rounded-[48px] border border-white/10 shadow-2xl overflow-hidden flex flex-col relative max-h-[92vh]" style={{ backgroundColor: 'var(--color-surface)' }}>
+                    <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-[var(--color-primary)]/10 to-transparent pointer-events-none" />
                     
                     <header className="p-5 md:p-8 flex justify-between items-start relative z-10 shrink-0">
                         <div className="flex flex-col">
-                            <h2 className="text-xl md:text-3xl font-black text-white italic tracking-tight flex items-center gap-2 md:gap-3 mb-0.5">
-                                <Coins className="w-5 h-5 md:w-8 md:h-8 text-amber-400" />
+                            <h2 className="text-xl md:text-3xl font-black italic tracking-tight flex items-center gap-2 md:gap-3 mb-0.5" style={{ color: 'var(--color-text-inverse)' }}>
+                                <Coins className="w-5 h-5 md:w-8 md:h-8" style={{ color: 'var(--color-primary)' }} />
                                 {t('common.charge')}
                             </h2>
                             <p className="text-[10px] md:text-sm font-bold italic" style={{ color: 'var(--color-text-muted)' }}>{t('common.charge_desc')}</p>
@@ -219,9 +219,13 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                     onClick={() => setPaymentMethod('kakao')}
                                     className={`flex items-center justify-center gap-2 p-3.5 min-h-[48px] rounded-2xl border-2 transition-all ${
                                         paymentMethod === 'kakao'
-                                        ? 'bg-[#FEE500] border-yellow-400 text-black shadow-xl shadow-yellow-400/10 scale-[1.02]'
-                                        : 'bg-white/5 border-white/5 text-[var(--color-text-muted)] hover:border-white/10'
+                                        ? 'text-black shadow-xl scale-[1.02]'
+                                        : 'text-[var(--color-text-muted)] hover:border-[var(--color-text-muted)]'
                                     }`}
+                                    style={{
+                                        backgroundColor: paymentMethod === 'kakao' ? '#FEE500' : 'var(--color-surface-overlay)',
+                                        borderColor: paymentMethod === 'kakao' ? 'var(--color-primary)' : 'var(--color-border)'
+                                    }}
                                 >
                                     <MessageCircle className="w-4 h-4 md:w-5 md:h-5 fill-current" />
                                     <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">{t('common.payment_kakao')}</span>
@@ -230,9 +234,13 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                     onClick={() => setPaymentMethod('stripe')}
                                     className={`flex items-center justify-center gap-2 p-3.5 min-h-[48px] rounded-2xl border-2 transition-all ${
                                         paymentMethod === 'stripe'
-                                        ? 'bg-[#635BFF] border-indigo-400 text-white shadow-xl shadow-indigo-600/20 scale-[1.02]'
-                                        : 'bg-white/5 border-white/5 text-[var(--color-text-muted)] hover:border-white/10'
+                                        ? 'text-white shadow-xl scale-[1.02]'
+                                        : 'text-[var(--color-text-muted)] hover:border-[var(--color-text-muted)]'
                                     }`}
+                                    style={{
+                                        backgroundColor: paymentMethod === 'stripe' ? '#635BFF' : 'var(--color-surface-overlay)',
+                                        borderColor: paymentMethod === 'stripe' ? 'var(--color-primary)' : 'var(--color-border)'
+                                    }}
                                 >
                                     <CreditCard className="w-4 h-4 md:w-5 md:h-5" />
                                     <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">{t('common.payment_stripe')}</span>
@@ -248,9 +256,14 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                             <button
                                 onClick={handleWatchAd}
                                 disabled={isSubmitting}
-                                className={`w-full flex items-center justify-center gap-2 p-3.5 min-h-[48px] rounded-2xl border-2 transition-all bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/50 ${
+                                className={`w-full flex items-center justify-center gap-2 p-3.5 min-h-[48px] rounded-2xl border-2 transition-all ${
                                     isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
+                                style={{
+                                    backgroundColor: 'var(--color-accent)',
+                                    borderColor: 'var(--color-border)',
+                                    color: 'var(--color-primary)'
+                                }}
                             >
                                 <Tv className="w-4 h-4 md:w-5 md:h-5" />
                                 <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">{t('common.watch_ad')}</span>
@@ -263,8 +276,9 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                             onClick={handleCharge}
                             disabled={isSubmitting}
                             className={`w-full py-3 md:py-4 rounded-xl md:rounded-[20px] font-black text-xs md:text-sm uppercase tracking-[0.2em] shadow-2xl transition-all flex items-center justify-center gap-3 group ${
-                                isSubmitting ? 'bg-[var(--color-surface)] text-[var(--color-text-muted)]' : 'bg-white text-black hover:scale-[1.02] active:scale-95'
+                                isSubmitting ? 'bg-[var(--color-surface)] text-[var(--color-text-muted)]' : 'hover:scale-[1.02] active:scale-95'
                             }`}
+                            style={!isSubmitting ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' } : undefined}
                         >
                             {isSubmitting ? (
                                 <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
