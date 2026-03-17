@@ -3,12 +3,14 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { List, Map as MapIcon, LogOut, X, User as UserIcon, Home } from 'lucide-react'
+import { List, Map as MapIcon, LogOut, X, User as UserIcon, Home, ArrowLeft, Compass } from 'lucide-react'
 import { getEffectiveStatus, formatLocalDate } from '@/utils/performance'
 import { useClerk, useUser } from '@clerk/nextjs'
 import { useLanguage } from '@/contexts/LanguageContext'
 import Link from 'next/link'
 import GoogleAd from '@/components/common/GoogleAd'
+import LanguageSwitcher from '@/components/common/LanguageSwitcher'
+import { ThemeSwitcher } from '@/components/ThemeSwitcher'
 
 // Dynamically import Map to avoid SSR issues with Leaflet
 const BuskingMap = dynamic(() => import('@/components/audience/BuskingMap'), {
@@ -91,13 +93,15 @@ export default function ExplorePage() {
     return (
         <div className="h-screen flex flex-col bg-background text-foreground overflow-hidden">
             <header className="flex justify-between items-center p-4 border-b bg-background z-10 shadow-sm shrink-0">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 md:gap-4">
                     <Link href="/" className="p-2.5 rounded-xl bg-accent text-muted hover:bg-accent/80 transition-all active:scale-95 shadow-sm" title={t('common.home_button')}>
-                        <Home className="w-5 h-5" />
+                        <Compass className="w-5 h-5" />
                     </Link>
-                    <h1 className="text-lg md:text-2xl font-black text-primary truncate hidden sm:block uppercase italic tracking-tighter">{t('home.explore_title')}</h1>
+                    <h1 className="text-lg md:text-2xl font-black text-primary truncate uppercase italic tracking-tighter">{t('home.explore_title')}</h1>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 md:gap-3">
+                    <LanguageSwitcher />
+                    <ThemeSwitcher />
                     <div className="flex bg-accent rounded-xl p-1">
                         <button
                             onClick={() => setViewMode('map')}
@@ -121,6 +125,7 @@ export default function ExplorePage() {
                     <button
                         onClick={handleLogout}
                         className="p-2 md:px-3 md:py-2 border border-border rounded-xl hover:bg-accent flex items-center text-muted transition-all active:scale-95 shadow-sm"
+                        title="Logout"
                     >
                         <LogOut className="w-4 h-4 md:w-5 md:h-5" />
                     </button>
