@@ -94,3 +94,100 @@ export async function GET(request: Request) {
         )
     }
 }
+
+// POST: Add new performance
+export async function POST(request: Request) {
+    try {
+        const data = await request.json()
+        
+        const { singerId, title, locationText, lat, lng, startTime, endTime, chatEnabled, streamingEnabled, songIds } = data
+
+        const newStart = new Date(startTime)
+        const newEnd = new Date(endTime)
+
+        const durationMs = newEnd.getTime() - newStart.getTime()
+        const durationHours = durationMs / (1000 * 60 * 60)
+        
+        if (durationHours < 1) {
+            return NextResponse.json({ success: false, error: 'MIN_DURATION_NOT_MET' }, { status: 400 })
+        }
+
+        const billableHours = Math.ceil(durationHours)
+        const totalCost = billableHours * 1000
+
+        const result = await prisma.$transaction(async (tx) => {
+            const profile = await tx.profile.findUnique({ where: { id: singerId } })
+            if (!profile || profile.points < totalCost) {
+                throw new Error('INSUFFICIENT_POINTS')
+            }
+
+            const existingPerformances = await tx.performance.findMany({
+                where: {
+                    singerId,
+                    status: { in: ['scheduled', 'live'] }
+                }
+            })
+
+            const overlapping = existingPerformances.find(p => {
+                const start = new Date(p.startTime)
+                const end = new Date(p.endTime!)
+                return (newStart < end) && (newEnd > start)
+            })
+
+            if (overlapping) throw new Error('DUPLICATE_SCHEDULE')
+
+            await tx.profile.update({
+                where: { id: singerId },
+                data: { points: { decrement: totalCost } }
+            })
+
+            await tx.pointTransaction.create({
+                data: {
+                    profileId: singerId,
+                    amount: -totalCost,
+                    type: 'PERFORMANCE_REGISTER',
+                    description: `Registration Fee: ${title} (${durationHours.toFixed(1)}h)`
+                }
+            })
+
+            const performance = await tx.performance.create({
+                data: {
+                    singerId,
+                    title,
+                    locationText,
+                    locationLat: lat || 37.5665,
+                    locationLng: lng || 126.9780,
+                    startTime: newStart,
+                    endTime: newEnd,
+                    chatEnabled: chatEnabled || false,
+                    streamingEnabled: streamingEnabled || false,
+                    chatCostPerHour: 0,
+                    expectedAudience: 0,
+                    chatCapacity: 50,
+                    status: 'scheduled',
+                    performanceSongs: {
+                        create: songIds?.map((id: string, index: number) => ({
+                            songId: id,
+                            order: index
+                        })) || []
+                    }
+                }
+            })
+
+            return { success: true, id: performance.id }
+        })
+
+        return NextResponse.json(result)
+    } catch (error: any) {
+        console.error('Failed to add performance:', error)
+        
+        if (error.message === 'INSUFFICIENT_POINTS') {
+            return NextResponse.json({ success: false, error: 'INSUFFICIENT_POINTS' }, { status: 400 })
+        }
+        if (error.message === 'DUPLICATE_SCHEDULE') {
+            return NextResponse.json({ success: false, error: 'DUPLICATE_SCHEDULE' }, { status: 400 })
+        }
+        
+        return NextResponse.json({ success: false, error: error.message || 'UNKNOWN_ERROR' }, { status: 500 })
+    }
+}

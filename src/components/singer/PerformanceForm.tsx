@@ -6,7 +6,6 @@ import dynamic from 'next/dynamic'
 import DateTimePicker from '@/components/common/DateTimePicker'
 import styles from '@/styles/singer/PerformanceForm.module.css'
 import SongSelector from './SongSelector'
-import { addPerformance } from '@/services/singer'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 // Dynamic MapPicker
@@ -118,20 +117,24 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
 
         setIsSubmitting(true)
         try {
-            const result = await addPerformance({
-                singerId,
-                title: newPerf.title,
-                locationText: newPerf.location_text,
-                lat: newPerf.lat || undefined,
-                lng: newPerf.lng || undefined,
-                startTime: startTimeObj.toISOString(),
-                endTime: endTimeObj.toISOString(),
-                chatEnabled: newPerf.chat_enabled,
-                streamingEnabled: newPerf.streaming_enabled,
-                chatCost: 0,
-                expectedAudience: newPerf.expected_audience === '' ? undefined : newPerf.expected_audience,
-                songIds: selectedSongIds
+            const response = await fetch('/api/performances', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    singerId,
+                    title: newPerf.title,
+                    locationText: newPerf.location_text,
+                    lat: newPerf.lat || undefined,
+                    lng: newPerf.lng || undefined,
+                    startTime: startTimeObj.toISOString(),
+                    endTime: endTimeObj.toISOString(),
+                    chatEnabled: newPerf.chat_enabled,
+                    streamingEnabled: newPerf.streaming_enabled,
+                    songIds: selectedSongIds
+                })
             })
+
+            const result = await response.json()
 
             if (result.success) {
                 setNewPerf({
@@ -149,7 +152,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                 setShowMap(false)
                 onSuccess()
             } else {
-                const error = (result as any).error
+                const error = result.error
                 if (error === 'DUPLICATE_SCHEDULE') {
                     alert(t('performance.form.error_duplicate'))
                 } else if (error === 'MIN_DURATION_NOT_MET') {
