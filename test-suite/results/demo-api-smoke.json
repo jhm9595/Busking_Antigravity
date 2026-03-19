@@ -1,0 +1,27 @@
+{
+  "suite": "demo-api-smoke",
+  "pass": true,
+  "startedAt": "2026-03-19T01:24:30.641Z",
+  "finishedAt": "2026-03-19T01:24:30.825Z",
+  "checks": {
+    "demoSession": {
+      "singerId": "demo-singer-001",
+      "performanceIds": [
+        "7e077d44-750f-40b9-bf15-6ef5df7acb44",
+        "d3d4b84b-cc54-477f-a566-ef3763be7541",
+        "0ce05cea-ca56-4b18-949b-7df4e0c78c4c"
+      ],
+      "generatedAt": "2026-03-19T10:24:30+09:00"
+    },
+    "demoPerformances": {
+      "count": 3,
+      "liveCount": 1,
+      "scheduledCount": 2
+    },
+    "demoSinger": {
+      "singerId": "demo-singer-001",
+      "stageName": "Demo Artist",
+      "performanceCount": 3
+    }
+  }
+}

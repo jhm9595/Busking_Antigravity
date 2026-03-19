@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { List, Map as MapIcon, LogOut, X, User as UserIcon, Compass } from 'lucide-react'
+import { List, Map as MapIcon, LogOut, X, User as UserIcon } from 'lucide-react'
 import { getEffectiveStatus } from '@/utils/performance'
 import { useClerk, useUser } from '@clerk/nextjs'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -202,14 +202,9 @@ export default function ExplorePage() {
             <header className="w-full border-b bg-background z-10 shadow-sm shrink-0">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex justify-between items-center">
                     <div className="flex items-center gap-2 md:gap-4">
-                        <Link href="/" className="p-2.5 rounded-xl bg-accent text-muted hover:bg-accent/80 transition-all active:scale-95 shadow-sm" title={t('common.home_button')}>
-                            <Compass className="w-5 h-5" />
-                        </Link>
-                        <h1 className="text-lg md:text-2xl font-black text-primary truncate uppercase italic tracking-tighter">{t('home.explore_title')}</h1>
+                        <h1 className="text-lg md:text-2xl font-black text-primary truncate uppercase tracking-tighter">{t('home.explore_title')}</h1>
                     </div>
                     <div className="flex items-center gap-2 md:gap-3">
-                        <LanguageSwitcher />
-                        <ThemeSwitcher />
                         <div className="flex bg-accent rounded-xl p-1">
                             <button
                                 onClick={() => setViewMode('map')}
@@ -226,17 +221,19 @@ export default function ExplorePage() {
                         </div>
                         <button
                             onClick={fetchFollowing}
-                            className="px-3 py-2 bg-primary/10 text-primary border border-primary/20 rounded-xl text-xs md:text-sm font-black transition-all hover:bg-primary/20 shadow-sm uppercase italic"
+                            className="px-3 py-2 bg-primary/10 text-primary border border-primary/20 rounded-xl text-xs md:text-sm font-black transition-all hover:bg-primary/20 shadow-sm uppercase"
                         >
                             {t('home.following_btn')}
                         </button>
-                        <button
-                            onClick={handleLogout}
-                            className="p-2 md:px-3 md:py-2 border border-border rounded-xl hover:bg-accent flex items-center text-muted transition-all active:scale-95 shadow-sm"
-                            title="Logout"
-                        >
-                            <LogOut className="w-4 h-4 md:w-5 md:h-5" />
-                        </button>
+                        {isAuthenticated && (
+                            <button
+                                onClick={handleLogout}
+                                className="p-2 md:px-3 md:py-2 border border-border rounded-xl hover:bg-accent flex items-center text-muted transition-all active:scale-95 shadow-sm"
+                                title="Logout"
+                            >
+                                <LogOut className="w-4 h-4 md:w-5 md:h-5" />
+                            </button>
+                        )}
                     </div>
                 </div>
             </header>
@@ -260,7 +257,7 @@ export default function ExplorePage() {
                         <div className="max-w-7xl mx-auto">
                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                 {performances.length === 0 ? (
-                                    <div className="col-span-full flex flex-col items-center justify-center py-20 opacity-30 italic">
+                                    <div className="col-span-full flex flex-col items-center justify-center py-20 opacity-30">
                                         <List className="w-12 h-12 mb-4" />
                                         <p className="text-center font-bold">{t('home.no_performances')}</p>
                                     </div>
@@ -270,7 +267,7 @@ export default function ExplorePage() {
                                         return (
                                             <div key={perf.id} className={`group border rounded-[24px] p-5 hover:shadow-2xl transition-all bg-card block cursor-pointer relative overflow-hidden ${perf.isFollowed ? 'border-primary/20 shadow-lg shadow-primary/5' : 'border-border shadow-sm'}`} onClick={() => router.push(`/singer/${perf.singerId}`)}>
                                                 {perf.isFollowed && (
-                                                    <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 rounded-bl-xl text-[11px] font-black uppercase tracking-widest italic shadow-lg">
+                                                    <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 rounded-bl-xl text-[11px] font-black uppercase tracking-widest shadow-lg">
                                                         {t('common.following')}
                                                     </div>
                                                 )}
@@ -282,12 +279,12 @@ export default function ExplorePage() {
                                                         {formatKstLabel(perf.startTime)}
                                                     </span>
                                                 </div>
-                                                <h3 className="font-black text-xl mb-2 text-foreground group-hover:text-primary transition-colors truncate uppercase italic">{perf.title}</h3>
-                                                <p className="text-muted-foreground text-xs mb-6 flex items-center gap-1.5 font-medium italic">
+                                                <h3 className="font-black text-xl mb-2 text-foreground group-hover:text-primary transition-colors truncate uppercase">{perf.title}</h3>
+                                                <p className="text-muted-foreground text-xs mb-6 flex items-center gap-1.5 font-medium">
                                                     <span className="w-1 h-1 bg-muted/30 rounded-full" />
                                                     {perf.locationText}
                                                 </p>
-                                                <button className="w-full py-3.5 bg-foreground text-background rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all hover:bg-primary hover:text-primary-foreground hover:scale-[1.02] active:scale-95 shadow-xl italic">
+                                                <button className="w-full py-3.5 bg-foreground text-background rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all hover:bg-primary hover:text-primary-foreground hover:scale-[1.02] active:scale-95 shadow-xl">
                                                     {t('home.view_details')}
                                                 </button>
                                             </div>
@@ -307,14 +304,14 @@ export default function ExplorePage() {
                 <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="bg-card rounded-[32px] w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[80vh] border border-border">
                         <div className="p-6 border-b flex justify-between items-center bg-primary/5">
-                            <h3 className="text-xl font-black text-primary uppercase italic tracking-tighter">{t('home.following_title')}</h3>
+                            <h3 className="text-xl font-black text-primary uppercase tracking-tighter">{t('home.following_title')}</h3>
                             <button onClick={() => setShowFollowingModal(false)} className="p-2 hover:bg-accent rounded-full transition-all active:scale-90">
                                 <X className="w-5 h-5 text-primary" />
                             </button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 space-y-3 custom-scrollbar">
                             {followedSingers.length === 0 ? (
-                                <div className="py-12 flex flex-col items-center justify-center text-center opacity-30 italic">
+                                <div className="py-12 flex flex-col items-center justify-center text-center opacity-30">
                                     <UserIcon className="w-12 h-12 mb-4 text-primary" />
                                     <p className="text-sm font-bold text-primary">{t('home.following_empty')}</p>
                                 </div>
@@ -335,7 +332,7 @@ export default function ExplorePage() {
                                                 <span className="font-black text-primary">{s.stageName[0]}</span>
                                             )}
                                         </div>
-                                        <span className="font-black text-foreground uppercase italic text-sm">{s.stageName}</span>
+                                        <span className="font-black text-foreground uppercase text-sm">{s.stageName}</span>
                                     </div>
                                 ))
                             )}

@@ -1,31 +1,33 @@
 {
   "suite": "api-smoke",
   "pass": true,
-  "startedAt": "2026-03-12T14:47:06.579Z",
-  "finishedAt": "2026-03-12T14:47:07.581Z",
+  "startedAt": "2026-03-19T01:24:30.580Z",
+  "finishedAt": "2026-03-19T01:24:31.096Z",
   "checks": {
     "publicPerformances": {
-      "count": 0,
-      "samplePerformanceId": null,
-      "sampleSingerId": null
+      "count": 3,
+      "samplePerformanceId": "7e077d44-750f-40b9-bf15-6ef5df7acb44",
+      "sampleSingerId": "demo-singer-001"
     },
     "performanceFilters": [
       {
         "filter": "live",
-        "count": 0
+        "count": 1
       },
       {
         "filter": "all",
-        "count": 0
+        "count": 3
       }
     ],
     "singerProfile": {
-      "skipped": true,
-      "reason": "no visible performances"
+      "singerId": "demo-singer-001",
+      "stageName": "Demo Artist",
+      "performanceCount": 3
     },
     "anonymousSongRequest": {
-      "skipped": true,
-      "reason": "no visible performances"
+      "performanceId": "7e077d44-750f-40b9-bf15-6ef5df7acb44",
+      "status": 401,
+      "error": "Unauthorized"
     }
   }
 }
