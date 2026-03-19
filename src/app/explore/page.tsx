@@ -240,7 +240,7 @@ export default function ExplorePage() {
                 </div>
             </header>
 
-            <main className="flex-1 relative overflow-hidden bg-gray-50">
+            <main className="flex-1 relative overflow-hidden bg-gray-50 h-full">
                 {!isAuthenticated && showDemoBanner && (
                     <div className="absolute left-3 right-3 top-3 z-20 md:left-6 md:right-6 md:top-4">
                         <DemoBanner
@@ -251,7 +251,7 @@ export default function ExplorePage() {
                     </div>
                 )}
                 {viewMode === 'map' ? (
-                    <div className="h-full w-full">
+                    <div className="h-full w-full min-h-[500px]">
                         <BuskingMap performances={performances} isLoggedIn={!!user} />
                     </div>
                 ) : (
