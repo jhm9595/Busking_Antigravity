@@ -245,16 +245,17 @@
     min-width: 0;
 }
 
-/* Time fields container - full width on desktop */
-.timeFieldsContainer {
+/* Time fields row - inline on desktop */
+.timeFieldsRow {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    min-width: 0;
+    gap: 0.75rem;
+    grid-column: span 1;
 }
 
-@media (min-width: 1024px) {
-    .timeFieldsContainer {
-        grid-column: span 2;
+@media (min-width: 768px) {
+    .timeFieldsRow {
+        flex-direction: row;
+        align-items: flex-start;
     }
 }

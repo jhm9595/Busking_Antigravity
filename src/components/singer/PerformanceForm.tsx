@@ -172,7 +172,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
         <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.gridContainer}>
                 <div className={styles.fieldGroup}>
-                    <label className={styles.label}>{t('performance.form.title')} <span className="text-red-500">*</span></label>
+                    <label className={styles.label}>{t('performance.form.title')}</label>
                     <input
                         required
                         placeholder={t('performance.form.title_placeholder')}
@@ -184,7 +184,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
 
                 <div className={styles.fieldGroup}>
                     <div className={styles.locationLabelRow}>
-                        <label className={styles.label}>{t('performance.form.location')} <span className="text-red-500">*</span></label>
+                        <label className={styles.label}>{t('performance.form.location')}</label>
                         {newPerf.lat !== 0 && (
                             <span className={styles.locationCoords}>
                                 {newPerf.lat.toFixed(4)}, {newPerf.lng.toFixed(4)}
@@ -217,9 +217,9 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                     </div>
                 )}
 
-                {/* Time fields - inside grid for full width on desktop */}
-                <div className={`${styles.timeFieldsContainer} flex flex-col md:flex-row gap-4`}>
-                    <div className="flex-1 flex flex-col gap-1.5">
+                {/* Time fields - inline on desktop */}
+                <div className={styles.timeFieldsRow}>
+                    <div className="flex-1 min-w-0">
                         <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest px-1">{t('performance.form.start_time')}</label>
                         <DateTimePicker
                             label=""
@@ -228,7 +228,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                             required
                         />
                     </div>
-                    <div className="flex-1 flex flex-col gap-1.5">
+                    <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 px-1">
                             <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest">{t('performance.form.end_time')}</label>
                             <span className="text-[var(--color-text-muted)] cursor-help" title={t('performance.form.time_hint')}>
