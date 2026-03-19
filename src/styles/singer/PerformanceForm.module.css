@@ -1,12 +1,12 @@
 .form {
-    background-color: white;
+    background-color: var(--color-card, var(--background));
     padding: 1.5rem;
     border-radius: 1rem;
-    border: 1px solid #f3f4f6;
+    border: 1px solid var(--color-border);
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .gridContainer {
@@ -34,7 +34,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #6b7280;
+    color: var(--color-text-muted);
     display: block;
 }
 
@@ -43,21 +43,20 @@
     max-width: 100%;
     min-width: 0;
     padding: 0.75rem 1rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-border);
     border-radius: 0.5rem;
-    background-color: white;
-    color: #111827;
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
     outline: none;
     transition: all 0.2s ease;
     font-size: 0.95rem;
     height: 3rem;
-    /* Explicit height for consistency */
 }
 
 .input:focus {
-    background-color: white;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    background-color: var(--color-surface);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-alpha);
 }
 
 .locationLabelRow {
@@ -65,14 +64,13 @@
     justify-content: space-between;
     align-items: flex-start;
     gap: 0.5rem;
-    /* margin-bottom removed to align with Title field which uses fieldGroup gap */
 }
 
 .locationCoords {
     font-size: 0.7rem;
-    color: #10b981;
+    color: var(--color-success);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    background-color: #ecfdf5;
+    background-color: var(--color-success-bg);
     padding: 0.1rem 0.4rem;
     border-radius: 0.25rem;
     white-space: nowrap;
@@ -89,32 +87,31 @@
 
 /* Map Button as an integrated action */
 .mapButton {
-    background-color: #f3f4f6;
-    color: #4b5563;
+    background-color: var(--color-surface);
+    color: var(--color-text-secondary);
     width: 3rem;
     height: 3rem;
-    /* Matches input height roughly if padding varies, usually needs calc or flex stretch */
     border-radius: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
     flex-shrink: 0;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-border);
 }
 
 .mapButton:hover {
-    background-color: #e0e7ff;
-    color: #4f46e5;
-    border-color: #c7d2fe;
+    background-color: var(--color-primary-bg);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
 }
 
 .mapWrapper {
     grid-column: span 1;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-border);
     border-radius: 0.75rem;
     overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 @media (min-width: 768px) {
@@ -125,10 +122,10 @@
 
 .mapHelpText {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
     padding: 0.75rem;
-    background-color: #f9fafb;
-    border-top: 1px solid #e5e7eb;
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
     text-align: center;
 }
 
@@ -137,17 +134,17 @@
     align-items: center;
     gap: 0.75rem;
     padding: 1rem;
-    background-color: white;
+    background-color: var(--color-card);
     border-radius: 0.5rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-border);
     cursor: pointer;
     grid-column: span 1;
     transition: all 0.2s;
 }
 
 .checkboxLabel:hover {
-    border-color: #6366f1;
-    background-color: #eff6ff;
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-bg);
 }
 
 @media (min-width: 768px) {
@@ -160,25 +157,24 @@
     width: 1.25rem;
     height: 1.25rem;
     border-radius: 0.25rem;
-    color: #4f46e5;
-    border: 2px solid #d1d5db;
+    color: var(--color-primary);
+    border: 2px solid var(--color-border);
 }
 
 .checkbox:focus {
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    box-shadow: 0 0 0 3px var(--color-primary-alpha);
 }
 
 .checkboxText {
     font-weight: 600;
-    color: #374151;
+    color: var(--color-text-primary);
     font-size: 0.95rem;
 }
 
 .chatCostSection {
     padding: 1rem;
-    background-color: #f5f3ff;
-    /* lighter indigo/violet */
-    border: 1px solid #ddd6fe;
+    background-color: var(--color-primary-bg);
+    border: 1px solid var(--color-primary);
     border-radius: 0.5rem;
     animation: fadeIn 0.3s ease-in-out;
 }
@@ -186,7 +182,7 @@
 .chatCostLabel {
     font-size: 0.8rem;
     text-transform: uppercase;
-    color: #5b21b6;
+    color: var(--color-primary);
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 700;
@@ -195,35 +191,35 @@
 
 .chatCostInput {
     padding: 0.75rem;
-    border: 1px solid #c4b5fd;
+    border: 1px solid var(--color-primary);
     border-radius: 0.5rem;
     width: 100%;
-    color: #4c1d95;
-    background-color: white;
+    color: var(--color-text-primary);
+    background-color: var(--color-card);
     font-weight: 500;
 }
 
 .chatCostInput:focus {
-    border-color: #7c3aed;
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-alpha);
     outline: none;
 }
 
 .chatCostHelp {
     font-size: 0.75rem;
-    color: #6d28d9;
+    color: var(--color-primary);
     margin-top: 0.5rem;
 }
 
 .submitButton {
     width: 100%;
-    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark, var(--color-primary)) 100%);
+    color: var(--color-primary-foreground);
     border-radius: 0.75rem;
     padding: 1rem;
     font-weight: 700;
     font-size: 1rem;
-    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+    box-shadow: 0 4px 6px -1px var(--color-primary-alpha);
     transition: all 0.2s;
     transform: translateY(0);
     border: none;
@@ -231,7 +227,7 @@
 }
 
 .submitButton:hover {
-    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+    box-shadow: 0 10px 15px -3px var(--color-primary-alpha);
     transform: translateY(-2px);
     filter: brightness(1.1);
 }

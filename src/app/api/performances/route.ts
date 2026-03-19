@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getPerformanceSortKey, resolvePerformanceStatus } from '@/lib/performance-lifecycle'
+import { toKSTISOString } from '@/lib/kst-time'
 
 export async function GET(request: Request) {
     try {
@@ -53,63 +55,37 @@ export async function GET(request: Request) {
             }
         })
 
-        // Auto-update status logic: Check for stale live/scheduled performances
-        const now = new Date()
-        const requests = performances.map(async (p: any) => {
+        const resolvedPerformances = performances.map((p: any) => {
             const start = new Date(p.startTime)
-            let end = p.endTime ? new Date(p.endTime) : null
-            if (!end) end = new Date(start.getTime() + 3 * 60 * 60 * 1000)
-
-            let currentStatus = p.status
-            if (end < now) {
-                currentStatus = 'completed'
-                try {
-                    await prisma.performance.update({
-                        where: { id: p.id },
-                        data: { status: 'completed' }
-                    })
-                } catch (e) {
-                    console.error('Auto-close error map:', e)
-                }
-            } else if (start <= now && p.status === 'scheduled') {
-                currentStatus = 'live'
-                try {
-                    await prisma.performance.update({
-                        where: { id: p.id },
-                        data: { status: 'live' }
-                    })
-                } catch (e) {
-                    console.error('Auto-live error map:', e)
-                }
-            }
+            const end = p.endTime ? new Date(p.endTime) : null
+            const { status } = resolvePerformanceStatus(start, end, p.status)
 
             // Add isFollowed flag
             return {
                 ...p,
-                status: currentStatus,
+                status,
                 isFollowed: followedSingerIds.includes(p.singerId)
             }
         })
 
-        const updatedPerformances = await Promise.all(requests)
-
         // Filter and Sort
-        const validPerformances = updatedPerformances
+        const validPerformances = resolvedPerformances
             .filter(p => p.status !== 'completed')
-            .sort((a, b) => {
-                // 1. Sort by Followed status (Followed first)
-                if (a.isFollowed && !b.isFollowed) return -1
-                if (!a.isFollowed && b.isFollowed) return 1
+            .sort((a, b) => getPerformanceSortKey({
+                isFollowed: a.isFollowed,
+                status: a.status,
+                startTime: new Date(a.startTime)
+            }) - getPerformanceSortKey({
+                isFollowed: b.isFollowed,
+                status: b.status,
+                startTime: new Date(b.startTime)
+            }))
 
-                // 2. Sort by Status (Live first)
-                if (a.status === 'live' && b.status !== 'live') return -1
-                if (a.status !== 'live' && b.status === 'live') return 1
-
-                // 3. Sort by Time (handled by DB mostly, but good to ensure)
-                return new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
-            })
-
-        return NextResponse.json(validPerformances)
+        return NextResponse.json(validPerformances.map((performance) => ({
+            ...performance,
+            startTime: toKSTISOString(new Date(performance.startTime)),
+            endTime: performance.endTime ? toKSTISOString(new Date(performance.endTime)) : null
+        })))
     } catch (error) {
         console.error('Error fetching performances:', error)
         return NextResponse.json(

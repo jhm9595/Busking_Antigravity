@@ -1,6 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { Loader2, Play } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import GoogleAd from '@/components/common/GoogleAd'
 
@@ -10,7 +13,35 @@ interface LandingPageProps {
 }
 
 export default function LandingPage({ userId, isSinger }: LandingPageProps) {
+    const router = useRouter()
     const { t } = useLanguage()
+    const [isDemoLoading, setIsDemoLoading] = useState(false)
+
+    const handleTryDemo = async () => {
+        if (isDemoLoading) return
+
+        setIsDemoLoading(true)
+        try {
+            const response = await fetch('/api/demo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'reset' })
+            })
+
+            if (!response.ok) {
+                const body = await response.json().catch(() => null)
+                const message = body?.error || t('common.error')
+                throw new Error(message)
+            }
+
+            router.push('/explore?demo=1')
+        } catch (error) {
+            const message = error instanceof Error && error.message ? error.message : t('common.error')
+            alert(message)
+        } finally {
+            setIsDemoLoading(false)
+        }
+    }
 
     return (
         <main className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground p-6 relative overflow-hidden">
@@ -34,12 +65,33 @@ export default function LandingPage({ userId, isSinger }: LandingPageProps) {
                             {isSinger ? t('home.dashboard_button') : t('home.start_busking')}
                         </Link>
                     ) : (
-                        <Link
-                            href="/sign-in"
-                            className="px-8 py-4 bg-primary rounded-full font-bold text-primary-foreground hover:opacity-90 transition shadow-lg"
-                        >
-                            {t('home.get_started')}
-                        </Link>
+                        <>
+                            <Link
+                                href="/sign-in"
+                                className="px-8 py-4 bg-primary rounded-full font-bold text-primary-foreground hover:opacity-90 transition shadow-lg"
+                            >
+                                {t('home.get_started')}
+                            </Link>
+
+                            <Link
+                                href="/explore?demo=1"
+                                onClick={(event) => {
+                                    if (isDemoLoading) {
+                                        event.preventDefault()
+                                        return
+                                    }
+                                    event.preventDefault()
+                                    handleTryDemo()
+                                }}
+                                aria-disabled={isDemoLoading}
+                                aria-busy={isDemoLoading}
+                                aria-live="polite"
+                                className={`px-8 py-4 rounded-full font-bold border-2 border-primary text-primary transition shadow-lg inline-flex items-center gap-2 ${isDemoLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-primary/10'}`}
+                            >
+                                {isDemoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                                <span>{isDemoLoading ? t('home.try_demo_loading') : t('home.try_demo')}</span>
+                            </Link>
+                        </>
                     )}
 
                     <Link

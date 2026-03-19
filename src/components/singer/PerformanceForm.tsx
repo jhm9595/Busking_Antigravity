@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { MapPin } from 'lucide-react'
+import { MapPin, HelpCircle } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import DateTimePicker from '@/components/common/DateTimePicker'
 import styles from '@/styles/singer/PerformanceForm.module.css'
@@ -219,8 +219,9 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
 
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 flex flex-col gap-1.5">
-                        <div className="flex justify-between items-center px-1">
+                        <div className="flex items-center gap-2 px-1">
                             <span className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest">{t('performance.form.start_time')}</span>
+                            <span className="text-red-500 text-xs">*</span>
                         </div>
                         <DateTimePicker
                             label=""
@@ -230,9 +231,12 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                         />
                     </div>
                     <div className="flex-1 flex flex-col gap-1.5">
-                        <div className="flex justify-between items-center px-1">
+                        <div className="flex items-center gap-2 px-1">
                             <span className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest">{t('performance.form.end_time')}</span>
-                            <span className="text-[10px] font-black text-indigo-500 italic uppercase">{t('performance.form.time_hint')}</span>
+                            <span className="text-red-500 text-xs">*</span>
+                            <span className="text-[var(--color-text-muted)] cursor-help" title={t('performance.form.time_hint')}>
+                                <HelpCircle className="w-3.5 h-3.5" />
+                            </span>
                         </div>
                         <DateTimePicker
                             label=""
@@ -243,6 +247,8 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                     </div>
                 </div>
 
+{/* Streaming option hidden - will be implemented later */}
+                {/* 
                 <label className={`${styles.checkboxLabel} mb-4 block`}>
                     <input
                         type="checkbox"
@@ -255,6 +261,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                     </span>
                     <p className="text-xs text-[var(--color-text-muted)] mt-1 ml-6">* {t('performance.form.streaming_help')}</p>
                 </label>
+                */}
 
                 <label className={styles.checkboxLabel}>
                     <input

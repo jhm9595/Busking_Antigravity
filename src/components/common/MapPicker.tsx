@@ -191,43 +191,41 @@ function MapPicker({ onLocationSelect, initialLat, initialLng, readonly }: MapPi
         <div style={{ position: 'relative', height: '300px', width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
             {/* Search Bar Overlay */}
             {!readonly && (
-                <div className="absolute top-2 left-2 right-2 z-[1000] backdrop-blur-sm rounded-md shadow-md p-2 transition-all" style={{ backgroundColor: 'var(--color-card)' }}>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                        <div className="flex gap-2 flex-1">
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault()
-                                        handleSearch()
-                                    }
-                                }}
-                                placeholder={t('performance.form.map_search_placeholder')}
-                                className="flex-1 px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-1 min-w-0"
-                                style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)', backgroundColor: 'var(--color-surface)' }}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => handleSearch()}
-                                disabled={isSearching}
-                                className="p-1.5 px-3 rounded transition-colors flex items-center justify-center shrink-0"
-                                style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
-                                title={t('performance.form.map_search_button')}
-                            >
-                                <Search className="w-4 h-4" />
-                            </button>
-                        </div>
+                <div className="absolute top-2 left-2 right-2 z-[1000] rounded-md shadow-md p-2 transition-all" style={{ backgroundColor: 'var(--color-card)' }}>
+                    {/* Single row on mobile: search input + search button + my location button */}
+                    <div className="flex items-center gap-1.5">
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault()
+                                    handleSearch()
+                                }
+                            }}
+                            placeholder={t('performance.form.map_search_placeholder')}
+                            className="flex-1 px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-1 min-w-0"
+                            style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)', backgroundColor: 'var(--color-surface)' }}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => handleSearch()}
+                            disabled={isSearching}
+                            className="p-1.5 rounded transition-colors flex items-center justify-center shrink-0"
+                            style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
+                            title={t('performance.form.map_search_button')}
+                        >
+                            <Search className="w-4 h-4" />
+                        </button>
                         <button
                             type="button"
                             onClick={handleGoToMyLocation}
-                            className="p-1.5 px-3 rounded transition-colors flex items-center justify-center gap-2 sm:w-auto w-full shrink-0"
-                            style={{ backgroundColor: 'var(--color-card)', color: 'var(--color-text-primary)', borderColor: 'var(--color-border)' }}
+                            className="p-1.5 rounded transition-colors flex items-center justify-center shrink-0"
+                            style={{ backgroundColor: 'var(--color-card)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
                             title={t('performance.form.map_my_location') || '내 위치로 이동'}
                         >
                             <LocateFixed className="w-4 h-4" />
-                            <span className="text-sm sm:hidden">{t('performance.form.map_my_location') || '내 위치로 이동'}</span>
                         </button>
                     </div>
 

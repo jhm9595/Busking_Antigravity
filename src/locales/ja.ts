@@ -56,6 +56,8 @@ export const ja: LocaleTypes = {
         dashboard_button: 'ダッシュボード',
         get_started: '今すぐ始める',
         start_busking: 'アーティストとして登録',
+        try_demo: 'デモを試す',
+        try_demo_loading: 'デモを準備中...',
         explore_button: 'ライブを探す',
         explore_title: 'ライブを探す',
         view_map: '地図',

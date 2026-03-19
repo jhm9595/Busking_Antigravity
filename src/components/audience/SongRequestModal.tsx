@@ -36,7 +36,7 @@ export default function SongRequestModal({ isOpen, onClose, onSubmit }: SongRequ
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
             <div className="w-full max-w-sm bg-card border border-border rounded-xl shadow-2xl overflow-hidden transform transition-all scale-100">
                 <div className="px-4 py-3 border-b border-border flex justify-between items-center" style={{ backgroundColor: 'var(--color-surface-elevated)' }}>
                     <div className="flex items-center space-x-2" style={{ color: 'var(--color-primary)' }}>

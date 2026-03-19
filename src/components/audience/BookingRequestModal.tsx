@@ -48,7 +48,7 @@ export default function BookingRequestModal({ isOpen, onClose, onSubmit, singerN
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
             <div className="w-full max-w-md border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
                 <div className="px-5 py-4 border-b flex justify-between items-center" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}>
                     <div>

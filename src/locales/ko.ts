@@ -56,6 +56,8 @@ export const ko: LocaleTypes = {
         dashboard_button: '내 대시보드',
         get_started: '지금 시작하기',
         start_busking: '나도 버스킹 시작하기',
+        try_demo: '데모 체험하기',
+        try_demo_loading: '데모 준비 중...',
         explore_button: '공연 구경하기',
         explore_title: '버스킹 둘러보기',
         view_map: '지도',

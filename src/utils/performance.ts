@@ -1,3 +1,5 @@
+import { formatLocal as formatLocalTimeString } from '@/lib/kst-time';
+
 export type PerformanceStatus = 'planned' | 'scheduled' | 'live' | 'completed' | 'cancelled' | 'canceled';
 
 /**
@@ -37,7 +39,7 @@ export function getEffectiveStatus(performance: {
  */
 export function formatLocalTime(date: string | Date): string {
     const d = new Date(date);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    return formatLocalTimeString(d);
 }
 
 /**

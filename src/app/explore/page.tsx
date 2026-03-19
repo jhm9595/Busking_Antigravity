@@ -1,16 +1,17 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { List, Map as MapIcon, LogOut, X, User as UserIcon, Home, ArrowLeft, Compass } from 'lucide-react'
-import { getEffectiveStatus, formatLocalDate } from '@/utils/performance'
+import { List, Map as MapIcon, LogOut, X, User as UserIcon, Compass } from 'lucide-react'
+import { getEffectiveStatus } from '@/utils/performance'
 import { useClerk, useUser } from '@clerk/nextjs'
 import { useLanguage } from '@/contexts/LanguageContext'
 import Link from 'next/link'
 import GoogleAd from '@/components/common/GoogleAd'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher'
 import { ThemeSwitcher } from '@/components/ThemeSwitcher'
+import { DemoBanner } from '@/components/explore/DemoBanner'
 
 // Dynamically import Map to avoid SSR issues with Leaflet
 const BuskingMap = dynamic(() => import('@/components/audience/BuskingMap'), {
@@ -39,15 +40,42 @@ interface Singer {
     }
 }
 
+function formatKstLabel(date: string) {
+    return new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Seoul',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZoneName: 'short'
+    }).format(new Date(date))
+}
+
 export default function ExplorePage() {
     const router = useRouter()
     const { signOut } = useClerk()
     const { user } = useUser()
     const { t } = useLanguage()
+    const isAuthenticated = !!user
+    const bootstrapAttemptedRef = useRef(false)
+
     const [viewMode, setViewMode] = useState<'map' | 'grid'>('map')
     const [performances, setPerformances] = useState<Performance[]>([])
     const [showFollowingModal, setShowFollowingModal] = useState(false)
     const [followedSingers, setFollowedSingers] = useState<Singer[]>([])
+    const [requestedDemo, setRequestedDemo] = useState(false)
+    const [showDemoBanner, setShowDemoBanner] = useState(false)
+    const [isDemoResetting, setIsDemoResetting] = useState(false)
+    const [isBootstrappingDemo, setIsBootstrappingDemo] = useState(false)
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+        const isDemoRequested = new URLSearchParams(window.location.search).get('demo') === '1'
+        setRequestedDemo(isDemoRequested)
+        setShowDemoBanner((prev) => prev || isDemoRequested)
+    }, [])
 
     const fetchFollowing = async () => {
         if (typeof window === 'undefined') return
@@ -65,24 +93,103 @@ export default function ExplorePage() {
         }
     }
 
+    const fetchPerformances = useCallback(async () => {
+        try {
+            let fanId = null
+            if (typeof window !== 'undefined') {
+                fanId = user?.id || localStorage.getItem('busking_fan_id')
+            }
+            const res = await fetch(`/api/performances${fanId ? `?fanId=${fanId}` : ''}`)
+            if (!res.ok) {
+                return []
+            }
+            const data = await res.json()
+            setPerformances(data)
+            return data
+        } catch (error) {
+            console.error('Failed to fetch performances', error)
+            return []
+        }
+    }, [user])
+
     useEffect(() => {
-        async function fetchPerformances() {
+        fetchPerformances()
+    }, [fetchPerformances])
+
+    useEffect(() => {
+        if (!isAuthenticated && requestedDemo) {
+            setShowDemoBanner(true)
+        }
+    }, [isAuthenticated, requestedDemo])
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            bootstrapAttemptedRef.current = false
+            setShowDemoBanner(false)
+            return
+        }
+
+        if (!requestedDemo && performances.length > 0) {
+            return
+        }
+
+        if (!requestedDemo && bootstrapAttemptedRef.current) {
+            return
+        }
+
+        bootstrapAttemptedRef.current = true
+
+        const bootstrapDemo = async () => {
+            setIsBootstrappingDemo(true)
             try {
-                let fanId = null
-                if (typeof window !== 'undefined') {
-                    fanId = user?.id || localStorage.getItem('busking_fan_id')
-                }
-                const res = await fetch(`/api/performances${fanId ? `?fanId=${fanId}` : ''}`)
+                const res = await fetch('/api/demo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'ensure' })
+                })
+
                 if (res.ok) {
-                    const data = await res.json()
-                    setPerformances(data)
+                    setShowDemoBanner(true)
+                    await fetchPerformances()
                 }
             } catch (error) {
-                console.error('Failed to fetch performances', error)
+                console.error('Failed to bootstrap demo mode', error)
+            } finally {
+                setIsBootstrappingDemo(false)
             }
         }
-        fetchPerformances()
-    }, [user])
+
+        bootstrapDemo()
+    }, [isAuthenticated, requestedDemo, performances.length, fetchPerformances])
+
+    const handleResetDemo = async () => {
+        if (isDemoResetting) return
+
+        setIsDemoResetting(true)
+        try {
+            const res = await fetch('/api/demo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'reset' })
+            })
+
+            if (!res.ok) {
+                const body = await res.json().catch(() => null)
+                throw new Error(body?.error || 'Failed to reset demo data')
+            }
+
+            setShowDemoBanner(true)
+            await fetchPerformances()
+            if (!requestedDemo) {
+                router.replace('/explore?demo=1')
+            }
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Failed to reset demo data'
+            alert(message)
+        } finally {
+            setIsDemoResetting(false)
+        }
+    }
 
     const handleLogout = async () => {
         await signOut()
@@ -133,6 +240,15 @@ export default function ExplorePage() {
             </header>
 
             <main className="flex-1 relative overflow-hidden bg-gray-50">
+                {!isAuthenticated && showDemoBanner && (
+                    <div className="absolute left-3 right-3 top-3 z-20 md:left-6 md:right-6 md:top-4">
+                        <DemoBanner
+                            isResetting={isDemoResetting || isBootstrappingDemo}
+                            onReset={handleResetDemo}
+                            onDismiss={() => setShowDemoBanner(false)}
+                        />
+                    </div>
+                )}
                 {viewMode === 'map' ? (
                     <div className="h-full w-full">
                         <BuskingMap performances={performances} isLoggedIn={!!user} />
@@ -160,7 +276,7 @@ export default function ExplorePage() {
                                                     {isLive ? t('live.status_live') : t('home.status_scheduled')}
                                                 </span>
                                                 <span className="text-[11px] font-bold text-muted font-mono">
-                                                    {formatLocalDate(perf.startTime)}
+                                                    {formatKstLabel(perf.startTime)}
                                                 </span>
                                             </div>
                                             <h3 className="font-black text-xl mb-2 text-foreground group-hover:text-primary transition-colors truncate uppercase italic">{perf.title}</h3>

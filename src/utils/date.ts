@@ -1,3 +1,5 @@
+import { formatLocal } from '@/lib/kst-time'
+
 export function formatPerformanceDate(startTime: string | Date, endTime?: string | Date | null): string {
     try {
         const start = new Date(startTime)
@@ -5,13 +7,13 @@ export function formatPerformanceDate(startTime: string | Date, endTime?: string
 
         if (isNaN(start.getTime())) return 'Invalid Date'
 
-        const dateStr = start.toLocaleDateString(undefined, {
+        const dateStr = new Intl.DateTimeFormat(undefined, {
             year: 'numeric',
             month: 'numeric',
             day: 'numeric'
-        })
-        const timeStr = start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
-        const endTimeStr = end ? end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '?'
+        }).format(start)
+        const timeStr = formatLocal(start)
+        const endTimeStr = end ? formatLocal(end) : '?'
 
         return `${dateStr} ${timeStr} - ${endTimeStr}`
     } catch (e) {

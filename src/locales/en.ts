@@ -54,6 +54,8 @@ export const en = {
         dashboard_button: 'My Dashboard',
         get_started: 'Get Started',
         start_busking: 'Start as a Busker',
+        try_demo: 'Try Demo',
+        try_demo_loading: 'Preparing demo...',
         explore_button: 'Explore Lives',
         explore_title: 'Explore Busking',
         view_map: 'Map',

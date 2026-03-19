@@ -56,6 +56,8 @@ export const zhTW: LocaleTypes = {
         dashboard_button: '控制面板',
         get_started: '立即開始',
         start_busking: '註冊成為藝人',
+        try_demo: '體驗示範',
+        try_demo_loading: '正在準備示範...',
         explore_button: '探索直播',
         explore_title: '探索演出',
         view_map: '地圖',
