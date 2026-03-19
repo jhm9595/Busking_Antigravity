@@ -47,10 +47,18 @@ async function ensureDemoSinger(): Promise<string> {
 }
 
 async function ensureDemoSongs(singerId: string): Promise<void> {
+  // Popular Korean busking songs with YouTube reference links
   const requiredSongs = [
-    { title: 'Sample Song 1', artist: 'Demo Artist' },
-    { title: 'Sample Song 2', artist: 'Demo Artist' },
-    { title: 'Sample Song 3', artist: 'Demo Artist' }
+    { title: '무한대한', artist: 'entos', youtubeUrl: 'https://www.youtube.com/watch?v=Q_P4UJSI2Xg' },
+    { title: '리泡沫', artist: 'akos', youtubeUrl: 'https://www.youtube.com/watch?v=ruI1G3D2V_U' },
+    { title: '그때 그 순간', artist: '김필', youtubeUrl: 'https://www.youtube.com/watch?v=1vkH4DnvHs4' },
+    { title: '가을 우체국', artist: '김동률', youtubeUrl: 'https://www.youtube.com/watch?v=7gJ1kNuj1T0' },
+    { title: '잠이 오질 않아', artist: '장범준', youtubeUrl: 'https://www.youtube.com/watch?v=WQ0dFcF3pGc' },
+    { title: '주저하도록', artist: 'entos', youtubeUrl: 'https://www.youtube.com/watch?v=K3J6H4cH7sE' },
+    { title: '안녕', artist: '지아', youtubeUrl: 'https://www.youtube.com/watch?v=0G5fZqT3z4M' },
+    { title: '흔들리는 꽃들 속에서 네 샴푸향이 바람날 때', artist: '장범준', youtubeUrl: 'https://www.youtube.com/watch?v=6Dr2J8H0rAo' },
+    { title: '사건의 지평선', artist: '윤하', youtubeUrl: 'https://www.youtube.com/watch?v=MKpsFFFFPWA' },
+    { title: '우리를構成する何か', artist: '잔나비', youtubeUrl: 'https://www.youtube.com/watch?v=N7gZ9X7z3Fo' }
   ]
 
   const existingSongs = await prisma.song.findMany({
@@ -70,7 +78,8 @@ async function ensureDemoSongs(singerId: string): Promise<void> {
       singerId,
       title: song.title,
       artist: song.artist,
-      isRepertoire: true
+      isRepertoire: true,
+      youtubeUrl: song.youtubeUrl
     }))
   })
 }
@@ -90,6 +99,13 @@ async function generateDemoPerformances(
   const scheduledTwoStart = new Date(now.getTime() + 3 * 60 * 60 * 1000)
   const scheduledTwoEnd = new Date(now.getTime() + 5 * 60 * 60 * 1000)
 
+  // Get demo songs to include in performances
+  const demoSongs = await tx.song.findMany({
+    where: { singerId },
+    orderBy: { title: 'asc' },
+    take: 6 // Take first 6 songs
+  })
+
   const created = await Promise.all([
     tx.performance.create({
       data: {
@@ -102,7 +118,14 @@ async function generateDemoPerformances(
         endTime: liveEnd,
         description: 'Live sample performance for demo mode',
         chatEnabled: true,
-        status: 'live'
+        status: 'live',
+        performanceSongs: {
+          create: demoSongs.slice(0, 4).map((song, index) => ({
+            songId: song.id,
+            order: index,
+            status: index === 0 ? 'live' : 'planned'
+          }))
+        }
       },
       select: { id: true }
     }),
@@ -117,7 +140,14 @@ async function generateDemoPerformances(
         endTime: scheduledOneEnd,
         description: 'Scheduled sample performance for demo mode',
         chatEnabled: false,
-        status: 'scheduled'
+        status: 'scheduled',
+        performanceSongs: {
+          create: demoSongs.slice(2, 5).map((song, index) => ({
+            songId: song.id,
+            order: index,
+            status: 'planned'
+          }))
+        }
       },
       select: { id: true }
     }),
@@ -132,7 +162,14 @@ async function generateDemoPerformances(
         endTime: scheduledTwoEnd,
         description: 'Scheduled sample performance for demo mode',
         chatEnabled: false,
-        status: 'scheduled'
+        status: 'scheduled',
+        performanceSongs: {
+          create: demoSongs.slice(4, 6).map((song, index) => ({
+            songId: song.id,
+            order: index,
+            status: 'planned'
+          }))
+        }
       },
       select: { id: true }
     })
