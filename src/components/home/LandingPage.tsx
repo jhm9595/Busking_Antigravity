@@ -20,12 +20,27 @@ export default function LandingPage({ userId, isSinger }: LandingPageProps) {
 
         setIsDemoLoading(true)
         try {
-            // Redirect to auth demo route which handles login + data setup + redirect to dashboard
-            window.location.href = '/auth/demo'
+            // POST to auth demo route which handles login + data setup + redirect
+            const response = await fetch('/auth/demo', {
+                method: 'POST',
+                redirect: 'manual' // Don't follow redirect, handle it ourselves
+            })
+            
+            // If we get a redirect response, navigate to the location
+            if (response.status === 307 || response.status === 302) {
+                const location = response.headers.get('Location')
+                if (location) {
+                    window.location.href = location
+                    return
+                }
+            }
+            
+            // Fallback: navigate to dashboard
+            window.location.href = '/singer/dashboard'
         } catch (error) {
-            const message = error instanceof Error && error.message ? error.message : t('common.error')
-            alert(message)
-            setIsDemoLoading(false)
+            console.error('Demo error:', error)
+            // Fallback: navigate to dashboard anyway
+            window.location.href = '/singer/dashboard'
         }
     }
 
