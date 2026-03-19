@@ -219,20 +219,22 @@ export default function ExplorePage() {
                                 <List className="w-4 h-4 md:w-5 md:h-5 md:mr-1" /> <span className="hidden md:inline">{t('home.view_list')}</span>
                             </button>
                         </div>
-                        <button
-                            onClick={fetchFollowing}
-                            className="px-3 py-2 bg-primary/10 text-primary border border-primary/20 rounded-xl text-xs md:text-sm font-black transition-all hover:bg-primary/20 shadow-sm uppercase"
-                        >
-                            {t('home.following_btn')}
-                        </button>
                         {isAuthenticated && (
-                            <button
-                                onClick={handleLogout}
-                                className="p-2 md:px-3 md:py-2 border border-border rounded-xl hover:bg-accent flex items-center text-muted transition-all active:scale-95 shadow-sm"
-                                title="Logout"
-                            >
-                                <LogOut className="w-4 h-4 md:w-5 md:h-5" />
-                            </button>
+                            <>
+                                <button
+                                    onClick={fetchFollowing}
+                                    className="px-3 py-2 bg-primary/10 text-primary border border-primary/20 rounded-xl text-xs md:text-sm font-black transition-all hover:bg-primary/20 shadow-sm uppercase"
+                                >
+                                    {t('home.following_btn')}
+                                </button>
+                                <button
+                                    onClick={handleLogout}
+                                    className="p-2 md:px-3 md:py-2 border border-border rounded-xl hover:bg-accent flex items-center text-muted transition-all active:scale-95 shadow-sm"
+                                    title="Logout"
+                                >
+                                    <LogOut className="w-4 h-4 md:w-5 md:h-5" />
+                                </button>
+                            </>
                         )}
                     </div>
                 </div>
