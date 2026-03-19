@@ -8,7 +8,6 @@ import SetlistManager from './SetlistManager'
 import EditPerformanceModal from './EditPerformanceModal'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { getEffectiveStatus, formatLocalTime } from '@/utils/performance'
-import { updatePerformanceStatus } from '@/services/singer'
 
 // Dynamic MapPicker (Readonly)
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
@@ -114,39 +113,53 @@ export default function PerformanceItem({ performance: perf, expanded, onToggleE
                                     >
                                         {t('performance.action.edit') || 'Edit'}
                                     </button>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            if (window.confirm(t('performance.list.confirm_cancel'))) {
-                                                updatePerformanceStatus(perf.id, 'canceled').then(() => {
-                                                    router.refresh()
-                                                    onRefresh?.()
-                                                })
-                                            }
-                                        }}
-                                        className="px-2 py-1 text-xs rounded transition"
-                                        style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)' }}
-                                    >
-                                        {t('performance.action.cancel') || 'Cancel'}
-                                    </button>
-                                </>
-                            )}
-                            {statusKey === 'live' && (
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation()
-                                        if (window.confirm(t('performance.list.confirm_end'))) {
-                                            updatePerformanceStatus(perf.id, 'completed').then(() => {
+                                        if (window.confirm(t('performance.list.confirm_cancel'))) {
+                                            fetch(`/api/performances/${perf.id}`, {
+                                                method: 'PATCH',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    action: 'update_status',
+                                                    status: 'canceled'
+                                                })
+                                            }).then(() => {
                                                 router.refresh()
                                                 onRefresh?.()
                                             })
                                         }
                                     }}
-                                    className="px-2 py-1 text-xs rounded transition font-bold"
-                                    style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--color-error)' }}
+                                    className="px-2 py-1 text-xs rounded transition"
+                                    style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-secondary)' }}
                                 >
-                                    {t('performance.action.force_end') || 'End Performance'}
+                                    {t('performance.action.cancel') || 'Cancel'}
                                 </button>
+                                </>
+                            )}
+                            {statusKey === 'live' && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    if (window.confirm(t('performance.list.confirm_end'))) {
+                                        fetch(`/api/performances/${perf.id}`, {
+                                            method: 'PATCH',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                action: 'update_status',
+                                                status: 'completed'
+                                            })
+                                        }).then(() => {
+                                            router.refresh()
+                                            onRefresh?.()
+                                        })
+                                    }
+                                }}
+                                className="px-2 py-1 text-xs rounded transition font-bold"
+                                style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--color-error)' }}
+                            >
+                                {t('performance.action.force_end') || 'End Performance'}
+                            </button>
                             )}
                             {statusKey === 'scheduled' && onDelete && (
                                 <button

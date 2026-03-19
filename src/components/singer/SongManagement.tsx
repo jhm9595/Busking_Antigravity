@@ -1,7 +1,6 @@
 import { useUser } from '@clerk/nextjs'
 
 import { useSongs } from '@/hooks/useSingerResources'
-import { deleteSong } from '@/services/singer'
 import SongInputForm from './SongInputForm'
 import SongList from './SongList'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -21,9 +20,26 @@ export default function SongManagement({ onSongsUpdated }: SongManagementProps) 
     }
 
     const handleDeleteSong = async (id: string) => {
-        await deleteSong(id)
-        loadSongs()
-        if (onSongsUpdated) onSongsUpdated()
+        try {
+            const res = await fetch('/api/songs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'delete',
+                    songId: id
+                })
+            })
+            
+            if (!res.ok) {
+                throw new Error('Failed to delete song')
+            }
+            
+            loadSongs()
+            if (onSongsUpdated) onSongsUpdated()
+        } catch (error) {
+            console.error('Failed to delete song:', error)
+            alert('Failed to delete song')
+        }
     }
 
     return (

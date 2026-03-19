@@ -3,8 +3,6 @@
 import React, { useState } from 'react'
 import { ArrowUp, ArrowDown, Trash2, Plus, Save, ListMusic } from 'lucide-react'
 import styles from '@/styles/singer/SetlistManager.module.css'
-import { updatePerformanceSetlist } from '@/services/singer'
-
 import { useLanguage } from '@/contexts/LanguageContext'
 
 interface SetlistManagerProps {
@@ -54,11 +52,20 @@ export default function SetlistManager({ performanceId, singerId, currentSongs, 
     const handleSave = async () => {
         setIsSaving(true)
         try {
-            await updatePerformanceSetlist({
-                performanceId,
-                singerId,
-                songIds: songs.map(s => s.id)
+            const res = await fetch('/api/setlist', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'update_setlist',
+                    performanceId,
+                    songIds: songs.map(s => s.id)
+                })
             })
+
+            if (!res.ok) {
+                throw new Error('Failed to update setlist')
+            }
+
             onUpdate()
             alert('Setlist updated successfully!')
         } catch (error) {

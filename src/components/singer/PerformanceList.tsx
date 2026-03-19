@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import PerformanceItem from './PerformanceItem'
 import styles from '@/styles/singer/PerformanceList.module.css'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { deletePerformance } from '@/services/singer'
 import { RotateCcw } from 'lucide-react'
 import { getEffectiveStatus } from '@/utils/performance'
 
@@ -48,8 +47,21 @@ export default function PerformanceList({ performances, loading, allSongs, onRef
 
         // Set timer for actual delete
         const timer = setTimeout(async () => {
-            await deletePerformance(id)
-            // Remove from timers and deletingIds after successful delete (although list rebuild will handle it)
+            try {
+                const res = await fetch(`/api/performances/${id}`, {
+                    method: 'DELETE'
+                })
+                
+                if (!res.ok) {
+                    throw new Error('Failed to delete')
+                }
+            } catch (error) {
+                console.error('Failed to delete performance:', error)
+                // Restore view on error
+                setDeletingIds(prev => prev.filter(did => did !== id))
+            }
+            
+            // Remove from timers and deletingIds
             setDeletingIds(prev => prev.filter(did => did !== id))
             const newTimers = { ...timers }
             delete newTimers[id]

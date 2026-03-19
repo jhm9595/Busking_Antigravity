@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react'
 import { X, Zap, Star, Trophy, Crown, Check, Coins, CreditCard, MessageCircle, ChevronRight, Tv } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { chargePoints } from '@/services/singer'
 import { showAdModal } from '@/utils/adModal'
 import Script from 'next/script'
 
@@ -110,12 +109,30 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
 
     const handleStripePay = async (pkg: PointPackage) => {
         // Implementation for Stripe Checkout or Payment Element
-        // For now, let's use the local mock charge since we don't have real keys yet
-        const res = await chargePoints(userId, pkg.points + pkg.bonus)
-        if (res.success) {
-            alert(`[Stripe Mock] ${t('common.charge_success')}`)
-            onSuccess(res.points!)
-            onClose()
+        // For now, let's use the local mock charge via API route
+        try {
+            const res = await fetch('/api/points', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'charge',
+                    userId,
+                    amount: pkg.points + pkg.bonus
+                })
+            })
+            
+            const data = await res.json()
+            
+            if (data.success) {
+                alert(`[Stripe Mock] ${t('common.charge_success')}`)
+                onSuccess(data.points)
+                onClose()
+            } else {
+                alert(data.error || 'Failed to charge points')
+            }
+        } catch (error) {
+            console.error('Stripe pay error:', error)
+            alert('Payment failed')
         }
         setIsSubmitting(false)
     }

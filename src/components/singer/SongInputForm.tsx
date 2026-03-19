@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react'
 import { Plus } from 'lucide-react'
-import { addSong } from '@/services/singer'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 interface SongInputFormProps {
@@ -21,12 +20,21 @@ export default function SongInputForm({ singerId, onSuccess }: SongInputFormProp
 
         setIsSubmitting(true)
         try {
-            await addSong({
-                singerId: singerId,
-                title: newSong.title,
-                artist: newSong.artist,
-                youtubeUrl: newSong.youtube_url
+            const res = await fetch('/api/songs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'add',
+                    singerId,
+                    title: newSong.title,
+                    artist: newSong.artist,
+                    youtubeUrl: newSong.youtube_url
+                })
             })
+
+            if (!res.ok) {
+                throw new Error('Failed to add song')
+            }
 
             setNewSong({ title: '', artist: '', youtube_url: '' })
             onSuccess()
