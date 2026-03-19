@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { Music, Calendar, Navigation, MapPin, Filter } from 'lucide-react'
+import { Music, Calendar, Navigation, MapPin, Filter, Heart } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 // Custom Icons Configuration
@@ -218,54 +218,68 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                 </button>
             </div>
 
-            {/* Filter Panel */}
-            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-[1000] bg-card/90 backdrop-blur-sm p-4 rounded-2xl shadow-lg w-[90%] max-w-md border border-border">
-                <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-bold text-foreground flex items-center gap-2">
+            {/* Mobile-First Filter Panel - Bottom Sheet Style */}
+            <div className="absolute bottom-0 left-0 right-0 z-[1000] bg-card rounded-t-3xl shadow-2xl border-t border-border pb-safe">
+                {/* Drag Handle */}
+                <div className="flex justify-center pt-2 pb-1">
+                    <div className="w-10 h-1 bg-muted rounded-full" />
+                </div>
+                
+                {/* Header */}
+                <div className="flex items-center justify-between px-4 pb-2">
+                    <h4 className="font-bold text-foreground flex items-center gap-2 text-sm">
                         <Filter className="w-4 h-4 text-primary" />
                         {t('explore.filter_title')}
                     </h4>
-                    <span className="text-xs text-muted-foreground bg-accent px-2 py-1 rounded-full">
-                        {t('explore.found_count').replace('{count}', filteredPerformances.length.toString())}
+                    <span className="text-xs text-muted-foreground bg-accent px-2 py-1 rounded-full font-medium">
+                        {filteredPerformances.length} {t('explore.found_count').replace('{count}', '').trim()}
                     </span>
                 </div>
 
-                <div className="space-y-3">
-                    {/* Status Toggle */}
-                    <div className="flex bg-accent p-1 rounded-lg">
+                {/* Compact Filter Controls */}
+                <div className="px-4 pb-4 space-y-2">
+                    {/* Status Toggle - Horizontal Pills */}
+                    <div className="flex bg-accent p-1 rounded-xl">
                         {(['all', 'live', 'scheduled'] as const).map((mode) => (
                             <button
                                 key={mode}
                                 onClick={() => setFilterMode(mode)}
-                                className={`flex-1 py-1 text-xs font-bold rounded-md transition capitalize ${filterMode === mode ? 'bg-card shadow text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all capitalize ${filterMode === mode ? 'bg-card shadow-md text-primary ring-1 ring-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
                             >
                                 {t(`explore.filter_${mode}`)}
                             </button>
                         ))}
                     </div>
 
-                    {/* Followed Only Toggle (Only if logged in) */}
-                    {isLoggedIn && (
-                        <div className="flex items-center justify-between bg-accent/50 p-2 rounded-lg border border-border">
-                            <span className="text-xs font-bold text-foreground">{t('explore.filter_followed')}</span>
+                    {/* Additional Filters Row */}
+                    <div className="flex gap-2">
+                        {/* Followed Only Toggle (Only if logged in) */}
+                        {isLoggedIn && (
                             <button
                                 onClick={() => setShowFollowedOnly(!showFollowedOnly)}
-                                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${showFollowedOnly ? 'bg-primary' : 'bg-muted/30'}`}
+                                className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 border ${showFollowedOnly ? 'bg-primary/10 text-primary border-primary/30' : 'bg-accent text-muted-foreground border-transparent hover:bg-accent/80'}`}
                             >
-                                <span
-                                    aria-hidden="true"
-                                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${showFollowedOnly ? 'translate-x-4' : 'translate-x-0'}`}
-                                />
+                                <Heart className={`w-3 h-3 ${showFollowedOnly ? 'fill-current' : ''}`} />
+                                {t('explore.filter_followed')}
                             </button>
-                        </div>
-                    )}
+                        )}
+
+                        {/* Location Toggle */}
+                        <button
+                            onClick={handleLocateMe}
+                            className="flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-accent text-muted-foreground border border-transparent hover:bg-accent/80"
+                        >
+                            <Navigation className="w-3 h-3" />
+                            {userLocation ? t('explore.locate_me') : t('explore.enable_location_help').split('{icon}')[0].trim()}
+                        </button>
+                    </div>
 
                     {/* Radius Slider (Only if location is set) */}
-                    {userLocation ? (
-                        <div>
-                            <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                    {userLocation && (
+                        <div className="bg-accent/50 p-2 rounded-xl">
+                            <div className="flex justify-between text-xs text-muted-foreground mb-1.5 px-1">
                                 <span>{t('explore.filter_radius')}</span>
-                                <span className="font-bold">{radius === 0 ? t('explore.filter_radius_all') : `${radius} km`}</span>
+                                <span className="font-bold text-primary">{radius === 0 ? t('explore.filter_radius_all') : `${radius} km`}</span>
                             </div>
                             <input
                                 type="range"
@@ -274,18 +288,12 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                                 step="5"
                                 value={radius}
                                 onChange={(e) => setRadius(Number(e.target.value))}
-                                className="w-full h-2 bg-accent rounded-lg appearance-none cursor-pointer accent-primary"
+                                className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                             />
-                            <div className="flex justify-between text-xs text-muted-foreground/50 mt-1">
+                            <div className="flex justify-between text-[10px] text-muted-foreground/50 mt-1 px-1">
                                 <span>{t('explore.filter_radius_all')}</span>
                                 <span>50km</span>
                             </div>
-                        </div>
-                    ) : (
-                        <div className="text-xs text-gray-400 text-center py-1 bg-[var(--color-surface)] rounded border border-dashed border-[var(--color-border)]">
-                            {t('explore.enable_location_help').split('{icon}')[0]}
-                            <MapPin className="w-3 h-3 inline mx-1" />
-                            {t('explore.enable_location_help').split('{icon}')[1]}
                         </div>
                     )}
                 </div>
