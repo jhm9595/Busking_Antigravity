@@ -198,44 +198,46 @@ export default function ExplorePage() {
     }
 
     return (
-        <div className="h-screen flex flex-col bg-background text-foreground overflow-hidden">
-            <header className="flex justify-between items-center p-4 border-b bg-background z-10 shadow-sm shrink-0">
-                <div className="flex items-center gap-2 md:gap-4">
-                    <Link href="/" className="p-2.5 rounded-xl bg-accent text-muted hover:bg-accent/80 transition-all active:scale-95 shadow-sm" title={t('common.home_button')}>
-                        <Compass className="w-5 h-5" />
-                    </Link>
-                    <h1 className="text-lg md:text-2xl font-black text-primary truncate uppercase italic tracking-tighter">{t('home.explore_title')}</h1>
-                </div>
-                <div className="flex items-center gap-2 md:gap-3">
-                    <LanguageSwitcher />
-                    <ThemeSwitcher />
-                    <div className="flex bg-accent rounded-xl p-1">
+        <div className="min-h-screen flex flex-col bg-background text-foreground overflow-hidden">
+            <header className="w-full border-b bg-background z-10 shadow-sm shrink-0">
+                <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex justify-between items-center">
+                    <div className="flex items-center gap-2 md:gap-4">
+                        <Link href="/" className="p-2.5 rounded-xl bg-accent text-muted hover:bg-accent/80 transition-all active:scale-95 shadow-sm" title={t('common.home_button')}>
+                            <Compass className="w-5 h-5" />
+                        </Link>
+                        <h1 className="text-lg md:text-2xl font-black text-primary truncate uppercase italic tracking-tighter">{t('home.explore_title')}</h1>
+                    </div>
+                    <div className="flex items-center gap-2 md:gap-3">
+                        <LanguageSwitcher />
+                        <ThemeSwitcher />
+                        <div className="flex bg-accent rounded-xl p-1">
+                            <button
+                                onClick={() => setViewMode('map')}
+                                className={`p-2 rounded-lg flex items-center text-xs md:text-sm font-bold transition-all ${viewMode === 'map' ? 'bg-card shadow text-primary' : 'text-muted'}`}
+                            >
+                                <MapIcon className="w-4 h-4 md:w-5 md:h-5 md:mr-1" /> <span className="hidden md:inline">{t('home.view_map')}</span>
+                            </button>
+                            <button
+                                onClick={() => setViewMode('grid')}
+                                className={`p-2 rounded-lg flex items-center text-xs md:text-sm font-bold transition-all ${viewMode === 'grid' ? 'bg-card shadow text-primary' : 'text-muted'}`}
+                            >
+                                <List className="w-4 h-4 md:w-5 md:h-5 md:mr-1" /> <span className="hidden md:inline">{t('home.view_list')}</span>
+                            </button>
+                        </div>
                         <button
-                            onClick={() => setViewMode('map')}
-                            className={`p-2 rounded-lg flex items-center text-xs md:text-sm font-bold transition-all ${viewMode === 'map' ? 'bg-card shadow text-primary' : 'text-muted'}`}
+                            onClick={fetchFollowing}
+                            className="px-3 py-2 bg-primary/10 text-primary border border-primary/20 rounded-xl text-xs md:text-sm font-black transition-all hover:bg-primary/20 shadow-sm uppercase italic"
                         >
-                            <MapIcon className="w-4 h-4 md:w-5 md:h-5 md:mr-1" /> <span className="hidden md:inline">{t('home.view_map')}</span>
+                            {t('home.following_btn')}
                         </button>
                         <button
-                            onClick={() => setViewMode('grid')}
-                            className={`p-2 rounded-lg flex items-center text-xs md:text-sm font-bold transition-all ${viewMode === 'grid' ? 'bg-card shadow text-primary' : 'text-muted'}`}
+                            onClick={handleLogout}
+                            className="p-2 md:px-3 md:py-2 border border-border rounded-xl hover:bg-accent flex items-center text-muted transition-all active:scale-95 shadow-sm"
+                            title="Logout"
                         >
-                            <List className="w-4 h-4 md:w-5 md:h-5 md:mr-1" /> <span className="hidden md:inline">{t('home.view_list')}</span>
+                            <LogOut className="w-4 h-4 md:w-5 md:h-5" />
                         </button>
                     </div>
-                    <button
-                        onClick={fetchFollowing}
-                        className="px-3 py-2 bg-primary/10 text-primary border border-primary/20 rounded-xl text-xs md:text-sm font-black transition-all hover:bg-primary/20 shadow-sm uppercase italic"
-                    >
-                        {t('home.following_btn')}
-                    </button>
-                    <button
-                        onClick={handleLogout}
-                        className="p-2 md:px-3 md:py-2 border border-border rounded-xl hover:bg-accent flex items-center text-muted transition-all active:scale-95 shadow-sm"
-                        title="Logout"
-                    >
-                        <LogOut className="w-4 h-4 md:w-5 md:h-5" />
-                    </button>
                 </div>
             </header>
 
@@ -254,46 +256,48 @@ export default function ExplorePage() {
                         <BuskingMap performances={performances} isLoggedIn={!!user} />
                     </div>
                 ) : (
-                    <div className="h-full overflow-y-auto p-4 md:p-8 max-w-6xl mx-auto custom-scrollbar">
-                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                            {performances.length === 0 ? (
-                                <div className="col-span-full flex flex-col items-center justify-center py-20 opacity-30 italic">
-                                    <List className="w-12 h-12 mb-4" />
-                                    <p className="text-center font-bold">{t('home.no_performances')}</p>
-                                </div>
-                            ) : (
-                                performances.map((perf) => {
-                                    const isLive = getEffectiveStatus(perf) === 'live'
-                                    return (
-                                        <div key={perf.id} className={`group border rounded-[24px] p-5 hover:shadow-2xl transition-all bg-card block cursor-pointer relative overflow-hidden ${perf.isFollowed ? 'border-primary/20 shadow-lg shadow-primary/5' : 'border-border shadow-sm'}`} onClick={() => router.push(`/singer/${perf.singerId}`)}>
-                                            {perf.isFollowed && (
-                                                <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 rounded-bl-xl text-[11px] font-black uppercase tracking-widest italic shadow-lg">
-                                                    {t('common.following')}
+                    <div className="h-full overflow-y-auto py-6 md:py-10 px-4 md:px-6 custom-scrollbar">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                {performances.length === 0 ? (
+                                    <div className="col-span-full flex flex-col items-center justify-center py-20 opacity-30 italic">
+                                        <List className="w-12 h-12 mb-4" />
+                                        <p className="text-center font-bold">{t('home.no_performances')}</p>
+                                    </div>
+                                ) : (
+                                    performances.map((perf) => {
+                                        const isLive = getEffectiveStatus(perf) === 'live'
+                                        return (
+                                            <div key={perf.id} className={`group border rounded-[24px] p-5 hover:shadow-2xl transition-all bg-card block cursor-pointer relative overflow-hidden ${perf.isFollowed ? 'border-primary/20 shadow-lg shadow-primary/5' : 'border-border shadow-sm'}`} onClick={() => router.push(`/singer/${perf.singerId}`)}>
+                                                {perf.isFollowed && (
+                                                    <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 rounded-bl-xl text-[11px] font-black uppercase tracking-widest italic shadow-lg">
+                                                        {t('common.following')}
+                                                    </div>
+                                                )}
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <span className={`text-[11px] px-3 py-1 rounded-full font-black uppercase tracking-wider ${isLive ? 'bg-red-600 text-white animate-pulse shadow-lg shadow-red-600/30' : 'bg-primary/10 text-primary'}`}>
+                                                        {isLive ? t('live.status_live') : t('home.status_scheduled')}
+                                                    </span>
+                                                    <span className="text-[11px] font-bold text-muted font-mono">
+                                                        {formatKstLabel(perf.startTime)}
+                                                    </span>
                                                 </div>
-                                            )}
-                                            <div className="flex justify-between items-start mb-4">
-                                                <span className={`text-[11px] px-3 py-1 rounded-full font-black uppercase tracking-wider ${isLive ? 'bg-red-600 text-white animate-pulse shadow-lg shadow-red-600/30' : 'bg-primary/10 text-primary'}`}>
-                                                    {isLive ? t('live.status_live') : t('home.status_scheduled')}
-                                                </span>
-                                                <span className="text-[11px] font-bold text-muted font-mono">
-                                                    {formatKstLabel(perf.startTime)}
-                                                </span>
+                                                <h3 className="font-black text-xl mb-2 text-foreground group-hover:text-primary transition-colors truncate uppercase italic">{perf.title}</h3>
+                                                <p className="text-muted-foreground text-xs mb-6 flex items-center gap-1.5 font-medium italic">
+                                                    <span className="w-1 h-1 bg-muted/30 rounded-full" />
+                                                    {perf.locationText}
+                                                </p>
+                                                <button className="w-full py-3.5 bg-foreground text-background rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all hover:bg-primary hover:text-primary-foreground hover:scale-[1.02] active:scale-95 shadow-xl italic">
+                                                    {t('home.view_details')}
+                                                </button>
                                             </div>
-                                            <h3 className="font-black text-xl mb-2 text-foreground group-hover:text-primary transition-colors truncate uppercase italic">{perf.title}</h3>
-                                            <p className="text-muted-foreground text-xs mb-6 flex items-center gap-1.5 font-medium italic">
-                                                <span className="w-1 h-1 bg-muted/30 rounded-full" />
-                                                {perf.locationText}
-                                            </p>
-                                            <button className="w-full py-3.5 bg-foreground text-background rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all hover:bg-primary hover:text-primary-foreground hover:scale-[1.02] active:scale-95 shadow-xl italic">
-                                                {t('home.view_details')}
-                                            </button>
-                                        </div>
-                                    )
-                                })
-                            )}
-                        </div>
+                                        )
+                                    })
+                                )}
+                            </div>
 
-                        <GoogleAd slot="explore_grid_bottom" className="mt-12" />
+                            <GoogleAd slot="explore_grid_bottom" className="mt-12" />
+                        </div>
                     </div>
                 )}
             </main>

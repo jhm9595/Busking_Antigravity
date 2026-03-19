@@ -22,19 +22,22 @@ export default function LandingPage({ userId, isSinger }: LandingPageProps) {
 
         setIsDemoLoading(true)
         try {
-            const response = await fetch('/api/demo', {
+            // Call auth/demo endpoint for server-side demo login
+            const response = await fetch('/auth/demo', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'reset' })
             })
 
             if (!response.ok) {
-                const body = await response.json().catch(() => null)
-                const message = body?.error || t('common.error')
-                throw new Error(message)
+                // Fallback: Just set demo data and redirect to dashboard
+                await fetch('/api/demo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'reset' })
+                })
             }
 
-            router.push('/explore?demo=1')
+            // Navigate to singer dashboard
+            router.push('/singer/dashboard')
         } catch (error) {
             const message = error instanceof Error && error.message ? error.message : t('common.error')
             alert(message)

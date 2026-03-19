@@ -217,12 +217,10 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                     </div>
                 )}
 
-                <div className="flex flex-col md:flex-row gap-4">
+                {/* Time fields - inside grid for full width on desktop */}
+                <div className={`${styles.timeFieldsContainer} flex flex-col md:flex-row gap-4`}>
                     <div className="flex-1 flex flex-col gap-1.5">
-                        <div className="flex items-center gap-2 px-1">
-                            <span className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest">{t('performance.form.start_time')}</span>
-                            <span className="text-red-500 text-xs">*</span>
-                        </div>
+                        <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest px-1">{t('performance.form.start_time')}</label>
                         <DateTimePicker
                             label=""
                             value={newPerf.start_time}
@@ -232,8 +230,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                     </div>
                     <div className="flex-1 flex flex-col gap-1.5">
                         <div className="flex items-center gap-2 px-1">
-                            <span className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest">{t('performance.form.end_time')}</span>
-                            <span className="text-red-500 text-xs">*</span>
+                            <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest">{t('performance.form.end_time')}</label>
                             <span className="text-[var(--color-text-muted)] cursor-help" title={t('performance.form.time_hint')}>
                                 <HelpCircle className="w-3.5 h-3.5" />
                             </span>

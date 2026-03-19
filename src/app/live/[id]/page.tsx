@@ -278,7 +278,8 @@ export default function AudienceLivePage() {
     const isChatOpen = chatStatus === 'open'
 
     return (
-        <div className="bg-background text-foreground h-[100dvh] flex flex-col w-full md:max-w-xl mx-auto font-display overflow-hidden selection:bg-indigo-500/30">
+        <div className="bg-background text-foreground min-h-[100dvh] flex flex-col w-full font-display overflow-hidden selection:bg-indigo-500/30">
+            {/* Header - Always visible */}
             <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border px-4 py-3 flex items-center justify-between shadow-2xl shrink-0">
                 <div className="flex items-center gap-2 md:gap-3 min-w-0">
                     <Link href="/explore" className="p-2.5 rounded-xl bg-foreground/5 border border-border hover:bg-foreground/10 text-foreground transition-all active:scale-95 shadow-lg shrink-0">
@@ -291,7 +292,7 @@ export default function AudienceLivePage() {
                             </div>
                         </div>
                         <div className="flex flex-col">
-                            <span className="font-black text-sm text-foreground group-hover:text-primary transition-colors leading-tight uppercase italic">{singer?.stageName || t('common.singer_fallback')}</span>
+                            <span className="font-black text-sm text-foreground group-hover:text-primary transition-colors leading-tight uppercase italic hidden sm:block">{singer?.stageName || t('common.singer_fallback')}</span>
                             <span className="text-[11px] text-foreground/50 font-bold uppercase tracking-widest italic">{realtimeStatus === 'connected' ? t('live.status_live') : t('live.status_syncing')}</span>
                         </div>
                     </Link>
@@ -301,7 +302,7 @@ export default function AudienceLivePage() {
                         <span className="text-[8px] font-black text-amber-400/50 uppercase tracking-widest leading-none mb-1">{t('common.points')}</span>
                         <span className="text-xs font-mono font-black text-amber-400 leading-none">{userPoints.toLocaleString()}P</span>
                     </div>
-                    <Link href={`/singer/${singer?.id}`} className="hidden sm:flex px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg italic bg-foreground/5 text-foreground/70 border border-border hover:bg-foreground/10 items-center">
+                    <Link href={`/singer/${singer?.id}`} className="hidden md:flex px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-lg italic bg-foreground/5 text-foreground/70 border border-border hover:bg-foreground/10 items-center">
                         {t('live.view_profile')}
                     </Link>
                     {user?.id ? (
@@ -323,6 +324,7 @@ export default function AudienceLivePage() {
                 </div>
             </header>
 
+            {/* Mobile-only points bar */}
             <div className="sm:hidden bg-background/40 px-4 py-1.5 border-b border-border flex justify-between items-center shrink-0">
                 <div className="flex items-center gap-2">
                     <span className="text-xs font-black text-amber-400/70 uppercase tracking-widest">{t('common.points')}:</span>
@@ -331,80 +333,90 @@ export default function AudienceLivePage() {
                 <button onClick={() => setShowChargeModal(true)} className="text-[8px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20 font-black uppercase">{t('common.charge')} (TEST)</button>
             </div>
 
-            <main className="flex-1 overflow-y-auto flex flex-col p-4 pb-32 custom-scrollbar">
-                {isCompleted ? (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center py-12 animate-in fade-in zoom-in duration-500 italic">
-                        <div className="w-20 h-20 bg-card border border-border rounded-full flex items-center justify-center mb-6 shadow-2xl">
-                            <Archive className="w-10 h-10 text-foreground/60" />
+            {/* Main content area - Responsive Layout */}
+            <main className="flex-1 overflow-hidden flex flex-col lg:flex-row">
+                {/* Left column - Performance Info (or stacked on mobile) */}
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-4 pb-32 md:pb-4">
+                    {isCompleted ? (
+                        <div className="h-full flex flex-col items-center justify-center text-center py-12 animate-in fade-in zoom-in duration-500 italic">
+                            <div className="w-20 h-20 bg-card border border-border rounded-full flex items-center justify-center mb-6 shadow-2xl">
+                                <Archive className="w-10 h-10 text-foreground/60" />
+                            </div>
+                            <h2 className="text-2xl font-black mb-2 text-foreground">{t('live.ended_title')}</h2>
+                            <p className="text-foreground/50 mb-10 max-w-[240px] leading-relaxed">{t('live.ended_desc')}</p>
+                            <Link href={`/singer/${singer?.id}`} className="w-full max-w-xs bg-indigo-600 py-4 rounded-2xl font-black shadow-xl shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-widest">{t('live.view_singer_profile')}</Link>
                         </div>
-                        <h2 className="text-2xl font-black mb-2 text-foreground">{t('live.ended_title')}</h2>
-                        <p className="text-foreground/50 mb-10 max-w-[240px] leading-relaxed">{t('live.ended_desc')}</p>
-                        <Link href={`/singer/${singer?.id}`} className="w-full max-w-xs bg-indigo-600 py-4 rounded-2xl font-black shadow-xl shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-widest">{t('live.view_singer_profile')}</Link>
-                    </div>
-                ) : (
-                    <div className="flex-1 flex flex-col space-y-4">
-                        <section className="bg-card/50 rounded-[32px] p-6 border border-border shadow-xl">
-                            <div className="flex items-center justify-between mb-5">
-                                <h2 className="text-md font-black flex items-center gap-3 italic uppercase tracking-wider"><Music className="w-5 h-5 text-primary" />{t('performance.details.setlist_title')}</h2>
-                                <div className="flex items-center gap-2">
-                                    <button onClick={() => setShowRequestModal(true)} className="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all border border-primary/30 italic flex items-center gap-2 shadow-lg"><Music className="w-3 h-3" /> {t('song_request.title')}</button>
-                                    <span className="text-xs font-black bg-foreground/5 px-2.5 py-1 rounded-full text-foreground/50 uppercase tracking-widest italic">{performance.songs?.length || 0} {t('live.tracks')}</span>
-                                </div>
-                            </div>
-                            <div className={`space-y-3 ${chatStatus === 'open' ? 'max-h-[300px] overflow-y-auto custom-scrollbar pr-1' : ''}`}>
-                                {performance.songs?.length > 0 ? (
-                                    performance.songs.map((s: any, i: number) => {
-                                        const isLive = s.status !== 'completed' && i === performance.songs.findIndex((x: any) => x.status !== 'completed')
-                                        return (
-                                            <div key={i} className={`group p-4 rounded-2xl border transition-all duration-500 ${s.status === 'completed' ? 'bg-foreground/5 border-border text-foreground/60' : 'bg-card border-border shadow-lg shadow-black/20 hover:border-indigo-500/30'}`}>
-                                                <div className="flex justify-between items-center">
-                                                    <div className="min-w-0">
-                                                        <p className="font-black text-base flex items-center gap-3 truncate text-foreground uppercase italic tracking-tight group-hover:text-indigo-400 transition-colors">{s.title}{s.status === 'completed' && <Check className="w-4 h-4 text-emerald-500" />}</p>
-                                                        <p className="text-xs font-bold text-foreground/50 uppercase tracking-[0.2em] mt-0.5">{s.artist}</p>
-                                                    </div>
-                                                    {isLive && <span className="text-[8px] bg-red-600 text-white px-2.5 py-1 rounded-full font-black animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter">{t('live.badge_now')}</span>}
-                                                </div>
-                                            </div>
-                                        )
-                                    })
-                                ) : (
-                                    <div className="p-10 text-center text-xs text-foreground/40 bg-foreground/5 border border-dashed border-border rounded-[24px] italic font-bold">{t('performance.details.empty_setlist')}</div>
-                                )}
-                            </div>
-                        </section>
-
-                        <GoogleAd slot="audience_live_mid" className="opacity-30 scale-90" />
-
-                        {chatStatus === 'open' ? (
-                            <section className="bg-card rounded-[32px] border border-border flex flex-col flex-1 min-h-[450px] overflow-hidden shadow-2xl relative mb-20 animate-in slide-in-from-bottom-6 duration-700">
-                                <div className="p-4 bg-background/60 backdrop-blur-md border-b border-border flex justify-between items-center sticky top-0 z-10">
-                                    <h2 className="font-black text-sm flex items-center gap-3 italic uppercase"><MessageCircle className="w-5 h-5 text-primary" />{t('chat.title')}</h2>
-                                    <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
-                                        <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
-                                        <span className="text-xs font-black text-primary uppercase tracking-widest italic">{viewingCount} {t('live.watching')}</span>
+                    ) : (
+                        <div className="flex flex-col h-full space-y-4">
+                            {/* Performance Details Card */}
+                            <section className="bg-card/50 rounded-[32px] p-6 border border-border shadow-xl">
+                                <div className="flex items-center justify-between mb-5">
+                                    <h2 className="text-md font-black flex items-center gap-3 italic uppercase tracking-wider"><Music className="w-5 h-5 text-primary" />{t('performance.details.setlist_title')}</h2>
+                                    <div className="flex items-center gap-2">
+                                        <button onClick={() => setShowRequestModal(true)} className="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all border border-primary/30 italic flex items-center gap-2 shadow-lg"><Music className="w-3 h-3" /> {t('song_request.title')}</button>
+                                        <span className="text-xs font-black bg-foreground/5 px-2.5 py-1 rounded-full text-foreground/50 uppercase tracking-widest italic">{performance.songs?.length || 0} {t('live.tracks')}</span>
                                     </div>
                                 </div>
-                                <ChatBox
-                                    performanceId={id}
-                                    username={username || 'Guest'}
-                                    userType="audience"
-                                    socket={activeSocket || undefined}
-                                    className="flex-1 !rounded-none !border-0"
-                                    onViewingCountChange={setViewingCount}
-                                    onMessagesChange={handleMessagesChange}
-                                />
+                                <div className={`space-y-3 ${chatStatus === 'open' ? 'max-h-[300px] lg:max-h-[400px] overflow-y-auto custom-scrollbar pr-1' : ''}`}>
+                                    {performance.songs?.length > 0 ? (
+                                        performance.songs.map((s: any, i: number) => {
+                                            const isLive = s.status !== 'completed' && i === performance.songs.findIndex((x: any) => x.status !== 'completed')
+                                            return (
+                                                <div key={i} className={`group p-4 rounded-2xl border transition-all duration-500 ${s.status === 'completed' ? 'bg-foreground/5 border-border text-foreground/60' : 'bg-card border-border shadow-lg shadow-black/20 hover:border-indigo-500/30'}`}>
+                                                    <div className="flex justify-between items-center">
+                                                        <div className="min-w-0">
+                                                            <p className="font-black text-base flex items-center gap-3 truncate text-foreground uppercase italic tracking-tight group-hover:text-indigo-400 transition-colors">{s.title}{s.status === 'completed' && <Check className="w-4 h-4 text-emerald-500" />}</p>
+                                                            <p className="text-xs font-bold text-foreground/50 uppercase tracking-[0.2em] mt-0.5">{s.artist}</p>
+                                                        </div>
+                                                        {isLive && <span className="text-[8px] bg-red-600 text-white px-2.5 py-1 rounded-full font-black animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter">{t('live.badge_now')}</span>}
+                                                    </div>
+                                                </div>
+                                            )
+                                        })
+                                    ) : (
+                                        <div className="p-10 text-center text-xs text-foreground/40 bg-foreground/5 border border-dashed border-border rounded-[24px] italic font-bold">{t('performance.details.empty_setlist')}</div>
+                                    )}
+                                </div>
                             </section>
-                        ) : (
-                            <div className="flex-1 flex flex-col items-center justify-center p-12 bg-foreground/5 rounded-[48px] border border-dashed border-border text-center mt-6 min-h-[300px] italic shadow-inner">
-                                <div className="w-20 h-20 bg-foreground/10 rounded-full flex items-center justify-center mb-6 opacity-30 shadow-2xl"><MessageSquareOff className="w-10 h-10 text-foreground" /></div>
-                                <p className="text-foreground/70 text-xs font-black uppercase tracking-[0.3em]">{t('chat.closed_placeholder')}</p>
-                                <p className="text-foreground/60 text-[11px] mt-3 max-w-[240px] font-medium leading-relaxed">{t('live.chat_ready_desc')}</p>
+
+                            <GoogleAd slot="audience_live_mid" className="opacity-30 scale-90 hidden md:block" />
+
+                            {/* Chat placeholder when chat is closed (mobile/tablet) */}
+                            {chatStatus !== 'open' && (
+                                <div className="flex-1 flex flex-col items-center justify-center p-12 bg-foreground/5 rounded-[48px] border border-dashed border-border text-center min-h-[300px] italic shadow-inner">
+                                    <div className="w-20 h-20 bg-foreground/10 rounded-full flex items-center justify-center mb-6 opacity-30 shadow-2xl"><MessageSquareOff className="w-10 h-10 text-foreground" /></div>
+                                    <p className="text-foreground/70 text-xs font-black uppercase tracking-[0.3em]">{t('chat.closed_placeholder')}</p>
+                                    <p className="text-foreground/60 text-[11px] mt-3 max-w-[240px] font-medium leading-relaxed">{t('live.chat_ready_desc')}</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {/* Right column - Chat (visible on md+ screens, or full width on mobile) */}
+                {chatStatus === 'open' && (
+                    <div className="w-full lg:w-[400px] xl:w-[450px] border-t lg:border-t-0 lg:border-l border-border bg-card flex flex-col flex-1 min-h-[400px] lg:min-h-0 overflow-hidden shadow-2xl">
+                        <div className="p-4 bg-background/60 backdrop-blur-md border-b border-border flex justify-between items-center shrink-0">
+                            <h2 className="font-black text-sm flex items-center gap-3 italic uppercase"><MessageCircle className="w-5 h-5 text-primary" />{t('chat.title')}</h2>
+                            <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
+                                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+                                <span className="text-xs font-black text-primary uppercase tracking-widest italic">{viewingCount} {t('live.watching')}</span>
                             </div>
-                        )}
+                        </div>
+                        <ChatBox
+                            performanceId={id}
+                            username={username || 'Guest'}
+                            userType="audience"
+                            socket={activeSocket || undefined}
+                            className="flex-1 !rounded-none !border-0"
+                            onViewingCountChange={setViewingCount}
+                            onMessagesChange={handleMessagesChange}
+                        />
                     </div>
                 )}
             </main>
 
+            {/* Sponsor buttons - Fixed bottom */}
             {!isCompleted && (
                 <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/90 to-transparent flex justify-center z-40 pointer-events-none">
                     <div className="flex gap-2 w-full max-w-lg pointer-events-auto">

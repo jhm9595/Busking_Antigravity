@@ -55,12 +55,9 @@ export default function SingerDetailPage() {
                 const data = await res.json()
                 setSinger(data)
 
-                // Auto-redirect to live if a performance is currently live
-                const activeLive = data.performances?.find((p: any) => getEffectiveStatus(p) === 'live')
-                if (activeLive) {
-                    router.push(`/live/${activeLive.id}`)
-                    return
-                }
+                // NOTE: Removed auto-redirect to live room
+                // Users should intentionally choose when to enter live, not be forced
+                // The profile page already shows a prominent "LIVE NOW" section with "Enter Live" button
 
                 if (typeof window !== 'undefined') {
                     let fanId = user?.id

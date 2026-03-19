@@ -244,3 +244,17 @@
     width: auto;
     min-width: 0;
 }
+
+/* Time fields container - full width on desktop */
+.timeFieldsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+@media (min-width: 1024px) {
+    .timeFieldsContainer {
+        grid-column: span 2;
+    }
+}

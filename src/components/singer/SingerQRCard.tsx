@@ -36,8 +36,9 @@ const getDisplayHandle = (input: string | undefined) => {
     // Remove common URL prefixes
     handle = handle.replace(/^https?:\/\/(www\.)?/, '')
     handle = handle.replace(/^(instagram\.com|facebook\.com|youtube\.com\/@|tiktok\.com\/@|soundcloud\.com|twitter\.com)\//, '')
-    // Truncate if too long (optional)
-    if (handle.length > 15) handle = handle.substring(0, 15) + '...'
+    // Remove trailing slashes
+    handle = handle.replace(/\/$/, '')
+    // Don't truncate - show full handle so singer can verify their input
     return handle.startsWith('@') ? handle : '@' + handle
 }
 
@@ -191,37 +192,37 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
                 {/* Social Icons Row */}
                 <div className="grid grid-cols-3 gap-2 w-full px-2">
                     {socialLinks.instagram && (
-                        <button onClick={() => openSocial(socialLinks.instagram, 'instagram')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group">
+                        <button onClick={() => openSocial(socialLinks.instagram, 'instagram')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group cursor-pointer">
                             <FaInstagram className="w-5 h-5 text-pink-600 group-hover:scale-110 transition-transform" />
                             <span className="text-sm text-foreground font-medium truncate">{getDisplayHandle(socialLinks.instagram)}</span>
                         </button>
                     )}
                     {socialLinks.youtube && (
-                        <button onClick={() => openSocial(socialLinks.youtube, 'youtube')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group">
+                        <button onClick={() => openSocial(socialLinks.youtube, 'youtube')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group cursor-pointer">
                             <FaYoutube className="w-5 h-5 text-red-600 group-hover:scale-110 transition-transform" />
                             <span className="text-sm text-foreground font-medium truncate">{getDisplayHandle(socialLinks.youtube)}</span>
                         </button>
                     )}
                     {socialLinks.tiktok && (
-                        <button onClick={() => openSocial(socialLinks.tiktok, 'tiktok')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group">
+                        <button onClick={() => openSocial(socialLinks.tiktok, 'tiktok')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group cursor-pointer">
                             <FaTiktok className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
                             <span className="text-sm text-foreground font-medium truncate">{getDisplayHandle(socialLinks.tiktok)}</span>
                         </button>
                     )}
                     {socialLinks.soundcloud && (
-                        <button onClick={() => openSocial(socialLinks.soundcloud, 'soundcloud')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group">
+                        <button onClick={() => openSocial(socialLinks.soundcloud, 'soundcloud')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group cursor-pointer">
                             <FaSoundcloud className="w-5 h-5 text-orange-500 group-hover:scale-110 transition-transform" />
                             <span className="text-sm text-foreground font-medium truncate">{getDisplayHandle(socialLinks.soundcloud)}</span>
                         </button>
                     )}
                     {socialLinks.twitter && (
-                        <button onClick={() => openSocial(socialLinks.twitter, 'twitter')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group">
+                        <button onClick={() => openSocial(socialLinks.twitter, 'twitter')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group cursor-pointer">
                             <FaXTwitter className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
                             <span className="text-sm text-foreground font-medium truncate">{getDisplayHandle(socialLinks.twitter)}</span>
                         </button>
                     )}
                     {socialLinks.facebook && (
-                        <button onClick={() => openSocial(socialLinks.facebook, 'facebook')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group">
+                        <button onClick={() => openSocial(socialLinks.facebook, 'facebook')} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-lg transition-colors text-left group cursor-pointer">
                             <FaFacebook className="w-5 h-5 text-blue-600 group-hover:scale-110 transition-transform" />
                             <span className="text-sm text-foreground font-medium truncate">{getDisplayHandle(socialLinks.facebook)}</span>
                         </button>

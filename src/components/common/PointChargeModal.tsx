@@ -120,6 +120,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
         setIsSubmitting(false)
     }
 
+    /* handleWatchAd temporarily disabled - will be implemented after AdSense approval
     const handleWatchAd = async () => {
         if (isSubmitting) return
         setIsSubmitting(true)
@@ -177,6 +178,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
             setIsSubmitting(false)
         }
     }
+    */
 
     if (!isOpen) return null
 
@@ -292,7 +294,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                             </div>
                         </div>
 
-                        {/* 3. Watch Ad Option */}
+                        {/* 3. Watch Ad Option - Temporarily disabled for AdSense approval
                         <div className="space-y-2 md:space-y-3">
                             <h3 className="text-[10px] md:text-xs font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] italic px-2">
                                 {t('common.free_points')}
@@ -313,6 +315,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                                 <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">{t('common.watch_ad')}</span>
                             </button>
                         </div>
+                        */}
                     </main>
 
                     <footer className="p-4 md:p-8 relative z-10 shrink-0" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border)', borderTopWidth: '1px', borderTopStyle: 'solid' }}>
