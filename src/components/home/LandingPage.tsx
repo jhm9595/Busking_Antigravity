@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { Loader2, Play } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import GoogleAd from '@/components/common/GoogleAd'
@@ -13,7 +12,6 @@ interface LandingPageProps {
 }
 
 export default function LandingPage({ userId, isSinger }: LandingPageProps) {
-    const router = useRouter()
     const { t } = useLanguage()
     const [isDemoLoading, setIsDemoLoading] = useState(false)
 
@@ -22,19 +20,11 @@ export default function LandingPage({ userId, isSinger }: LandingPageProps) {
 
         setIsDemoLoading(true)
         try {
-            // Setup fresh demo data
-            await fetch('/api/demo', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'reset' })
-            })
-
-            // Navigate to explore page
-            router.push('/explore?demo=1')
+            // Redirect to auth demo route which handles login + data setup + redirect to dashboard
+            window.location.href = '/auth/demo'
         } catch (error) {
             const message = error instanceof Error && error.message ? error.message : t('common.error')
             alert(message)
-        } finally {
             setIsDemoLoading(false)
         }
     }
