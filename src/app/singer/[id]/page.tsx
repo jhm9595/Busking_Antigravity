@@ -244,7 +244,7 @@ export default function SingerDetailPage() {
                     </div>
                 )}
 
-                <GoogleAd slot="singer_profile_mid" className="opacity-30 scale-90" />
+                {/* <GoogleAd slot="singer_profile_mid" className="opacity-30 scale-90" /> */}
 
                 {/* 3. PRIMARY ACTION BUTTONS */}
                 <div className="flex gap-3 sticky top-20 z-30 pointer-events-auto">
@@ -352,7 +352,7 @@ export default function SingerDetailPage() {
                                     <div key={perf.id} className="bg-card border border-border rounded-3xl overflow-hidden group hover:border-primary/20 transition-all shadow-xl">
                                         <div className="p-5 relative">
                                             <div className="flex flex-col gap-1 mb-5">
-                                                <span className="text-xs font-black text-primary uppercase tracking-widest bg-primary/10 w-fit px-2.5 py-1 rounded-full mb-1 italic">
+                                                <span suppressHydrationWarning className="text-xs font-black text-primary uppercase tracking-widest bg-primary/10 w-fit px-2.5 py-1 rounded-full mb-1 italic">
                                                     {formatLocalDate(perf.startTime)}
                                                 </span>
                                                 <h3 className="font-black text-lg text-foreground italic tracking-tight uppercase">{perf.title}</h3>
@@ -396,7 +396,7 @@ export default function SingerDetailPage() {
                         )}
                     </div>
 
-                    <GoogleAd slot="singer_profile_performances" className="my-8" />
+                    {/* <GoogleAd slot="singer_profile_performances" className="my-8" /> */}
                 </div>
             </div>
 

@@ -59,7 +59,6 @@ export default function ExplorePage() {
     const { user } = useUser()
     const { t } = useLanguage()
     const isAuthenticated = !!user
-    const bootstrapAttemptedRef = useRef(false)
 
     const [viewMode, setViewMode] = useState<'map' | 'grid'>('map')
     const [performances, setPerformances] = useState<Performance[]>([])
@@ -68,7 +67,6 @@ export default function ExplorePage() {
     const [requestedDemo, setRequestedDemo] = useState(false)
     const [showDemoBanner, setShowDemoBanner] = useState(false)
     const [isDemoResetting, setIsDemoResetting] = useState(false)
-    const [isBootstrappingDemo, setIsBootstrappingDemo] = useState(false)
 
     useEffect(() => {
         if (typeof window === 'undefined') return
@@ -122,45 +120,8 @@ export default function ExplorePage() {
         }
     }, [isAuthenticated, requestedDemo])
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            bootstrapAttemptedRef.current = false
-            setShowDemoBanner(false)
-            return
-        }
-
-        if (!requestedDemo && performances.length > 0) {
-            return
-        }
-
-        if (!requestedDemo && bootstrapAttemptedRef.current) {
-            return
-        }
-
-        bootstrapAttemptedRef.current = true
-
-        const bootstrapDemo = async () => {
-            setIsBootstrappingDemo(true)
-            try {
-                const res = await fetch('/api/demo', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'ensure' })
-                })
-
-                if (res.ok) {
-                    setShowDemoBanner(true)
-                    await fetchPerformances()
-                }
-            } catch (error) {
-                console.error('Failed to bootstrap demo mode', error)
-            } finally {
-                setIsBootstrappingDemo(false)
-            }
-        }
-
-        bootstrapDemo()
-    }, [isAuthenticated, requestedDemo, performances.length, fetchPerformances])
+    // Demo mode is only activated via "Try Demo" button on landing page (via ?demo=1 query param)
+    // No auto-bootstrap for anonymous users on explore page
 
     const handleResetDemo = async () => {
         if (isDemoResetting) return
@@ -244,14 +205,14 @@ export default function ExplorePage() {
                 {!isAuthenticated && showDemoBanner && (
                     <div className="absolute left-3 right-3 top-3 z-20 md:left-6 md:right-6 md:top-4">
                         <DemoBanner
-                            isResetting={isDemoResetting || isBootstrappingDemo}
+                            isResetting={isDemoResetting}
                             onReset={handleResetDemo}
                             onDismiss={() => setShowDemoBanner(false)}
                         />
                     </div>
                 )}
                 {viewMode === 'map' ? (
-                    <div className="h-full w-full min-h-[500px]">
+                    <div className="h-full w-full min-h-[calc(100vh-140px)] md:min-h-[calc(100vh-80px)]">
                         <BuskingMap performances={performances} isLoggedIn={!!user} />
                     </div>
                 ) : (

@@ -182,6 +182,9 @@ async function generateDemoPerformances(
 export async function resetDemoData(): Promise<DemoData> {
   const singerId = await ensureDemoSinger()
 
+  // First, ensure songs exist (they need to exist before performances reference them)
+  await ensureDemoSongs(singerId)
+
   const performanceIds = await prisma.$transaction(async (tx) => {
     const demoPerformances = await tx.performance.findMany({
       where: { singerId },
@@ -203,14 +206,9 @@ export async function resetDemoData(): Promise<DemoData> {
       })
     }
 
-    await tx.song.deleteMany({
-      where: { singerId }
-    })
-
+    // Regenerate performances (songs now exist)
     return generateDemoPerformances(singerId, tx)
   })
-
-  await ensureDemoSongs(singerId)
 
   return {
     singerId,
