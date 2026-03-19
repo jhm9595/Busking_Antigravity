@@ -1,6 +1,12 @@
-import { clerkMiddleware } from '@clerk/nextjs/server'
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+
+// Routes that should be public (no authentication required)
+const isPublicRoute = createRouteMatcher([
+    '/api/demo(.*)',
+    '/auth/demo(.*)',
+])
 
 function addCorsHeaders(response: NextResponse) {
     response.headers.set('Access-Control-Allow-Origin', '*')
@@ -23,6 +29,11 @@ export default clerkMiddleware(async (auth, request: NextRequest) => {
             const response = NextResponse.next()
             return addCorsHeaders(response)
         }
+    }
+
+    // Skip auth for public routes
+    if (isPublicRoute(request)) {
+        return NextResponse.next()
     }
 })
 
