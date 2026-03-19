@@ -271,7 +271,7 @@ export const ja: LocaleTypes = {
         sponsor_btn: '応援する',
         sponsor_ad_btn: '広告を見て応援',
         ad_sponsor_success: 'アーティストに10ポイントを応援しました！',
-        status_live: 'ライブ中',
+        status_live: 'LIVE',
         status_syncing: '同期中...',
         info_show: 'ライブ情報とセトリ',
         info_hide: '情報を隠す',

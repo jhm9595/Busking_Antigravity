@@ -269,7 +269,7 @@ export const en = {
         sponsor_btn: 'Sponsor',
         sponsor_ad_btn: 'Sponsor via Ad',
         ad_sponsor_success: 'You sponsored 10 points to the singer!',
-        status_live: 'Live Now',
+        status_live: 'LIVE',
         status_syncing: 'Syncing...',
         info_show: 'View Info & Setlist',
         info_hide: 'Hide Info',

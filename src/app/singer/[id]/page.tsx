@@ -182,23 +182,29 @@ export default function SingerDetailPage() {
 
                 <div className="absolute bottom-0 left-0 w-full p-6 z-10 flex flex-col items-center text-center">
                     <div className="relative mb-4">
-                        <div className="w-28 h-28 rounded-full border-4 border-background bg-muted overflow-hidden shadow-2xl shadow-primary/20">
+                        <div className={`w-28 h-28 rounded-full border-4 border-background bg-muted overflow-hidden shadow-2xl ${singer.performances.some((p: any) => getEffectiveStatus(p) === 'live') ? 'shadow-red-500/50 ring-4 ring-red-500/30' : 'shadow-primary/20'}`}>
                             {singer.profile?.avatarUrl ? (
                                 <img src={singer.profile.avatarUrl} className="w-full h-full object-cover" alt={singer.stageName} />
                             ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground text-4xl font-black italic">
+                                <div className={`w-full h-full flex items-center justify-center text-primary-foreground text-4xl font-black italic ${singer.performances.some((p: any) => getEffectiveStatus(p) === 'live') ? 'bg-gradient-to-br from-red-600 to-red-700' : 'bg-gradient-to-br from-primary to-primary/80'}`}>
                                     {singer.stageName?.[0] || t('common.singer_fallback')[0]}
                                 </div>
                             )}
                         </div>
-                        {singer.performances.some((p: any) => getEffectiveStatus(p) === 'live') && (
-                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-red-600 text-white text-xs font-black px-3 py-1 rounded-full animate-pulse shadow-lg shadow-red-600/40 border border-red-500 tracking-tighter italic">
-                                {t('live.status_live')}
-                            </div>
-                        )}
                     </div>
                     
-                    <h1 className="text-3xl font-black italic tracking-tight mb-1 uppercase">{singer.stageName || t('common.singer_fallback')}</h1>
+                    <h1 className="text-3xl font-black italic tracking-tight mb-1 uppercase flex items-center gap-3 justify-center">
+                        {singer.stageName || t('common.singer_fallback')}
+                        {singer.performances.some((p: any) => getEffectiveStatus(p) === 'live') && (
+                            <span className="inline-flex items-center gap-1.5 bg-red-600/90 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-lg shadow-red-600/30 animate-pulse">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/70 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                                </span>
+                                LIVE
+                            </span>
+                        )}
+                    </h1>
                     <div className="flex items-center gap-4 text-xs font-bold text-muted-foreground mb-4">
                         <span className="flex items-center gap-1.5 bg-card px-3 py-1 rounded-full border border-border italic">
                             <Heart className={`w-3.5 h-3.5 ${isFollowed ? 'text-red-500 fill-current animate-bounce' : 'text-muted-foreground'}`} />
