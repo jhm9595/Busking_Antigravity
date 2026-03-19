@@ -58,7 +58,9 @@ async function ensureDemoSongs(singerId: string): Promise<void> {
     { title: '안녕', artist: '지아', youtubeUrl: 'https://www.youtube.com/watch?v=0G5fZqT3z4M' },
     { title: '흔들리는 꽃들 속에서 네 샴푸향이 바람날 때', artist: '장범준', youtubeUrl: 'https://www.youtube.com/watch?v=6Dr2J8H0rAo' },
     { title: '사건의 지평선', artist: '윤하', youtubeUrl: 'https://www.youtube.com/watch?v=MKpsFFFFPWA' },
-    { title: '우리를構成する何か', artist: '잔나비', youtubeUrl: 'https://www.youtube.com/watch?v=N7gZ9X7z3Fo' }
+    { title: '우리를 구성하는 무언가', artist: '잔나비', youtubeUrl: 'https://www.youtube.com/watch?v=N7gZ9X7z3Fo' },
+    { title: '스물다섯 스물하나', artist: '정경호', youtubeUrl: 'https://www.youtube.com/watch?v=phElJ1mY0' },
+    { title: '손절', artist: '임한별', youtubeUrl: 'https://www.youtube.com/watch?v=W4Fi-18r7h8' }
   ]
 
   const existingSongs = await prisma.song.findMany({
