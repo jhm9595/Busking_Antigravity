@@ -218,15 +218,15 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                 </button>
             </div>
 
-            {/* Mobile-First Filter Panel - Bottom Sheet Style */}
-            <div className="absolute bottom-0 left-0 right-0 z-[1000] bg-card rounded-t-3xl shadow-2xl border-t border-border pb-safe">
-                {/* Drag Handle */}
-                <div className="flex justify-center pt-2 pb-1">
+            {/* Responsive Filter Panel */}
+            <div className="absolute bottom-0 left-0 right-0 z-[1000] bg-card/95 backdrop-blur-sm shadow-2xl border-t border-border pb-safe md:pb-2 md:bottom-2 md:left-2 md:right-2 md:rounded-2xl md:max-w-2xl md:mx-auto">
+                {/* Drag Handle (mobile only) */}
+                <div className="flex justify-center pt-2 pb-1 md:hidden">
                     <div className="w-10 h-1 bg-muted rounded-full" />
                 </div>
                 
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 pb-2">
+                <div className="flex items-center justify-between px-4 py-2 md:py-2">
                     <h4 className="font-bold text-foreground flex items-center gap-2 text-sm">
                         <Filter className="w-4 h-4 text-primary" />
                         {t('explore.filter_title')}
@@ -237,9 +237,9 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                 </div>
 
                 {/* Compact Filter Controls */}
-                <div className="px-4 pb-4 space-y-2">
+                <div className="px-4 pb-4 md:pb-3 md:flex md:gap-3 md:items-center">
                     {/* Status Toggle - Horizontal Pills */}
-                    <div className="flex bg-accent p-1 rounded-xl">
+                    <div className="flex bg-accent p-1 rounded-xl md:flex-1">
                         {(['all', 'live', 'scheduled'] as const).map((mode) => (
                             <button
                                 key={mode}
@@ -252,7 +252,7 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                     </div>
 
                     {/* Additional Filters Row */}
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 mt-2 md:mt-0 md:flex-1">
                         {/* Followed Only Toggle (Only if logged in) */}
                         {isLoggedIn && (
                             <button
@@ -273,29 +273,6 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                             {userLocation ? t('explore.locate_me') : t('explore.enable_location_help').split('{icon}')[0].trim()}
                         </button>
                     </div>
-
-                    {/* Radius Slider (Only if location is set) */}
-                    {userLocation && (
-                        <div className="bg-accent/50 p-2 rounded-xl">
-                            <div className="flex justify-between text-xs text-muted-foreground mb-1.5 px-1">
-                                <span>{t('explore.filter_radius')}</span>
-                                <span className="font-bold text-primary">{radius === 0 ? t('explore.filter_radius_all') : `${radius} km`}</span>
-                            </div>
-                            <input
-                                type="range"
-                                min="0"
-                                max="50"
-                                step="5"
-                                value={radius}
-                                onChange={(e) => setRadius(Number(e.target.value))}
-                                className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-                            />
-                            <div className="flex justify-between text-[10px] text-muted-foreground/50 mt-1 px-1">
-                                <span>{t('explore.filter_radius_all')}</span>
-                                <span>50km</span>
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

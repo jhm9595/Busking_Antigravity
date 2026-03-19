@@ -19,6 +19,14 @@ const BuskingMap = dynamic(() => import('@/components/audience/BuskingMap'), {
     loading: () => <div className="h-full w-full flex items-center justify-center italic text-sm" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-muted)' }}>Loading...</div>
 })
 
+interface Singer {
+    id: string
+    stageName: string
+    profile?: {
+        avatarUrl?: string | null
+    }
+}
+
 interface Performance {
     id: string
     title: string
@@ -29,15 +37,8 @@ interface Performance {
     status: string
     chatEnabled: boolean
     singerId: string
+    singer?: Singer
     isFollowed?: boolean
-}
-
-interface Singer {
-    id: string
-    stageName: string
-    profile: {
-        avatarUrl: string | null
-    }
 }
 
 function formatKstLabel(date: string) {
@@ -227,6 +228,8 @@ export default function ExplorePage() {
                                 ) : (
                                     performances.map((perf) => {
                                         const isLive = getEffectiveStatus(perf) === 'live'
+                                        const singerName = perf.singer?.stageName || 'Unknown'
+                                        const singerAvatar = perf.singer?.profile?.avatarUrl
                                         return (
                                             <div key={perf.id} className={`group border rounded-[24px] p-5 hover:shadow-2xl transition-all bg-card block cursor-pointer relative overflow-hidden ${perf.isFollowed ? 'border-primary/20 shadow-lg shadow-primary/5' : 'border-border shadow-sm'}`} onClick={() => router.push(`/singer/${perf.singerId}`)}>
                                                 {perf.isFollowed && (
@@ -234,7 +237,7 @@ export default function ExplorePage() {
                                                         {t('common.following')}
                                                     </div>
                                                 )}
-                                                <div className="flex justify-between items-start mb-4">
+                                                <div className="flex justify-between items-start mb-3">
                                                     <span className={`text-[11px] px-3 py-1 rounded-full font-black uppercase tracking-wider ${isLive ? 'bg-red-600 text-white animate-pulse shadow-lg shadow-red-600/30' : 'bg-primary/10 text-primary'}`}>
                                                         {isLive ? t('live.status_live') : t('home.status_scheduled')}
                                                     </span>
@@ -242,12 +245,23 @@ export default function ExplorePage() {
                                                         {formatKstLabel(perf.startTime)}
                                                     </span>
                                                 </div>
-                                                <h3 className="font-black text-xl mb-2 text-foreground group-hover:text-primary transition-colors truncate uppercase">{perf.title}</h3>
-                                                <p className="text-muted-foreground text-xs mb-6 flex items-center gap-1.5 font-medium">
+                                                {/* Singer info */}
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/20">
+                                                        {singerAvatar ? (
+                                                            <img src={singerAvatar} alt={singerName} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <span className="font-black text-primary text-sm">{singerName[0]}</span>
+                                                        )}
+                                                    </div>
+                                                    <span className="font-bold text-xs text-muted-foreground uppercase tracking-wide">{singerName}</span>
+                                                </div>
+                                                <h3 className="font-black text-lg mb-2 text-foreground group-hover:text-primary transition-colors truncate uppercase">{perf.title}</h3>
+                                                <p className="text-muted-foreground text-xs mb-4 flex items-center gap-1.5 font-medium">
                                                     <span className="w-1 h-1 bg-muted/30 rounded-full" />
                                                     {perf.locationText}
                                                 </p>
-                                                <button className="w-full py-3.5 bg-foreground text-background rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all hover:bg-primary hover:text-primary-foreground hover:scale-[1.02] active:scale-95 shadow-xl">
+                                                <button className="w-full py-3 bg-foreground text-background rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all hover:bg-primary hover:text-primary-foreground hover:scale-[1.02] active:scale-95 shadow-xl">
                                                     {t('home.view_details')}
                                                 </button>
                                             </div>
