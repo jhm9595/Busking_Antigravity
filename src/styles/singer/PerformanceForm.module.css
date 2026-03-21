@@ -259,3 +259,9 @@
         align-items: flex-start;
     }
 }
+
+@media (min-width: 1024px) {
+    .timeFieldsRow {
+        grid-column: span 2;
+    }
+}
