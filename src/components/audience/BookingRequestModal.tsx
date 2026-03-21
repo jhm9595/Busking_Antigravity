@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react'
-import { Calendar, X, Mail, Phone, MapPin } from 'lucide-react'
+import { X } from 'lucide-react'
+import { DateInputField, SelectField, TextInputField, TextareaField } from '@/components/common/FormFields'
 
 interface BookingRequestModalProps {
     isOpen: boolean
@@ -13,7 +14,6 @@ import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function BookingRequestModal({ isOpen, onClose, onSubmit, singerName }: BookingRequestModalProps) {
     const { t } = useLanguage()
-    const [step, setStep] = useState(1)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [formData, setFormData] = useState({
         requesterName: '',
@@ -33,7 +33,30 @@ export default function BookingRequestModal({ isOpen, onClose, onSubmit, singerN
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!formData.requesterName || !formData.contactInfo) return
+        if (!formData.requesterName.trim()) {
+            alert(`${t('booking.modal.name_label')} ${t('common.required')}`)
+            return
+        }
+
+        if (!formData.contactInfo.trim()) {
+            alert(`${t('booking.modal.contact_label')} ${t('common.required')}`)
+            return
+        }
+
+        if (!formData.eventDate) {
+            alert(`${t('booking.modal.date_label')} ${t('common.required')}`)
+            return
+        }
+
+        if (!formData.location.trim()) {
+            alert(`${t('booking.modal.location_label')} ${t('common.required')}`)
+            return
+        }
+
+        if (!formData.message.trim()) {
+            alert(`${t('booking.modal.message_label')} ${t('common.required')}`)
+            return
+        }
 
         setIsSubmitting(true)
         try {
@@ -70,37 +93,23 @@ export default function BookingRequestModal({ isOpen, onClose, onSubmit, singerN
                         </h4>
 
                         <div className="grid grid-cols-1 gap-3">
-                            <div>
-                                <label className="block text-xs font-bold mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('booking.modal.name_label')} <span className="text-red-500">*</span></label>
-                                <input
-                                    name="requesterName"
-                                    value={formData.requesterName}
-                                    onChange={handleChange}
-                                    placeholder={t('booking.modal.name_placeholder')}
-                                    className="w-full border rounded-lg p-3 outline-none transition"
-                                    style={{ 
-                                        backgroundColor: 'var(--color-surface)', 
-                                        borderColor: 'var(--color-border)',
-                                        color: 'var(--color-text-primary)'
-                                    }}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('booking.modal.contact_label')} <span className="text-red-500">*</span></label>
-                                <input
-                                    name="contactInfo"
-                                    value={formData.contactInfo}
-                                    onChange={handleChange}
-                                    placeholder={t('booking.modal.contact_placeholder')}
-                                    className="w-full border rounded-lg p-3 outline-none transition"
-                                    style={{ 
-                                        backgroundColor: 'var(--color-surface)', 
-                                        borderColor: 'var(--color-border)',
-                                        color: 'var(--color-text-primary)'
-                                    }}
-                                />
-                                <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>{t('booking.modal.contact_help')}</p>
-                            </div>
+                            <TextInputField
+                                label={t('booking.modal.name_label')}
+                                required
+                                name="requesterName"
+                                value={formData.requesterName}
+                                onChange={handleChange}
+                                placeholder={t('booking.modal.name_placeholder')}
+                            />
+                            <TextInputField
+                                label={t('booking.modal.contact_label')}
+                                required
+                                name="contactInfo"
+                                value={formData.contactInfo}
+                                onChange={handleChange}
+                                placeholder={t('booking.modal.contact_placeholder')}
+                                hint={t('booking.modal.contact_help')}
+                            />
                         </div>
                     </div>
 
@@ -110,93 +119,53 @@ export default function BookingRequestModal({ isOpen, onClose, onSubmit, singerN
                             {t('booking.modal.section_event')}
                         </h4>
 
-                        <div>
-                            <label className="block text-xs font-bold mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('booking.modal.type_label')}</label>
-                            <select
-                                name="eventType"
-                                value={formData.eventType}
-                                onChange={handleChange}
-                                className="w-full border rounded-lg p-3 outline-none transition appearance-none"
-                                style={{ 
-                                    backgroundColor: 'var(--color-surface)', 
-                                    borderColor: 'var(--color-border)',
-                                    color: 'var(--color-text-primary)'
-                                }}
-                            >
+                        <SelectField
+                            label={t('booking.modal.type_label')}
+                            name="eventType"
+                            value={formData.eventType}
+                            onChange={handleChange}
+                        >
                                 <option value="wedding">{t('booking.modal.types.wedding')}</option>
                                 <option value="event">{t('booking.modal.types.event')}</option>
                                 <option value="festival">{t('booking.modal.types.festival')}</option>
                                 <option value="other">{t('booking.modal.types.other')}</option>
-                            </select>
-                        </div>
+                        </SelectField>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label className="block text-xs font-bold mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('booking.modal.date_label')}</label>
-                                <div className="relative">
-                                    <input
-                                        type="date"
-                                        name="eventDate"
-                                        value={formData.eventDate}
-                                        onChange={handleChange}
-                                        className="w-full border rounded-lg p-3 outline-none transition text-sm"
-                                        style={{ 
-                                            backgroundColor: 'var(--color-surface)', 
-                                            borderColor: 'var(--color-border)',
-                                            color: 'var(--color-text-primary)'
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('booking.modal.budget_label')}</label>
-                                <input
-                                    name="budget"
-                                    value={formData.budget}
-                                    onChange={handleChange}
-                                    placeholder={t('booking.modal.budget_placeholder')}
-                                    className="w-full border rounded-lg p-3 outline-none transition text-sm"
-                                    style={{ 
-                                        backgroundColor: 'var(--color-surface)', 
-                                        borderColor: 'var(--color-border)',
-                                        color: 'var(--color-text-primary)'
-                                    }}
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-bold mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('booking.modal.location_label')}</label>
-                            <input
-                                name="location"
-                                value={formData.location}
+                            <DateInputField
+                                label={t('booking.modal.date_label')}
+                                required
+                                name="eventDate"
+                                value={formData.eventDate}
                                 onChange={handleChange}
-                                placeholder={t('booking.modal.location_placeholder')}
-                                className="w-full border rounded-lg p-3 outline-none transition"
-                                style={{ 
-                                    backgroundColor: 'var(--color-surface)', 
-                                    borderColor: 'var(--color-border)',
-                                    color: 'var(--color-text-primary)'
-                                }}
+                            />
+                            <TextInputField
+                                label={t('booking.modal.budget_label')}
+                                name="budget"
+                                value={formData.budget}
+                                onChange={handleChange}
+                                placeholder={t('booking.modal.budget_placeholder')}
                             />
                         </div>
 
-                        <div>
-                            <label className="block text-xs font-bold mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('booking.modal.message_label')}</label>
-                            <textarea
-                                name="message"
-                                value={formData.message}
-                                onChange={handleChange}
-                                placeholder={t('booking.modal.message_placeholder')}
-                                rows={3}
-                                className="w-full border rounded-lg p-3 outline-none transition resize-none"
-                                style={{ 
-                                    backgroundColor: 'var(--color-surface)', 
-                                    borderColor: 'var(--color-border)',
-                                    color: 'var(--color-text-primary)'
-                                }}
-                            />
-                        </div>
+                        <TextInputField
+                            label={t('booking.modal.location_label')}
+                            required
+                            name="location"
+                            value={formData.location}
+                            onChange={handleChange}
+                            placeholder={t('booking.modal.location_placeholder')}
+                        />
+
+                        <TextareaField
+                            label={t('booking.modal.message_label')}
+                            required
+                            name="message"
+                            value={formData.message}
+                            onChange={handleChange}
+                            placeholder={t('booking.modal.message_placeholder')}
+                            rows={3}
+                        />
                     </div>
 
                 </form>
@@ -204,7 +173,7 @@ export default function BookingRequestModal({ isOpen, onClose, onSubmit, singerN
                 <div className="p-4 border-t z-10" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-card)' }}>
                     <button
                         onClick={handleSubmit}
-                        disabled={!formData.requesterName || !formData.contactInfo || isSubmitting}
+                        disabled={!formData.requesterName.trim() || !formData.contactInfo.trim() || !formData.eventDate || !formData.location.trim() || !formData.message.trim() || isSubmitting}
                         className="w-full font-bold py-3.5 rounded-xl shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                         style={{ 
                             backgroundColor: 'var(--color-primary)', 

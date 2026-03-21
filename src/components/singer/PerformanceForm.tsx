@@ -3,18 +3,10 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { MapPin, HelpCircle } from 'lucide-react'
 import dynamic from 'next/dynamic'
-import DateTimePicker from '@/components/common/DateTimePicker'
 import styles from '@/styles/singer/PerformanceForm.module.css'
 import SongSelector from './SongSelector'
 import { useLanguage } from '@/contexts/LanguageContext'
-
-function RequiredLabel({ children }: { children: React.ReactNode }) {
-    return (
-        <label className={styles.label}>
-            {children} <span className="text-red-500">*</span>
-        </label>
-    )
-}
+import { DateTimeInputField, RequiredMark, TextInputField } from '@/components/common/FormFields'
 
 // Dynamic MapPicker
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
@@ -223,19 +215,23 @@ export default function PerformanceForm({ singerId, allSongs, availablePoints, o
         <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.gridContainer}>
                 <div className={styles.fieldGroup}>
-                    <RequiredLabel>{t('performance.form.title')}</RequiredLabel>
-                    <input
+                    <TextInputField
+                        label={t('performance.form.title')}
                         required
                         placeholder={t('performance.form.title_placeholder')}
-                        className={styles.input}
                         value={newPerf.title}
                         onChange={(e) => setNewPerf({ ...newPerf, title: e.target.value })}
+                        style={{
+                            width: '100%',
+                            maxWidth: '100%',
+                            minWidth: 0,
+                        }}
                     />
                 </div>
 
                 <div className={styles.fieldGroup}>
                     <div className={styles.locationLabelRow}>
-                        <RequiredLabel>{t('performance.form.location')}</RequiredLabel>
+                        <label className={styles.label}>{t('performance.form.location')} <RequiredMark /></label>
                         {newPerf.lat !== 0 && (
                             <span className={styles.locationCoords}>
                                 {newPerf.lat.toFixed(4)}, {newPerf.lng.toFixed(4)}
@@ -271,28 +267,27 @@ export default function PerformanceForm({ singerId, allSongs, availablePoints, o
                 {/* Time fields - inline on desktop */}
                 <div className={styles.timeFieldsRow}>
                     <div className={`${styles.fieldGroup} flex-1 min-w-0`}>
-                        <RequiredLabel>{t('performance.form.start_time')}</RequiredLabel>
-                        <DateTimePicker
-                            label=""
+                        <DateTimeInputField
+                            label={t('performance.form.start_time')}
                             value={newPerf.start_time}
                             onChange={(val) => setNewPerf({ ...newPerf, start_time: val })}
                             required
-                            inputClassName={styles.input}
+                            style={{ width: '100%', maxWidth: '100%', minWidth: 0 }}
                         />
                     </div>
                     <div className={`${styles.fieldGroup} flex-1 min-w-0`}>
                         <div className={styles.inlineLabelRow}>
-                            <RequiredLabel>{t('performance.form.end_time')}</RequiredLabel>
+                            <label className={styles.label}>{t('performance.form.end_time')} <RequiredMark /></label>
                             <span className="text-[var(--color-text-muted)] cursor-help" title={t('performance.form.time_hint')}>
                                 <HelpCircle className="w-3.5 h-3.5" />
                             </span>
                         </div>
-                        <DateTimePicker
+                        <DateTimeInputField
                             label=""
                             value={newPerf.end_time}
                             onChange={(val) => setNewPerf({ ...newPerf, end_time: val })}
                             required
-                            inputClassName={styles.input}
+                            style={{ width: '100%', maxWidth: '100%', minWidth: 0 }}
                         />
                     </div>
                 </div>
