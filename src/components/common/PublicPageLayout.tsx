@@ -1,3 +1,5 @@
+'use client'
+
 import AppFooter from './AppFooter'
 
 export default function PublicPageLayout({ children, title }: { children: React.ReactNode, title?: string }) {

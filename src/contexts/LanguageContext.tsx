@@ -44,6 +44,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         localStorage.setItem('app-language', language)
+        document.cookie = `app-language=${language}; path=/; max-age=31536000; samesite=lax`
         switch (language) {
             case 'ko':
                 setLocaleData(ko)

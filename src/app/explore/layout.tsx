@@ -1,11 +1,16 @@
 import type { Metadata } from 'next'
+import { getLocaleForLanguage, getRequestLanguage } from '@/lib/requestLanguage'
 
-export const metadata: Metadata = {
-  title: 'Explore Busking | miniMic',
-  description: 'Find public busking performances, browse active singers, and discover live street music around you on miniMic.',
-  alternates: {
-    canonical: '/explore',
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = getLocaleForLanguage(await getRequestLanguage())
+
+  return {
+    title: `${locale.home.explore_title} | miniMic`,
+    description: locale.publicPages.explore.meta_description,
+    alternates: {
+      canonical: '/explore',
+    },
+  }
 }
 
 export default function ExploreLayout({ children }: { children: React.ReactNode }) {

@@ -52,29 +52,6 @@ export default function LandingPage({ userId, isSinger }: LandingPageProps) {
                         {t('home.subtitle')}
                     </p>
 
-                    <div className="mb-10 flex flex-wrap justify-center gap-3 text-sm font-medium">
-                        <Link href="/guides" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition border border-primary/20 shadow-sm">
-                            <BookOpen className="w-4 h-4" />
-                            Platform Guides & Trust
-                        </Link>
-                        <Link href="/about" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-background/80 text-foreground hover:bg-background transition border border-border shadow-sm backdrop-blur-sm">
-                            <Info className="w-4 h-4" />
-                            About miniMic
-                        </Link>
-                        <Link href="/terms" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-background/80 text-foreground hover:bg-background transition border border-border shadow-sm backdrop-blur-sm">
-                            <Shield className="w-4 h-4" />
-                            Safety & Legal
-                        </Link>
-                        <Link href="/privacy" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-background/80 text-foreground hover:bg-background transition border border-border shadow-sm backdrop-blur-sm">
-                            <Lock className="w-4 h-4" />
-                            Privacy
-                        </Link>
-                        <Link href="/contact" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-background/80 text-foreground hover:bg-background transition border border-border shadow-sm backdrop-blur-sm">
-                            <Mail className="w-4 h-4" />
-                            Contact
-                        </Link>
-                    </div>
-
                     <div className="flex justify-center gap-4 flex-wrap">
                         {userId ? (
                             <Link
@@ -119,6 +96,31 @@ export default function LandingPage({ userId, isSinger }: LandingPageProps) {
                         >
                             {t('home.explore_button')}
                         </Link>
+                    </div>
+
+                    <div className="mt-8 rounded-3xl border border-border/70 bg-background/70 px-5 py-4 backdrop-blur-sm">
+                        <div className="flex flex-wrap justify-center gap-3 text-sm font-medium">
+                            <Link href="/guides" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition border border-primary/20 shadow-sm">
+                                <BookOpen className="w-4 h-4" />
+                                {t('publicPages.landing.guides_trust')}
+                            </Link>
+                            <Link href="/about" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-background/80 text-foreground hover:bg-background transition border border-border shadow-sm backdrop-blur-sm">
+                                <Info className="w-4 h-4" />
+                                {t('publicPages.landing.about')}
+                            </Link>
+                            <Link href="/terms" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-background/80 text-foreground hover:bg-background transition border border-border shadow-sm backdrop-blur-sm">
+                                <Shield className="w-4 h-4" />
+                                {t('publicPages.landing.safety_legal')}
+                            </Link>
+                            <Link href="/privacy" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-background/80 text-foreground hover:bg-background transition border border-border shadow-sm backdrop-blur-sm">
+                                <Lock className="w-4 h-4" />
+                                {t('publicPages.landing.privacy')}
+                            </Link>
+                            <Link href="/contact" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-background/80 text-foreground hover:bg-background transition border border-border shadow-sm backdrop-blur-sm">
+                                <Mail className="w-4 h-4" />
+                                {t('publicPages.landing.contact')}
+                            </Link>
+                        </div>
                     </div>
 
                     <GoogleAd slot="home_hero_bottom" className="mt-20 opacity-50" />
