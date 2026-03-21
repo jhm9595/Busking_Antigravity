@@ -121,6 +121,8 @@ export const zh: LocaleTypes = {
             error_duration: '结束时间必须晚于开始时间。',
             error_min_duration: '演出时长必须至少为1小时。',
             error_insufficient_points: '积分不足。(每小时将消耗1000积分)',
+            available_points: '当前积分：{points}P',
+            required_points: '所需积分：{points}P',
             time_hint: '至少1小时',
         },
         details: {

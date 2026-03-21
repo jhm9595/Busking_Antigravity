@@ -121,6 +121,8 @@ export const ja: LocaleTypes = {
             error_duration: '終了時間は開始時間より後の時刻にしてください。',
             error_min_duration: '公演は最低1時間以上である必要があります。',
             error_insufficient_points: 'ポイント가不足しています。(1時間あたり1000P消耗)',
+            available_points: '所持ポイント: {points}P',
+            required_points: '必要ポイント: {points}P',
             time_hint: '最低1時間',
         },
         details: {

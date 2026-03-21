@@ -121,6 +121,8 @@ export const ko: LocaleTypes = {
             error_duration: '종료 시간은 시작 시간보다 늦어야 합니다.',
             error_min_duration: '공연은 최소 1시간 이상이어야 합니다.',
             error_insufficient_points: '포인트가 부족합니다. (시간당 1000P 소모)',
+            available_points: '보유 포인트: {points}P',
+            required_points: '필요 포인트: {points}P',
             time_hint: '최소 1시간',
         },
         details: {

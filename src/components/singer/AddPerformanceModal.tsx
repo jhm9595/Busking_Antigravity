@@ -9,11 +9,12 @@ import { useLanguage } from '@/contexts/LanguageContext'
 interface AddPerformanceModalProps {
     singerId: string
     allSongs: any[]
+    availablePoints: number
     onClose: () => void
     onSuccess: () => void
 }
 
-export default function AddPerformanceModal({ singerId, allSongs, onClose, onSuccess }: AddPerformanceModalProps) {
+export default function AddPerformanceModal({ singerId, allSongs, availablePoints, onClose, onSuccess }: AddPerformanceModalProps) {
     const { t } = useLanguage()
 
     return (
@@ -30,6 +31,7 @@ export default function AddPerformanceModal({ singerId, allSongs, onClose, onSuc
                     <PerformanceForm
                         singerId={singerId}
                         allSongs={allSongs}
+                        availablePoints={availablePoints}
                         onSuccess={() => {
                             onSuccess()
                             onClose()

@@ -59,6 +59,14 @@
     box-shadow: 0 0 0 3px var(--color-primary-alpha);
 }
 
+.input[type="datetime-local"] {
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    min-height: 3rem;
+    line-height: 1.2;
+}
+
 .locationLabelRow {
     display: flex;
     justify-content: space-between;

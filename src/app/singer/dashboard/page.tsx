@@ -290,7 +290,7 @@ export default function SingerDashboard() {
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 xl:gap-10">
                     <div className="xl:col-span-8 space-y-8 xl:space-y-12">
                         <section className="bg-card rounded-2xl xl:rounded-[40px] border border-border p-2 overflow-hidden">
-                            <PerformanceManagement refreshKey={songsRefreshKey} />
+                            <PerformanceManagement refreshKey={songsRefreshKey} availablePoints={userPoints} />
                         </section>
 
                         <GoogleAd slot="singer_dashboard_mid" className="opacity-40" />

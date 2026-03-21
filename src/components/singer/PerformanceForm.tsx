@@ -25,10 +25,11 @@ const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
 interface PerformanceFormProps {
     singerId: string
     allSongs: any[]
+    availablePoints: number
     onSuccess: () => void
 }
 
-export default function PerformanceForm({ singerId, allSongs, onSuccess }: PerformanceFormProps) {
+export default function PerformanceForm({ singerId, allSongs, availablePoints, onSuccess }: PerformanceFormProps) {
     const { t } = useLanguage()
 
     const [newPerf, setNewPerf] = useState({
@@ -48,6 +49,8 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [costPreview, setCostPreview] = useState(0)
     const [songSelectionError, setSongSelectionError] = useState<string | null>(null)
+
+    const hasInsufficientPoints = costPreview > 0 && availablePoints < costPreview
 
     // Initialize dates on client side to avoid hydration mismatch
     useEffect(() => {
@@ -151,6 +154,11 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
 
         const billableHours = Math.ceil(durationHours)
         const totalCost = billableHours * 1000
+
+        if (availablePoints < totalCost) {
+            alert(t('performance.form.error_insufficient_points'))
+            return
+        }
 
         const confirmMsg = t('performance.form.confirm_payment').replace('{points}', totalCost.toLocaleString())
         if (!window.confirm(confirmMsg)) return
@@ -343,7 +351,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
 
             <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || hasInsufficientPoints}
                 className={styles.submitButton}
             >
                 <div className="flex flex-col items-center justify-center">
@@ -355,6 +363,19 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                     )}
                 </div>
             </button>
+            {costPreview > 0 && (
+                <div className="text-sm text-center space-y-1">
+                    <p className="text-[var(--color-text-muted)]">
+                        {t('performance.form.available_points').replace('{points}', availablePoints.toLocaleString())}
+                    </p>
+                    <p className="text-[var(--color-text-muted)]">
+                        {t('performance.form.required_points').replace('{points}', costPreview.toLocaleString())}
+                    </p>
+                    {hasInsufficientPoints && (
+                        <p className="font-bold text-red-500">{t('performance.form.error_insufficient_points')}</p>
+                    )}
+                </div>
+            )}
         </form>
     )
 }

@@ -121,6 +121,8 @@ export const zhTW: LocaleTypes = {
             error_duration: '結束時間必須晚於開始時間。',
             error_min_duration: '演出時長必須至少為1小時。',
             error_insufficient_points: '積分不足。(每小時將消耗1000積分)',
+            available_points: '目前積分：{points}P',
+            required_points: '所需積分：{points}P',
             time_hint: '至少1小時',
         },
         details: {

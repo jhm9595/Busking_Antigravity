@@ -119,6 +119,8 @@ export const en = {
             error_duration: 'End time must be after start time.',
             error_min_duration: 'Minimum performance duration is 1 hour.',
             error_insufficient_points: 'Insufficient points. (1000P/hr will be spent)',
+            available_points: 'Available points: {points}P',
+            required_points: 'Required points: {points}P',
             time_hint: 'Min 1 hour',
         },
         details: {

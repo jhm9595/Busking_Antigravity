@@ -10,9 +10,10 @@ import AddPerformanceModal from './AddPerformanceModal'
 
 interface PerformanceManagementProps {
     refreshKey?: number
+    availablePoints: number
 }
 
-export default function PerformanceManagement({ refreshKey }: PerformanceManagementProps) {
+export default function PerformanceManagement({ refreshKey, availablePoints }: PerformanceManagementProps) {
     const { t } = useLanguage()
     const { user } = useUser()
     const [showAddModal, setShowAddModal] = useState(false)
@@ -78,6 +79,7 @@ export default function PerformanceManagement({ refreshKey }: PerformanceManagem
                 <AddPerformanceModal
                     singerId={user?.id || ''}
                     allSongs={allSongs}
+                    availablePoints={availablePoints}
                     onClose={() => setShowAddModal(false)}
                     onSuccess={handleSuccess}
                 />
