@@ -8,6 +8,10 @@ const systemSans = "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
 const systemMono = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://busking.minibig.pw"),
+  alternates: {
+    canonical: "/",
+  },
   title: "minimic",
   description: "Street performance revolution",
   icons: {

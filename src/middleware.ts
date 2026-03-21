@@ -4,6 +4,15 @@ import type { NextRequest } from 'next/server'
 
 // Routes that should be public (no authentication required)
 const isPublicRoute = createRouteMatcher([
+    '/',
+    '/about',
+    '/privacy',
+    '/terms',
+    '/contact',
+    '/guides(.*)',
+    '/explore(.*)',
+    '/singer/([^/]+)',
+    '/live/([^/]+)',
     '/api/demo(.*)',
     '/auth/demo(.*)',
 ])

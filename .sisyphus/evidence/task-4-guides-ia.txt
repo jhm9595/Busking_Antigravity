@@ -1,0 +1,5 @@
+Task 4 verification
+
+- `/guides` rendered successfully.
+- `/guides/start-busking-first-time` rendered successfully with a unique title and heading.
+- `src/app/guides/[slug]/page.tsx` uses `generateStaticParams` and `generateMetadata` for static discoverability and canonical metadata.

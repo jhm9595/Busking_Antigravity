@@ -1,0 +1,14 @@
+Task 5 verification
+
+- Batch A guide body lengths verified above 1000 characters.
+- Observed counts:
+  - start-busking-first-time: 1038
+  - hongdae-yeonnam-busking-checklist: 1663
+  - outdoor-busking-gear-basics: 1663
+  - busker-basic-sound-tips: 1614
+  - how-to-write-live-show-announcements: 1416
+  - how-to-engage-busking-audience: 1517
+  - song-request-management-tips: 1393
+  - sponsorship-and-points-explained: 1507
+  - make-singer-profile-stand-out: 1446
+  - retain-fans-after-performance: 1522

@@ -1,0 +1,5 @@
+Task 7 verification
+
+- Landing page trust links are visible before the demo CTA block.
+- Demo CTA remains present on the landing page.
+- `public/guide-draft.html`, `public/guide-i18n-board.html`, and `public/guide-i18n/*.html` now include backlinks to `/guides` and are marked `noindex, nofollow`.

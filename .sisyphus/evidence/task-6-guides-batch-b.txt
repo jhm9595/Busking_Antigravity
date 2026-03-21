@@ -1,0 +1,14 @@
+Task 6 verification
+
+- Batch B guide body lengths verified above 1000 characters.
+- Observed counts:
+  - choose-busking-location-guide: 1333
+  - pick-best-performance-time-slots: 1378
+  - busking-tips-rainy-cold-weather: 1309
+  - portrait-rights-filming-guidelines: 1200
+  - how-audience-finds-good-busking: 1294
+  - liveroom-sponsorship-guide: 1278
+  - ads-sponsorship-feature-explained: 1322
+  - busker-sns-link-strategy: 1333
+  - organize-booking-inquiries: 1269
+  - multilingual-guide-operations-tips: 1320

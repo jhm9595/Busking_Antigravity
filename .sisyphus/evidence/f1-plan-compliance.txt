@@ -1,0 +1,5 @@
+F1 Plan Compliance Audit
+
+- All planned implementation areas are present: crawlability (`src/app/robots.ts`, `src/app/sitemap.ts`), legal pages, guides hub/detail, 20 guides, landing/explore trust discovery, static draft handling, and submission runbook.
+- Task evidence files created for Tasks 1-8 under `.sisyphus/evidence/task-*.txt`.
+- Remaining non-plan local artifacts (`tmp/test_demo.js`, `tmp/test_demo2.js`, `nul`) are unrelated pre-existing workspace noise and not part of the AdSense implementation surface.

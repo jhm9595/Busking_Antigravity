@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-export async function POST() {
+async function signInDemo() {
     try {
         const supabase = await createClient()
 
@@ -41,4 +41,8 @@ export async function POST() {
         console.error('Demo auth error:', error)
         return NextResponse.redirect(new URL('/login?error=demo_failed', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'))
     }
+}
+
+export async function POST() {
+    return signInDemo()
 }

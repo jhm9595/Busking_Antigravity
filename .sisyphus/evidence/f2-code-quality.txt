@@ -1,0 +1,6 @@
+F2 Code Quality Review
+
+- LSP diagnostics are clean for changed TypeScript files including `src/app/auth/demo/route.ts`, `src/app/explore/layout.tsx`, `src/app/explore/page.tsx`, `src/app/robots.ts`, `src/app/sitemap.ts`, `src/components/home/LandingPage.tsx`, `src/content/guides.ts`, and `src/middleware.ts`.
+- Robots rules cover slash and slashless auth/internal paths.
+- Draft static guide pages are both `noindex, nofollow` and blocked in `robots`.
+- Unsupported guide claims about profile media/repertoire/autotranslation were removed or softened.

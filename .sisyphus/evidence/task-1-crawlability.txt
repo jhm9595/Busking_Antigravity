@@ -1,0 +1,5 @@
+Task 1 verification
+
+- `npm run build`: passed on 2026-03-21.
+- `http://localhost:3000/robots.txt`: returned 200 and included `Mediapartners-Google` + `Google-Display-Ads-Bot` allow rules.
+- `http://localhost:3000/sitemap.xml`: returned 200 and included `/about`, `/privacy`, `/terms`, `/contact`, `/guides`, and all public guide detail URLs.

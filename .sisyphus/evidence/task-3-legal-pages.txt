@@ -1,0 +1,5 @@
+Task 3 verification
+
+- `/about`, `/privacy`, `/terms`, and `/contact` all returned HTTP 200 locally.
+- Playwright confirmed headings: `About miniMic`, `Privacy Policy`, `Terms of Service`, `Contact Us`.
+- Public support destination used: `support@busking.minibig.pw`.

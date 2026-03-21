@@ -1,0 +1,4 @@
+Task 2 verification
+
+- Landing page shows visible trust/content links for `/guides`, `/about`, `/terms`, `/privacy`, and `/contact` before demo CTA block.
+- Explore page now renders a visible public-links trust strip in default map and grid views.

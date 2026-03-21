@@ -1,0 +1,7 @@
+F3 Manual QA
+
+- `npm run build` passed after final fixes.
+- Local HTTP checks passed for `/robots.txt`, `/sitemap.xml`, `/about`, `/privacy`, `/terms`, `/contact`, `/guides`.
+- Playwright snapshots confirmed landing-page trust links for Guides/About/Terms/Privacy/Contact above the demo CTA block.
+- Playwright snapshot confirmed Explore default view shows visible public links for Guides/About/Privacy/Terms/Contact.
+- Guides hub and guide detail routes loaded with expected titles and headings.

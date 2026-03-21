@@ -1,0 +1,83 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Feature Guide Draft</title>
+  <style>
+    :root { --bg:#f6f7fb; --card:#fff; --ink:#0f172a; --muted:#64748b; --line:#dbe1ea; --accent:#2563eb; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family: "Segoe UI","Noto Sans KR","Meiryo","Microsoft YaHei UI",sans-serif; }
+    .wrap { max-width: 1900px; margin:0 auto; padding:28px; }
+    .hero { background:linear-gradient(135deg,#fff,#edf3ff); border:1px solid var(--line); border-radius:20px; padding:20px 24px; margin-bottom:24px; }
+    h1 { margin:0 0 8px; font-size:30px; }
+    .sub { margin:0; color:var(--muted); font-size:14px; }
+    .page { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:16px; margin-bottom:22px; }
+    .page h2 { margin:0 0 6px; font-size:22px; }
+    .page .desc { margin:0 0 14px; color:var(--muted); font-size:13px; }
+    .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .shot { background:#fff; border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+    .top { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:1px solid var(--line); background:#f8fafc; }
+    .name { font-size:13px; font-weight:700; }
+    .chip { font-size:11px; font-weight:700; background:#e8efff; color:#1e40af; border-radius:999px; padding:4px 8px; }
+    .img-wrap { position:relative; background:#e2e8f0; }
+    img { width:100%; display:block; }
+    .pin { position:absolute; width:24px; height:24px; border-radius:999px; background:var(--accent); color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; border:2px solid #fff; box-shadow:0 6px 16px rgba(37,99,235,.35); }
+    .notes { padding:10px 12px; border-top:1px solid var(--line); font-size:12px; line-height:1.45; color:#334155; }
+    .notes b { color:#0f172a; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Feature Guide Draft</h1>
+      <p class="sub">Simple explanation board for first-time users.</p>
+      <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
+        <a href="/guides" style="display: inline-flex; align-items: center; padding: 8px 16px; background: var(--accent); color: #fff; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 600;">← Back to Platform Guides</a>
+        <a href="/about" style="display: inline-flex; align-items: center; padding: 8px 16px; background: #fff; color: var(--ink); border: 1px solid var(--line); text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 600;">About miniMic</a>
+      </div>
+    </section>
+
+    <section class="page">
+      <h2>1) Home Screen</h2>
+      <p class="desc">Focus: Start / Demo / Explore buttons</p>
+      <div class="grid">
+        <article class="shot"><div class="top"><span class="name">Mobile</span><span class="chip">/ (home)</span></div><div class="img-wrap"><img src="/screenshots/1_Home_Demo_Mobile.png"><span class="pin" style="left:30%;top:78%;">1</span><span class="pin" style="left:52%;top:78%;">2</span><span class="pin" style="left:74%;top:78%;">3</span></div><div class="notes"><b>1</b> Start <b>2</b> Try demo <b>3</b> Explore</div></article>
+        <article class="shot"><div class="top"><span class="name">Tablet</span><span class="chip">/ (home)</span></div><div class="img-wrap"><img src="/screenshots/1_Home_Demo_Tablet.png"><span class="pin" style="left:36%;top:79%;">1</span><span class="pin" style="left:52%;top:79%;">2</span><span class="pin" style="left:69%;top:79%;">3</span></div><div class="notes"><b>1</b> Start <b>2</b> Try demo <b>3</b> Explore</div></article>
+        <article class="shot"><div class="top"><span class="name">PC</span><span class="chip">/ (home)</span></div><div class="img-wrap"><img src="/screenshots/1_Home_Demo_PC.png"><span class="pin" style="left:40%;top:76%;">1</span><span class="pin" style="left:52%;top:76%;">2</span><span class="pin" style="left:63%;top:76%;">3</span></div><div class="notes"><b>1</b> Start <b>2</b> Try demo <b>3</b> Explore</div></article>
+      </div>
+    </section>
+
+    <section class="page">
+      <h2>2) Explore (Map)</h2>
+      <p class="desc">Focus: Home, Map/List toggle, Following</p>
+      <div class="grid">
+        <article class="shot"><div class="top"><span class="name">Mobile</span><span class="chip">/explore</span></div><div class="img-wrap"><img src="/screenshots/2_ExploreMap_Demo_Mobile.png"><span class="pin" style="left:16%;top:8%;">1</span><span class="pin" style="left:47%;top:8%;">2</span><span class="pin" style="left:76%;top:8%;">3</span></div><div class="notes"><b>1</b> Home <b>2</b> Map/List <b>3</b> Following</div></article>
+        <article class="shot"><div class="top"><span class="name">Tablet</span><span class="chip">/explore</span></div><div class="img-wrap"><img src="/screenshots/2_ExploreMap_Demo_Tablet.png"><span class="pin" style="left:19%;top:8%;">1</span><span class="pin" style="left:52%;top:8%;">2</span><span class="pin" style="left:80%;top:8%;">3</span></div><div class="notes"><b>1</b> Home <b>2</b> Map/List <b>3</b> Following</div></article>
+        <article class="shot"><div class="top"><span class="name">PC</span><span class="chip">/explore</span></div><div class="img-wrap"><img src="/screenshots/2_ExploreMap_Demo_PC.png"><span class="pin" style="left:21%;top:9%;">1</span><span class="pin" style="left:53%;top:9%;">2</span><span class="pin" style="left:79%;top:9%;">3</span></div><div class="notes"><b>1</b> Home <b>2</b> Map/List <b>3</b> Following</div></article>
+      </div>
+    </section>
+
+    <section class="page">
+      <h2>3) Singer Profile</h2>
+      <p class="desc">Focus: Follow, Booking, Enter Live</p>
+      <div class="grid">
+        <article class="shot"><div class="top"><span class="name">Mobile</span><span class="chip">/singer/[id]</span></div><div class="img-wrap"><img src="/screenshots/3_SingerProfile_Demo_Mobile.png"><span class="pin" style="left:35%;top:47%;">1</span><span class="pin" style="left:64%;top:47%;">2</span><span class="pin" style="left:48%;top:66%;">3</span></div><div class="notes"><b>1</b> Follow <b>2</b> Booking <b>3</b> Enter live</div></article>
+        <article class="shot"><div class="top"><span class="name">Tablet</span><span class="chip">/singer/[id]</span></div><div class="img-wrap"><img src="/screenshots/3_SingerProfile_Demo_Tablet.png"><span class="pin" style="left:37%;top:47%;">1</span><span class="pin" style="left:62%;top:47%;">2</span><span class="pin" style="left:50%;top:64%;">3</span></div><div class="notes"><b>1</b> Follow <b>2</b> Booking <b>3</b> Enter live</div></article>
+        <article class="shot"><div class="top"><span class="name">PC</span><span class="chip">/singer/[id]</span></div><div class="img-wrap"><img src="/screenshots/3_SingerProfile_Demo_PC.png"><span class="pin" style="left:40%;top:49%;">1</span><span class="pin" style="left:60%;top:49%;">2</span><span class="pin" style="left:51%;top:62%;">3</span></div><div class="notes"><b>1</b> Follow <b>2</b> Booking <b>3</b> Enter live</div></article>
+      </div>
+    </section>
+
+    <section class="page">
+      <h2>4) Live Room + Popups</h2>
+      <p class="desc">Focus: Song request, chat support, sponsorship, point charge</p>
+      <div class="grid">
+        <article class="shot"><div class="top"><span class="name">Live Mobile</span><span class="chip">/live/[id]</span></div><div class="img-wrap"><img src="/screenshots/4_AudienceLiveRoom_Demo_Mobile.png"><span class="pin" style="left:66%;top:24%;">1</span><span class="pin" style="left:49%;top:86%;">2</span><span class="pin" style="left:78%;top:86%;">3</span></div><div class="notes"><b>1</b> Song request <b>2</b> Sponsor 500P <b>3</b> Ad sponsor</div></article>
+        <article class="shot"><div class="top"><span class="name">SongRequest Modal</span><span class="chip">Popup</span></div><div class="img-wrap"><img src="/screenshots/4.1_SongRequestModal_Demo_Mobile.png"><span class="pin" style="left:52%;top:70%;">1</span></div><div class="notes"><b>1</b> Send request button</div></article>
+        <article class="shot"><div class="top"><span class="name">PointCharge Modal</span><span class="chip">Popup</span></div><div class="img-wrap"><img src="/screenshots/4.2_PointChargeModal_Demo_Mobile.png"><span class="pin" style="left:50%;top:74%;">1</span></div><div class="notes"><b>1</b> Charge points button</div></article>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

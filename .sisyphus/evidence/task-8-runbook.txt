@@ -1,0 +1,4 @@
+Task 8 verification
+
+- `docs/adsense-submission-runbook.md` created.
+- Runbook includes production domain, support email, robots/sitemap/legal/guides verification URLs, Search Console steps, AdSense submission checklist, and post-activation crawler-login separation.

@@ -1,0 +1,5 @@
+F4 Scope Fidelity
+
+- Final code changes are limited to AdSense-readiness surfaces: crawlability, public trust routes, public guides, landing/explore discovery, static draft deindexing, and ops runbook.
+- Temporary `GET` expansion for `/auth/demo` was removed; landing demo CTA now submits a browser POST to preserve existing demo flow without widening route behavior.
+- Unrelated local artifacts in `tmp/` and `nul` were not modified because they are outside this plan's scope and may belong to the user.
