@@ -13,15 +13,20 @@ interface SongSelectorProps {
     songs: Song[]
     selectedSongIds: string[]
     onToggle: (id: string) => void
+    required?: boolean
+    errorMessage?: string | null
 }
 
-export default function SongSelector({ songs, selectedSongIds, onToggle }: SongSelectorProps) {
+export default function SongSelector({ songs, selectedSongIds, onToggle, required = false, errorMessage = null }: SongSelectorProps) {
     const { t } = useLanguage()
 
     return (
         <div className={styles.container}>
             <h3 className={styles.title}>
-                <span>{t('song.list_title')}</span>
+                <span className={styles.titleLabel}>
+                    <span>{t('song.list_title')}</span>
+                    {required ? <span className={styles.requiredMark}>*</span> : null}
+                </span>
                 <span className={styles.selectionCount}>{selectedSongIds.length} {t('song.selected')}</span>
             </h3>
             <div className={styles.list}>
@@ -42,6 +47,7 @@ export default function SongSelector({ songs, selectedSongIds, onToggle }: SongS
                     ))
                 )}
             </div>
+            {errorMessage ? <p className={styles.errorText}>{errorMessage}</p> : null}
         </div>
     )
 }

@@ -16,6 +16,16 @@
     align-items: flex-end;
 }
 
+.titleLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.requiredMark {
+    color: #ef4444;
+}
+
 .list {
     background-color: #f9fafb;
     border: 1px solid #e5e7eb;
@@ -104,5 +114,12 @@
 .selectionCount {
     font-size: 0.75rem;
     color: #4f46e5;
+    font-weight: 600;
+}
+
+.errorText {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #dc2626;
     font-weight: 600;
 }

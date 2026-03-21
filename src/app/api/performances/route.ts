@@ -102,6 +102,22 @@ export async function POST(request: Request) {
         
         const { singerId, title, locationText, lat, lng, startTime, endTime, chatEnabled, streamingEnabled, songIds } = data
 
+        if (!title || !String(title).trim()) {
+            return NextResponse.json({ success: false, error: 'TITLE_REQUIRED' }, { status: 400 })
+        }
+
+        if (!locationText || !String(locationText).trim()) {
+            return NextResponse.json({ success: false, error: 'LOCATION_REQUIRED' }, { status: 400 })
+        }
+
+        if (!startTime || !endTime) {
+            return NextResponse.json({ success: false, error: 'TIME_REQUIRED' }, { status: 400 })
+        }
+
+        if (!Array.isArray(songIds) || songIds.length === 0) {
+            return NextResponse.json({ success: false, error: 'SONGS_REQUIRED' }, { status: 400 })
+        }
+
         const newStart = new Date(startTime)
         const newEnd = new Date(endTime)
 

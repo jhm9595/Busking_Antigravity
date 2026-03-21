@@ -8,6 +8,14 @@ import styles from '@/styles/singer/PerformanceForm.module.css'
 import SongSelector from './SongSelector'
 import { useLanguage } from '@/contexts/LanguageContext'
 
+function RequiredLabel({ children }: { children: React.ReactNode }) {
+    return (
+        <label className={styles.label}>
+            {children} <span className="text-red-500">*</span>
+        </label>
+    )
+}
+
 // Dynamic MapPicker
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
     loading: () => <div className="h-[300px] w-full bg-[var(--color-surface)] animate-pulse flex items-center justify-center text-[var(--color-text-muted)]">Loading Map...</div>,
@@ -39,6 +47,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
     const [showMap, setShowMap] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [costPreview, setCostPreview] = useState(0)
+    const [songSelectionError, setSongSelectionError] = useState<string | null>(null)
 
     // Initialize dates on client side to avoid hydration mismatch
     useEffect(() => {
@@ -66,6 +75,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
     }, [newPerf.start_time, newPerf.end_time])
 
     const toggleSongSelection = (songId: string) => {
+        setSongSelectionError(null)
         setSelectedSongIds(prev =>
             prev.includes(songId)
                 ? prev.filter(id => id !== songId)
@@ -89,6 +99,36 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (isSubmitting) return
+
+        const trimmedTitle = newPerf.title.trim()
+        const trimmedLocation = newPerf.location_text.trim()
+
+        if (!trimmedTitle) {
+            alert(`${t('performance.form.title')} ${t('common.required')}`)
+            return
+        }
+
+        if (!trimmedLocation) {
+            alert(`${t('performance.form.location')} ${t('common.required')}`)
+            return
+        }
+
+        if (!newPerf.start_time) {
+            alert(`${t('performance.form.start_time')} ${t('common.required')}`)
+            return
+        }
+
+        if (!newPerf.end_time) {
+            alert(`${t('performance.form.end_time')} ${t('common.required')}`)
+            return
+        }
+
+        if (selectedSongIds.length === 0) {
+            const message = `${t('song.list_title')} ${t('common.required')}`
+            setSongSelectionError(message)
+            alert(message)
+            return
+        }
 
         const startTimeObj = new Date(newPerf.start_time)
         const endTimeObj = new Date(newPerf.end_time)
@@ -122,8 +162,8 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     singerId,
-                    title: newPerf.title,
-                    locationText: newPerf.location_text,
+                    title: trimmedTitle,
+                    locationText: trimmedLocation,
                     lat: newPerf.lat || undefined,
                     lng: newPerf.lng || undefined,
                     startTime: startTimeObj.toISOString(),
@@ -175,7 +215,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
         <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.gridContainer}>
                 <div className={styles.fieldGroup}>
-                    <label className={styles.label}>{t('performance.form.title')}</label>
+                    <RequiredLabel>{t('performance.form.title')}</RequiredLabel>
                     <input
                         required
                         placeholder={t('performance.form.title_placeholder')}
@@ -187,7 +227,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
 
                 <div className={styles.fieldGroup}>
                     <div className={styles.locationLabelRow}>
-                        <label className={styles.label}>{t('performance.form.location')}</label>
+                        <RequiredLabel>{t('performance.form.location')}</RequiredLabel>
                         {newPerf.lat !== 0 && (
                             <span className={styles.locationCoords}>
                                 {newPerf.lat.toFixed(4)}, {newPerf.lng.toFixed(4)}
@@ -222,18 +262,19 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
 
                 {/* Time fields - inline on desktop */}
                 <div className={styles.timeFieldsRow}>
-                    <div className="flex-1 min-w-0">
-                        <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest px-1">{t('performance.form.start_time')}</label>
+                    <div className={`${styles.fieldGroup} flex-1 min-w-0`}>
+                        <RequiredLabel>{t('performance.form.start_time')}</RequiredLabel>
                         <DateTimePicker
                             label=""
                             value={newPerf.start_time}
                             onChange={(val) => setNewPerf({ ...newPerf, start_time: val })}
                             required
+                            inputClassName={styles.input}
                         />
                     </div>
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 px-1">
-                            <label className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest">{t('performance.form.end_time')}</label>
+                    <div className={`${styles.fieldGroup} flex-1 min-w-0`}>
+                        <div className={styles.inlineLabelRow}>
+                            <RequiredLabel>{t('performance.form.end_time')}</RequiredLabel>
                             <span className="text-[var(--color-text-muted)] cursor-help" title={t('performance.form.time_hint')}>
                                 <HelpCircle className="w-3.5 h-3.5" />
                             </span>
@@ -243,6 +284,7 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                             value={newPerf.end_time}
                             onChange={(val) => setNewPerf({ ...newPerf, end_time: val })}
                             required
+                            inputClassName={styles.input}
                         />
                     </div>
                 </div>
@@ -295,6 +337,8 @@ export default function PerformanceForm({ singerId, allSongs, onSuccess }: Perfo
                 songs={allSongs}
                 selectedSongIds={selectedSongIds}
                 onToggle={toggleSongSelection}
+                required
+                errorMessage={songSelectionError}
             />
 
             <button
