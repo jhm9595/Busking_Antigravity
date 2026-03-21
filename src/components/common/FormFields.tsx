@@ -68,12 +68,15 @@ export function RequiredMark() {
 
 export function FormField({ label, required = false, hint, children }: BaseFieldProps) {
   const styles = fieldStyles()
+  const hasLabel = Boolean(label)
 
   return (
     <div>
-      <label style={styles.label}>
-        {label} {required ? <RequiredMark /> : null}
-      </label>
+      {hasLabel ? (
+        <label style={styles.label}>
+          {label} {required ? <RequiredMark /> : null}
+        </label>
+      ) : null}
       {children}
       {hint ? <p style={styles.helpText}>{hint}</p> : null}
     </div>
