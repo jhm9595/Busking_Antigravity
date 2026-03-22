@@ -114,7 +114,7 @@ async function broadcastAndStore(performanceId, messageObj) {
 }
 
 // Helper to verify if socket belongs to singer for a performance
-async function verifySingerOwnership(socketId, performanceId) {
+async function authorizeOwnerControl(socketId, performanceId) {
     // For now, trust the userType stored during join
     // In production, this should verify against the authoritative DB
     const sockets = await io.in(performanceId).fetchSockets();
@@ -173,16 +173,16 @@ io.on('connection', (socket) => {
         if (!performanceId) return;
 
         // SECURITY: Only singer can open chat
-        const isSinger = await verifySingerOwnership(socket.id, performanceId);
+        const isSinger = await authorizeOwnerControl(socket.id, performanceId);
         if (!isSinger) {
             console.warn(`Unauthorized open_chat attempt from ${socket.id}`);
-            socket.emit('error', { message: '권한이 없습니다.' });
+            socket.emit('authorization_error', { event: 'open_chat', message: '권한이 없습니다.' });
             return;
         }
 
         // Rate limit check
         if (!checkRateLimit(socket.id, 'open_chat')) {
-            socket.emit('error', { message: '너무 많은 요청입니다.' });
+            socket.emit('authorization_error', { event: 'rate_limit', message: '너무 많은 요청입니다.' });
             return;
         }
 
@@ -220,16 +220,16 @@ io.on('connection', (socket) => {
         if (!performanceId) return;
 
         // SECURITY: Only singer can send system alerts
-        const isSinger = await verifySingerOwnership(socket.id, performanceId);
+        const isSinger = await authorizeOwnerControl(socket.id, performanceId);
         if (!isSinger) {
             console.warn(`Unauthorized system_alert attempt from ${socket.id}`);
-            socket.emit('error', { message: '권한이 없습니다.' });
+            socket.emit('authorization_error', { event: 'open_chat', message: '권한이 없습니다.' });
             return;
         }
 
         // Rate limit check
         if (!checkRateLimit(socket.id, 'system_alert')) {
-            socket.emit('error', { message: '너무 많은 요청입니다.' });
+            socket.emit('authorization_error', { event: 'rate_limit', message: '너무 많은 요청입니다.' });
             return;
         }
 
@@ -249,7 +249,7 @@ io.on('connection', (socket) => {
 
         // Rate limit check
         if (!checkRateLimit(socket.id, 'song_requested')) {
-            socket.emit('error', { message: '너무 많은 요청입니다.' });
+            socket.emit('authorization_error', { event: 'rate_limit', message: '너무 많은 요청입니다.' });
             return;
         }
 
@@ -272,13 +272,13 @@ io.on('connection', (socket) => {
         // SECURITY: Validate donation amount (basic sanity check)
         if (!amount || typeof amount !== 'number' || amount < 1 || amount > 100000) {
             console.warn(`Invalid donation amount from ${socket.id}: ${amount}`);
-            socket.emit('error', { message: '잘못된 후원 금액입니다.' });
+            socket.emit('authorization_error', { event: 'donation_received', message: '잘못된 후원 금액입니다.' });
             return;
         }
 
         // Rate limit check
         if (!checkRateLimit(socket.id, 'donation_received')) {
-            socket.emit('error', { message: '너무 많은 요청입니다.' });
+            socket.emit('authorization_error', { event: 'rate_limit', message: '너무 많은 요청입니다.' });
             return;
         }
 
@@ -298,10 +298,10 @@ io.on('connection', (socket) => {
         if (!performanceId) return;
 
         // SECURITY: Only singer can toggle chat status
-        const isSinger = await verifySingerOwnership(socket.id, performanceId);
+        const isSinger = await authorizeOwnerControl(socket.id, performanceId);
         if (!isSinger) {
             console.warn(`Unauthorized chat_status_toggled attempt from ${socket.id}`);
-            socket.emit('error', { message: '권한이 없습니다.' });
+            socket.emit('authorization_error', { event: 'open_chat', message: '권한이 없습니다.' });
             return;
         }
 
@@ -331,10 +331,10 @@ io.on('connection', (socket) => {
         if (!performanceId) return;
 
         // SECURITY: Only singer can end performance
-        verifySingerOwnership(socket.id, performanceId).then(isSinger => {
+        authorizeOwnerControl(socket.id, performanceId).then(isSinger => {
             if (!isSinger) {
                 console.warn(`Unauthorized performance_ended attempt from ${socket.id}`);
-                socket.emit('error', { message: '권한이 없습니다.' });
+                socket.emit('authorization_error', { event: 'performance_ended', message: '권한이 없습니다.' });
                 return;
             }
             io.in(performanceId).emit('performance_ended', data);
