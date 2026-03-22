@@ -1,12 +1,40 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
+import { auth } from '@clerk/nextjs/server'
+
+// Helper to verify singer ownership
+async function verifySingerOwnership(performanceId: string, clerkUserId: string): Promise<boolean> {
+    const performance = await prisma.performance.findUnique({
+        where: { id: performanceId },
+        select: { singerId: true }
+    })
+    
+    if (!performance) return false
+    
+    // Singer.id === Profile.id === Clerk userId
+    return performance.singerId === clerkUserId
+}
 
 // POST: Setlist operations
 export async function POST(request: Request) {
     try {
+        // SECURITY: Verify authentication for all setlist operations
+        const { userId } = await auth()
+        if (!userId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
         const body = await request.json()
-        const { action } = body
+        const { action, performanceId } = body
+
+        // SECURITY: Verify ownership for performance-specific operations
+        if (performanceId) {
+            const isOwner = await verifySingerOwnership(performanceId, userId)
+            if (!isOwner) {
+                return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+            }
+        }
 
         switch (action) {
             case 'update_setlist': {

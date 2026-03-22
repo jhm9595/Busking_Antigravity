@@ -25,36 +25,48 @@ export async function GET(
         }
 
         // Auto-update performance status: Close stale live/scheduled sessions
+        // PERFORMANCE FIX: Use batch updates instead of N+1 queries
         const now = new Date()
-        const updatedPerformances = await Promise.all(singer.performances.map(async (p) => {
+        const toComplete: string[] = []
+        const toLive: string[] = []
+
+        singer.performances.forEach((p) => {
             const start = new Date(p.startTime)
             // Use endTime if present, otherwise assume 3 hours max duration from start
             const end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
 
-            // Auto-update status: complete if time passed, or set live if start time reached
             if (end < now && (p.status === 'live' || p.status === 'scheduled')) {
-                try {
-                    await prisma.performance.update({
-                        where: { id: p.id },
-                        data: { status: 'completed' }
-                    })
-                } catch (e) {
-                    console.error('Auto-close error:', e)
-                }
-                return { ...p, status: 'completed' }
+                toComplete.push(p.id)
             } else if (start <= now && p.status === 'scheduled') {
-                try {
-                    await prisma.performance.update({
-                        where: { id: p.id },
-                        data: { status: 'live' }
-                    })
-                } catch (e) {
-                    console.error('Auto-live error:', e)
-                }
-                return { ...p, status: 'live' }
+                toLive.push(p.id)
             }
-            return p
-        }))
+        })
+
+        // Batch update all at once
+        await prisma.$transaction([
+            ...toComplete.map(id =>
+                prisma.performance.update({
+                    where: { id },
+                    data: { status: 'completed' }
+                })
+            ),
+            ...toLive.map(id =>
+                prisma.performance.update({
+                    where: { id },
+                    data: { status: 'live' }
+                })
+            )
+        ])
+
+        // Map updated statuses
+        const statusMap = new Map<string, string>()
+        toComplete.forEach(id => statusMap.set(id, 'completed'))
+        toLive.forEach(id => statusMap.set(id, 'live'))
+
+        const updatedPerformances = singer.performances.map(p => {
+            const newStatus = statusMap.get(p.id)
+            return newStatus ? { ...p, status: newStatus } : p
+        })
 
         // Sort by startTime ASC (Earliest first)
         updatedPerformances.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())

@@ -1,9 +1,23 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
+import { auth } from '@clerk/nextjs/server'
 
 // Dynamic route for individual performance operations
 type RouteContext = { params: Promise<{ id: string }> }
+
+// Helper to verify singer ownership
+async function verifySingerOwnership(performanceId: string, clerkUserId: string): Promise<boolean> {
+    const performance = await prisma.performance.findUnique({
+        where: { id: performanceId },
+        select: { singerId: true }
+    })
+    
+    if (!performance) return false
+    
+    // Singer.id === Profile.id === Clerk userId
+    return performance.singerId === clerkUserId
+}
 
 // GET: Get single performance
 export async function GET(
@@ -40,7 +54,20 @@ export async function PATCH(
     { params }: RouteContext
 ) {
     try {
+        // SECURITY: Verify authentication
+        const { userId } = await auth()
+        if (!userId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
         const { id } = await params
+        
+        // SECURITY: Verify ownership
+        const isOwner = await verifySingerOwnership(id, userId)
+        if (!isOwner) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        }
+
         const body = await request.json()
         const { action } = body
 
@@ -103,7 +130,19 @@ export async function DELETE(
     { params }: RouteContext
 ) {
     try {
+        // SECURITY: Verify authentication
+        const { userId } = await auth()
+        if (!userId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
         const { id } = await params
+        
+        // SECURITY: Verify ownership
+        const isOwner = await verifySingerOwnership(id, userId)
+        if (!isOwner) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        }
         
         await prisma.performance.delete({ where: { id } })
         revalidatePath('/singer/dashboard')

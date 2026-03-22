@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getPerformanceSortKey, resolvePerformanceStatus } from '@/lib/performance-lifecycle'
 import { toKSTISOString } from '@/lib/kst-time'
+import { auth } from '@clerk/nextjs/server'
 
 export async function GET(request: Request) {
     try {
@@ -98,9 +99,30 @@ export async function GET(request: Request) {
 // POST: Add new performance
 export async function POST(request: Request) {
     try {
+        // SECURITY: Verify user authentication and authorization
+        const { userId: clerkUserId } = await auth()
+        if (!clerkUserId) {
+            return NextResponse.json({ success: false, error: 'UNAUTHORIZED' }, { status: 401 })
+        }
+
         const data = await request.json()
         
         const { singerId, title, locationText, lat, lng, startTime, endTime, chatEnabled, streamingEnabled, songIds } = data
+
+        // SECURITY: Verify singerId matches the authenticated user
+        // Profile.id is Clerk's userId, so singerId === profile.id === clerkUserId
+        if (singerId !== clerkUserId) {
+            return NextResponse.json({ success: false, error: 'FORBIDDEN' }, { status: 403 })
+        }
+
+        // Also verify the singer exists
+        const singer = await prisma.singer.findUnique({
+            where: { id: singerId }
+        })
+        
+        if (!singer) {
+            return NextResponse.json({ success: false, error: 'SINGER_NOT_FOUND' }, { status: 404 })
+        }
 
         if (!title || !String(title).trim()) {
             return NextResponse.json({ success: false, error: 'TITLE_REQUIRED' }, { status: 400 })
