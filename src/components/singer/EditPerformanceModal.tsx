@@ -100,7 +100,7 @@ export default function EditPerformanceModal({ performance, onClose, onSuccess }
 
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80">
-            <div className="rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative" style={{ backgroundColor: 'var(--color-card)' }}>
+            <div className="rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative border" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
                 <div className="sticky top-0 border-b px-6 py-4 flex justify-between items-center z-10" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
                     <h3 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{t('performance.action.edit') || 'Edit Performance'}</h3>
                     <button

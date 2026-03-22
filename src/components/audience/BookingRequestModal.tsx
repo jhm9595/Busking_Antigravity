@@ -72,7 +72,7 @@ export default function BookingRequestModal({ isOpen, onClose, onSubmit, singerN
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
-            <div className="w-full max-w-md border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
+            <div className="w-full max-w-md border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" style={{ background: 'var(--color-popup, var(--color-card))', border: 'var(--popup-border, 1px solid var(--color-border))', boxShadow: 'var(--popup-shadow, 0 25px 50px -12px rgba(0,0,0,0.25))', backdropFilter: 'var(--popup-backdrop-filter, none)' }}>
                 <div className="px-5 py-4 border-b flex justify-between items-center" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}>
                     <div>
                         <h3 className="font-bold text-lg" style={{ color: 'var(--color-text-primary)' }}>{t('booking.modal.title')} {singerName}</h3>
