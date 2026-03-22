@@ -7,11 +7,9 @@ import { List, Map as MapIcon, LogOut, X, User as UserIcon } from 'lucide-react'
 import { getEffectiveStatus } from '@/utils/performance'
 import { useClerk, useUser } from '@clerk/nextjs'
 import { useLanguage } from '@/contexts/LanguageContext'
-import Link from 'next/link'
 import GoogleAd from '@/components/common/GoogleAd'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher'
 import { ThemeSwitcher } from '@/components/ThemeSwitcher'
-import AppFooter from '@/components/common/AppFooter'
 import { DemoBanner } from '@/components/explore/DemoBanner'
 
 // Dynamically import Map to avoid SSR issues with Leaflet
@@ -164,21 +162,6 @@ export default function ExplorePage() {
         router.push('/')
     }
 
-    const trustLinks = (
-        <div className="absolute left-3 right-3 z-20 md:left-6 md:right-6">
-            <div className={`mx-auto max-w-7xl rounded-2xl border border-border bg-background/90 px-4 py-3 shadow-lg backdrop-blur-sm ${!isAuthenticated && showDemoBanner ? 'mt-24 md:mt-28' : 'mt-3 md:mt-4'}`}>
-                <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-bold uppercase tracking-wide text-muted-foreground md:text-sm">
-                    <span className="text-foreground">{t('publicPages.explore.public_pages')}</span>
-                    <Link href="/guides" className="text-primary underline underline-offset-4">{t('publicPages.footer.guides')}</Link>
-                    <Link href="/about" className="hover:text-primary transition-colors">{t('publicPages.footer.about')}</Link>
-                    <Link href="/privacy" className="hover:text-primary transition-colors">{t('publicPages.footer.privacy')}</Link>
-                    <Link href="/terms" className="hover:text-primary transition-colors">{t('publicPages.footer.terms')}</Link>
-                    <Link href="/contact" className="hover:text-primary transition-colors">{t('publicPages.footer.contact')}</Link>
-                </div>
-            </div>
-        </div>
-    )
-
     return (
         <>
         <title>{`${t('home.explore_title')} | miniMic`}</title>
@@ -234,7 +217,6 @@ export default function ExplorePage() {
                         />
                     </div>
                 )}
-                {trustLinks}
                 {viewMode === 'map' ? (
                     <div className="h-full w-full">
                         <BuskingMap performances={performances} isLoggedIn={!!user} />
@@ -297,7 +279,6 @@ export default function ExplorePage() {
                                 <GoogleAd slot="explore_grid_bottom" className="mt-12" />
                             </div>
                         </div>
-                        <AppFooter />
                     </div>
                 )}
             </main>

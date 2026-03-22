@@ -263,15 +263,6 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                                 {t('explore.filter_followed')}
                             </button>
                         )}
-
-                        {/* Location Toggle */}
-                        <button
-                            onClick={handleLocateMe}
-                            className="flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-accent text-muted-foreground border border-transparent hover:bg-accent/80"
-                        >
-                            <Navigation className="w-3 h-3" />
-                            {userLocation ? t('explore.locate_me') : t('explore.enable_location_help').split('{icon}')[0].trim()}
-                        </button>
                     </div>
                 </div>
             </div>
