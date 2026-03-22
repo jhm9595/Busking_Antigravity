@@ -106,7 +106,7 @@ export default function AudienceLivePage() {
         let url = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
         if (typeof window !== 'undefined') {
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const prodUrl = 'https://busking-chat-server-678912953258.us-central1.run.app';
+            const prodUrl = 'https://busking-chat-server-1073779064370.us-central1.run.app';
             if (!url) url = isLocal ? 'http://localhost:4000' : prodUrl;
             else if (url.includes('localhost') && !isLocal) url = prodUrl;
         }
