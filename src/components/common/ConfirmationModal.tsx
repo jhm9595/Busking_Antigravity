@@ -13,7 +13,7 @@ export default function ConfirmationModal({ isOpen, title, message, onConfirm, o
 
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-            <div className="rounded-xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all scale-100" style={{ backgroundColor: 'var(--color-card)' }}>
+            <div className="rounded-xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all scale-100" style={{ background: 'var(--color-popup, var(--color-card))', border: 'var(--popup-border, 1px solid var(--color-border))', boxShadow: 'var(--popup-shadow, 0 25px 50px -12px rgba(0,0,0,0.25))', backdropFilter: 'var(--popup-backdrop-filter, none)' }}>
                 <div className="p-6">
                     <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>{title}</h3>
                     <p style={{ color: 'var(--color-text-secondary)' }}>{message}</p>

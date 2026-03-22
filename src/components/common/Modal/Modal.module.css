@@ -21,11 +21,12 @@
 }
 
 .modal {
-    background-color: var(--color-card, var(--background));
+    background: var(--color-popup, var(--color-card, var(--background)));
     color: var(--color-card-foreground, var(--foreground));
-    border: 1px solid var(--color-border);
+    border: var(--popup-border, 1px solid var(--color-border));
     border-radius: var(--button-radius, 1rem);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--popup-shadow, 0 25px 50px -12px rgba(0, 0, 0, 0.25));
+    backdrop-filter: var(--popup-backdrop-filter, none);
     max-height: 90vh;
     overflow: hidden;
     display: flex;

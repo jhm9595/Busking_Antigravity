@@ -191,7 +191,7 @@ function MapPicker({ onLocationSelect, initialLat, initialLng, readonly }: MapPi
         <div style={{ position: 'relative', height: '300px', width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
             {/* Search Bar Overlay */}
             {!readonly && (
-                <div className="absolute top-2 left-2 right-2 z-[1000] rounded-md shadow-md p-2 transition-all" style={{ backgroundColor: 'var(--color-card)' }}>
+                <div className="absolute top-2 left-2 right-2 z-[1000] rounded-md shadow-md p-2 transition-all" style={{ background: 'var(--color-popup, var(--color-card))', border: 'var(--popup-border, 1px solid var(--color-border))', boxShadow: 'var(--popup-shadow, 0 4px 6px -1px rgba(0,0,0,0.1))', backdropFilter: 'var(--popup-backdrop-filter, none)' }}>
                     {/* Single row on mobile: search input + search button + my location button */}
                     <div className="flex items-center gap-1.5">
                         <input
@@ -231,7 +231,7 @@ function MapPicker({ onLocationSelect, initialLat, initialLng, readonly }: MapPi
 
                     {/* Search Results */}
                     {searchResults.length > 0 && (
-                        <ul className="mt-2 max-h-40 overflow-y-auto border-t divide-y rounded-md shadow-inner" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-card)' }}>
+                        <ul className="mt-2 max-h-40 overflow-y-auto border-t divide-y rounded-md shadow-inner" style={{ borderColor: 'var(--color-border)', background: 'var(--color-popup, var(--color-card))' }}>
                             {searchResults.map((result: any, index: number) => (
                                 <li key={index}>
                                     <button

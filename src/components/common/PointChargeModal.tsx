@@ -201,7 +201,7 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 md:p-4 animate-in fade-in duration-300" style={{ backgroundColor: 'var(--color-background)' }}>
-                <div className="w-full max-w-xl rounded-[32px] md:rounded-[48px] border shadow-2xl overflow-hidden flex flex-col relative max-h-[92vh]" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
+                <div className="w-full max-w-xl rounded-[32px] md:rounded-[48px] border shadow-2xl overflow-hidden flex flex-col relative max-h-[92vh]" style={{ background: 'var(--color-popup, var(--color-card))', border: 'var(--popup-border, 1px solid var(--color-border))', boxShadow: 'var(--popup-shadow, 0 25px 50px -12px rgba(0,0,0,0.25))', backdropFilter: 'var(--popup-backdrop-filter, none)' }}>
                     <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-[var(--color-primary)]/10 to-transparent pointer-events-none" />
                     
                     <header className="p-5 md:p-8 flex justify-between items-start relative z-10 shrink-0">

@@ -35,8 +35,8 @@ export const showAdModal = (t: (key: string) => string): Promise<boolean> => {
         modal.style.opacity = '0.95'
         
         modal.innerHTML = `
-            <div class="w-full max-w-md rounded-[32px] p-8 text-center shadow-2xl" style="background-color: var(--color-card); border: 1px solid var(--color-border)">
-                <h3 class="text-xl font-black italic mb-4" style="color: var(--color-text-primary)">${t('common.watch_ad') || 'Advertisement'}</h3>
+            <div class="w-full max-w-md rounded-[32px] p-8 text-center shadow-2xl" style="background: var(--color-popup, var(--color-card)); border: var(--popup-border, 1px solid var(--color-border)); box-shadow: var(--popup-shadow, 0 25px 50px -12px rgba(0,0,0,0.25)); backdrop-filter: var(--popup-backdrop-filter, none);">
+                <h3 class="text-xl font-black italic mb-4" style="color: var(--color-text-primary)">\${t('common.watch_ad') || 'Advertisement'}</h3>
                 <div class="rounded-xl p-8 mb-6 relative overflow-hidden group" style="background-color: var(--color-surface); border: 1px solid var(--color-border)">
                     <div class="absolute top-2 right-4 text-[10px] font-black uppercase tracking-[0.2em] italic" style="color: var(--color-text-muted); opacity: 0.5">
                         Sponsored
