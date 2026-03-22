@@ -100,8 +100,14 @@ export default function EditPerformanceModal({ performance, onClose, onSuccess }
 
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80">
-            <div className="rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative border" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
-                <div className="sticky top-0 border-b px-6 py-4 flex justify-between items-center z-10" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
+<div className="rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative border" style={{ 
+                    backgroundColor: 'var(--color-popup, var(--color-card))', 
+                    borderColor: 'var(--popup-border, var(--color-border))' 
+                }}>
+                <div className="sticky top-0 border-b px-6 py-4 flex justify-between items-center z-10" style={{ 
+                    backgroundColor: 'var(--color-popup, var(--color-card))', 
+                    borderColor: 'var(--popup-border, var(--color-border))' 
+                }}>
                     <h3 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{t('performance.action.edit') || 'Edit Performance'}</h3>
                     <button
                         onClick={onClose}
@@ -185,7 +191,10 @@ export default function EditPerformanceModal({ performance, onClose, onSuccess }
                         </div>
                     </div>
 
-                    <div className="fixed bottom-0 left-0 right-0 p-4 border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] md:absolute mt-auto flex justify-end gap-3 z-20" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
+                    <div className="fixed bottom-0 left-0 right-0 p-4 border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] md:absolute mt-auto flex justify-end gap-3 z-20" style={{ 
+                    backgroundColor: 'var(--color-popup, var(--color-card))', 
+                    borderColor: 'var(--popup-border, var(--color-border))' 
+                }}>
                         <button
                             type="button"
                             onClick={onClose}
