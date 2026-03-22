@@ -17,6 +17,7 @@ const isPublicRoute = createRouteMatcher([
     '/auth/demo(.*)',
     '/api/performances(.*)',
     '/api/songs(.*)',
+    '/api/singers(.*)',
 ])
 
 function addCorsHeaders(response: NextResponse) {
