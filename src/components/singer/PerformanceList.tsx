@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import PerformanceItem from './PerformanceItem'
 import styles from '@/styles/singer/PerformanceList.module.css'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -19,6 +20,7 @@ interface PerformanceListProps {
 
 export default function PerformanceList({ performances, loading, allSongs, onRefresh, initialLoading, activeTab, onTabChange }: PerformanceListProps) {
     const { t } = useLanguage()
+    const router = useRouter()
     const [expandedPerfId, setExpandedPerfId] = useState<string | null>(null)
     const [deletingIds, setDeletingIds] = useState<string[]>([])
     const [timers, setTimers] = useState<Record<string, any>>({})
@@ -55,6 +57,10 @@ export default function PerformanceList({ performances, loading, allSongs, onRef
                 if (!res.ok) {
                     throw new Error('Failed to delete')
                 }
+                
+                // Success - refresh the list
+                router.refresh()
+                onRefresh?.()
             } catch (error) {
                 console.error('Failed to delete performance:', error)
                 // Restore view on error

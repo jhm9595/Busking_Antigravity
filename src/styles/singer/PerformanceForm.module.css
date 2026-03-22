@@ -27,6 +27,13 @@
     flex-direction: column;
     gap: 0.5rem;
     min-width: 0;
+    grid-column: span 1;
+}
+
+@media (min-width: 768px) {
+    .fieldGroup {
+        grid-column: span 2;
+    }
 }
 
 .label {
@@ -272,11 +279,6 @@
     .timeFieldsRow {
         flex-direction: row;
         align-items: flex-start;
-    }
-}
-
-@media (min-width: 1024px) {
-    .timeFieldsRow {
         grid-column: span 2;
     }
 }
