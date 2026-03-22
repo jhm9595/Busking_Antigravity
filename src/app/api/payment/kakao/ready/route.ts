@@ -61,8 +61,8 @@ export async function POST(req: Request) {
             total_amount: Math.floor(Number(amount)),
             tax_free_amount: 0,
             approval_url: `${appUrl}/api/payment/kakao/approve?userId=${userId}&points=${points}&orderId=${partnerOrderId}`,
-            cancel_url: `${appUrl}/explore?payment=cancel`,
-            fail_url: `${appUrl}/explore?payment=fail`,
+            cancel_url: `${appUrl}/api/payment/kakao/result?payment=cancel`,
+            fail_url: `${appUrl}/api/payment/kakao/result?payment=fail`,
         }
 
         // Determine authorization header and URL based on key prefix

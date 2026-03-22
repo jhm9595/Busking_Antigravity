@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { chargePoints } from '@/services/singer'
+import { buildPaymentReturnUrl } from '@/lib/kakaoRedirect'
 
 export async function GET(req: Request) {
     // Get cookies first (outside try for catch block access)
@@ -11,9 +12,7 @@ export async function GET(req: Request) {
     
     // Default redirect URL or use the stored return URL
     const defaultRedirect = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const successRedirect = returnUrlCookie ? `${returnUrlCookie}&payment=success&points=` : `${defaultRedirect}/explore?payment=success&points=`
-    const errorRedirect = returnUrlCookie ? `${returnUrlCookie}&payment=error&error=` : `${defaultRedirect}/explore?payment=error&error=`
-    const failRedirect = returnUrlCookie ? `${returnUrlCookie}&payment=fail` : `${defaultRedirect}/explore?payment=fail`
+    const fallbackRedirect = `${defaultRedirect}/explore`
 
     try {
         const { searchParams } = new URL(req.url)
@@ -27,7 +26,7 @@ export async function GET(req: Request) {
 
         if (!pg_token || !tid || !userId || !pointsStr || !partnerOrderId) {
             console.error('Missing required parameters for approval:', { pg_token, tid, userId, pointsStr, partnerOrderId })
-            return NextResponse.redirect(failRedirect)
+            return NextResponse.redirect(buildPaymentReturnUrl(defaultRedirect, returnUrlCookie || fallbackRedirect, { payment: 'fail' }))
         }
 
         const secretKey = process.env.KAKAO_PAY_SECRET_KEY || process.env.KAKAO_PAY_ADMIN_KEY
@@ -39,13 +38,13 @@ export async function GET(req: Request) {
             console.log('Mock payment approval detected. Processing DB update.')
             const result = await chargePoints(userId, parseInt(pointsStr))
             if (result.success) {
-                return NextResponse.redirect(`${successRedirect}${result.points}`)
+                return NextResponse.redirect(buildPaymentReturnUrl(defaultRedirect, returnUrlCookie || fallbackRedirect, { payment: 'success', points: result.points }))
             }
-            return NextResponse.redirect(`${errorRedirect}db_update_failed`)
+            return NextResponse.redirect(buildPaymentReturnUrl(defaultRedirect, returnUrlCookie || fallbackRedirect, { payment: 'error', error: 'db_update_failed' }))
         }
 
         if (!secretKey && isProduction) {
-            return NextResponse.redirect(`${errorRedirect}system_misconfigured`)
+            return NextResponse.redirect(buildPaymentReturnUrl(defaultRedirect, returnUrlCookie || fallbackRedirect, { payment: 'error', error: 'system_misconfigured' }))
         }
 
         const body = {
@@ -85,20 +84,16 @@ export async function GET(req: Request) {
             const result = await chargePoints(userId, parseInt(pointsStr))
             
             if (result.success) {
-                // Success: Redirect back to the original page with success flag
-                return NextResponse.redirect(`${successRedirect}${result.points}`)
+                return NextResponse.redirect(buildPaymentReturnUrl(defaultRedirect, returnUrlCookie || fallbackRedirect, { payment: 'success', points: result.points }))
             } else {
-                return NextResponse.redirect(`${errorRedirect}db_update_failed`)
+                return NextResponse.redirect(buildPaymentReturnUrl(defaultRedirect, returnUrlCookie || fallbackRedirect, { payment: 'error', error: 'db_update_failed' }))
             }
         } else {
             console.error('Kakao Pay Approve Error:', data)
-            const failWithError = returnUrlCookie 
-                ? `${returnUrlCookie}&payment=fail&error=${encodeURIComponent(data.msg || 'approval_failed')}`
-                : `${failRedirect}&error=${encodeURIComponent(data.msg || 'approval_failed')}`
-            return NextResponse.redirect(failWithError)
+            return NextResponse.redirect(buildPaymentReturnUrl(defaultRedirect, returnUrlCookie || fallbackRedirect, { payment: 'fail', error: data.msg || 'approval_failed' }))
         }
     } catch (error) {
         console.error('Payment Approve Server Error:', error)
-        return NextResponse.redirect(failRedirect)
+        return NextResponse.redirect(buildPaymentReturnUrl(defaultRedirect, returnUrlCookie || fallbackRedirect, { payment: 'fail' }))
     }
 }
