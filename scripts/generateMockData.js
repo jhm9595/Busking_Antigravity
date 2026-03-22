@@ -276,6 +276,8 @@ async function generateData() {
       
       // 레디스(채팅서버)에 채팅방 상태를 open으로 등록
       const statusKey = `live_status:${performance.id}`;
+      // Caution: Direct Redis set requires matching REDIS_URL. 
+      // If deployed, use node scripts/openMockChatsProd.js to activate via events.
       await redisClient.set(statusKey, 'open', 'EX', 86400 * 3); // 3일간 유지
 
       // Add songs to performance
