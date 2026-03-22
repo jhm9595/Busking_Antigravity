@@ -303,7 +303,7 @@ export default function SingerQRCard({ singerId, displayId, nickname, avatarUrl,
                             <button
                                 onClick={handleCopyUrl}
                                 className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg font-medium transition-colors"
-                                style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', opacity: 0.1 }}
+                                style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
                             >
                                 <Copy className="w-4 h-4" />
                                 {isCopied ? t('dashboard.qr.copied') : t('dashboard.qr.copy_url')}
