@@ -244,7 +244,7 @@
   --glass-blur: 16px;
   
   /* Opaque glass popups */
-  --color-popup: linear-gradient(135deg, rgba(49, 46, 129, 0.98) 0%, rgba(30, 27, 75, 0.98) 100%);
+  --color-popup: rgba(30, 27, 75, 0.98);
   --popup-border: 1px solid rgba(255, 255, 255, 0.2);
   --popup-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.05);
   --popup-backdrop-filter: none;
