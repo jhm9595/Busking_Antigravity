@@ -44,6 +44,10 @@ export default clerkMiddleware(async (auth, request: NextRequest) => {
     if (isPublicRoute(request)) {
         return NextResponse.next()
     }
+
+    // SECURITY: Protect all non-public routes
+    // This ensures that protected pages and API routes require authentication
+    await auth.protect()
 })
 
 export const config = {
