@@ -103,12 +103,13 @@ export default function AudienceLivePage() {
 
     useEffect(() => {
         if (!id) return
-        let url = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL
+        let url = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL;
         if (typeof window !== 'undefined') {
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const prodUrl = 'https://busking-chat-server-1073779064370.us-central1.run.app';
-            if (!url) url = isLocal ? 'http://localhost:4000' : prodUrl;
-            else if (url.includes('localhost') && !isLocal) url = prodUrl;
+            const envUrl = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL;
+            
+            if (!url) url = isLocal ? 'http://localhost:4000' : envUrl;
+            else if (url.includes('localhost') && !isLocal) url = envUrl;
         }
         if (!url) return
 
