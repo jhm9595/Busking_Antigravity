@@ -69,6 +69,7 @@ export default function LandingPage({ userId, isSinger }: LandingPageProps) {
                                     {t('home.get_started')}
                                 </Link>
 
+                                {/* [TEMPORARILY HIDDEN] 데모체험하기 버튼
                                 <Link
                                     href="/explore?demo=1"
                                     onClick={(event) => {
@@ -87,6 +88,7 @@ export default function LandingPage({ userId, isSinger }: LandingPageProps) {
                                     {isDemoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
                                     <span>{isDemoLoading ? t('home.try_demo_loading') : t('home.try_demo')}</span>
                                 </Link>
+                                [/TEMPORARILY HIDDEN] */}
                             </>
                         )}
 
