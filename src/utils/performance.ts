@@ -49,3 +49,35 @@ export function formatLocalDate(date: string | Date): string {
     const d = new Date(date);
     return d.toLocaleDateString([], { month: '2-digit', day: '2-digit' });
 }
+
+/**
+ * Formats time range. If start and end dates are different, includes date info.
+ * @param startTime - Start time ISO string or Date
+ * @param endTime - End time ISO string or Date (optional)
+ * @returns Formatted time range string
+ */
+export function formatTimeRange(startTime: string | Date, endTime?: string | Date | null): string {
+    const start = new Date(startTime);
+    const startTimeStr = formatLocalTimeString(start);
+    
+    if (!endTime) {
+        return startTimeStr;
+    }
+    
+    const end = new Date(endTime);
+    const endTimeStr = formatLocalTimeString(end);
+    
+    // Check if dates are different (different days)
+    const startDate = start.toDateString();
+    const endDate = end.toDateString();
+    
+    if (startDate !== endDate) {
+        // Different dates - show full date + time
+        const startDateStr = start.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        const endDateStr = end.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        return `${startDateStr} ${startTimeStr} - ${endDateStr} ${endTimeStr}`;
+    }
+    
+    // Same date - just show time range
+    return `${startTimeStr} - ${endTimeStr}`;
+}

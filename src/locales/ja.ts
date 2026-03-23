@@ -68,6 +68,10 @@ export const ja: LocaleTypes = {
         no_performances: 'ライブ情報が見つかりません。',
         view_details: '詳細を見る',
         status_scheduled: '予定あり',
+        filter_live: 'ライブ',
+        filter_scheduled: '予定',
+        filter_all: 'すべて',
+        guest_notice: 'ログインが必要',
     },
     performance: {
         title: 'ライブスケジュール',

@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { List, Map as MapIcon, LogOut, X, User as UserIcon } from 'lucide-react'
+import { List, Map as MapIcon, LogOut, X, User as UserIcon, Radio, Calendar } from 'lucide-react'
 import { getEffectiveStatus } from '@/utils/performance'
 import { useClerk, useUser } from '@clerk/nextjs'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -61,12 +61,28 @@ export default function ExplorePage() {
     const isAuthenticated = !!user
 
     const [viewMode, setViewMode] = useState<'map' | 'grid'>('map')
+    const [statusFilter, setStatusFilter] = useState<'all' | 'live' | 'scheduled'>('live')
     const [performances, setPerformances] = useState<Performance[]>([])
     const [showFollowingModal, setShowFollowingModal] = useState(false)
     const [followedSingers, setFollowedSingers] = useState<Singer[]>([])
     const [requestedDemo, setRequestedDemo] = useState(false)
     const [showDemoBanner, setShowDemoBanner] = useState(false)
     const [isDemoResetting, setIsDemoResetting] = useState(false)
+
+    // Load filter preference from localStorage on mount
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+        const savedFilter = localStorage.getItem('explore_status_filter') as 'all' | 'live' | 'scheduled' | null
+        if (savedFilter) {
+            setStatusFilter(savedFilter)
+        }
+    }, [])
+
+    // Save filter preference to localStorage when changed
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+        localStorage.setItem('explore_status_filter', statusFilter)
+    }, [statusFilter])
 
     useEffect(() => {
         document.title = `${t('home.explore_title')} | miniMic`
@@ -162,6 +178,15 @@ export default function ExplorePage() {
         router.push('/')
     }
 
+    // Filter performances based on status filter
+    const filteredPerformances = performances.filter((perf) => {
+        const status = getEffectiveStatus(perf)
+        if (statusFilter === 'all') return true
+        if (statusFilter === 'live') return status === 'live'
+        if (statusFilter === 'scheduled') return status === 'scheduled'
+        return true
+    })
+
     return (
         <>
         <title>{`${t('home.explore_title')} | miniMic`}</title>
@@ -172,6 +197,30 @@ export default function ExplorePage() {
                         <h1 className="text-lg md:text-2xl font-black text-primary truncate uppercase tracking-tighter">{t('home.explore_title')}</h1>
                     </div>
                     <div className="flex items-center gap-2 md:gap-3">
+                        {/* Status Filter Buttons */}
+                        <div className="flex bg-accent rounded-xl p-1">
+                            <button
+                                onClick={() => setStatusFilter('live')}
+                                className={`px-2 md:px-3 py-1.5 rounded-lg flex items-center text-xs font-bold transition-all ${statusFilter === 'live' ? 'bg-red-600 text-white shadow' : 'text-muted hover:text-foreground'}`}
+                                title={t('home.filter_live')}
+                            >
+                                <Radio className="w-3 h-3 md:w-4 md:h-4 animate-pulse" /> <span className="hidden sm:inline ml-1">{t('home.filter_live')}</span>
+                            </button>
+                            <button
+                                onClick={() => setStatusFilter('scheduled')}
+                                className={`px-2 md:px-3 py-1.5 rounded-lg flex items-center text-xs font-bold transition-all ${statusFilter === 'scheduled' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground'}`}
+                                title={t('home.filter_scheduled')}
+                            >
+                                <Calendar className="w-3 h-3 md:w-4 md:h-4" /> <span className="hidden sm:inline ml-1">{t('home.filter_scheduled')}</span>
+                            </button>
+                            <button
+                                onClick={() => setStatusFilter('all')}
+                                className={`px-2 md:px-3 py-1.5 rounded-lg flex items-center text-xs font-bold transition-all ${statusFilter === 'all' ? 'bg-card shadow text-primary' : 'text-muted hover:text-foreground'}`}
+                                title={t('home.filter_all')}
+                            >
+                                <span>{t('home.filter_all')}</span>
+                            </button>
+                        </div>
                         <div className="flex bg-accent rounded-xl p-1">
                             <button
                                 onClick={() => setViewMode('map')}
@@ -186,7 +235,7 @@ export default function ExplorePage() {
                                 <List className="w-4 h-4 md:w-5 md:h-5 md:mr-1" /> <span className="hidden md:inline">{t('home.view_list')}</span>
                             </button>
                         </div>
-                        {isAuthenticated && (
+                        {isAuthenticated ? (
                             <>
                                 <button
                                     onClick={fetchFollowing}
@@ -202,6 +251,10 @@ export default function ExplorePage() {
                                     <LogOut className="w-4 h-4 md:w-5 md:h-5" />
                                 </button>
                             </>
+                        ) : (
+                            <div className="hidden md:flex items-center gap-2 text-xs text-muted opacity-60">
+                                <span className="font-medium">{t('home.guest_notice')}</span>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -218,21 +271,44 @@ export default function ExplorePage() {
                     </div>
                 )}
                 {viewMode === 'map' ? (
-                    <div className="h-full w-full">
-                        <BuskingMap performances={performances} isLoggedIn={!!user} />
+                    <div className="h-full w-full relative">
+                        <BuskingMap performances={filteredPerformances} isLoggedIn={!!user} />
+                        {/* Floating filter for desktop - positioned at bottom center */}
+                        <div className="hidden lg:flex absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
+                            <div className="flex bg-card/90 backdrop-blur-sm border border-border rounded-2xl p-2 shadow-2xl">
+                                <button
+                                    onClick={() => setStatusFilter('live')}
+                                    className={`px-4 py-2 rounded-xl flex items-center text-sm font-bold transition-all ${statusFilter === 'live' ? 'bg-red-600 text-white shadow-lg' : 'text-muted hover:text-foreground hover:bg-accent'}`}
+                                >
+                                    <Radio className="w-4 h-4 animate-pulse mr-2" /> {t('home.filter_live')}
+                                </button>
+                                <button
+                                    onClick={() => setStatusFilter('scheduled')}
+                                    className={`px-4 py-2 rounded-xl flex items-center text-sm font-bold transition-all ${statusFilter === 'scheduled' ? 'bg-primary text-white shadow-lg' : 'text-muted hover:text-foreground hover:bg-accent'}`}
+                                >
+                                    <Calendar className="w-4 h-4 mr-2" /> {t('home.filter_scheduled')}
+                                </button>
+                                <button
+                                    onClick={() => setStatusFilter('all')}
+                                    className={`px-4 py-2 rounded-xl flex items-center text-sm font-bold transition-all ${statusFilter === 'all' ? 'bg-card shadow text-primary border border-primary' : 'text-muted hover:text-foreground hover:bg-accent'}`}
+                                >
+                                    {t('home.filter_all')}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 ) : (
                     <div className="h-full overflow-y-auto custom-scrollbar flex flex-col">
                         <div className="py-6 md:py-10 px-4 md:px-6 flex-1">
                             <div className="max-w-7xl mx-auto">
                                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                                    {performances.length === 0 ? (
+                                    {filteredPerformances.length === 0 ? (
                                         <div className="col-span-full flex flex-col items-center justify-center py-20 opacity-30">
                                             <List className="w-12 h-12 mb-4" />
                                             <p className="text-center font-bold">{t('home.no_performances')}</p>
                                         </div>
                                     ) : (
-                                        performances.map((perf) => {
+                                        filteredPerformances.map((perf) => {
                                             const isLive = getEffectiveStatus(perf) === 'live'
                                             const singerName = perf.singer?.stageName || 'Unknown'
                                             const singerAvatar = perf.singer?.profile?.avatarUrl

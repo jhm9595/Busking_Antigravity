@@ -12,7 +12,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { useUser } from '@clerk/nextjs'
 import BookingRequestModal from '@/components/audience/BookingRequestModal'
 import { getPerformanceById, getSinger, updatePerformanceStatus } from '@/services/singer'
-import { getEffectiveStatus, formatLocalDate, formatLocalTime } from '@/utils/performance'
+import { getEffectiveStatus, formatLocalDate, formatLocalTime, formatTimeRange } from '@/utils/performance'
 
 // Dynamically import MapPicker
 const MapPicker = dynamic(() => import('@/components/common/MapPicker'), {
@@ -316,7 +316,7 @@ export default function SingerDetailPage() {
                                                         </div>
                                                         <div className="flex items-center gap-3 text-xs font-bold text-emerald-400 italic bg-card w-fit px-4 py-2 rounded-2xl border border-border shadow-inner">
                                                             <Clock className="w-4 h-4 text-emerald-400" />
-                                                            <span suppressHydrationWarning>{formatLocalTime(perf.startTime)} - {perf.endTime ? formatLocalTime(perf.endTime) : '...'}</span>
+                                                            <span suppressHydrationWarning>{formatTimeRange(perf.startTime, perf.endTime)}</span>
                                                         </div>
                                                         {perf.locationText && (
                                                             <div className="flex items-center gap-3 text-xs font-bold text-amber-400 italic bg-card w-fit px-4 py-2 rounded-2xl border border-border shadow-inner max-w-full">

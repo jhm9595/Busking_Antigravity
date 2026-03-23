@@ -66,6 +66,10 @@ export const en = {
         no_performances: 'No performances found.',
         view_details: 'View Details',
         status_scheduled: 'Scheduled',
+        filter_live: 'Live',
+        filter_scheduled: 'Scheduled',
+        filter_all: 'All',
+        guest_notice: 'Login required',
     },
     performance: {
         title: 'Performance Schedule',

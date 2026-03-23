@@ -68,6 +68,10 @@ export const zhTW: LocaleTypes = {
         no_performances: '未找到相關演出。',
         view_details: '查看詳情',
         status_scheduled: '已排期',
+        filter_live: '直播',
+        filter_scheduled: '排期',
+        filter_all: '全部',
+        guest_notice: '需要登入',
     },
     performance: {
         title: '演出排期',

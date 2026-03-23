@@ -68,6 +68,10 @@ export const ko: LocaleTypes = {
         no_performances: '등록된 공연이 없습니다.',
         view_details: '상세 보기',
         status_scheduled: '공연 예정',
+        filter_live: '라이브',
+        filter_scheduled: '예정',
+        filter_all: '전체',
+        guest_notice: '로그인 필요',
     },
     performance: {
         title: '공연 스케줄',
