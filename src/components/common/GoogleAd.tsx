@@ -33,7 +33,7 @@ export default function GoogleAd({ slot, format = 'auto', responsive = true, cla
             <ins
                 ref={adRef}
                 className={`adsbygoogle ${className}`}
-                style={{ display: 'block', minHeight: '90px' }}
+                style={{ display: 'block', minHeight: '50px' }}
                 data-ad-client={AD_SENSE_CLIENT_ID}
                 data-ad-slot={slot}
                 data-ad-format={format}

@@ -287,10 +287,10 @@ export default function ChatBox({
                                 </div>
                             )
                         })}
-                        <div ref={bottomRef} />
+                        <div ref={bottomRef} className="pb-[120px]" />
                     </div>
 
-                    <div className="p-4 border-t" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+                    <div className="p-4 border-t pb-[120px] md:pb-4" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
                         <div className="flex gap-2 p-1.5 rounded-[20px] border transition-colors" style={{ backgroundColor: 'var(--color-surface-elevated)', borderColor: 'var(--color-border)' }}>
                             <input
                                 type="text"

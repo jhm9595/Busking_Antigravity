@@ -4,10 +4,8 @@ import { auth } from '@clerk/nextjs/server'
 
 export async function POST(request: Request) {
     try {
-        const { userId } = await auth()
-        if (!userId) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-        }
+        // const { userId } = await auth()
+        // Allow unauthenticated users or local storage fan users to request songs
 
         const body = await request.json()
         const { performanceId, title, artist, requesterName } = body
