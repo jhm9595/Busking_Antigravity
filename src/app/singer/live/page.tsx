@@ -235,7 +235,21 @@ function LivePerformanceContent() {
     if (loading) return <div className="h-screen bg-black text-white flex items-center justify-center">{t('common.loading')}</div>
     if (fetchError || !performance) return <div className="h-screen bg-black text-white flex flex-col items-center justify-center p-4"><h1 className="text-xl font-bold text-red-500">Error</h1><p>{fetchError || 'Performance not found'}</p></div>
 
-    const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
+    // Format time with days support (e.g., "1D, 23:35" for > 24 hours)
+    const formatTime = (s: number) => {
+        if (s <= 0) return '00:00'
+        
+        const days = Math.floor(s / 86400)
+        const hours = Math.floor((s % 86400) / 3600)
+        const minutes = Math.floor((s % 3600) / 60)
+        const seconds = s % 60
+        
+        if (days > 0) {
+            return `${days}D, ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+        }
+        
+        return `${hours.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+    }
 
     const handleEndPerformance = () => {
         setConfirmModal({
