@@ -272,7 +272,12 @@ export default function ExplorePage() {
                 )}
                 {viewMode === 'map' ? (
                     <div className="h-full w-full relative">
-                        <BuskingMap performances={filteredPerformances} isLoggedIn={!!user} />
+                        <BuskingMap 
+                            performances={filteredPerformances} 
+                            isLoggedIn={!!user}
+                            filterMode={statusFilter}
+                            onFilterModeChange={setStatusFilter}
+                        />
                         {/* Floating filter for desktop - positioned at bottom center */}
                         <div className="hidden lg:flex absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
                             <div className="flex bg-card/90 backdrop-blur-sm border border-border rounded-2xl p-2 shadow-2xl">

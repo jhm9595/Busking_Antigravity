@@ -53,6 +53,8 @@ interface Performance {
 interface MapProps {
     performances: Performance[]
     isLoggedIn: boolean
+    filterMode?: 'all' | 'live' | 'scheduled'
+    onFilterModeChange?: (mode: 'all' | 'live' | 'scheduled') => void
 }
 
 // Sub-component to handle map movement
@@ -66,7 +68,7 @@ const MapController = ({ center, zoom }: { center: [number, number] | null, zoom
     return null
 }
 
-export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
+export default function BuskingMap({ performances, isLoggedIn, filterMode: externalFilterMode, onFilterModeChange }: MapProps) {
     const router = useRouter()
     const { t } = useLanguage()
     const [isMounted, setIsMounted] = useState(false)
@@ -74,7 +76,18 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
     const [mapCenter, setMapCenter] = useState<[number, number]>([37.5665, 126.9780]) // Default: Seoul
     const [zoom, setZoom] = useState(13)
     const [radius, setRadius] = useState<number>(0) // 0 means "All" (no filter)
-    const [filterMode, setFilterMode] = useState<'all' | 'live' | 'scheduled'>('all')
+    const [internalFilterMode, setInternalFilterMode] = useState<'all' | 'live' | 'scheduled'>('all')
+    
+    // Use external filter mode if provided, otherwise use internal state
+    const filterMode = externalFilterMode ?? internalFilterMode
+    const setFilterMode = (mode: 'all' | 'live' | 'scheduled') => {
+        if (onFilterModeChange) {
+            onFilterModeChange(mode)
+        } else {
+            setInternalFilterMode(mode)
+        }
+    }
+    
     const [showFollowedOnly, setShowFollowedOnly] = useState(false)
 
     useEffect(() => {
@@ -218,51 +231,37 @@ export default function BuskingMap({ performances, isLoggedIn }: MapProps) {
                 </button>
             </div>
 
-            {/* Responsive Filter Panel */}
-            <div className="absolute bottom-0 left-0 right-0 z-[1000] bg-card/95 backdrop-blur-sm shadow-2xl border-t border-border pb-safe md:pb-2 md:bottom-2 md:left-2 md:right-2 md:rounded-2xl md:max-w-2xl md:mx-auto">
+            {/* Responsive Filter Panel - Only visible on mobile (below md), uses header filter on tablet+ */}
+            <div className="absolute bottom-0 left-0 right-0 z-[1000] bg-card/95 backdrop-blur-sm shadow-2xl border-t border-border pb-safe md:hidden">
                 {/* Drag Handle (mobile only) */}
                 <div className="flex justify-center pt-2 pb-1 md:hidden">
                     <div className="w-10 h-1 bg-muted rounded-full" />
                 </div>
                 
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 py-2 md:py-2">
-                    <h4 className="font-bold text-foreground flex items-center gap-2 text-sm">
-                        <Filter className="w-4 h-4 text-primary" />
+                <div className="flex items-center justify-between px-4 py-2">
+                    <h4 className="font-bold text-foreground flex items-center gap-2 text-xs">
+                        <Filter className="w-3 h-3 text-primary" />
                         {t('explore.filter_title')}
                     </h4>
-                    <span className="text-xs text-muted-foreground bg-accent px-2 py-1 rounded-full font-medium">
-                        {filteredPerformances.length} {t('explore.found_count').replace('{count}', '').trim()}
+                    <span className="text-[10px] text-muted-foreground bg-accent px-1.5 py-0.5 rounded-full font-medium">
+                        {filteredPerformances.length}
                     </span>
                 </div>
 
                 {/* Compact Filter Controls */}
-                <div className="px-4 pb-4 md:pb-3 md:flex md:gap-3 md:items-center">
+                <div className="px-4 pb-3 md:flex md:gap-2 md:items-center">
                     {/* Status Toggle - Horizontal Pills */}
-                    <div className="flex bg-accent p-1 rounded-xl md:flex-1">
+                    <div className="flex bg-accent p-0.5 rounded-lg md:flex-1">
                         {(['all', 'live', 'scheduled'] as const).map((mode) => (
                             <button
                                 key={mode}
                                 onClick={() => setFilterMode(mode)}
-                                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all capitalize ${filterMode === mode ? 'bg-card shadow-md text-primary ring-1 ring-primary/20' : 'text-muted-foreground hover:text-foreground'}`}
+                                className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all capitalize ${filterMode === mode ? 'bg-card shadow text-primary' : 'text-muted-foreground hover:text-foreground text-[10px]'}`}
                             >
                                 {t(`explore.filter_${mode}`)}
                             </button>
                         ))}
-                    </div>
-
-                    {/* Additional Filters Row */}
-                    <div className="flex gap-2 mt-2 md:mt-0 md:flex-1">
-                        {/* Followed Only Toggle (Only if logged in) */}
-                        {isLoggedIn && (
-                            <button
-                                onClick={() => setShowFollowedOnly(!showFollowedOnly)}
-                                className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 border ${showFollowedOnly ? 'bg-primary/10 text-primary border-primary/30' : 'bg-accent text-muted-foreground border-transparent hover:bg-accent/80'}`}
-                            >
-                                <Heart className={`w-3 h-3 ${showFollowedOnly ? 'fill-current' : ''}`} />
-                                {t('explore.filter_followed')}
-                            </button>
-                        )}
                     </div>
                 </div>
             </div>
