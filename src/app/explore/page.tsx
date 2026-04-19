@@ -260,7 +260,7 @@ export default function ExplorePage() {
                 </div>
             </header>
 
-            <main className="flex-1 relative overflow-hidden bg-gray-50 h-screen w-full">
+            <main className="relative h-screen w-full overflow-hidden bg-gray-50">
                 {!isAuthenticated && showDemoBanner && (
                     <div className="absolute left-3 right-3 top-3 z-20 md:left-6 md:right-6 md:top-4">
                         <DemoBanner
