@@ -357,8 +357,8 @@ function LivePerformanceContent() {
     const pendingRequests = requests.filter(r => r.status === 'pending')
 
     return (
-        <div className="bg-[#0f1117] text-slate-100 h-[100dvh] flex flex-col w-full md:max-w-[100vw] mx-auto font-display overflow-hidden selection:bg-indigo-500/30">
-            <header className="px-4 py-3 bg-gray-950/80 backdrop-blur-xl border-b border-white/5 flex justify-between items-center shrink-0 z-20">
+        <div className="bg-background text-foreground h-[100dvh] flex flex-col w-full md:max-w-[100vw] mx-auto font-display overflow-hidden selection:bg-primary/30">
+            <header className="px-4 py-3 bg-background/80 backdrop-blur-xl border-b border-border flex justify-between items-center shrink-0 z-20">
                 <div className="flex items-center gap-4 min-w-0">
                     <button
                         onClick={() => router.push('/singer/dashboard')}
@@ -378,7 +378,7 @@ function LivePerformanceContent() {
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <div className="hidden lg:flex flex-col items-end justify-center px-4 border-r border-white/5 bg-black/20 rounded-xl mr-2">
+                    <div className="hidden lg:flex flex-col items-end justify-center px-4 border-r border-border bg-black/20 rounded-xl mr-2">
                         <div className="flex items-center gap-1.5 text-amber-400">
                             <Coins className="w-3.5 h-3.5" />
                             <span className="text-sm font-mono font-black">{userPoints.toLocaleString()}P</span>
@@ -394,11 +394,11 @@ function LivePerformanceContent() {
                                 {t('chat.open_with_points')}
                             </button>
                         )}
-                    <div className="hidden md:flex flex-col items-end justify-center px-4 border-r border-white/5">
+                    <div className="hidden md:flex flex-col items-end justify-center px-4 border-r border-border">
                         <div className="text-[9px] uppercase font-black text-gray-500 tracking-[0.2em] mb-0.5">{t('live.header.viewing')}</div>
                         <div className="text-xl font-mono font-black text-indigo-400 leading-none">{viewingCount}</div>
                     </div>
-                    <div className="hidden md:flex flex-col items-end justify-center px-4 border-r border-white/5">
+                    <div className="hidden md:flex flex-col items-end justify-center px-4 border-r border-border">
                         <div className="text-[9px] uppercase font-black text-gray-500 tracking-[0.2em] mb-0.5">{t('live.header.time_left')}</div>
                         <div className="text-xl font-mono font-black text-emerald-400 leading-none">{formatTime(elapsedTime)}</div>
                     </div>
@@ -413,7 +413,7 @@ function LivePerformanceContent() {
             </header>
 
             {/* Mobile Tab Selectors */}
-            <div className="flex md:hidden bg-gray-950/40 border-b border-white/5 shrink-0 p-1 gap-1">
+            <div className="flex md:hidden bg-background/40 border-b border-border shrink-0 p-1 gap-1">
                 <button
                     onClick={() => setActiveTab('setlist')}
                     className={`flex-1 py-3 text-xs font-black transition-all rounded-lg ${activeTab === 'setlist' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-gray-500 hover:text-gray-300'}`}
@@ -455,7 +455,7 @@ function LivePerformanceContent() {
                     /* MOBILE VIEW: Single tab content taking 100% width */
                     <div className="h-full overflow-hidden">
                         {activeTab === 'setlist' && (
-                            <div className="h-full flex flex-col p-4 space-y-5 overflow-y-auto custom-scrollbar bg-gray-950/20">
+                            <div className="h-full flex flex-col p-4 space-y-5 overflow-y-auto custom-scrollbar bg-background/20">
                                 <div className="flex items-center justify-between">
                                     <h2 className="text-xl font-black flex items-center gap-3">
                                         <List className="w-6 h-6 text-indigo-500" />
@@ -517,10 +517,10 @@ function LivePerformanceContent() {
                                 </div>
                                 <div className="space-y-4">
                                     {pendingRequests.map((r: any) => (
-                                        <div key={r.id} className="relative group overflow-hidden bg-white/5 p-5 rounded-2xl border border-white/5 hover:border-indigo-500/30 transition-all">
+                                        <div key={r.id} className="relative group overflow-hidden bg-white/5 p-5 rounded-2xl border border-border hover:border-indigo-500/30 transition-all">
                                             <div className="absolute top-0 right-0 p-3"><span className="text-[9px] font-black text-gray-600 font-mono tracking-tighter bg-white/5 px-2 py-0.5 rounded">#{r.id.slice(-4).toUpperCase()}</span></div>
                                             <div className="mb-4"><p className="font-black text-base text-white leading-tight mb-1">{r.title}</p><p className="text-[11px] text-gray-500 font-bold uppercase tracking-widest">{r.artist}</p></div>
-                                            <div className="flex items-center gap-3 mb-5 p-2 rounded-xl bg-gray-950/40">
+                                            <div className="flex items-center gap-3 mb-5 p-2 rounded-xl bg-background/40">
                                                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center"><UserIcon className="w-3.5 h-3.5 text-indigo-400" /></div>
                                                 <span className="text-[11px] text-gray-300 font-bold truncate">{r.requesterName}</span>
                                             </div>
@@ -537,7 +537,7 @@ function LivePerformanceContent() {
                         {activeTab === 'chat' && (
                             <div className="h-full flex flex-col bg-black relative">
                                 {chatStatus === 'closed' && (
-                                    <div className="absolute inset-0 z-[15] bg-gray-950/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+                                    <div className="absolute inset-0 z-[15] bg-background/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
                                         <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6 border border-indigo-500/20"><MessageSquare className="w-10 h-10 text-indigo-500" /></div>
                                         <h3 className="text-2xl font-black mb-2 text-white italic tracking-tight">{t('chat.closed_title')}</h3>
                                         <p className="text-gray-500 text-sm mb-8 leading-relaxed max-w-[240px] italic">{t('live.chat_ready_desc')}</p>
@@ -557,7 +557,7 @@ function LivePerformanceContent() {
                         <Panel
                             defaultSize={33}
                             minSize={20}
-                            className="flex flex-col border-r border-white/5 bg-gray-950/20 relative z-10"
+                            className="flex flex-col border-r border-border bg-gray-950/20 relative z-10"
                         >
                             <div className="flex-1 flex flex-col p-4 md:p-6 space-y-5 overflow-y-auto custom-scrollbar">
                                 <div className="flex items-center justify-between">
@@ -636,7 +636,7 @@ function LivePerformanceContent() {
                         <Panel
                             defaultSize={33}
                             minSize={20}
-                            className="flex flex-col border-r border-white/5 bg-gray-900/10"
+                            className="flex flex-col border-r border-border bg-gray-900/10"
                         >
                             <div className="flex-1 flex flex-col p-4 md:p-6 space-y-5 overflow-y-auto custom-scrollbar">
                                 <div className="flex items-center justify-between">
@@ -659,7 +659,7 @@ function LivePerformanceContent() {
                                 </div>
                                 <div className="space-y-4">
                                     {pendingRequests.map((r: any) => (
-                                        <div key={r.id} className="relative group overflow-hidden bg-white/5 p-5 rounded-2xl border border-white/5 hover:border-indigo-500/30 transition-all duration-300">
+                                        <div key={r.id} className="relative group overflow-hidden bg-white/5 p-5 rounded-2xl border border-border hover:border-indigo-500/30 transition-all duration-300">
                                             <div className="absolute top-0 right-0 p-3">
                                                 <span className="text-[9px] font-black text-gray-600 font-mono tracking-tighter bg-white/5 px-2 py-0.5 rounded">#{r.id.slice(-4).toUpperCase()}</span>
                                             </div>
@@ -669,7 +669,7 @@ function LivePerformanceContent() {
                                                 <p className="text-[11px] text-gray-500 font-bold uppercase tracking-widest">{r.artist}</p>
                                             </div>
 
-                                            <div className="flex items-center gap-3 mb-5 p-2 rounded-xl bg-gray-950/40">
+                                            <div className="flex items-center gap-3 mb-5 p-2 rounded-xl bg-background/40">
                                                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center">
                                                     <UserIcon className="w-3.5 h-3.5 text-indigo-400" />
                                                 </div>
@@ -717,7 +717,7 @@ function LivePerformanceContent() {
                             className="flex flex-col bg-black relative shadow-2xl z-10"
                         >
                             {chatStatus === 'closed' && (
-                                <div className="absolute inset-0 z-[15] bg-gray-950/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+                                <div className="absolute inset-0 z-[15] bg-background/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
                                     <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6 border border-indigo-500/20">
                                         <MessageSquare className="w-10 h-10 text-indigo-500" />
                                     </div>
