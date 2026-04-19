@@ -157,7 +157,7 @@ export default function BuskingMap({ performances, isLoggedIn, filterMode: exter
     }
 
     return (
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-full" style={{ height: 'inherit' }}>
             <MapContainer
                 center={mapCenter}
                 zoom={zoom}

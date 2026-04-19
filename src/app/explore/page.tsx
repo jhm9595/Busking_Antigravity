@@ -260,7 +260,7 @@ export default function ExplorePage() {
                 </div>
             </header>
 
-            <main className="flex-1 relative overflow-hidden bg-gray-50 h-[calc(100vh-60px)] md:h-screen">
+            <main className="flex-1 relative overflow-hidden bg-gray-50 h-screen w-full">
                 {!isAuthenticated && showDemoBanner && (
                     <div className="absolute left-3 right-3 top-3 z-20 md:left-6 md:right-6 md:top-4">
                         <DemoBanner
@@ -271,7 +271,7 @@ export default function ExplorePage() {
                     </div>
                 )}
                 {viewMode === 'map' ? (
-                    <div className="h-full w-full relative">
+                    <div className="absolute inset-0">
                         <BuskingMap 
                             performances={filteredPerformances} 
                             isLoggedIn={!!user}
@@ -280,7 +280,7 @@ export default function ExplorePage() {
                         />
                     </div>
                 ) : (
-                    <div className="h-full overflow-y-auto custom-scrollbar flex flex-col">
+                    <div className="absolute inset-0 overflow-y-auto custom-scrollbar flex flex-col">
                         <div className="py-6 md:py-10 px-4 md:px-6 flex-1">
                             <div className="max-w-7xl mx-auto">
                                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
