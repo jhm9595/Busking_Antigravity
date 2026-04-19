@@ -260,7 +260,7 @@ export default function ExplorePage() {
                 </div>
             </header>
 
-            <main className="flex-1 relative overflow-hidden bg-gray-50 h-screen fixed inset-0">
+            <main className="flex-1 relative overflow-hidden bg-gray-50 h-[calc(100vh-60px)] md:h-screen">
                 {!isAuthenticated && showDemoBanner && (
                     <div className="absolute left-3 right-3 top-3 z-20 md:left-6 md:right-6 md:top-4">
                         <DemoBanner
@@ -278,29 +278,6 @@ export default function ExplorePage() {
                             filterMode={statusFilter}
                             onFilterModeChange={setStatusFilter}
                         />
-                        {/* Floating filter for desktop - positioned at bottom center */}
-                        <div className="hidden lg:flex absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
-                            <div className="flex bg-card/90 backdrop-blur-sm border border-border rounded-2xl p-2 shadow-2xl">
-                                <button
-                                    onClick={() => setStatusFilter('live')}
-                                    className={`px-4 py-2 rounded-xl flex items-center text-sm font-bold transition-all ${statusFilter === 'live' ? 'bg-red-600 text-white shadow-lg' : 'text-muted hover:text-foreground hover:bg-accent'}`}
-                                >
-                                    <Radio className="w-4 h-4 animate-pulse mr-2" /> {t('home.filter_live')}
-                                </button>
-                                <button
-                                    onClick={() => setStatusFilter('scheduled')}
-                                    className={`px-4 py-2 rounded-xl flex items-center text-sm font-bold transition-all ${statusFilter === 'scheduled' ? 'bg-primary text-white shadow-lg' : 'text-muted hover:text-foreground hover:bg-accent'}`}
-                                >
-                                    <Calendar className="w-4 h-4 mr-2" /> {t('home.filter_scheduled')}
-                                </button>
-                                <button
-                                    onClick={() => setStatusFilter('all')}
-                                    className={`px-4 py-2 rounded-xl flex items-center text-sm font-bold transition-all ${statusFilter === 'all' ? 'bg-card shadow text-primary border border-primary' : 'text-muted hover:text-foreground hover:bg-accent'}`}
-                                >
-                                    {t('home.filter_all')}
-                                </button>
-                            </div>
-                        </div>
                     </div>
                 ) : (
                     <div className="h-full overflow-y-auto custom-scrollbar flex flex-col">
