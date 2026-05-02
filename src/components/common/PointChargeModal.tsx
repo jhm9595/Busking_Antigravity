@@ -1,8 +1,8 @@
 'use client'
+
 import React, { useState, useEffect } from 'react'
 import { X, Zap, Star, Trophy, Crown, Check, Coins, CreditCard, MessageCircle, ChevronRight, Tv } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { showAdModal } from '@/utils/adModal'
 import Script from 'next/script'
 
 interface PointPackage {
@@ -164,24 +164,21 @@ export default function PointChargeModal({ userId, isOpen, onClose, onSuccess }:
                 return
             }
 
-            // 2. Show ad modal (simulated for now - will be replaced with real AdSense/AdMob)
-            const watched = await showAdModal(t)
-            
-            if (watched) {
-                // 3. Record ad completion and award points via backend
-                const completeRes = await fetch('/api/ad/complete', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        userId, 
-                        adProvider: 'mock', // Will be replaced with 'admob' or 'adsense' after approval
-                        status: 'completed'
-                    })
+            // 2. Award points directly (ad modal removed until AdSense approval)
+            // Record ad completion and award points via backend
+            const completeRes = await fetch('/api/ad/complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    userId, 
+                    adProvider: 'mock', // Will be replaced with 'admob' or 'adsense' after approval
+                    status: 'completed'
                 })
-                
-                const result = await completeRes.json()
-                
-                if (result.success) {
+            })
+            
+            const result = await completeRes.json()
+            
+            if (result.success) {
                     alert(result.message || `+${result.rewardPoints}포인트가 지급되었습니다!`)
                     onSuccess(result.points)
                 } else {

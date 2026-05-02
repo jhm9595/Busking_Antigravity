@@ -13,7 +13,6 @@ import { Music, Clock, MessageCircle, X, Check, Archive, Calendar, MapPin, Share
 import Link from 'next/link'
 import GoogleAd from '@/components/common/GoogleAd'
 import { useUser } from '@clerk/nextjs'
-import { showAdModal } from '@/utils/adModal'
 
 export default function AudienceLivePage() {
     const params = useParams()
@@ -215,26 +214,21 @@ export default function AudienceLivePage() {
             return
         }
         if (!singer?.id) return
-
+        
         setIsSponsoring(true)
         
-        // Show ad and wait for completion
-        const watched = await showAdModal(t)
-        
-        if (watched && singer?.id) {
-            // Sponsor 10 points to singer
-            const res = await sponsorSinger(user.id, singer.id, 10)
-            if (res.success) {
-                if (activeSocket) {
-                    activeSocket.emit('donation_received', {
-                        performanceId: id,
-                        username: user.fullName || user.username || user.id,
-                        amount: 10
-                    })
-                }
-                alert(t('live.ad_sponsor_success') || 'You sponsored 10 points to the singer!')
-                refreshData()
+        // Directly sponsor 10 points to singer (ad modal removed until AdSense approval)
+        const res = await sponsorSinger(user.id, singer.id, 10)
+        if (res.success) {
+            if (activeSocket) {
+                activeSocket.emit('donation_received', {
+                    performanceId: id,
+                    username: user.fullName || user.username || user.id,
+                    amount: 10
+                })
             }
+            alert(t('live.ad_sponsor_success') || 'You sponsored 10 points to the singer!')
+            refreshData()
         }
         setIsSponsoring(false)
     }
