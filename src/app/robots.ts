@@ -1,49 +1,30 @@
-import type { MetadataRoute } from "next";
+import { MetadataRoute } from 'next'
+import { NEXT_PUBLIC_APP_URL } from 'next/env'
 
-export default function robots(): MetadataRoute.Robots {
-  return {
+export const dynamic = 'force-static'
+
+export const metadata: MetadataRoute = {
+  robots: {
     rules: [
       {
-        userAgent: "Mediapartners-Google",
-        allow: "/",
+        userAgent: 'Googlebot',
+        allow: ['/'],
+        disallow: ['/dashboard', '/singer/dashboard', '/live', '/api/'],
       },
       {
-        userAgent: "Google-Display-Ads-Bot",
-        allow: "/",
+        userAgent: 'Mediapartners-Google',
+        allow: ['/'],
       },
       {
-        userAgent: "*",
-        allow: "/",
-        disallow: [
-          "/api/",
-          "/auth/",
-          "/auth",
-          "/dashboard/",
-          "/dashboard",
-          "/singer/dashboard/",
-          "/singer/dashboard",
-          "/venue/",
-          "/venue",
-          "/login/",
-          "/login",
-          "/sign-in/",
-          "/sign-in",
-          "/sign-up/",
-          "/sign-up",
-          "/design-flow/",
-          "/design-flow",
-          "/design-preview/",
-          "/design-preview",
-          "/design-to-be/",
-          "/design-to-be",
-          "/test-perf-flow/",
-          "/test-perf-flow",
-          "/guide-draft.html",
-          "/guide-i18n-board.html",
-          "/guide-i18n/",
-        ],
+        userAgent: 'Google-Adsbot',
+        allow: ['/'],
+      },
+      {
+        userAgent: '*',
+        allow: ['/'],
+        disallow: ['/dashboard', '/singer/dashboard', '/live', '/api/', '/private/'],
       },
     ],
-    sitemap: "https://busking.minibig.pw/sitemap.xml",
-  };
+    sitemap: `${NEXT_PUBLIC_APP_URL || 'https://minimic.app'}/sitemap.xml`,
+  },
 }

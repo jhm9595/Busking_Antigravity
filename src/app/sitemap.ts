@@ -1,63 +1,39 @@
-import type { MetadataRoute } from "next";
-import { getAllGuides } from "@/content/guides";
+import { MetadataRoute, getServerSideURL } from 'next'
+import { prisma } from '@/lib/prisma'
 
-const SITE_URL = "https://busking.minibig.pw";
+export const dynamic = 'force-static'
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
-  const guideEntries = getAllGuides();
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = (getServerSideURL() || process.env.NEXT_PUBLIC_APP_URL || 'https://minimic.app').replace(/\/$/, '')
 
-  const staticPages: MetadataRoute.Sitemap = [
-    {
-      url: `${SITE_URL}/`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 1,
-    },
-    {
-      url: `${SITE_URL}/explore`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.8,
-    },
-    {
-      url: `${SITE_URL}/about`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${SITE_URL}/privacy`,
-      lastModified: now,
-      changeFrequency: "monthly",
+  // Static pages
+  const staticPages = [
+    { url: `${baseUrl}/`, changeFrequency: 'daily' as const, priority: 1.0 },
+    { url: `${baseUrl}/explore`, changeFrequency: 'hourly' as const, priority: 0.9 },
+    { url: `${baseUrl}/about`, changeFrequency: 'monthly' as const, priority: 0.8 },
+    { url: `${baseUrl}/privacy`, changeFrequency: 'monthly' as const, priority: 0.8 },
+    { url: `${baseUrl}/terms`, changeFrequency: 'monthly' as const, priority: 0.8 },
+    { url: `${baseUrl}/contact`, changeFrequency: 'monthly' as const, priority: 0.8 },
+    { url: `${baseUrl}/guides`, changeFrequency: 'weekly' as const, priority: 0.7 },
+  ]
+
+  // Dynamic singer pages (only verified singers)
+  try {
+    const singers = await prisma.singer.findMany({
+      where: { isVerified: true },
+      select: { id: true, updatedAt: true },
+    })
+
+    const singerPages = singers.map(s => ({
+      url: `${baseUrl}/singer/${s.id}`,
+      lastModified: s.updatedAt,
+      changeFrequency: 'weekly' as const,
       priority: 0.6,
-    },
-    {
-      url: `${SITE_URL}/terms`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-    {
-      url: `${SITE_URL}/contact`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-    {
-      url: `${SITE_URL}/guides`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-  ];
+    }))
 
-  const guidePages: MetadataRoute.Sitemap = guideEntries.map((guide) => ({
-    url: `${SITE_URL}/guides/${guide.slug}`,
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: 0.7,
-  }));
-
-  return [...staticPages, ...guidePages];
+    return [...staticPages, ...singerPages]
+  } catch (error) {
+    console.error('Sitemap generation error:', error)
+    return staticPages
+  }
 }
