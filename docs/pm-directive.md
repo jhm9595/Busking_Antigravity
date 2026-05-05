@@ -1,66 +1,41 @@
 # PM Directive
 
-This file is the current execution directive from `Atlas`.
-Every agent must read this file after `git pull` and before starting new work.
-If this file changed, treat it as the latest priority and routing source.
+This is the live assignment source. Read it after `AGENTS.md` and before starting work.
 
-## Operating Mode
+## Current Owner
 
-- The shared root checkout is a coordination view only.
-- Active implementation, QA artifact generation, and design-file edits must happen in role-specific branches and role-specific git worktrees.
-- Before starting work, each agent must confirm `git status --short --branch` and verify the branch/worktree matches the assigned role.
-- `Atlas` owns updates to shared coordination docs in the root checkout unless explicitly delegated.
-- If the current checkout contains unrelated local changes, stop and route the conflict to `Atlas` before continuing.
+- `Atlas`
 
 ## Current Priority
 
-1. Security hardening (completed)
-2. Discord webhook format (completed)
-3. Documentation update (completed)
-4. Mobile UX & Kakao Pay Config (completed)
-5. 8-Theme System & Ad Placements (completed)
-6. Fix urgent QA blockers (completed)
-7. Handoff to QA (next)
+Keep the repository safe for multi-agent work and prevent repeated AI mistakes by using the canonical documentation set:
 
-## Active Owner
+1. `AGENTS.md`
+2. `README.md`
+3. `docs/pm-directive.md`
+4. `docs/qa-checklist.md`
+5. `docs/handoff-template.md`
+6. `test-suite/README.md`
 
-- `Antigravity`
+## Operating Rules
 
-## Current Assignments
+- Check `git status --short --branch` before editing.
+- Stop and ask before overwriting unrelated local changes.
+- Keep generated artifacts out of the shared root checkout.
+- Do not expose or request secret values.
+- Prefer GitHub, repository docs, workflow summaries, and PR comments over chat memory.
 
-### Atlas (Completed)
+## Acceptance Criteria
 
-- ✅ Security hardening: server identity verification, GET read-only, realtime token hardening
-- ✅ Discord webhook format: Updated to Korean standard format
-- ✅ Documentation update: QA Checklist added and PM Directive synced
-- ✅ Mobile UX: Fixed Theme Switcher touch, increased font sizes (9px -> 12px), fixed modal double-scroll.
-- ✅ Kakao Pay: Fixed 400 error by supporting both Legacy and Open API key formats and endpoints.
-- ✅ 8-Theme System: Simplified to 4 robust themes; fixed "Warm Sunset" (Warm Street Poster) button contrast.
-- ✅ Ad Placements: Removed raw "Slot ID" debug text from UI.
-- ✅ Artist Profile: Fixed 404 error for slug-based routes (e.g., /singer/형민부개).
-- ✅ Explore i18n: Applied Korean translations to Explore filter strings and map markers.
+A task is complete only when:
 
-### Codex App (Completed by Atlas)
+- The requested behavior or document change is implemented.
+- Relevant diagnostics, tests, build, or manual QA have been run.
+- Skipped checks are explicitly justified.
+- The handoff names the next owner.
 
-- ✅ Redesigned singer-profile live state ("Live Now" module).
-- ✅ Integrated home navigation into headers.
-- ✅ Placed song-request button in setlist header.
+## Next Owner Rule
 
-### Antigravity
-
-- Test on actual live site (staging/production).
-- Follow the `docs/QA-TEST-CHECKLIST.md`.
-- Verify the 8 new themes for visual consistency.
-- Verify ad placements are non-disruptive.
-- Do NOT modify code files - only validate and report.
-
-## Required Handoff Rule
-
-- Every handoff must name exactly one next owner.
-- If work is blocked, state the blocker explicitly and return ownership to `Atlas`.
-- If `Antigravity` finds a confirmed bug, the handoff must return ownership to `Atlas` first.
-- `Atlas` decides whether the next owner becomes `Codex App` or `Antigravity`.
-
-## Next Review Point
-
-- `Atlas` reviews again after `Antigravity` completes the full QA sweep on the live site.
+- If implementation is complete, next owner is `Antigravity` for QA.
+- If QA finds a confirmed bug, next owner returns to `Atlas`.
+- If work is blocked, next owner is `Atlas` with the blocker stated clearly.

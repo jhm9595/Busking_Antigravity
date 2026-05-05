@@ -76,7 +76,7 @@ jobs:
             echo "- Antigravity: 실제 사이트 QA ( staging/production validation )"
             echo
             echo "### Required Reading"
-            echo "1. \`docs/ai-orchestra.md\`"
+            echo "1. \`AGENTS.md\`"
             echo "2. This report"
             echo "3. Relevant PR comments"
             echo "4. Changed files"
@@ -85,7 +85,7 @@ jobs:
             sed 's/^/- /' tmp/ai-handoff/changed_files.txt
             echo
             echo "### Handoff Rules"
-            echo "- Use the standard template in \`docs/ai-handoff-template.md\`"
+            echo "- Use the standard template in \`docs/handoff-template.md\`"
             echo "- Each agent must name a single next owner"
             echo "- QA findings must include repro steps"
             echo "- Dev handoff must include files touched and verification run"
@@ -93,7 +93,7 @@ jobs:
             echo
             echo "### Standard Template"
             echo '```md'
-            cat docs/ai-handoff-template.md
+            cat docs/handoff-template.md
             echo '```'
           } > tmp/ai-handoff/report.md
 

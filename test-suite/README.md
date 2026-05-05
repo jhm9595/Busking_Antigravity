@@ -1,37 +1,36 @@
-# Busking Antigravity Test Suite
+# Test Suite Reference
 
-This folder contains smoke and regression checks for API contracts, lifecycle read paths, and realtime authorization hardening.
+This folder is for executable verification references only. Keep analysis reports and stale recommendations out of this directory.
 
-## Core commands
+## Baseline Commands
 
-Run these with the app stack running (`npm run dev`):
+From the repository root:
 
 ```bash
-node test-suite/api-tester.js
-node test-suite/chat-tester.js
-powershell -ExecutionPolicy Bypass -File .\test-suite\one-click-test.ps1
-npx playwright test tests/live-auth-smoke.spec.ts
+npm run lint
+npm run build
 ```
 
-## Smoke coverage
+If Prisma types or schema-adjacent code changed:
 
-- `api-tester.js`
-  - Verifies `/api/performances` now returns an array payload (not legacy `data.items`).
-  - Verifies singer profile lookup shape from `/api/singers/:id`.
-  - Verifies anonymous `POST /api/song-requests` is rejected with `401`.
-- `chat-tester.js`
-  - Verifies current socket events (`chat_status`, `load_history`, `receive_message`, `authorization_error`).
-  - Verifies anonymous audience cannot call owner controls (`open_chat`, `chat_status_toggled`).
-  - Verifies audience messages are blocked while chat is closed.
-- `one-click-test.ps1` / `one-click-test.sh`
-  - Runs API/chat smoke plus security/lifecycle/realtime regression suites from Tasks 1-4.
-  - Writes aggregate machine-readable summary to `test-suite/results/one-click-smoke-summary.json`.
+```bash
+npx prisma generate
+```
 
-## Result artifacts
+## Browser QA
 
-Smoke and regression scripts write JSON artifacts under `test-suite/results/`.
-Key outputs include:
+Use browser QA for user-visible flows:
 
-- `api-smoke.json`
-- `chat-smoke.json`
-- `one-click-smoke-summary.json`
+- Explore map and list views
+- Live performance page
+- Singer dashboard
+- Payments and redirects
+- Theme and language switching
+
+Record results using `docs/handoff-template.md`.
+
+## Adding Tests
+
+- Add tests next to the behavior they protect when the project already has an appropriate test pattern.
+- Do not add one-off generated reports here.
+- Do not weaken or delete failing tests to pass CI.
