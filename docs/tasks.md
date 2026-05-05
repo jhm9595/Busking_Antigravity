@@ -1,133 +1,149 @@
-# Task Board
+﻿# Task Board
 
 > Single source of truth for what to do next.
 > Update this file after completing each task. Completed items stay for context continuity.
 
-### 1.7 Pre-Deploy Verification Pipeline
-**Status**: done **[LOCKED - DO NOT TOUCH]**
-**What**: Create pre-deploy pipeline that runs all tests (lint, build, security, lifecycle, API smoke, Playwright) before allowing deployment. Fail-fast: any check fails = deploy blocked.
-**Files**: `test-suite/pre-deploy.ps1` (new), `test-suite/PRE-DEPLOY.md` (new), `src/lib/lifecycle-contract.js` (new), `src/lib/security-contract.js` (new), `package.json` (added predeploy script)
-**Tests**: `npm run predeploy` runs full pipeline
-
 ---
 
-## Phase1: Security Hardening (Priority 1)
+## Phase1: Security & Basics (Priority 1 - DONE ✅)
 
 ### 1.1 Shared Auth & Lifecycle Contracts
 **Status**: done **[LOCKED - DO NOT TOUCH]**
-**What**: Inventory mutating surfaces, create shared server-side auth/ownership guard, create shared lifecycle resolver, add test harnesses under `test-suite/security/` and `test-suite/lifecycle/`.
-**Files**: `src/services/singer.ts`, `src/app/api/*`, `test-suite/security/`, `test-suite/lifecycle/`
+**What**: Inventory mutating surfaces, create shared server-side auth/ownership guard.
+**Files**: `src/services/singer.ts`, `src/app/api/*`
 
-### 1.2 Lock Down Mutating Writes (Server-Side Identity)
+### 1.2 Lock Down Mutating Writes
 **Status**: done **[LOCKED - DO NOT TOUCH]**
-**What**: Refactor all mutating server actions and REST routes to derive identity from Clerk, resolve ownership from Prisma. Cover `src/services/singer.ts`, `POST /api/singers/[id]/follow`, `POST /api/song-requests`, `POST /api/booking`.
-**Files**: `src/services/singer.ts`, `src/app/api/singers/[id]/follow/route.ts`, `src/app/api/song-requests/route.ts`, `src/app/api/booking/route.ts`
-**Tests**: `node test-suite/security/mutating-writes.test.js`
+**What**: Refactor all mutating routes to derive identity from Clerk.
+**Files**: `src/app/api/booking/route.ts`, `src/app/api/song-requests/route.ts`
 
-### 1.3 Make Lifecycle Read-Only & Shared
+### 1.3 Make Lifecycle Read-Only
 **Status**: done **[LOCKED - DO NOT TOUCH]**
-**What**: Introduce shared lifecycle resolver for API+UI read paths. Remove Prisma writes from GET handlers. Normalize canceled/cancelled spelling at resolver boundary.
-**Files**: New shared resolver, `src/app/api/performances/route.ts`, `src/app/api/singers/[id]/route.ts`, `src/utils/performance.ts`
-**Tests**: `node test-suite/lifecycle/read-only.test.js`
-**Commit**: 80cbe2c (singers/[id] GET now uses resolvePerformanceStatus from @/lib/performance-lifecycle)
+**What**: Remove Prisma writes from GET handlers, use shared `resolvePerformanceStatus`.
+**Files**: `src/app/api/singers/[id]/route.ts`, `src/lib/performance-lifecycle.ts`
+**Commit**: 80cbe2c
 
 ### 1.4 Realtime Authority Hardening
-**Status**: done
-
-### 1.5 Refresh Regression & Smoke Coverage
-**Status**: done
-
-### 1.6 Fix Anonymous Song Requests
 **Status**: done **[LOCKED - DO NOT TOUCH]**
-
-**What**: Add auth check to POST /api/song-requests (auth() was commented out)
-**Files**: `src/app/api/song-requests/route.ts`
-**Verification**: Anonymous POST → 401, Authenticated POST → success
-**Commit**: db6cb20
+**What**: Stop trusting client-supplied userType, use Redis auth instead.
+**Files**: `realtime-server/server.js`
+**Commit**: 3d74f19, e410d56
 
 ### 1.5 Refresh Regression & Smoke Coverage
-**Status**: done
+**Status**: done **[LOCKED - DO NOT TOUCH]**
+**What**: Align test-suite/ with current contracts.
+**Files**: `test-suite/api-tester.js`, `test-suite/chat-tester.js`
 
-**What was done:**
-- Refreshed `test-suite/api-tester.js` to match current API response shape (filters: live/scheduled/followed)
-- Refreshed `test-suite/chat-tester.js` to verify new authorizeSingerControl() guards
-- Added anonymous booking rejection test
-- Updated smoke tests to check all privileged event guards (open_chat, system_alert, performance_ended, chat_status_toggled)
-- Source-level checks now verify authorizeSingerControl() presence in all privileged event handlers
+### 1.6 Fix Anonymous Writes
+**Status**: done **[LOCKED - DO NOT TOUCH]**
+**What**: Add auth check to POST /api/song-requests and /api/booking.
+**Commit**: db6cb20, 80cbe2c
 
-**Files changed**: `test-suite/api-tester.js`, `test-suite/chat-tester.js`
-**What**: Bring `test-suite/` into alignment with refreshed contracts. Replace stale assumptions in `api-tester.js` and `chat-tester.js`. Add final automated smoke path.
-**Files**: `test-suite/api-tester.js`, `test-suite/chat-tester.js`, `test-suite/one-click-test.ps1`, `tests/live-auth-smoke.spec.ts`
-
----
-
-## Phase 2: AdSense Approval Readiness
-
-### 2.1 Crawlability Foundation
-**Status**: pending
-**What**: Add `src/app/robots.ts` and `src/app/sitemap.ts` (App Router native). Update `metadataBase` in `src/app/layout.tsx`. Allow `Mediapartners-Google` and `Google-Display-Ads-Bot` in robots.txt. Sitemap includes only public routes (no `/dashboard`, `/singer/dashboard`).
-**Files**: `src/app/robots.ts` (new), `src/app/sitemap.ts` (new), `src/app/layout.tsx`
-**Verify**: `curl http://localhost:3000/robots.txt`, `curl http://localhost:3000/sitemap.xml`
-
-### 2.2 Public Discovery Chrome (Header/Footer)
-**Status**: pending
-**What**: Add shared public navigation/footer so crawlers and users can reach `/about`, `/privacy`, `/terms`, `/contact`, `/guides` from landing page and at least one secondary public route. Don't pollute dashboard flows.
-**Files**: New footer component, update `src/components/common/AppHeader.tsx`, `src/components/home/LandingPage.tsx`, `src/app/explore/page.tsx`, `src/app/singer/[id]/page.tsx`
-
-### 2.3 Legal & Trust Pages
-**Status**: pending
-**What**: Create `/about`, `/privacy`, `/terms`, `/contact` pages with real product-specific copy. Privacy page must disclose Google advertising cookies. Contact page uses `support@busking.minibig.pw`.
-**Files**: `src/app/about/page.tsx`, `src/app/privacy/page.tsx`, `src/app/terms/page.tsx`, `src/app/contact/page.tsx`
-
-### 2.4 Public Guides Information Architecture
-**Status**: pending
-**What**: Implement static, crawlable public content system under `/guides` and `/guides/[slug]`. Create guide index page, individual article routes, per-article metadata. Use typed local content data (not login-gated).
-**Files**: `src/app/guides/page.tsx` (new), `src/app/guides/[slug]/page.tsx` (new), `src/content/guides/` (new, data files)
-
-### 2.5 Guide Content Batch A (10 articles)
-**Status**: pending
-**What**: Write 10 substantive guide articles in Korean (~1,000+ chars each). Topics: 버스킹 처음 시작하기, 홍대/연남 버스킹 준비 체크리스트, 야외 공연 장비 기초, 버스커를 위한 기본 음향 팁, 라이브 공연 공지 잘 쓰는 법, 버스킹 관객과 소통하는 법, 공연 중 신청곡 운영 팁, 후원과 포인트 기능 이해하기, 싱어 프로필 매력적으로 만드는 법, 공연 후 팬 유지하는 방법.
-**Files**: `src/content/guides/*.md` or `.ts` data files
-
-### 2.6 Guide Content Batch B (10 articles)
-**Status**: pending
-**What**: Write 10 more articles to reach 20 total. Topics: 버스킹 장소 선택 가이드, 공연 일정 시간대 고르는 법, 비 오는 날/추운 날 버스킹 운영 팁, 초상권과 촬영 안내, 관객 입장에서 좋은 버스킹 찾는 법, 라이브룸에서 후원하기, 광고 후원 기능 이해, 버스커의 SNS 연결 전략, 공연 예약/섭외 문의 정리, 다국어 안내 운영 팁.
-**Files**: `src/content/guides/*.md` or `.ts` data files
-
-### 2.7 De-emphasize Demo-First Discovery
-**Status**: pending
-**What**: Update landing page hierarchy so guides/trust content is more prominent than demo flow. Preserve demo functionality. Add backlinks from static guide/demo artifacts to new content hub.
-**Files**: `src/components/home/LandingPage.tsx`, `public/guide-draft.html`, `public/guide-i18n-board.html`
-
-### 2.8 AdSense Approval Ops Runbook
-**Status**: done (docs only) **[LOCKED - DO NOT TOUCH]**
-**What**: Create runbook covering Search Console verification, sitemap submission, robots check, AdSense application, post-activation crawler login. Include `support@busking.minibig.pw`.
-**Files**: `docs/adsense-ops.md` (new)
+### 1.7 Pre-Deploy Pipeline
+**Status**: done **[LOCKED - DO NOT TOUCH]**
+**What**: `npm run predeploy` runs lint, build, security, lifecycle, API smoke.
+**Files**: `test-suite/pre-deploy.ps1`, `package.json`
+**Commit**: 3a77a84
 
 ---
 
-## Phase 3: Verification (Final)
+## Phase2: Audience Experience (Priority 2 - LOW COST, HIGH UTILITY ⭐)
 
-### 3.1 Build & Lint
+### 2.1 Countdown Timer (10s before switch)
 **Status**: pending
-**Command**: `npm run build && npm run lint`
-**Must pass**: Yes
+**What**: Add JS timer to `src/app/live/[id]/page.tsx` to show countdown at 30min/10min/5min/10s before performance.
+**Cost**: 0 (frontend only)
+**Files**: `src/app/live/[id]/page.tsx`
 
-### 3.2 Manual QA (Playwright)
+### 2.2 Chat History Download
 **Status**: pending
-**What**: Verify public journey: `/` -> `/guides` -> article, `/about`, `/privacy`, `/terms`, `/contact`, `/robots.txt`, `/sitemap.xml`. All load without login.
-**Command**: `npx playwright test`
+**What**: Connect existing `downloadChatAsText()` utility to UI button after performance ends.
+**Cost**: 0 (already implemented in `src/utils/chatDownload.ts`)
+**Files**: `src/app/live/[id]/page.tsx`
 
-### 3.3 Security Regression
+### 2.3 Explore Map/Grid Toggle
 **Status**: pending
-**Commands**:
-```bash
-node test-suite/security/mutating-writes.test.js
-node test-suite/lifecycle/read-only.test.js
-node test-suite/realtime/authority.test.js
-node test-suite/api-tester.js
-powershell -ExecutionPolicy Bypass -File .\test-suite\one-click-test.ps1
-```
+**What**: Add toggle button in `src/app/explore/page.tsx` to switch between grid view and Leaflet map view.
+**Cost**: 0 (Leaflet already installed)
+**Files**: `src/app/explore/page.tsx`
+
+### 2.4 Avatar Selection UI (Audience)
+**Status**: pending
+**What**: Reuse Singer.hairColor/topColor/bottomColor fields for audience avatar selection UI.
+**Cost**: Low (extend existing fields)
+**Files**: New `src/components/audience/AvatarSelector.tsx`
+
+### 2.5 Web Push Notifications
+**Status**: pending
+**What**: Service Worker + Web Push API for 30min/10min/5min before performance.
+**Cost**: Medium (standard approach, skip FCM)
+**Files**: `public/sw.js`, `src/hooks/usePush.ts`, `prisma/schema.prisma` (Profile.pushToken)
+
+---
+
+## Phase3: Singer Dashboard (Priority 3 - MEDIUM COST)
+
+### 3.1 Pad Split View (CSS Responsive)
+**Status**: pending
+**What**: Improve `src/app/live/[id]/page.tsx` for Pad: left=setlist, right=reactions+chat.
+**Cost**: Low (CSS media queries)
+**Files**: `src/app/live/[id]/page.tsx`
+
+### 3.2 Dashboard Config Storage
+**Status**: pending
+**What**: Add `dashboardConfig` JSON field to Singer model for layout preferences.
+**Cost**: Medium (Prisma migration)
+**Files**: `prisma/schema.prisma`, `src/app/singer/dashboard/page.tsx`
+
+### 3.3 Team Features
+**Status**: pending
+**What**: Implement team formation, member management using Singer.teamId.
+**Cost**: Medium
+**Files**: `prisma/schema.prisma` (Team model?), `src/app/singer/team/`
+
+---
+
+## Phase4: AdSense Approval (Priority 4 - LOW COST)
+
+### 4.1 Robots & Sitemap
+**Status**: pending
+**What**: Add `src/app/robots.ts`, `src/app/sitemap.ts`, allow Mediapartners-Google.
+**Cost**: 0
+**Files**: `src/app/robots.ts`, `src/app/sitemap.ts`
+
+### 4.2 Public Pages (About/Privacy/Terms/Contact)
+**Status**: pending
+**What**: Create static pages with Korean content, disclose Google cookies.
+**Cost**: Low
+**Files**: `src/app/about/page.tsx`, etc.
+
+### 4.3 Guide Content (20 articles)
+**Status**: pending
+**What**: Write 20 Korean guide articles, build `/guides` system.
+**Cost**: Low (content only)
+**Files**: `src/app/guides/`, `src/content/guides/`
+
+---
+
+## Phase5: Deferred to Future (Low Priority, High Cost)
+
+### 5.1 Team Features (if not done in Phase3)
+### 5.2 Streaming (activate `streamingEnabled`)
+### 5.3 Admin Dashboard (if traffic grows)
+### 5.4 Venue Provider (if needed later)
+
+---
+
+## Phase6: Dropped (Unnecessary per User Request)
+
+- ❌ AWS Docker Chat Server (current Socket.io is fine)
+- ❌ AWS Scale-up (manual monitoring sufficient)
+- ❌ ApplePay, NaverPay (Stripe+KakaoPay sufficient)
+- ❌ AirDrop share (iOS usage low)
+- ❌ Venue Provider (singer self-registration is fine)
+- ❌ Corporate Ads (AdSense instead)
+- ❌ Grade/Tier System (complex, low initial need)
+- ❌ 30-min Venue Booking Unit (unnecessary)
 
 ---
 
@@ -137,3 +153,4 @@ powershell -ExecutionPolicy Bypass -File .\test-suite\one-click-test.ps1
 - **in_progress**: Currently working on
 - **done**: Completed and verified
 - **blocked**: Waiting on dependency
+- **[LOCKED - DO NOT TOUCH]**: Do NOT modify completed work
