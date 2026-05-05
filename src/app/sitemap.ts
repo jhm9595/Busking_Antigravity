@@ -1,10 +1,10 @@
-import { MetadataRoute, getServerSideURL } from 'next'
+import { type MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-static'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = (getServerSideURL() || process.env.NEXT_PUBLIC_APP_URL || 'https://minimic.app').replace(/\/$/, '')
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://minimic.app').replace(/\/$/, '')
 
   // Static pages
   const staticPages = [
@@ -19,17 +19,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Dynamic singer pages (only verified singers)
   try {
-    const singers = await prisma.singer.findMany({
-      where: { isVerified: true },
-      select: { id: true, updatedAt: true },
-    })
+     const singers = await prisma.singer.findMany({
+       where: { isVerified: true },
+       select: { id: true },
+     })
 
-    const singerPages = singers.map(s => ({
-      url: `${baseUrl}/singer/${s.id}`,
-      lastModified: s.updatedAt,
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
-    }))
+     const singerPages = singers.map(s => ({
+       url: `${baseUrl}/singer/${s.id}`,
+       changeFrequency: 'weekly' as const,
+       priority: 0.6,
+     }))
 
     return [...staticPages, ...singerPages]
   } catch (error) {

@@ -1,10 +1,9 @@
-import { MetadataRoute } from 'next'
-import { NEXT_PUBLIC_APP_URL } from 'next/env'
+import { type MetadataRoute } from 'next'
 
 export const dynamic = 'force-static'
 
-export const metadata: MetadataRoute = {
-  robots: {
+export default function robots(): MetadataRoute.Robots {
+  return {
     rules: [
       {
         userAgent: 'Googlebot',
@@ -25,6 +24,6 @@ export const metadata: MetadataRoute = {
         disallow: ['/dashboard', '/singer/dashboard', '/live', '/api/', '/private/'],
       },
     ],
-    sitemap: `${NEXT_PUBLIC_APP_URL || 'https://minimic.app'}/sitemap.xml`,
-  },
+    sitemap: `${process.env.NEXT_PUBLIC_APP_URL || 'https://minimic.app'}/sitemap.xml`,
+  }
 }

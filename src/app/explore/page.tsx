@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { List, Map as MapIcon, LogOut, X, User as UserIcon, Radio, Calendar } from 'lucide-react'
+import { List, ListFilter, Map as MapIcon, LogOut, X, User as UserIcon, Radio, Calendar } from 'lucide-react'
 import { getEffectiveStatus } from '@/utils/performance'
 import { useClerk, useUser } from '@clerk/nextjs'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -190,77 +190,86 @@ export default function ExplorePage() {
     return (
         <>
         <title>{`${t('home.explore_title')} | miniMic`}</title>
-        <div className="min-h-screen flex flex-col bg-background text-foreground overflow-hidden">
+        <div className="h-[100dvh] flex flex-col bg-background text-foreground overflow-hidden">
             <header className="w-full border-b bg-background z-10 shadow-sm shrink-0">
-                <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-2 md:gap-4">
-                        <h1 className="text-lg md:text-2xl font-black text-primary truncate uppercase tracking-tighter">{t('home.explore_title')}</h1>
+                <div className="max-w-7xl mx-auto px-3 md:px-6 py-2 md:py-3 flex flex-col gap-2">
+                    <div className="flex justify-between items-center min-w-0">
+                        <h1 className="text-base md:text-2xl font-black text-primary truncate uppercase tracking-tighter min-w-0">{t('home.explore_title')}</h1>
+                        {isAuthenticated ? (
+                            <button
+                                onClick={handleLogout}
+                                className="p-2 h-11 w-11 flex items-center justify-center border border-border rounded-xl hover:bg-accent text-muted transition-all active:scale-95 shrink-0"
+                                title="Logout"
+                                aria-label="Logout"
+                            >
+                                <LogOut className="w-4 h-4" />
+                            </button>
+                        ) : (
+                            <div className="hidden md:flex items-center gap-2 text-xs text-muted opacity-60 shrink-0">
+                                <span className="font-medium">{t('home.guest_notice')}</span>
+                            </div>
+                        )}
                     </div>
-                    <div className="flex items-center gap-2 md:gap-3">
+                    <div className="flex items-center gap-1.5 md:gap-3 overflow-x-auto">
                         {/* Status Filter Buttons */}
-                        <div className="flex bg-accent rounded-xl p-1">
+                        <div className="flex bg-accent rounded-xl p-1 shrink-0">
                             <button
                                 onClick={() => setStatusFilter('live')}
-                                className={`px-2 md:px-3 py-1.5 rounded-lg flex items-center text-xs font-bold transition-all ${statusFilter === 'live' ? 'bg-red-600 text-white shadow' : 'text-muted hover:text-foreground'}`}
+                                className={`h-11 px-2 md:px-3 flex items-center justify-center gap-1 text-xs font-bold rounded-lg transition-all ${statusFilter === 'live' ? 'bg-red-600 text-white shadow' : 'text-muted hover:text-foreground'}`}
                                 title={t('home.filter_live')}
+                                aria-label={t('home.filter_live')}
                             >
-                                <Radio className="w-3 h-3 md:w-4 md:h-4 animate-pulse" /> <span className="hidden sm:inline ml-1">{t('home.filter_live')}</span>
+                                <Radio className="w-3.5 h-3.5 animate-pulse shrink-0" /><span className="hidden md:inline">{t('home.filter_live')}</span>
                             </button>
                             <button
                                 onClick={() => setStatusFilter('scheduled')}
-                                className={`px-2 md:px-3 py-1.5 rounded-lg flex items-center text-xs font-bold transition-all ${statusFilter === 'scheduled' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground'}`}
+                                className={`h-11 px-2 md:px-3 flex items-center justify-center gap-1 text-xs font-bold rounded-lg transition-all ${statusFilter === 'scheduled' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground'}`}
                                 title={t('home.filter_scheduled')}
+                                aria-label={t('home.filter_scheduled')}
                             >
-                                <Calendar className="w-3 h-3 md:w-4 md:h-4" /> <span className="hidden sm:inline ml-1">{t('home.filter_scheduled')}</span>
+                                <Calendar className="w-3.5 h-3.5 shrink-0" /><span className="hidden md:inline">{t('home.filter_scheduled')}</span>
                             </button>
                             <button
                                 onClick={() => setStatusFilter('all')}
-                                className={`px-2 md:px-3 py-1.5 rounded-lg flex items-center text-xs font-bold transition-all ${statusFilter === 'all' ? 'bg-card shadow text-primary' : 'text-muted hover:text-foreground'}`}
+                                className={`h-11 px-2 md:px-3 flex items-center justify-center gap-1 text-xs font-bold rounded-lg transition-all ${statusFilter === 'all' ? 'bg-card shadow text-primary' : 'text-muted hover:text-foreground'}`}
                                 title={t('home.filter_all')}
+                                aria-label={t('home.filter_all')}
                             >
-                                <span>{t('home.filter_all')}</span>
+                                <ListFilter className="w-3.5 h-3.5 shrink-0" /><span className="hidden md:inline">{t('home.filter_all')}</span>
                             </button>
                         </div>
-                        <div className="flex bg-accent rounded-xl p-1">
+                        {/* View Mode Buttons */}
+                        <div className="flex bg-accent rounded-xl p-1 shrink-0">
                             <button
                                 onClick={() => setViewMode('map')}
-                                className={`p-2 rounded-lg flex items-center text-xs md:text-sm font-bold transition-all ${viewMode === 'map' ? 'bg-card shadow text-primary' : 'text-muted'}`}
+                                className={`h-11 px-2 md:px-3 flex items-center justify-center gap-1 text-xs font-bold rounded-lg transition-all ${viewMode === 'map' ? 'bg-card shadow text-primary' : 'text-muted'}`}
+                                title={t('home.view_map')}
+                                aria-label={t('home.view_map')}
                             >
-                                <MapIcon className="w-4 h-4 md:w-5 md:h-5 md:mr-1" /> <span className="hidden md:inline">{t('home.view_map')}</span>
+                                <MapIcon className="w-4 h-4 shrink-0" /><span className="hidden md:inline">{t('home.view_map')}</span>
                             </button>
                             <button
                                 onClick={() => setViewMode('grid')}
-                                className={`p-2 rounded-lg flex items-center text-xs md:text-sm font-bold transition-all ${viewMode === 'grid' ? 'bg-card shadow text-primary' : 'text-muted'}`}
+                                className={`h-11 px-2 md:px-3 flex items-center justify-center gap-1 text-xs font-bold rounded-lg transition-all ${viewMode === 'grid' ? 'bg-card shadow text-primary' : 'text-muted'}`}
+                                title={t('home.view_list')}
+                                aria-label={t('home.view_list')}
                             >
-                                <List className="w-4 h-4 md:w-5 md:h-5 md:mr-1" /> <span className="hidden md:inline">{t('home.view_list')}</span>
+                                <List className="w-4 h-4 shrink-0" /><span className="hidden md:inline">{t('home.view_list')}</span>
                             </button>
                         </div>
-                        {isAuthenticated ? (
-                            <>
-                                <button
-                                    onClick={fetchFollowing}
-                                    className="px-3 py-2 bg-primary/10 text-primary border border-primary/20 rounded-xl text-xs md:text-sm font-black transition-all hover:bg-primary/20 shadow-sm uppercase"
-                                >
-                                    {t('home.following_btn')}
-                                </button>
-                                <button
-                                    onClick={handleLogout}
-                                    className="p-2 md:px-3 md:py-2 border border-border rounded-xl hover:bg-accent flex items-center text-muted transition-all active:scale-95 shadow-sm"
-                                    title="Logout"
-                                >
-                                    <LogOut className="w-4 h-4 md:w-5 md:h-5" />
-                                </button>
-                            </>
-                        ) : (
-                            <div className="hidden md:flex items-center gap-2 text-xs text-muted opacity-60">
-                                <span className="font-medium">{t('home.guest_notice')}</span>
-                            </div>
+                        {isAuthenticated && (
+                            <button
+                                onClick={fetchFollowing}
+                                className="h-11 px-2 md:px-3 flex items-center justify-center gap-1 bg-primary/10 text-primary border border-primary/20 rounded-xl text-xs font-black transition-all hover:bg-primary/20 shadow-sm uppercase shrink-0"
+                            >
+                                <UserIcon className="w-4 h-4 shrink-0" /><span className="hidden md:inline">{t('home.following_btn')}</span>
+                            </button>
                         )}
                     </div>
                 </div>
             </header>
 
-            <main className="relative h-screen w-full overflow-hidden bg-gray-50">
+            <main className="relative min-h-0 flex-1 w-full overflow-hidden bg-gray-50">
                 {!isAuthenticated && showDemoBanner && (
                     <div className="absolute left-3 right-3 top-3 z-20 md:left-6 md:right-6 md:top-4">
                         <DemoBanner
