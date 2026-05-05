@@ -163,14 +163,26 @@ io.on('connection', (socket) => {
   console.log(`User Connected: ${socket.id}`);
 
   socket.on('join_room', async (data) => {
-    const { performanceId, username, userType, capacity = 50 } = data;
+    const { performanceId, username, capacity = 50 } = data;
     if (!performanceId) return;
 
-    // Validate userType
-    if (!['singer', 'audience'].includes(userType)) {
-      console.warn(`Invalid userType from ${socket.id}: ${userType}`);
-      socket.emit('join_error', { message: '잘못된 사용자 유형입니다.' });
-      return;
+    // SECURITY: Do NOT trust userType from client. Look up from Redis.
+    // The Next.js API sets auth:{socketId} when user authenticates.
+    const authKey = `auth:${socket.id}`;
+    let userType = 'audience'; // default, unprivileged
+    let singerId = null;
+
+    try {
+      const authData = await redisClient.get(authKey);
+      if (authData) {
+        const parsed = JSON.parse(authData);
+        if (parsed.performanceId === performanceId) {
+          userType = parsed.userType || 'audience';
+          singerId = parsed.singerId || null;
+        }
+      }
+    } catch (err) {
+      console.error('Auth lookup failed:', err);
     }
 
     const sockets = await io.in(performanceId).fetchSockets();
@@ -181,16 +193,15 @@ io.on('connection', (socket) => {
       return;
     }
 
-    // Store auth info in socket data (NOT trusted for privileged actions)
-    socket.data = { performanceId, userType, username };
+    // Store auth info in socket data (verified from Redis, not client)
+    socket.data = { performanceId, userType, username, singerId };
     
-    // Also store in Redis for cross-process auth checks
-    const authKey = `auth:${socket.id}`;
+    // Refresh Redis TTL on join
     await redisClient.set(authKey, JSON.stringify({
       performanceId,
       userType,
       username,
-      // singerId should be set after Next.js API verification
+      singerId
     }), 'EX', 86400);
 
     socket.join(performanceId);
