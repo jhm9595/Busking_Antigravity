@@ -18,6 +18,8 @@ const isPublicRoute = createRouteMatcher([
     '/api/performances(.*)',
     '/api/songs(.*)',
     '/api/singers(.*)',
+    // Admin routes - temporary for development (uses Supabase auth, not Clerk)
+    '/admin(.*)',
 ])
 
 function addCorsHeaders(response: NextResponse) {

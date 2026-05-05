@@ -669,3 +669,57 @@ export async function getTeamMembers(teamId: string) {
     orderBy: { createdAt: 'asc' }
   })
 }
+
+// Withdraw user - delete all user data
+export async function withdrawUser(userId: string) {
+  try {
+    // Delete in order to respect foreign key constraints
+    // 1. Delete performance songs
+    await prisma.performanceSong.deleteMany({
+      where: { performance: { singerId: userId } }
+    })
+    
+    // 2. Delete performances
+    await prisma.performance.deleteMany({
+      where: { singerId: userId }
+    })
+    
+    // 3. Delete songs
+    await prisma.song.deleteMany({
+      where: { singerId: userId }
+    })
+    
+    // 4. Delete booking requests
+    await prisma.bookingRequest.deleteMany({
+      where: { singerId: userId }
+    })
+    
+    // 5. Delete follows
+    await prisma.follow.deleteMany({
+      where: { OR: [{ singerId: userId }, { fanId: userId }] }
+    })
+    
+    // 6. Delete point transactions
+    await prisma.pointTransaction.deleteMany({
+      where: { profileId: userId }
+    })
+    
+    // 7. Delete singer profile
+    await prisma.singer.deleteMany({
+      where: { id: userId }
+    })
+    
+    // 8. Delete profile
+    await prisma.profile.deleteMany({
+      where: { id: userId }
+    })
+    
+    revalidatePath('/')
+    revalidatePath('/singer/dashboard')
+    
+    return { success: true }
+  } catch (error) {
+    console.error('Withdrawal error:', error)
+    return { success: false, error }
+  }
+}

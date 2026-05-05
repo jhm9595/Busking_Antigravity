@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useUser, useClerk } from '@clerk/nextjs'
-import { Music, Clock, MessageSquare, Users, Share2, Shield, Calendar } from 'lucide-react'
+import { Music, Clock, MessageSquare, Users, Share2, Shield, Calendar, X } from 'lucide-react'
 import SongManagement from '@/components/singer/SongManagement'
 import PerformanceManagement from '@/components/singer/PerformanceManagement'
 import BookingRequestsList from '@/components/singer/BookingRequestsList'
@@ -51,8 +51,6 @@ export default function SingerDashboard() {
     }
 
     const triggerSongsRefresh = () => setSongsRefreshKey(prev => prev + 1)
-
-    const [teamMembers, setTeamMembers] = useState<any[]>([])
 
     useEffect(() => {
         if (!singerData?.teamId) {

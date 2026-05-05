@@ -9,6 +9,33 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Admin {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  role            String    @default("admin") // "super_admin", "moderator"
+  permissions     String?   // JSON string for granular permissions
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+  @@map("admins")
+}
+
+model Venue {
+  id              String    @id @default(cuid())
+  name            String
+  address         String?
+  lat             Float?
+  lng             Float?
+  ownerId        String?   @map("owner_id")
+  isVerified      Boolean   @default(false) @map("is_verified")
+  description     String?
+  images          String?   // JSON array of image URLs
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+  @@map("venues")
+}
+
 model Profile {
   id         String   @id
   email      String?
@@ -18,24 +45,24 @@ model Profile {
   points     Int      @default(0) // Added for point system
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
-
+  
   singer     Singer?
   transactions PointTransaction[] // Relation to transactions
-
+  
   @@map("profiles")
 }
 
 model PointTransaction {
-  id            String   @id @default(uuid())
+  id            String   @id @default(cuid())
   profileId     String   @map("profile_id")
   amount        Int      // Positive for earning/charging, negative for spending
   type          String   // "CHARGE", "SPONSORSHIP", "CHAT_OPEN", "REWARD", "AD_REWARD"
   description   String?
   targetSingerId String?  @map("target_singer_id") // For sponsorship tracking
   createdAt     DateTime @default(now()) @map("created_at")
-
+  
   profile       Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-
+  
   @@map("point_transactions")
 }
 
@@ -58,12 +85,12 @@ model Singer {
   performances    Performance[]
   profile         Profile          @relation(fields: [id], references: [id])
   songs           Song[]
-
+  
   @@map("singers")
 }
 
 model Song {
-  id               String            @id @default(uuid())
+  id               String            @id @default(cuid())
   singerId         String            @map("singer_id")
   title            String
   artist           String
@@ -73,12 +100,12 @@ model Song {
   isRepertoire     Boolean           @default(true) @map("is_repertoire")
   performanceSongs PerformanceSong[]
   singer           Singer            @relation(fields: [singerId], references: [id])
-
+  
   @@map("songs")
 }
 
 model Performance {
-  id               String            @id @default(uuid())
+  id               String            @id @default(cuid())
   singerId         String            @map("singer_id")
   title            String
   locationText     String            @map("location_text")
@@ -97,7 +124,7 @@ model Performance {
   performanceSongs PerformanceSong[]
   singer           Singer            @relation(fields: [singerId], references: [id])
   songRequests     SongRequest[]
-
+  
   @@map("performances")
 }
 
@@ -108,13 +135,13 @@ model PerformanceSong {
   status        String      @default("pending")
   performance   Performance @relation(fields: [performanceId], references: [id], onDelete: Cascade)
   song          Song        @relation(fields: [songId], references: [id], onDelete: Cascade)
-
+  
   @@id([performanceId, songId])
   @@map("performance_songs")
 }
 
 model SongRequest {
-  id            String      @id @default(uuid())
+  id            String      @id @default(cuid())
   performanceId String      @map("performance_id")
   title         String
   artist        String
@@ -122,12 +149,12 @@ model SongRequest {
   createdAt     DateTime    @default(now()) @map("created_at")
   requesterName String      @default("Anonymous") @map("requester_name")
   performance   Performance @relation(fields: [performanceId], references: [id], onDelete: Cascade)
-
+  
   @@map("song_requests")
 }
 
 model BookingRequest {
-  id            String    @id @default(uuid())
+  id            String    @id @default(cuid())
   singerId      String    @map("singer_id")
   requesterName String    @map("requester_name")
   contactInfo   String    @map("contact_info")
@@ -139,17 +166,17 @@ model BookingRequest {
   status        String    @default("pending")
   createdAt     DateTime  @default(now()) @map("created_at")
   singer        Singer    @relation(fields: [singerId], references: [id])
-
+  
   @@map("booking_requests")
 }
 
 model Follow {
-  id        String   @id @default(uuid())
+  id        String   @id @default(cuid())
   singerId  String   @map("singer_id")
   fanId     String   @map("fan_id")
   createdAt DateTime @default(now()) @map("created_at")
   singer    Singer   @relation(fields: [singerId], references: [id], onDelete: Cascade)
-
+  
   @@unique([singerId, fanId])
   @@map("follows")
 }

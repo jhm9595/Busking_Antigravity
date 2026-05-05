@@ -374,6 +374,12 @@ function LivePerformanceContent() {
                                 <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${realtimeStatus === 'connected' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-red-500 animate-pulse'}`}></span>
                                 {realtimeStatus === 'connected' ? t('common.realtime_ok') : t('common.realtime_err')}
                             </span>
+                            {performance?.streamingEnabled && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full border bg-red-500/10 border-red-500/20 text-red-400">
+                                    <span className="w-1.5 h-1.5 rounded-full mr-1.5 bg-red-500 animate-pulse"></span>
+                                    Streaming
+                                </span>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -384,7 +390,16 @@ function LivePerformanceContent() {
                             <span className="text-sm font-mono font-black">{userPoints.toLocaleString()}P</span>
                         </div>
                     </div>
-                        {!performance?.chatEnabled && (
+                    {performance?.streamingEnabled && (
+                        <div className="hidden md:flex flex-col items-center justify-center px-4 border-r border-border">
+                            <div className="text-[9px] uppercase font-black text-gray-500 tracking-[0.2em] mb-0.5">Streaming</div>
+                            <div className="flex items-center gap-1.5 text-red-500">
+                                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                                <span className="text-xs font-bold">LIVE</span>
+                            </div>
+                        </div>
+                    )}
+                    {!performance?.chatEnabled && (
                             <button
                                 onClick={() => handleOpenChat(true)}
                                 disabled={isEnablingChat}
@@ -449,6 +464,24 @@ function LivePerformanceContent() {
                     </button>
                 )}
             </div>
+
+            {/* Streaming Preview - shown when streaming is enabled */}
+            {performance?.streamingEnabled && (
+                <div className="px-4 py-3 bg-red-500/5 border-b border-red-500/20">
+                    <div className="flex items-center justify-between max-w-7xl mx-auto">
+                        <div className="flex items-center gap-3">
+                            <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
+                            <span className="text-sm font-bold text-red-400">STREAMING ENABLED</span>
+                        </div>
+                        <button
+                            onClick={() => window.open('https://youtube.com/live_dashboard', '_blank')}
+                            className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg border border-red-500/30 transition-all"
+                        >
+                            Streaming Setup
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="flex-1 min-h-0 relative">
                 {isMobile ? (

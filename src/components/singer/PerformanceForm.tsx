@@ -292,21 +292,18 @@ export default function PerformanceForm({ singerId, allSongs, availablePoints, o
                     </div>
                 </div>
 
-{/* Streaming option hidden - will be implemented later */}
-                {/* 
-                <label className={`${styles.checkboxLabel} mb-4 block`}>
+                <label className={styles.checkboxLabel}>
                     <input
                         type="checkbox"
                         checked={newPerf.streaming_enabled}
-                        className={`${styles.checkbox} opacity-50 cursor-not-allowed`}
-                        disabled
+                        onChange={(e) => setNewPerf({ ...newPerf, streaming_enabled: e.target.checked })}
+                        className={styles.checkbox}
                     />
                     <span className={styles.checkboxText}>
-                        {t('performance.form.enable_streaming')} <span className="text-red-500 text-xs font-bold ml-1">{t('performance.form.streaming_beta')}</span>
+                        {t('performance.form.enable_streaming')} <span className="text-blue-500 text-xs font-bold ml-1">{t('performance.form.streaming_new')}</span>
                     </span>
                     <p className="text-xs text-[var(--color-text-muted)] mt-1 ml-6">* {t('performance.form.streaming_help')}</p>
                 </label>
-                */}
 
                 <label className={styles.checkboxLabel}>
                     <input
