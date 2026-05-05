@@ -41,7 +41,7 @@ export default function DemoExplorePage() {
     singerId: demoData.singerId,
   })) || []
 
-  const filtered = performances.filter(p => {
+  const filtered = performances.filter((p: any) => {
     if (filter === 'all') return true
     return p.status === filter
   })
@@ -143,13 +143,13 @@ export default function DemoExplorePage() {
           </section>
         ) : (
           <section className="rounded-[28px] border border-white/8 bg-white/[0.04] p-4">
-            <BuskingMap />
+            <BuskingMap performances={performances} isLoggedIn={false} />
           </section>
         )}
 
         {/* Google Ad for AdSense crawling */}
         <section className="mt-8">
-          <GoogleAd />
+          <GoogleAd slot="demo-ad-slot" />
         </section>
       </main>
     </div>
