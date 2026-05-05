@@ -41,7 +41,16 @@
 **Tests**: `node test-suite/realtime/authority.test.js`
 
 ### 1.5 Refresh Regression & Smoke Coverage
-**Status**: pending
+**Status**: done
+
+**What was done:**
+- Refreshed `test-suite/api-tester.js` to match current API response shape (filters: live/scheduled/followed)
+- Refreshed `test-suite/chat-tester.js` to verify new authorizeSingerControl() guards
+- Added anonymous booking rejection test
+- Updated smoke tests to check all privileged event guards (open_chat, system_alert, performance_ended, chat_status_toggled)
+- Source-level checks now verify authorizeSingerControl() presence in all privileged event handlers
+
+**Files changed**: `test-suite/api-tester.js`, `test-suite/chat-tester.js`
 **What**: Bring `test-suite/` into alignment with refreshed contracts. Replace stale assumptions in `api-tester.js` and `chat-tester.js`. Add final automated smoke path.
 **Files**: `test-suite/api-tester.js`, `test-suite/chat-tester.js`, `test-suite/one-click-test.ps1`, `tests/live-auth-smoke.spec.ts`
 
