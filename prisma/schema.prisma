@@ -51,6 +51,7 @@ model Singer {
   bottomColor     String?          @map("bottom_color")
   isVerified      Boolean          @default(false) @map("is_verified")
   fanCount        Int              @default(0) @map("fan_count")
+  dashboardConfig  String?          @map("dashboard_config") // JSON config for dashboard layout
   createdAt       DateTime         @default(now()) @map("created_at")
   bookingRequests BookingRequest[]
   follows         Follow[]

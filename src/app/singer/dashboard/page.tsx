@@ -9,7 +9,7 @@ import SongManagement from '@/components/singer/SongManagement'
 import PerformanceManagement from '@/components/singer/PerformanceManagement'
 import BookingRequestsList from '@/components/singer/BookingRequestsList'
 import SingerQRCard from '@/components/singer/SingerQRCard'
-import { syncUserProfile, getSinger, registerSinger, updateSingerProfile, getPerformances, updatePerformanceStatus, withdrawUser, updateNickname, getUserPoints, chargePoints } from '@/services/singer'
+import { syncUserProfile, getSinger, registerSinger, updateSingerProfile, getPerformances, updatePerformanceStatus, withdrawUser, updateNickname, getUserPoints, chargePoints, updateTeamId, getTeamMembers } from '@/services/singer'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ConfirmationModal from '@/components/common/ConfirmationModal'
 import FollowersList from '@/components/singer/FollowersList'
@@ -25,13 +25,14 @@ export default function SingerDashboard() {
     const [isSyncing, setIsSyncing] = useState(true)
     const [isSinger, setIsSinger] = useState(false)
     const [singerData, setSingerData] = useState<any>(null)
-    const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { } })
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => {} })
     const [songsRefreshKey, setSongsRefreshKey] = useState(0)
     const [origin, setOrigin] = useState('')
     const [currentTime, setCurrentTime] = useState(new Date())
     const [userPoints, setUserPoints] = useState(0)
     const [showChargeModal, setShowChargeModal] = useState(false)
     const [isStarting, setIsStarting] = useState(false)
+    const [teamMembers, setTeamMembers] = useState<any[]>([])
 
     useEffect(() => {
         setOrigin(window.location.origin)
@@ -50,6 +51,34 @@ export default function SingerDashboard() {
     }
 
     const triggerSongsRefresh = () => setSongsRefreshKey(prev => prev + 1)
+
+    const [teamMembers, setTeamMembers] = useState<any[]>([])
+
+    useEffect(() => {
+        if (!singerData?.teamId) {
+            setTeamMembers([])
+            return
+        }
+        getTeamMembers(singerData.teamId).then(setTeamMembers)
+    }, [singerData?.teamId])
+
+    const handleJoinTeam = async (teamId: string) => {
+        if (!user?.id) return
+        const res = await updateTeamId(user.id, teamId)
+        if (res.success) {
+            const data = await getSinger(user.id)
+            setSingerData(data)
+        }
+    }
+
+    const handleLeaveTeam = async () => {
+        if (!user?.id) return
+        const res = await updateTeamId(user.id, null)
+        if (res.success) {
+            const data = await getSinger(user.id)
+            setSingerData(data)
+        }
+    }
 
     const formatDateTime = () => {
         const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', month: 'long', day: 'numeric' }
@@ -308,7 +337,7 @@ export default function SingerDashboard() {
                     <div className="xl:col-span-4 space-y-10">
                         <div className="sticky top-28 space-y-10">
                             <section className="bg-primary/5 rounded-[40px] border border-border p-2 backdrop-blur-md shadow-2xl">
-                                <SingerQRCard
+                                <SingerQRCard 
                                     singerId={singerId}
                                     displayId={displayId}
                                     nickname={singerData?.stageName}
@@ -325,6 +354,67 @@ export default function SingerDashboard() {
                                     }}
                                 />
                             </section>
+
+                            {/* Team Section */}
+                            {singerData?.teamId ? (
+                                <section className="bg-card rounded-2xl xl:rounded-[40px] border border-border p-4 md:p-6 overflow-hidden">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h2 className="text-xl font-black flex items-center gap-3">
+                                            <Users className="w-6 h-6 text-primary" />
+                                            <span>{t('dashboard.team.title')}</span>
+                                            <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{teamMembers.length}</span>
+                                        </h2>
+                                        <button 
+                                            onClick={handleLeaveTeam}
+                                            className="p-2 hover:bg-white/10 rounded-xl text-red-500 transition-all"
+                                            title={t('dashboard.team.leave')}
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                    <div className="space-y-3">
+                                        {teamMembers.map((member: any) => (
+                                            <div key={member.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-white font-bold">
+                                                    {(member.stageName || 'T').charAt(0)}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-bold text-sm truncate">{member.stageName}</p>
+                                                    <p className="text-[10px] text-gray-500 font-bold uppercase">{member.fanCount} fans</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {teamMembers.length === 0 && (
+                                            <p className="text-center text-sm text-gray-500 py-4">{t('dashboard.team.empty')}</p>
+                                        )}
+                                    </div>
+                                </section>
+                            ) : (
+                                <section className="bg-card rounded-2xl xl:rounded-[40px] border border-border p-4 md:p-6">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <Users className="w-6 h-6 text-primary" />
+                                        <h2 className="text-xl font-black">{t('dashboard.team.join_title')}</h2>
+                                    </div>
+                                    <p className="text-sm text-gray-500 mb-4">{t('dashboard.team.join_desc')}</p>
+                                    <div className="flex gap-2">
+                                        <input 
+                                            type="text" 
+                                            placeholder={t('dashboard.team.team_id_placeholder')}
+                                            className="flex-1 px-3 py-2 rounded-xl border border-border bg-white/5 text-sm"
+                                            id="teamIdInput"
+                                        />
+                                        <button 
+                                            onClick={() => {
+                                                const input = document.getElementById('teamIdInput') as HTMLInputElement
+                                                if (input?.value) handleJoinTeam(input.value)
+                                            }}
+                                            className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-bold hover:bg-primary/90 transition-all"
+                                        >
+                                            {t('dashboard.team.join_btn')}
+                                        </button>
+                                    </div>
+                                </section>
+                            )}
 
                             <section className="bg-card rounded-2xl xl:rounded-[40px] border border-border p-2 overflow-hidden">
                                 <SongManagement onSongsUpdated={triggerSongsRefresh} />

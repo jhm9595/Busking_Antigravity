@@ -649,12 +649,23 @@ export async function createBookingRequest(data: {
     })
 }
 
-export async function withdrawUser(userId: string) {
-    try {
-        await prisma.profile.delete({ where: { id: userId } })
-        return { success: true }
-    } catch (error) {
-        console.error('Withdraw failed:', error)
-        return { success: false, error }
-    }
+export async function updateTeamId(singerId: string, teamId: string | null) {
+  try {
+    await prisma.singer.update({
+      where: { id: singerId },
+      data: { teamId }
+    })
+    revalidatePath(`/singer/${singerId}`)
+    revalidatePath('/singer/dashboard')
+    return { success: true }
+  } catch (error) {
+    return { success: false, error }
+  }
+}
+
+export async function getTeamMembers(teamId: string) {
+  return await prisma.singer.findMany({
+    where: { teamId },
+    orderBy: { createdAt: 'asc' }
+  })
 }
