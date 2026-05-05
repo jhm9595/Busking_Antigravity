@@ -1,53 +1,49 @@
-# miniMic Busking Antigravity
+# minimic
 
-miniMic is a Next.js application for connecting street performers and audiences through live performance discovery, real-time chat, song requests, sponsorship, points, artist profiles, and location-based explore flows.
+Street performance revolution - a platform for buskers and audiences.
 
-## Start Here
-
-AI agents must read `AGENTS.md` before doing any work.
-
-Human and AI reference docs:
-
-- `AGENTS.md`: mandatory operating rules for AI agents
-- `docs/pm-directive.md`: current priority, owner, and acceptance criteria
-- `docs/qa-checklist.md`: regression and release QA checklist
-- `docs/handoff-template.md`: standard handoff format
-- `test-suite/README.md`: executable test-suite reference
-
-## Tech Stack
-
-- Next.js 15 App Router
-- TypeScript
-- Tailwind CSS
-- Prisma with PostgreSQL
-- Clerk authentication
-- Socket.io realtime server
-- React Leaflet maps
-- Zustand state management
-
-## Common Commands
+## Quick Start
 
 ```bash
+# Install dependencies
 npm install
-npx prisma generate
+
+# Start dev server (Next.js + realtime server)
 npm run dev
-npm run lint
+
+# Build
 npm run build
+
+# Start production
+npm run start
+
+# Database
+npx prisma generate
+npx prisma db push
 ```
 
-Use the most targeted command first, then widen verification when confidence grows.
+## Environment
 
-## Environment Variables
+Copy `.env.example` to `.env.local` and fill in required keys:
+- Clerk (auth)
+- PostgreSQL (via docker-compose or Supabase)
+- Stripe (payments)
+- Google Maps API
+- AdSense Client ID
 
-Required names vary by environment. Never commit values.
+## Docs
 
-- `DATABASE_URL`
-- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
-- `CLERK_SECRET_KEY`
-- `KAKAO_PAY_SECRET_KEY`
-- `NEXT_PUBLIC_REALTIME_SERVER_URL`
-- `DISCORD_WEBHOOK_URL` for workflow notifications only
+All project documentation lives in [`docs/`](./docs/):
 
-## Repository Discipline
+- **[docs/README.md](./docs/README.md)** - Documentation structure and policy
+- **[docs/charter.md](./docs/charter.md)** - What this project is, scope, constraints
+- **[docs/architecture.md](./docs/architecture.md)** - Tech stack, folder map, key patterns
+- **[docs/tasks.md](./docs/tasks.md)** - Ordered task list (single source of truth)
 
-The root checkout is a coordination view. Active implementation, QA artifacts, and design artifacts should use task branches or role-specific worktrees unless the user explicitly says otherwise.
+## Stack
+
+Next.js 16 (App Router) / TypeScript / Prisma + PostgreSQL / Socket.io / Clerk / Tailwind CSS 4 / Stripe / AdSense
+
+## Support
+
+support@busking.minibig.pw
