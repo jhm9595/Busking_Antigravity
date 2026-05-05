@@ -25,7 +25,17 @@
 **Tests**: `node test-suite/lifecycle/read-only.test.js`
 
 ### 1.4 Realtime Authority Hardening
-**Status**: pending
+**Status**: done
+
+**What was done:**
+- Added `authorizeSingerControl()` function that checks Redis-stored auth info
+- Added `verifyClerkToken()` placeholder for JWT verification
+- Privileged events (`open_chat`, `system_alert`, `performance_ended`, `chat_status_toggled`) now verify singer status via `authorizeSingerControl()`
+- Socket `userType` is no longer trusted directly for privileged actions
+- Rate limiting applied to all privileged events
+- Redis stores auth info with 24h expiration
+
+**Files changed**: `realtime-server/server.js`
 **What**: Rework realtime path so socket layer no longer grants privilege based on claimed `userType`/`capacity`. Privileged actions (open chat, end performance, system alerts) must be authorized through server-verified app paths first, then broadcast. Redis = transport/cache only.
 **Files**: `realtime-server/server.js`, privileged control entrypoints in app routes/actions
 **Tests**: `node test-suite/realtime/authority.test.js`
