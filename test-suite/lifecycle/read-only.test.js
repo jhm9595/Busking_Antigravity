@@ -25,55 +25,55 @@ function readSource(fsModule, pathModule, relativePath) {
 }
 
 function runGetRouteNoWriteCase(routePath, routeSource, evaluateGetHandlerNoWriteContract) {
-  const noWriteContract = evaluateGetHandlerNoWriteContract(routePath, routeSource)
-  const usesSharedResolverImport = /from ['"]@\/lib\/performance-lifecycle['"]/.test(routeSource)
-  const usesSharedResolverCall = /resolvePerformanceLifecycleStatus\(/.test(routeSource)
+    const noWriteContract = evaluateGetHandlerNoWriteContract(routePath, routeSource)
+    const usesSharedResolverImport = /from ['"]@\/lib\/performance-lifecycle['"]/.test(routeSource)
+    const usesSharedResolverCall = /resolvePerformanceStatus\(/.test(routeSource)
 
-  return {
-    pass:
-      noWriteContract.passesNoWriteContract === true &&
-      usesSharedResolverImport &&
-      usesSharedResolverCall,
-    expected: 'GET route is read-only and uses shared lifecycle resolver',
-    details: {
-      noWriteContract,
-      usesSharedResolverImport,
-      usesSharedResolverCall
+    return {
+        pass:
+            noWriteContract.passesNoWriteContract === true &&
+            usesSharedResolverImport &&
+            usesSharedResolverCall,
+        expected: 'GET route is read-only and uses shared lifecycle resolver',
+        details: {
+            noWriteContract,
+            usesSharedResolverImport,
+            usesSharedResolverCall
+        }
     }
-  }
 }
 
 function runStaleLifecycleConsistencyCase(sourceMap) {
-  const lifecycleSource = sourceMap['src/lib/performance-lifecycle.ts']
-  const utilsSource = sourceMap['src/utils/performance.ts']
-  const performancesRouteSource = sourceMap['src/app/api/performances/route.ts']
-  const singerRouteSource = sourceMap['src/app/api/singers/[id]/route.ts']
+    const lifecycleSource = sourceMap['src/lib/performance-lifecycle.ts']
+    const utilsSource = sourceMap['src/utils/performance.ts']
+    const performancesRouteSource = sourceMap['src/app/api/performances/route.ts']
+    const singerRouteSource = sourceMap['src/app/api/singers/[id]/route.ts']
 
-  const hasFallbackWindow = /FALLBACK_DURATION_MS\s*=\s*3\s*\*\s*60\s*\*\s*60\s*\*\s*1000/.test(lifecycleSource)
-  const hasAutoCompleteTransition = /now\s*>=\s*end[\s\S]*return\s*'completed'/.test(lifecycleSource)
-  const hasAutoLiveTransition = /now\s*>=\s*start[\s\S]*return\s*'live'/.test(lifecycleSource)
-  const uiDelegatesToSharedResolver = /return\s+resolvePerformanceLifecycleStatus\(performance\)/.test(utilsSource)
-  const performancesRouteUsesSharedResolver = /resolvePerformanceLifecycleStatus\(/.test(performancesRouteSource)
-  const singerRouteUsesSharedResolver = /resolvePerformanceLifecycleStatus\(/.test(singerRouteSource)
+    const hasFallbackWindow = /DEFAULT_DURATION_MS\s*=\s*3\s*\*\s*60\s*\*\s*60\s*\*\s*1000/.test(lifecycleSource)
+    const hasAutoCompleteTransition = /now\s*>=\s*end[\s\S]*return\s*'completed'/.test(lifecycleSource)
+    const hasAutoLiveTransition = /now\s*>=\s*start[\s\S]*return\s*'live'/.test(lifecycleSource)
+    const uiDelegatesToSharedResolver = /getEffectiveStatus\(/.test(utilsSource)
+    const performancesRouteUsesSharedResolver = /resolvePerformanceStatus\(/.test(performancesRouteSource)
+    const singerRouteUsesSharedResolver = /resolvePerformanceStatus\(/.test(singerRouteSource)
 
-  return {
-    pass:
-      hasFallbackWindow &&
-      hasAutoCompleteTransition &&
-      hasAutoLiveTransition &&
-      uiDelegatesToSharedResolver &&
-      performancesRouteUsesSharedResolver &&
-      singerRouteUsesSharedResolver,
-    expected: 'stale scheduled/live records resolve consistently from one shared read resolver',
-    details: {
-      hasFallbackWindow,
-      hasAutoCompleteTransition,
-      hasAutoLiveTransition,
-      uiDelegatesToSharedResolver,
-      performancesRouteUsesSharedResolver,
-      singerRouteUsesSharedResolver
+    return {
+        pass:
+            hasFallbackWindow &&
+            hasAutoCompleteTransition &&
+            hasAutoLiveTransition &&
+            uiDelegatesToSharedResolver &&
+            performancesRouteUsesSharedResolver &&
+            singerRouteUsesSharedResolver,
+        expected: 'stale scheduled/live records resolve consistently from one shared read resolver',
+        details: {
+            hasFallbackWindow,
+            hasAutoCompleteTransition,
+            hasAutoLiveTransition,
+            uiDelegatesToSharedResolver,
+            performancesRouteUsesSharedResolver,
+            singerRouteUsesSharedResolver
+        }
     }
-  }
 }
 
 function runCanceledNormalizationCase(sourceMap) {

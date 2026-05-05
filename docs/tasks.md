@@ -3,9 +3,15 @@
 > Single source of truth for what to do next.
 > Update this file after completing each task. Completed items stay for context continuity.
 
+### 1.7 Pre-Deploy Verification Pipeline
+**Status**: done **[LOCKED - DO NOT TOUCH]**
+**What**: Create pre-deploy pipeline that runs all tests (lint, build, security, lifecycle, API smoke, Playwright) before allowing deployment. Fail-fast: any check fails = deploy blocked.
+**Files**: `test-suite/pre-deploy.ps1` (new), `test-suite/PRE-DEPLOY.md` (new), `src/lib/lifecycle-contract.js` (new), `src/lib/security-contract.js` (new), `package.json` (added predeploy script)
+**Tests**: `npm run predeploy` runs full pipeline
+
 ---
 
-## Phase 1: Security Hardening (Priority 1)
+## Phase1: Security Hardening (Priority 1)
 
 ### 1.1 Shared Auth & Lifecycle Contracts
 **Status**: done **[LOCKED - DO NOT TOUCH]**
@@ -23,6 +29,7 @@
 **What**: Introduce shared lifecycle resolver for API+UI read paths. Remove Prisma writes from GET handlers. Normalize canceled/cancelled spelling at resolver boundary.
 **Files**: New shared resolver, `src/app/api/performances/route.ts`, `src/app/api/singers/[id]/route.ts`, `src/utils/performance.ts`
 **Tests**: `node test-suite/lifecycle/read-only.test.js`
+**Commit**: 80cbe2c (singers/[id] GET now uses resolvePerformanceStatus from @/lib/performance-lifecycle)
 
 ### 1.4 Realtime Authority Hardening
 **Status**: done
@@ -31,24 +38,12 @@
 **Status**: done
 
 ### 1.6 Fix Anonymous Song Requests
-**Status**: in_progress
+**Status**: done **[LOCKED - DO NOT TOUCH]**
 
-**What**: Add auth check to POST /api/song-requests (auth() is commented out)
+**What**: Add auth check to POST /api/song-requests (auth() was commented out)
 **Files**: `src/app/api/song-requests/route.ts`
 **Verification**: Anonymous POST → 401, Authenticated POST → success
-
-**What was done:**
-- Added `authorizeSingerControl()` function that checks Redis-stored auth info
-- Added `verifyClerkToken()` placeholder for JWT verification
-- Privileged events (`open_chat`, `system_alert`, `performance_ended`, `chat_status_toggled`) now verify singer status via `authorizeSingerControl()`
-- Socket `userType` is no longer trusted directly for privileged actions
-- Rate limiting applied to all privileged events
-- Redis stores auth info with 24h expiration
-
-**Files changed**: `realtime-server/server.js`
-**What**: Rework realtime path so socket layer no longer grants privilege based on claimed `userType`/`capacity`. Privileged actions (open chat, end performance, system alerts) must be authorized through server-verified app paths first, then broadcast. Redis = transport/cache only.
-**Files**: `realtime-server/server.js`, privileged control entrypoints in app routes/actions
-**Tests**: `node test-suite/realtime/authority.test.js`
+**Commit**: db6cb20
 
 ### 1.5 Refresh Regression & Smoke Coverage
 **Status**: done

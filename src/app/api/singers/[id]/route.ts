@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { resolvePerformanceStatus } from '@/lib/performance-lifecycle'
 
 export async function GET(
     request: Request,
@@ -24,56 +25,20 @@ export async function GET(
             )
         }
 
-        // Auto-update performance status: Close stale live/scheduled sessions
-        // PERFORMANCE FIX: Use batch updates instead of N+1 queries
-        const now = new Date()
-        const toComplete: string[] = []
-        const toLive: string[] = []
-
-        singer.performances.forEach((p) => {
+        // Compute performance status in-memory using shared resolver (GET = read-only)
+        const resolvedPerformances = singer.performances.map(p => {
             const start = new Date(p.startTime)
-            // Use endTime if present, otherwise assume 3 hours max duration from start
-            const end = p.endTime ? new Date(p.endTime) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
-
-            if (end < now && (p.status === 'live' || p.status === 'scheduled')) {
-                toComplete.push(p.id)
-            } else if (start <= now && p.status === 'scheduled') {
-                toLive.push(p.id)
-            }
-        })
-
-        // Batch update all at once
-        await prisma.$transaction([
-            ...toComplete.map(id =>
-                prisma.performance.update({
-                    where: { id },
-                    data: { status: 'completed' }
-                })
-            ),
-            ...toLive.map(id =>
-                prisma.performance.update({
-                    where: { id },
-                    data: { status: 'live' }
-                })
-            )
-        ])
-
-        // Map updated statuses
-        const statusMap = new Map<string, string>()
-        toComplete.forEach(id => statusMap.set(id, 'completed'))
-        toLive.forEach(id => statusMap.set(id, 'live'))
-
-        const updatedPerformances = singer.performances.map(p => {
-            const newStatus = statusMap.get(p.id)
-            return newStatus ? { ...p, status: newStatus } : p
+            const end = p.endTime ? new Date(p.endTime) : null
+            const { status } = resolvePerformanceStatus(start, end, p.status)
+            return status !== p.status ? { ...p, status } : p
         })
 
         // Sort by startTime ASC (Earliest first)
-        updatedPerformances.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+        resolvedPerformances.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
 
         return NextResponse.json({
             ...singer,
-            performances: updatedPerformances
+            performances: resolvedPerformances
         })
     } catch (error) {
         console.error('Error fetching singer:', error)
