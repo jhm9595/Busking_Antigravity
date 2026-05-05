@@ -8,18 +8,18 @@
 ## Phase 1: Security Hardening (Priority 1)
 
 ### 1.1 Shared Auth & Lifecycle Contracts
-**Status**: done
+**Status**: done **[LOCKED - DO NOT TOUCH]**
 **What**: Inventory mutating surfaces, create shared server-side auth/ownership guard, create shared lifecycle resolver, add test harnesses under `test-suite/security/` and `test-suite/lifecycle/`.
 **Files**: `src/services/singer.ts`, `src/app/api/*`, `test-suite/security/`, `test-suite/lifecycle/`
 
 ### 1.2 Lock Down Mutating Writes (Server-Side Identity)
-**Status**: done
+**Status**: done **[LOCKED - DO NOT TOUCH]**
 **What**: Refactor all mutating server actions and REST routes to derive identity from Clerk, resolve ownership from Prisma. Cover `src/services/singer.ts`, `POST /api/singers/[id]/follow`, `POST /api/song-requests`, `POST /api/booking`.
 **Files**: `src/services/singer.ts`, `src/app/api/singers/[id]/follow/route.ts`, `src/app/api/song-requests/route.ts`, `src/app/api/booking/route.ts`
 **Tests**: `node test-suite/security/mutating-writes.test.js`
 
 ### 1.3 Make Lifecycle Read-Only & Shared
-**Status**: done
+**Status**: done **[LOCKED - DO NOT TOUCH]**
 **What**: Introduce shared lifecycle resolver for API+UI read paths. Remove Prisma writes from GET handlers. Normalize canceled/cancelled spelling at resolver boundary.
 **Files**: New shared resolver, `src/app/api/performances/route.ts`, `src/app/api/singers/[id]/route.ts`, `src/utils/performance.ts`
 **Tests**: `node test-suite/lifecycle/read-only.test.js`
@@ -76,7 +76,7 @@
 **Files**: `src/components/home/LandingPage.tsx`, `public/guide-draft.html`, `public/guide-i18n-board.html`
 
 ### 2.8 AdSense Approval Ops Runbook
-**Status**: done (docs only)
+**Status**: done (docs only) **[LOCKED - DO NOT TOUCH]**
 **What**: Create runbook covering Search Console verification, sitemap submission, robots check, AdSense application, post-activation crawler login. Include `support@busking.minibig.pw`.
 **Files**: `docs/adsense-ops.md` (new)
 
