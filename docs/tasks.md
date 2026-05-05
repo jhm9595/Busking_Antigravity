@@ -27,6 +27,16 @@
 ### 1.4 Realtime Authority Hardening
 **Status**: done
 
+### 1.5 Refresh Regression & Smoke Coverage
+**Status**: done
+
+### 1.6 Fix Anonymous Song Requests
+**Status**: in_progress
+
+**What**: Add auth check to POST /api/song-requests (auth() is commented out)
+**Files**: `src/app/api/song-requests/route.ts`
+**Verification**: Anonymous POST → 401, Authenticated POST → success
+
 **What was done:**
 - Added `authorizeSingerControl()` function that checks Redis-stored auth info
 - Added `verifyClerkToken()` placeholder for JWT verification
